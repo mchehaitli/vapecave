@@ -271,12 +271,20 @@ const HomePage = () => {
                 Frisco's Premier <span className="text-primary">Vape</span> & <span className="text-primary">Smoke Shop</span>
               </motion.h1>
               <motion.p 
-                className="text-base md:text-lg mb-4 text-foreground/90 font-medium max-w-4xl mx-auto leading-relaxed"
+                className="text-base md:text-lg mb-2 text-foreground/90 font-medium max-w-4xl mx-auto leading-relaxed"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
               >
-                Located on Main St. | Open Daily 10AM - Midnight
+                Located on Main Street in Frisco's newly developed Rail District
+              </motion.p>
+              <motion.p 
+                className="text-base md:text-lg mb-4 text-primary font-semibold max-w-4xl mx-auto leading-relaxed"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+              >
+                Open Daily 10AM - Midnight
               </motion.p>
               <motion.div 
                 className="inline-block bg-primary/20 border border-primary/50 rounded-lg px-4 py-2 mb-6"
