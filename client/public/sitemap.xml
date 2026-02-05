@@ -6,7 +6,7 @@
   <!-- Homepage -->
   <url>
     <loc>https://vapecavetx.com/</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -18,7 +18,7 @@
   <!-- Main Locations Page -->
   <url>
     <loc>https://vapecavetx.com/locations</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -30,7 +30,7 @@
   <!-- Frisco Location -->
   <url>
     <loc>https://vapecavetx.com/locations/frisco</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <local:localBusiness>
@@ -51,7 +51,7 @@
   <!-- Products Main Page -->
   <url>
     <loc>https://vapecavetx.com/products</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -59,7 +59,7 @@
   <!-- Products Category Pages -->
   <url>
     <loc>https://vapecavetx.com/products/disposable-vapes</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -70,7 +70,7 @@
   
   <url>
     <loc>https://vapecavetx.com/products/vape-devices</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -81,7 +81,7 @@
   
   <url>
     <loc>https://vapecavetx.com/products/delta-8</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -92,7 +92,7 @@
   
   <url>
     <loc>https://vapecavetx.com/products/thc-a</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -103,7 +103,7 @@
   
   <url>
     <loc>https://vapecavetx.com/products/accessories</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <image:image>
@@ -115,35 +115,35 @@
   <!-- Popular Brand Specific Pages -->
   <url>
     <loc>https://vapecavetx.com/products/brands/elf-bar</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://vapecavetx.com/products/brands/lost-mary</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://vapecavetx.com/products/brands/geekvape</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://vapecavetx.com/products/brands/hyde</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://vapecavetx.com/products/brands/uwell-caliburn</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -151,7 +151,7 @@
   <!-- Contact Page -->
   <url>
     <loc>https://vapecavetx.com/contact</loc>
-    <lastmod>2025-03-15</lastmod>
+    <lastmod>2026-02-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

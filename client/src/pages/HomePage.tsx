@@ -268,19 +268,24 @@ const HomePage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
               >
-                <span className="text-primary"> DELIVERY </span>
-                COMING <span className="text-primary">SOON</span>
-            
-                
+                Frisco's Premier <span className="text-primary">Vape</span> & <span className="text-primary">Smoke Shop</span>
               </motion.h1>
               <motion.p 
-                className="text-xs md:text-base lg:text-lg mb-8 text-foreground/90 font-medium max-w-4xl mx-auto leading-relaxed"
+                className="text-base md:text-lg mb-4 text-foreground/90 font-medium max-w-4xl mx-auto leading-relaxed"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
               >
-                [ Sign up now to be one of the first to know when our <span className="text-primary">SAME DAY</span> delivery services begin ]
+                Located on Main St. | Open Daily 10AM - Midnight
               </motion.p>
+              <motion.div 
+                className="inline-block bg-primary/20 border border-primary/50 rounded-lg px-4 py-2 mb-6"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.25 }}
+              >
+                <span className="text-primary font-semibold">DELIVERY COMING SOON</span> - Sign up to be notified!
+              </motion.div>
               <motion.h2 
                 className="text-xl md:text-2xl lg:text-3xl mb-8 text-foreground/90 font-medium max-w-[1100px] mx-auto leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
