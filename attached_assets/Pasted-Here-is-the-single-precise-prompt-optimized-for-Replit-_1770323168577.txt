@@ -1,0 +1,114 @@
+Here is the single, precise prompt optimized for Replit. It includes the verified phone number `(469) 294-0061` and hard-coded technical specifics to ensure the code is perfect.
+
+**Copy everything inside the code block below and paste it directly into your Replit AI chat:**
+
+```markdown
+Act as a Senior React Developer and SEO Specialist. I need you to perform a strict data sanitation and SEO implementation on this Vite/React project.
+
+We are correcting critical business information and implementing Local SEO for Google Maps ranking.
+
+### 🚨 STAGE 1: THE SOURCE OF TRUTH (CONSTANTS)
+Use ONLY these constants. Overwrite ANY existing data in the code that conflicts with this.
+* **Business Name:** Vape Cave
+* **Status:** SINGLE LOCATION ONLY (Frisco, TX).
+* **Address:** 6958 Main St, Suite 200, Frisco, TX 75033
+* **Phone:** (469) 294-0061
+* **Email:** vapecavetx@gmail.com
+* **Hours:** Mon-Sun: 10:00 AM – 12:00 AM (Midnight)
+* **Coordinates:** 33.1507 (Lat), -96.8236 (Long)
+* **Socials:** Remove any Arlington links. Keep Frisco socials.
+
+---
+
+### 🚨 STAGE 2: EXECUTION TASKS
+
+#### TASK 1: "Arlington" Purge (Files: All)
+Search the entire directory for the string "Arlington".
+* If found in a text string (e.g., "Serving Frisco & Arlington"), DELETE " & Arlington".
+* If found in a logic check (e.g., `locations.map`), REMOVE the Arlington object entirely.
+* Ensure the footer and contact page explicitly state we are a **Frisco-only** business.
+
+#### TASK 2: Head & Meta Tags (File: index.html)
+Replace the `<title>` and `<meta name="description">` tags in `index.html` with exactly these:
+* **Title:** `<title>Vape Cave | Frisco's Premier Vape, Smoke & CBD Shop</title>`
+* **Meta Description:** `<meta name="description" content="Visit Vape Cave in Downtown Frisco on Main St. The best selection of disposable vapes, THCA, CBD, Kratom, and glass. Open daily 10AM-Midnight. Call (469) 294-0061." />`
+* **Canonical:** Add `<link rel="canonical" href="https://vapecavetx.com/" />`
+
+#### TASK 3: LocalBusiness Schema Injection (File: index.html)
+Add this EXACT JSON-LD script inside the `<head>` tag. Do not modify the phone number or hours:
+```html
+<script type="application/ld+json">
+{
+  "@context": "[https://schema.org](https://schema.org)",
+  "@type": ["Store", "TobaccoStore", "VaporizerStore"],
+  "name": "Vape Cave",
+  "image": "[https://vapecavetx.com/logo.png](https://vapecavetx.com/logo.png)",
+  "telephone": "(469) 294-0061",
+  "email": "vapecavetx@gmail.com",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "6958 Main St, Suite 200",
+    "addressLocality": "Frisco",
+    "addressRegion": "TX",
+    "postalCode": "75033",
+    "addressCountry": "US"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 33.1507,
+    "longitude": -96.8236
+  },
+  "url": "[https://vapecavetx.com](https://vapecavetx.com)",
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "10:00",
+      "closes": "00:00"
+    }
+  ],
+  "areaServed": ["Frisco", "Plano", "McKinney", "Little Elm", "The Colony"],
+  "priceRange": "$$"
+}
+</script>
+
+```
+
+#### TASK 4: Homepage Hierarchy Fix (File: src/pages/Home.tsx or similar)
+
+The current H1 tag says "DELIVERY COMING SOON". This is bad for SEO.
+
+* **Action:** Change the Hero Section H1 to: `<h1>Frisco's Premier Vape & Smoke Shop</h1>`
+* **Action:** Add a subtitle (H2 or p): "Located on Main St. | Open Daily 10AM - Midnight"
+* **Action:** Move the "Delivery Coming Soon" text to a smaller notification bar or secondary button.
+
+#### TASK 5: Footer Standardization (File: src/components/Footer.tsx)
+
+Hard-code the contact column to match the verified data exactly:
+
+* **Address:** 6958 Main St, Suite 200, Frisco, TX 75033
+* **Phone:** (469) 294-0061
+* **Hours:** Mon-Sun: 10am - 12am
+
+#### TASK 6: Technical Assets (Create in /public folder)
+
+1. Create `public/robots.txt` with:
+```text
+User-agent: *
+Allow: /
+Sitemap: [https://vapecavetx.com/sitemap.xml](https://vapecavetx.com/sitemap.xml)
+
+```
+
+
+2. Create a basic `public/sitemap.xml` that includes `https://vapecavetx.com/` and any main routes found in `App.tsx`.
+
+#### TASK 7: Performance (Images)
+
+* Find all `<img>` tags for product categories. Add `loading="lazy"` and ensuring `alt` tags include the word "Frisco" (e.g., `alt="Disposable Vapes Frisco"`).
+
+**Confirm when you have finished all 7 tasks.**
+
+```
+
+```
