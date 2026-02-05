@@ -712,7 +712,13 @@ const HomePage = () => {
                     <div className="flex flex-wrap gap-1">
                       <span className="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Disposables</span>
                       <span className="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">E-Liquids</span>
+                      <span className="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Salts</span>
+                      <span className="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Glass</span>
+                      <span className="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Tobacco</span>
+                      <span className="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Hookah / Shisha</span>
                       <span className="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Vaporizers</span>
+                      <span className="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Mods</span>
+                      <span className="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">THC-A</span>
                     </div>
                   </motion.div>
                 </motion.div>
