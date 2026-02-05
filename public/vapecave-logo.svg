@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300">
+  <!-- Background rounded rectangle -->
+  <rect x="10" y="80" width="980" height="220" rx="60" ry="60" fill="#FF6A00" stroke="#000" stroke-width="8"/>
+  
+  <!-- VAPE text -->
+  <g fill="#000">
+    <path d="M65,200 l25,-60 l25,60 z" stroke="#000" stroke-width="4" fill="none"/>
+    <path d="M150,140 l-15,60 h20 l15,-40 l15,40 h20 l-15,-60 z"/>
+    <path d="M220,140 h30 a20,20 0 0 1 0,40 h-10 v20 h-20 z"/>
+    <path d="M280,140 h50 v20 h-15 v40 h-20 v-40 h-15 z"/>
+  </g>
+  
+  <!-- CAVE text -->
+  <g fill="#000">
+    <path d="M400,140 a30,30 0 0 0 0,60 h30 v-60 h-30 z M420,160 v20 h-10 a10,10 0 0 1 0,-20 z"/>
+    <path d="M450,140 l-15,60 h20 l15,-40 l15,40 h20 l-15,-60 z"/>
+    <path d="M530,140 l25,60 l25,-60 z" stroke="#000" stroke-width="4" fill="none"/>
+    <path d="M590,140 h50 v20 h-15 v40 h-20 v-40 h-15 z"/>
+  </g>
+  
+  <!-- Smoke & Stuff text -->
+  <text x="500" y="250" font-family="Arial, sans-serif" font-size="40" text-anchor="middle">Smoke &amp; Stuff</text>
+  
+  <!-- Little figures on top -->
+  <g fill="#000">
+    <!-- Person 1 -->
+    <circle cx="80" cy="80" r="10"/>
+    <line x1="80" y1="90" x2="80" y2="120" stroke="#000" stroke-width="6"/>
+    <line x1="80" y1="100" x2="65" y2="115" stroke="#000" stroke-width="4"/>
+    <line x1="80" y1="100" x2="95" y2="115" stroke="#000" stroke-width="4"/>
+    <line x1="80" y1="120" x2="70" y2="145" stroke="#000" stroke-width="4"/>
+    <line x1="80" y1="120" x2="90" y2="145" stroke="#000" stroke-width="4"/>
+    <path d="M75,75 q5,-5 10,5" stroke="#000" fill="none" stroke-width="1.5"/>
+    
+    <!-- Person 2 -->
+    <circle cx="120" cy="105" r="8"/>
+    <line x1="120" y1="113" x2="120" y2="130" stroke="#000" stroke-width="5"/>
+    <line x1="120" y1="120" x2="110" y2="130" stroke="#000" stroke-width="3"/>
+    <line x1="120" y1="120" x2="130" y2="130" stroke="#000" stroke-width="3"/>
+    <line x1="120" y1="130" x2="115" y2="145" stroke="#000" stroke-width="3"/>
+    <line x1="120" y1="130" x2="125" y2="145" stroke="#000" stroke-width="3"/>
+    <path d="M125,100 q5,-5 10,5" stroke="#000" fill="none" stroke-width="1.5"/>
+    
+    <!-- Person 3 -->
+    <circle cx="930" cy="240" r="6"/>
+    <line x1="930" y1="246" x2="930" y2="260" stroke="#000" stroke-width="4"/>
+    <line x1="930" y1="250" x2="920" y2="255" stroke="#000" stroke-width="2"/>
+    <line x1="930" y1="250" x2="940" y2="255" stroke="#000" stroke-width="2"/>
+    <line x1="930" y1="260" x2="925" y2="270" stroke="#000" stroke-width="2"/>
+    <line x1="930" y1="260" x2="935" y2="270" stroke="#000" stroke-width="2"/>
+    <path d="M935,236 q2,-2 3,2" stroke="#000" fill="none" stroke-width="1"/>
+  </g>
+</svg>

@@ -1,0 +1,321 @@
+/* Critical CSS inlined in HTML - only load non-critical styles here */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Concept1 Theme Variables */
+@layer base {
+  :root {
+    /* Light Mode - Concept1 Colors */
+    --background: 0 0% 98%; /* #FAFAFA */
+    --foreground: 0 0% 10%; /* #1A1A1A */
+    
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 0 0% 10%; /* #1A1A1A */
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    
+    --primary: 22 100% 50%; /* #FF7100 - Vibrant Orange */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 110 78% 35%; /* #24A90D - Electric Green */
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 33%; /* #555555 */
+    
+    --accent: 353 96% 65%; /* #FB475E - Hot Pink */
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 4 90% 58%; /* #F44336 - Error Red */
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 22 100% 50%;
+    --radius: 0.5rem;
+  }
+  
+  .dark {
+    /* Dark Mode - Concept1 Colors */
+    --background: 0 0% 10%; /* #1A1A1A */
+    --foreground: 0 0% 98%; /* #FAFAFA */
+    
+    --card: 0 0% 14%; /* #242424 */
+    --card-foreground: 0 0% 88%; /* #E0E0E0 */
+    
+    --popover: 0 0% 14%;
+    --popover-foreground: 0 0% 88%;
+    
+    --primary: 22 100% 50%; /* #FF7100 - Vibrant Orange */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 110 78% 35%; /* #24A90D - Electric Green */
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 88%; /* #E0E0E0 */
+    
+    --accent: 353 96% 65%; /* #FB475E - Hot Pink */
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 4 90% 58%; /* #F44336 - Error Red */
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 22 100% 50%;
+  }
+}
+
+/* Critical CSS for above-the-fold content */
+@layer base {
+  /* Optimize font loading */
+  html {
+    font-display: swap;
+  }
+  
+  /* Prevent layout shift */
+  img {
+    height: auto;
+    max-width: 100%;
+  }
+  
+  /* Optimize animations for performance */
+  @media (prefers-reduced-motion: no-preference) {
+    .will-change-transform {
+      will-change: transform;
+    }
+    
+    .will-change-opacity {
+      will-change: opacity;
+    }
+  }
+  
+  /* Remove animations for users who prefer reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Performance-optimized loading states */
+  .lazy-load {
+    opacity: 0;
+    transition: opacity 300ms ease-in-out;
+  }
+  
+  .lazy-load.loaded {
+    opacity: 1;
+  }
+  
+  /* Skeleton loading optimizations */
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, transparent 37%, transparent 63%, #f0f0f0 75%);
+    background-size: 400% 100%;
+    animation: skeleton-loading 1.4s ease-in-out infinite;
+  }
+  
+  @keyframes skeleton-loading {
+    0% { background-position: 100% 50%; }
+    100% { background-position: -100% 50%; }
+  }
+  
+  /* Optimize heavy shadows and effects */
+  .optimized-shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Critical button styles */
+  .btn-primary {
+    @apply bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+}
+
+@layer utilities {
+  /* Performance utilities */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  .contain-layout {
+    contain: layout;
+  }
+  
+  .contain-paint {
+    contain: paint;
+  }
+  
+  .contain-strict {
+    contain: strict;
+  }
+  
+  /* Focus management for accessibility */
+  .focus-visible:focus-visible {
+    outline: 2px solid #0066cc;
+    outline-offset: 2px;
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .text-gray-300 { color: #ffffff !important; }
+    .text-gray-400 { color: #e5e5e5 !important; }
+    .text-gray-500 { color: #cccccc !important; }
+    .text-gray-600 { color: #b3b3b3 !important; }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+
+  /* Custom dark theme overrides */
+  .bg-dark {
+    background-color: #111111;
+  }
+  
+  .bg-darker {
+    background-color: #000000;
+  }
+  
+  .bg-medium {
+    background-color: #1a1a1a;
+  }
+  
+  .bg-light {
+    background-color: #2a2a2a;
+  }
+  
+  .card-dark {
+    background-color: #1a1a1a;
+    color: #f0f0f0;
+    border: 1px solid #333333;
+  }
+}
+
+@layer utilities {
+  .bg-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  /* Brand image size enhancement classes */
+  .brand-image {
+    @apply transition-all duration-300;
+    transform-origin: center center;
+  }
+  
+  .brand-image-small {
+    transform: scale(1.4);
+  }
+  
+  .brand-image-medium {
+    transform: scale(1.2);
+  }
+  
+  .brand-image-large {
+    transform: scale(1.05);
+  }
+  
+  /* Dark themed maps with styling - stronger version */
+  .dark-map {
+    filter: invert(92%) hue-rotate(180deg) brightness(95%) contrast(85%);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Lighter dark theme for maps where markers need to be visible */
+  .dark-map-light {
+    filter: invert(85%) hue-rotate(180deg) brightness(97%) contrast(90%);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Smooth scroll navigation */
+  .scroll-nav-link {
+    @apply transition-colors duration-200 ease-in-out px-4 py-2 rounded-lg;
+  }
+  
+  .scroll-nav-link:hover {
+    @apply bg-primary/10;
+  }
+  
+  .scroll-nav-link.active {
+    @apply bg-primary/20 text-primary font-medium;
+  }
+  
+  /* Scroll indicator */
+  .scroll-indicator {
+    @apply fixed z-50 bottom-8 left-1/2 transform -translate-x-1/2 flex items-center justify-center animate-bounce;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  .scroll-indicator.visible {
+    opacity: 1;
+  }
+  
+  /* Page transition effects */
+  .page-transition-wrapper {
+    position: relative;
+    overflow: hidden;
+    min-height: 100%;
+  }
+  
+  .page-transition-fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
+  }
+  
+  .page-transition-slide-up {
+    animation: slideUp 0.5s ease-in-out forwards;
+  }
+  
+  .page-transition-slide-from-right {
+    animation: slideFromRight 0.5s ease-in-out forwards;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideFromRight {
+    from { 
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}

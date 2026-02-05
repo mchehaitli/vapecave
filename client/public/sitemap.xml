@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:local="http://www.google.com/schemas/sitemap-local-business/1.0">
+  <!-- Homepage -->
+  <url>
+    <loc>https://vapecavetx.com/</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://vapecavetx.com/vapecave-logo.png</image:loc>
+      <image:title>Vape Cave - Premium Vaping Products &amp; Accessories</image:title>
+    </image:image>
+  </url>
+  
+  <!-- Main Locations Page -->
+  <url>
+    <loc>https://vapecavetx.com/locations</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://vapecavetx.com/locations-banner.jpg</image:loc>
+      <image:title>Vape Cave Store Locations in Texas</image:title>
+    </image:image>
+  </url>
+  
+  <!-- Frisco Location -->
+  <url>
+    <loc>https://vapecavetx.com/locations/frisco</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <local:localBusiness>
+      <local:name>Vape Cave Frisco</local:name>
+      <local:address>6958 Main St #200, Frisco, TX 75033, United States</local:address>
+      <local:phone>(469) 294-0061</local:phone>
+      <local:openingHours>Mo-Su 10:00-24:00</local:openingHours>
+      <local:priceRange>$$</local:priceRange>
+      <local:paymentAccepted>Cash, Credit Card, Debit Card</local:paymentAccepted>
+      <local:description>Frisco's premier vape shop offering premium products including Elf Bar, Lost Mary, GeekVape, Delta 8, THC-A, and accessories.</local:description>
+    </local:localBusiness>
+    <image:image>
+      <image:loc>https://vapecavetx.com/frisco-store.jpg</image:loc>
+      <image:title>Vape Cave Frisco TX Store Location</image:title>
+    </image:image>
+  </url>
+  
+  <!-- Products Main Page -->
+  <url>
+    <loc>https://vapecavetx.com/products</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Products Category Pages -->
+  <url>
+    <loc>https://vapecavetx.com/products/disposable-vapes</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://vapecavetx.com/products/disposable-vapes.jpg</image:loc>
+      <image:title>Disposable Vapes at Vape Cave - Elf Bar, Lost Mary, Hyde</image:title>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://vapecavetx.com/products/vape-devices</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://vapecavetx.com/products/vape-devices.jpg</image:loc>
+      <image:title>Premium Vape Devices at Vape Cave - GeekVape, Uwell Caliburn</image:title>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://vapecavetx.com/products/delta-8</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://vapecavetx.com/products/delta-8.jpg</image:loc>
+      <image:title>Delta 8 Products at Vape Cave</image:title>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://vapecavetx.com/products/thc-a</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://vapecavetx.com/products/thc-a.jpg</image:loc>
+      <image:title>THC-A Products at Vape Cave</image:title>
+    </image:image>
+  </url>
+  
+  <url>
+    <loc>https://vapecavetx.com/products/accessories</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://vapecavetx.com/products/accessories.jpg</image:loc>
+      <image:title>Vaping Accessories at Vape Cave</image:title>
+    </image:image>
+  </url>
+  
+  <!-- Popular Brand Specific Pages -->
+  <url>
+    <loc>https://vapecavetx.com/products/brands/elf-bar</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://vapecavetx.com/products/brands/lost-mary</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://vapecavetx.com/products/brands/geekvape</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://vapecavetx.com/products/brands/hyde</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://vapecavetx.com/products/brands/uwell-caliburn</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Contact Page -->
+  <url>
+    <loc>https://vapecavetx.com/contact</loc>
+    <lastmod>2025-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>

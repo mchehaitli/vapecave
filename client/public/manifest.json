@@ -1,0 +1,44 @@
+{
+  "name": "Vape Cave - Premium Vaping Accessories",
+  "short_name": "Vape Cave",
+  "description": "Your premier destination for vaping products and accessories in Frisco and Arlington, Texas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#22c55e",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["shopping", "lifestyle"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/vapecave-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/vapecave-logo.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Store Locations",
+      "short_name": "Locations",
+      "description": "Find our Frisco and Arlington locations",
+      "url": "/locations",
+      "icons": [{ "src": "/vapecave-logo.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Products",
+      "short_name": "Products", 
+      "description": "Browse our product catalog",
+      "url": "/products",
+      "icons": [{ "src": "/vapecave-logo.png", "sizes": "96x96" }]
+    }
+  ]
+}

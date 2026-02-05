@@ -1,0 +1,29 @@
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Highlight important location pages for local SEO
+Allow: /locations/frisco
+Allow: /locations/arlington
+Allow: /locations
+
+# Product pages with category-specific content
+Allow: /products
+Allow: /products/disposable-vapes
+Allow: /products/vape-devices
+Allow: /products/delta-8
+Allow: /products/thc-a
+Allow: /products/accessories
+
+# Brand-specific pages for targeted SEO
+Allow: /products/brands/elf-bar
+Allow: /products/brands/lost-mary
+Allow: /products/brands/geekvape
+Allow: /products/brands/hyde
+Allow: /products/brands/uwell-caliburn
+
+# Sitemap locations with updated date markers
+Sitemap: https://vapecavetx.com/sitemap.xml
+Sitemap: https://vapecavetx.com/news-sitemap.xml
+
+# Optimized for local searches - Last updated: 2025-05-09

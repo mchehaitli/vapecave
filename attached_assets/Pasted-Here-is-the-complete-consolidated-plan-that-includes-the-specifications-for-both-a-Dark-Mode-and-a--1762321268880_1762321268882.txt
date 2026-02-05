@@ -1,0 +1,210 @@
+Here is the complete, consolidated plan that includes the specifications for both a Dark Mode and a Light Mode theme. This single document provides all the instructions for your Replit agent.
+
+VapeCaveTx.com: Complete UI/UX & Technical Plan (Dual Theme)
+This document outlines the design, layout, functionality, and admin requirements for the website, including a dual-theme system (Light & Dark).
+
+🎨 Part 1: Color Palettes & Theme System
+The site should be built to support both themes. A "theme toggle" (e.g., a ☀️/🌙 icon) should be placed in the Global Header to allow users to switch. The admin portal should define the default theme for new visitors.
+
+Dark Mode (Default "Vape Cave" Brand)
+Primary Background: "Charcoal" (#1A1A1A)
+
+Secondary Background (Cards/Modals): "Dark Grey" (#242424)
+
+Typography (Headings): "Pure White" (#FFFFFF)
+
+Typography (Body): "Off-White" (#E0E0E0)
+
+Light Mode
+Primary Background: "Off-White" (#FAFAFA)
+
+Secondary Background (Cards/Modals): "Pure White" (#FFFFFF)
+
+Typography (Headings): "Charcoal" (#1A1A1A)
+
+Typography (Body): "Medium Grey" (#555555)
+
+Accent Colors (Shared by Both Themes)
+Primary Accent (CTA): "Vibrant Orange" (#FF7100)
+
+Usage: Add to Cart, Checkout, Place Order, Sign Up, selected toggles.
+
+Secondary Accent (Info): "Electric Green" (#24A90D)
+
+Usage: "In Stock," "Order Confirmed," "Free Delivery Over $50."
+
+Tertiary Accent (Highlight): "Hot Pink/Magenta" (#FB475E)
+
+Usage: "NEW" badges, "SALE" badges.
+
+Warning/Error: "Standard Red" (#F44336)
+
+Usage: "Out of Stock," error messages.
+
+🏛️ Part 2: Global UI Components (The "Frame")
+1. Global Header
+Design: A "sticky" header that stays fixed to the top.
+
+Theme: Uses the Secondary Background color (#242424 dark, #FFFFFF light) with a subtle box-shadow in Light Mode.
+
+Desktop Location (Left to Right):
+
+Left: vapecavetx.com Logo.
+
+Center: The "Pickup" / "Delivery" toggle.
+
+Right: "My Account" link (uses Typography (Body) color), "Shopping Cart" icon, and the "Theme Toggle" icon (☀️/🌙).
+
+Mobile Behavior:
+
+Still sticky.
+
+Left: "Hamburger" Menu Icon.
+
+Center: vapecavetx.com Logo.
+
+Right: "Shopping Cart" Icon & "Theme Toggle" icon.
+
+"My Account" and "Pickup/Delivery" move inside the Hamburger Menu.
+
+2. Global Footer
+Design: A simple, non-sticky footer.
+
+Theme: Uses the Primary Background color (#1A1A1A dark, #FAFAFA light).
+
+Desktop Location: A single row at the bottom with 3-4 links (e.g., "© 2025 Vape Cave," "Terms of Service") using Typography (Body) color.
+
+Mobile Behavior: The links stack vertically, centered.
+
+🛍️ Part 3: UI/UX Structure & Component Location
+1. The Homepage (The "Digital Storefront")
+Component: Hero Carousel (Slideshow)
+
+Desktop Location: Full-width (edge-to-edge), directly below the Global Header.
+
+Mobile Behavior: Same. Full-width, swipeable.
+
+Component: Featured Products Row
+
+Desktop Location: Below the Hero. A heading (using Typography (Headings) color): "Featured Picks." Below this, a horizontal, scrollable row of 4-5 product cards.
+
+Theme: Each card uses the Secondary Background color.
+
+Mobile Behavior: Becomes a swipeable horizontal carousel (showing 1.5-2 cards).
+
+Component: Category Links
+
+Desktop Location: Below "Featured." An h2 heading: "Shop by Category." Below this, a 3-column grid of large, clickable blocks.
+
+Theme: Each block uses the Secondary Background color.
+
+Mobile Behavior: Becomes a 2-column grid.
+
+Component: Promotion/Deal Section
+
+Desktop Location: Below "Categories." A 2-column grid of promotional banners.
+
+Mobile Behavior: The 2 columns stack vertically.
+
+2. The Product Listing Page (PLP) (e.g., "All Products")
+Component: Advanced Filtering
+
+Desktop Location: A permanent left-hand sidebar (approx. 25% width).
+
+Theme: Sidebar uses the Secondary Background color.
+
+Mobile Behavior: The sidebar is hidden. A "Filters" button (using Primary Accent (CTA) color) appears at the top. When tapped, a full-screen modal/bottom-sheet appears.
+
+Component: Product Grid
+
+Desktop Location: The main content area (approx. 75% width). At the top-right is a "Sort By" dropdown. Below is a 3 or 4-column grid of Product Cards.
+
+Theme: The main area uses Primary Background. The Product Cards use Secondary Background.
+
+Mobile Behavior: "Sort By" is at the top. Grid becomes a 2-column grid.
+
+3. The Product Detail "Quick View" (As a Pop-Up Modal)
+Desktop Location: A modal window that overlays the page. The page behind is dimmed.
+
+Theme: The modal uses the Secondary Background color.
+
+Desktop Layout (Inside Modal):
+
+Two-column layout: Left (40%) for Image Gallery, Right (60%) for Info.
+
+Right Column Info: Product Name (uses Typography (Headings)), Price, Description (uses Typography (Body)), Dropdown selectors, Quantity Selector, and a large, full-width Primary Accent (CTA) "Add to Cart" button.
+
+"Close (X)" icon in the top-right.
+
+Mobile Behavior:
+
+The modal becomes full-screen.
+
+It stacks vertically: (1) Header with "Close (X)", (2) Image Gallery, (3) Product Info.
+
+Bottom (Sticky): The Quantity Selector and the Primary Accent (CTA) "Add to Cart" button must be stuck to the bottom of the screen for easy thumb access.
+
+4. The Customer Account Dashboard
+Desktop Location: A standard two-column layout.
+
+Left Column: A navigation menu (My Profile, Order History, etc.) on a Secondary Background card.
+
+Right Column: The content for the selected menu item on the Primary Background.
+
+Mobile Behavior:
+
+The left navigation menu is replaced by a dropdown menu at the top of the page.
+
+✨ Part 4: Animations & Effects
+Hover Effects:
+
+Buttons: All Primary Accent (CTA) buttons should slightly brighten or "lift" (transform: translateY(-2px);) on hover.
+
+Product Cards: On hover, the card should scale up subtly (transform: scale(1.03);) or (in Light Mode) its box-shadow should grow.
+
+Add to Cart Animation:
+
+User clicks "Add to Cart."
+
+The button text immediately becomes a "Loading Spinner."
+
+After 1 second, the spinner becomes a "Checkmark ✔" (using Secondary Accent (Info) green).
+
+The "Shopping Cart" icon in the Global Header "jiggles" or "pulses" once.
+
+Page Load:
+
+Lazy Loading: As the user scrolls down the product grid, new product cards should fade in gently from the bottom (opacity: 0; to opacity: 1;).
+
+📋 Part 5: Instructions for Replit Agent (Admin Portal Requirements)
+A web-based Admin Portal is required to manage the following without any coding:
+
+1. Product & Catalog Management:
+
+Products: Full CRUD (Create, Read, Update, Delete) for all products.
+
+Fields: Must be able to edit: Product Name, Brand, Price, Sale Price, Description (rich-text), Product Images (multi-upload), Stock Quantity.
+
+Badges: Toggles for "Featured," "New" (Tertiary Accent (Highlight) pink), and "Popular."
+
+Categories: Full CRUD for categories.
+
+Product-Category Linking: An easy way to assign categories to a product.
+
+2. Marketing & Storefront Content:
+
+Hero Carousel: Interface to upload new images, add a heading, and add a link for each slide.
+
+Promotions Section: Interface to change the images and text for the homepage "Deals" blocks.
+
+Top Info Bar: A text field to edit the "Free delivery over $50" message.
+
+3. Order & Customer Management:
+
+Orders: Dashboard to view all new orders. Must be able to update an Order Status ("Pending," "Processing," "Out for Delivery," "Delivered," "Canceled").
+
+Customers: A list of all registered customers with a button to "Approve" or "Reject" new registrations and view their Order History.
+
+4. Site Settings:
+
+Default Theme: A simple toggle/dropdown to select the default theme (Dark or Light) for first-time visitors.

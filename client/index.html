@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vapecave-logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Critical resource hints -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://checkout.clover.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://maps.googleapis.com">
+    <link rel="preconnect" href="https://checkout.clover.com" crossorigin>
+    
+    <!-- Clover eCommerce SDK for payment processing (Production) -->
+    <script src="https://checkout.clover.com/sdk.js"></script>
+    
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Critical meta tags for performance -->
+    <meta name="theme-color" content="#22c55e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Vape Cave">
+    
+    <!-- Optimized font loading with display: swap -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- Fallback for font loading -->
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap">
+    </noscript>
+    
+    <!-- Defer Font Awesome loading -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </noscript>
+    
+    <!-- Critical inline CSS to prevent FOUC -->
+    <style>
+      /* Critical above-the-fold styles */
+      html { font-display: swap; }
+      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
+      .loading-skeleton { background-color: #f9fafb; min-height: 100vh; }
+      
+      /* Prevent layout shift during font loading */
+      .font-poppins { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; }
+      .font-open-sans { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
+      
+      /* Critical loading animation */
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+      .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+    
+    <title>Vape Cave - Premium Vaping Accessories | Frisco & Arlington, TX</title>
+    <meta name="description" content="Premium vaping accessories and products at Vape Cave. Visit our Frisco and Arlington, Texas locations for the best selection of vapes, e-liquids, and accessories." />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="vape, vaping, e-cigarettes, e-liquids, vape shop, vape accessories, Frisco, Arlington, Texas" />
+    <meta name="author" content="Vape Cave" />
+    <meta property="og:title" content="Vape Cave - Premium Vaping Accessories" />
+    <meta property="og:description" content="Your premier destination for vaping products in Frisco and Arlington, Texas" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://vapecavetx.com" />
+    <meta property="og:image" content="https://vapecavetx.com/vapecave-logo.png" />
+    
+    <!-- Google Maps with Places API - Key injected by Vite -->
+    <script id="google-maps-script-placeholder"></script>
+  </head>
+  <body>
+    <div id="root">
+      <!-- Loading fallback with skeleton -->
+      <div class="loading-skeleton animate-pulse">
+        <div style="height: 64px; background-color: #e5e7eb; margin-bottom: 16px;"></div>
+        <div style="padding: 16px; max-width: 1200px; margin: 0 auto;">
+          <div style="height: 32px; background-color: #e5e7eb; border-radius: 4px; margin-bottom: 16px; width: 33%;"></div>
+          <div style="height: 16px; background-color: #e5e7eb; border-radius: 4px; margin-bottom: 8px; width: 66%;"></div>
+          <div style="height: 16px; background-color: #e5e7eb; border-radius: 4px; margin-bottom: 16px; width: 50%;"></div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

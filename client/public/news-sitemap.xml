@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+           xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+     <!-- Blog posts and news updates -->
+     <url>
+       <loc>https://vapecavetx.com/blog/latest-vaping-regulations-texas</loc>
+       <news:news>
+         <news:publication>
+           <news:name>Vape Cave Blog</news:name>
+           <news:language>en</news:language>
+         </news:publication>
+         <news:publication_date>2025-04-28</news:publication_date>
+         <news:title>2025 Update: Latest Vaping Regulations in Texas</news:title>
+       </news:news>
+     </url>
+     <url>
+       <loc>https://vapecavetx.com/blog/new-products-spring-2025</loc>
+       <news:news>
+         <news:publication>
+           <news:name>Vape Cave Blog</news:name>
+           <news:language>en</news:language>
+         </news:publication>
+         <news:publication_date>2025-04-15</news:publication_date>
+         <news:title>Spring 2025: New Products at Vape Cave</news:title>
+       </news:news>
+     </url>
+     <url>
+       <loc>https://vapecavetx.com/blog/beginners-guide-vaping</loc>
+       <news:news>
+         <news:publication>
+           <news:name>Vape Cave Blog</news:name>
+           <news:language>en</news:language>
+         </news:publication>
+         <news:publication_date>2025-03-22</news:publication_date>
+         <news:title>The Complete Beginner's Guide to Vaping in 2025</news:title>
+       </news:news>
+     </url>
+   </urlset>
+   
