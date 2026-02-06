@@ -74,19 +74,16 @@ const Navigation = () => {
 
   return (
     <header className="bg-primary sticky top-0 z-50 shadow-lg backdrop-blur-sm bg-opacity-95">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex justify-between items-center">
-          {/* Logo with improved accessibility */}
+      <div className="container mx-auto px-4 py-2">
+        <div className="flex items-center justify-between md:hidden">
           <Link href="/">
             <div className="logo-container cursor-pointer" role="img" aria-label="Vape Cave Smoke & Stuff - Go to homepage">
               <Logo variant="black" location="header" />
             </div>
           </Link>
-
-          {/* Mobile Menu Toggle with improved accessibility */}
           <button
             id="menu-toggle"
-            className="md:hidden text-black focus:outline-none focus:ring-2 focus:ring-black/20 rounded-md"
+            className="text-black focus:outline-none focus:ring-2 focus:ring-black/20 rounded-md"
             onClick={toggleMobileMenu}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
@@ -96,10 +93,18 @@ const Navigation = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
+        </div>
 
-          {/* Desktop Navigation with Semantic Structure */}
-          <nav className="hidden md:flex items-center gap-4 ml-[13px] mr-[13px]" aria-label="Main Navigation">
-            <ul className="flex space-x-8 font-['Poppins'] font-medium" role="menubar">
+        <div className="hidden md:block">
+          <div className="flex justify-center py-1">
+            <Link href="/">
+              <div className="logo-container cursor-pointer" role="img" aria-label="Vape Cave Smoke & Stuff - Go to homepage">
+                <Logo variant="black" location="header" />
+              </div>
+            </Link>
+          </div>
+          <nav className="relative flex items-center justify-center pt-1" aria-label="Main Navigation">
+            <ul className="flex items-center space-x-6 font-['Poppins'] font-medium" role="menubar">
               {navItems.map((item) => (
                 <li key={item.path} role="none">
                   <Link href={item.path}>
@@ -107,7 +112,7 @@ const Navigation = () => {
                       role="menuitem"
                       aria-label={item.ariaLabel}
                       aria-current={location === item.path ? "page" : undefined}
-                      className={`text-black hover:text-white transition-colors cursor-pointer font-medium relative ${
+                      className={`text-black hover:text-white transition-colors cursor-pointer font-medium relative text-sm ${
                         location === item.path 
                           ? 'font-bold after:block after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-black'
                           : 'after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300'
@@ -119,27 +124,29 @@ const Navigation = () => {
                 </li>
               ))}
             </ul>
-            <Link href="/signup">
-              <span
-                className="px-4 py-2 bg-black text-primary rounded-md hover:bg-black/80 transition-all duration-300 font-bold whitespace-nowrap cursor-pointer inline-block"
-                aria-label="Sign up or sign in to your account"
-                data-testid="button-signup-header"
+            <div className="absolute right-0 flex items-center gap-2">
+              <Link href="/signup">
+                <span
+                  className="px-3 py-1.5 bg-black text-primary rounded-md hover:bg-black/80 transition-all duration-300 font-bold whitespace-nowrap cursor-pointer inline-block text-sm"
+                  aria-label="Sign up or sign in to your account"
+                  data-testid="button-signup-header"
+                >
+                  Sign Up/Sign In
+                </span>
+              </Link>
+              <button
+                onClick={toggleTheme}
+                className="p-1.5 rounded-full bg-black/10 hover:bg-black/20 transition-colors"
+                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                data-testid="button-theme-toggle"
               >
-                Sign Up/Sign In
-              </span>
-            </Link>
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full bg-black/10 hover:bg-black/20 transition-colors"
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-              data-testid="button-theme-toggle"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5 text-black" />
-              ) : (
-                <Moon className="h-5 w-5 text-black" />
-              )}
-            </button>
+                {theme === 'dark' ? (
+                  <Sun className="h-4 w-4 text-black" />
+                ) : (
+                  <Moon className="h-4 w-4 text-black" />
+                )}
+              </button>
+            </div>
           </nav>
         </div>
         
