@@ -1,6 +1,6 @@
 import React from "react";
 import whiteLogoImage from "../assets/vapecave-logo-white-transparent.png";
-import darkLogoImage from "../assets/vapecave-logo-dark.jpeg";
+import darkLogoImage from "../assets/vapecave-logo-dark.png";
 
 interface LogoProps {
   variant?: "orange" | "black" | "white" | "dark";
