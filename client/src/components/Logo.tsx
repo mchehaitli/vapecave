@@ -23,7 +23,7 @@ const Logo: React.FC<LogoProps> = ({
       <img 
         src={logoSrc} 
         alt="Vape Cave Smoke & Stuff" 
-        className="h-12 md:h-14 lg:h-[4.2rem] w-auto ml-[-22px] mr-[-22px] pl-[0px] pr-[0px] pt-[0px] pb-[0px]"
+        className="h-12 md:h-14 lg:h-[4.2rem] w-auto pl-[0px] pr-[0px] pt-[0px] pb-[0px] ml-[-4px] mr-[-4px]"
       />
     </div>
   );
