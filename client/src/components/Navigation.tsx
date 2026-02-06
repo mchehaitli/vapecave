@@ -74,7 +74,7 @@ const Navigation = () => {
 
   return (
     <header className="bg-primary sticky top-0 z-50 shadow-lg backdrop-blur-sm bg-opacity-95">
-      <div className="container mx-auto px-4 py-1">
+      <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-between md:hidden">
           <Link href="/">
             <div className="logo-container cursor-pointer" role="img" aria-label="Vape Cave Smoke & Stuff - Go to homepage">
@@ -95,13 +95,13 @@ const Navigation = () => {
           </button>
         </div>
 
-        <div className="hidden md:flex items-center">
+        <div className="hidden md:flex items-center relative">
           <Link href="/">
             <div className="logo-container cursor-pointer shrink-0" role="img" aria-label="Vape Cave Smoke & Stuff - Go to homepage">
               <Logo variant="black" location="header" />
             </div>
           </Link>
-          <nav className="flex-1 relative flex items-center justify-center" aria-label="Main Navigation">
+          <nav className="absolute left-1/2 -translate-x-1/2" aria-label="Main Navigation">
             <ul className="flex items-center space-x-6 font-['Poppins'] font-medium" role="menubar">
               {navItems.map((item) => (
                 <li key={item.path} role="none">
@@ -123,7 +123,7 @@ const Navigation = () => {
               ))}
             </ul>
           </nav>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 ml-auto">
             <Link href="/signup">
               <span
                 className="px-3 py-1.5 bg-black text-primary rounded-md hover:bg-black/80 transition-all duration-300 font-bold whitespace-nowrap cursor-pointer inline-block text-sm"
