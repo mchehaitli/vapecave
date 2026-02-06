@@ -157,7 +157,7 @@ export function DeliveryHeader({
               <img 
                 src="/logo-orange.png" 
                 alt="Vape Cave Smoke & Stuff" 
-                className="h-7 w-auto"
+                className="h-10 w-auto"
               />
               <Badge variant="secondary" className="hidden sm:inline-flex text-xs">
                 Delivery

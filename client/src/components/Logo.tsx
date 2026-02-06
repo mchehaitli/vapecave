@@ -15,8 +15,8 @@ const Logo: React.FC<LogoProps> = ({
   const logoSrc = useDark ? darkLogoImage : whiteLogoImage;
 
   const imgClass = location === "footer"
-    ? "h-[4rem] md:h-[5rem] lg:h-[6rem] w-auto scale-x-[1.1]"
-    : "h-[3.3rem] md:h-[3.85rem] lg:h-[4.62rem] w-auto scale-x-[1.1] ml-[16px] mr-[16px] -my-2 pt-[1px] pb-[1px]";
+    ? "h-[5rem] md:h-[6rem] lg:h-[7rem] w-auto scale-x-[1.1]"
+    : "h-[3.8rem] md:h-[4.5rem] lg:h-[5.2rem] w-auto scale-x-[1.1] ml-[16px] mr-[16px] -my-3 pt-[1px] pb-[1px]";
     
   return (
     <div className="flex items-center">
