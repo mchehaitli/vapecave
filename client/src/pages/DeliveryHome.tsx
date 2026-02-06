@@ -33,20 +33,27 @@ export default function DeliveryHome() {
   const isVideoSlide = currentSlideData?.mediaType === 'video';
 
   useEffect(() => {
+    const addedLinks: HTMLLinkElement[] = [];
     heroSlides.forEach((slide) => {
       const url = slide.mediaUrl || slide.image || '';
       if (!url) return;
       if (slide.mediaType === 'video') {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'video';
-        link.href = url;
-        document.head.appendChild(link);
+        if (!document.querySelector(`link[rel="preload"][href="${url}"]`)) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'video';
+          link.href = url;
+          document.head.appendChild(link);
+          addedLinks.push(link);
+        }
       } else {
         const img = new Image();
         img.src = url;
       }
     });
+    return () => {
+      addedLinks.forEach(link => link.remove());
+    };
   }, [heroSlides]);
 
   useEffect(() => {
