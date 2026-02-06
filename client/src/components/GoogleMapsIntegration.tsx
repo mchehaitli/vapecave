@@ -66,7 +66,7 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
   
   // Extract location information safely
   const locationCity = activeLocationObject?.city || "";
-  const locationName = activeLocationObject ? `Vape Cave ${locationCity}` : "Vape Cave";
+  const locationName = activeLocationObject ? `Vape Cave Smoke & Stuff ${locationCity}` : "Vape Cave Smoke & Stuff";
   const locationId = activeLocationObject?.id || 1;
   
   // Use API key from props if provided, otherwise from environment variables
@@ -101,7 +101,7 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "Store",
-      "name": `Vape Cave ${cityName}`,
+      "name": `Vape Cave Smoke & Stuff ${cityName}`,
       "description": `Premium vape shop in ${cityName}, TX offering a wide selection of vapes, e-liquids, and smoking accessories.`,
       "address": {
         "@type": "PostalAddress",
@@ -371,7 +371,7 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
     
     // Add markers for each location
     const newMarkers = locations.map(location => {
-      // Create a custom marker icon with Vape Cave branding
+      // Create a custom marker icon with Vape Cave Smoke & Stuff branding
       const marker = new google.maps.Marker({
         position: location.position,
         map: newMap,
@@ -514,7 +514,7 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
                 "@type": "GeoCoordinates",
                 "latitude": ${activeLocationObject?.position?.lat || 0},
                 "longitude": ${activeLocationObject?.position?.lng || 0},
-                "name": "Vape Cave ${locationCity} Coordinates"
+                "name": "Vape Cave Smoke & Stuff ${locationCity} Coordinates"
               },
               "telephone": "${activeLocationObject?.phone?.replace(/[^0-9]/g, '') ? '+1' + activeLocationObject.phone.replace(/[^0-9]/g, '') : ''}",
               "email": "info@vapecavetx.com",
@@ -523,7 +523,7 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
               "photo": {
                 "@type": "ImageObject",
                 "contentUrl": "${activeLocationObject?.image || ''}",
-                "description": "Interior of Vape Cave ${locationCity} store"
+                "description": "Interior of Vape Cave Smoke & Stuff ${locationCity} store"
               },
               "currenciesAccepted": "USD",
               "paymentAccepted": "Cash, Credit Card, Debit Card, Apple Pay, Google Pay",
@@ -539,7 +539,7 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
                   "@type": "Map",
                   "name": "Apple Maps Navigation",
                   "url": "${activeLocationObject?.appleMapsLink || `https://maps.apple.com/?address=${encodeURIComponent(activeLocationObject?.address || '')}&ll=${activeLocationObject?.position?.lat || 0},${activeLocationObject?.position?.lng || 0}`}",
-                  "description": "Navigate to Vape Cave ${locationCity} using Apple Maps"
+                  "description": "Navigate to Vape Cave Smoke & Stuff ${locationCity} using Apple Maps"
                 }
               ],
               "openingHoursSpecification": [
@@ -596,7 +596,7 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
         </script>
         {/* Enhanced geo meta tags - recommended by Google for local SEO */}
         <meta name="geo.position" content={`${activeLocationObject?.position?.lat || 0};${activeLocationObject?.position?.lng || 0}`} />
-        <meta name="geo.placename" content={`Vape Cave ${locationCity}`} />
+        <meta name="geo.placename" content={`Vape Cave Smoke & Stuff ${locationCity}`} />
         <meta name="geo.region" content="US-TX" />
         <meta name="ICBM" content={`${activeLocationObject?.position?.lat || 0}, ${activeLocationObject?.position?.lng || 0}`} />
         
@@ -609,7 +609,7 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
         <meta name="place:location:longitude" content={`${activeLocationObject?.position?.lng || 0}`} />
         
         {/* Business contact information - enhanced for improved local search */}
-        <meta name="business-name" content={`Vape Cave ${locationCity}`} />
+        <meta name="business-name" content={`Vape Cave Smoke & Stuff ${locationCity}`} />
         <meta name="business-type" content="Vape Shop" />
         <meta name="business-phone" content={activeLocationObject?.phone ? `+1${activeLocationObject.phone.replace(/[^0-9]/g, '')}` : ""} />
         <meta name="business-email" content={activeLocationObject?.email || "info@vapecavetx.com"} />
@@ -621,16 +621,16 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
         
         {/* Enhanced product categories for better product discovery */}
         <meta name="product-category" content="Vapes, E-Liquids, Disposables, Smoking Accessories" />
-        <meta name="product-brand" content="Vape Cave, Premium Vape Products" />
+        <meta name="product-brand" content="Vape Cave Smoke & Stuff, Premium Vape Products" />
         <meta name="product-availability" content="In Store" />
         
         {/* Dublin Core metadata - for improved structural data recognition */}
-        <meta name="DC.title" content={`Vape Cave ${locationCity} - Premium Vape Shop`} />
-        <meta name="DC.description" content={`Visit Vape Cave in ${locationCity}, TX for premium vaping products, disposables, and smoking accessories.`} />
-        <meta name="DC.publisher" content="Vape Cave" />
+        <meta name="DC.title" content={`Vape Cave Smoke & Stuff ${locationCity} - Premium Vape Shop`} />
+        <meta name="DC.description" content={`Visit Vape Cave Smoke & Stuff in ${locationCity}, TX for premium vaping products, disposables, and smoking accessories.`} />
+        <meta name="DC.publisher" content="Vape Cave Smoke & Stuff" />
         <meta name="DC.contributor" content={`${locationCity} Chamber of Commerce`} />
         <meta name="DC.coverage" content={`${locationCity}, Texas, United States`} />
-        <meta name="DC.rights" content="© 2024 Vape Cave, All Rights Reserved" />
+        <meta name="DC.rights" content="© 2024 Vape Cave Smoke & Stuff, All Rights Reserved" />
         <meta name="DC.format" content="text/html" />
         <meta name="DC.language" content="en-US" />
         <meta name="DC.identifier" content={`https://vapecavetx.com/locations/${locationCity.toLowerCase()}`} />

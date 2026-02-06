@@ -1530,8 +1530,8 @@ export default function AdminPage() {
   if (isLoading) {
     return (
       <MainLayout
-        title="Admin Dashboard | Vape Cave"
-        description="Admin dashboard for Vape Cave website management."
+        title="Admin Dashboard | Vape Cave Smoke & Stuff"
+        description="Admin dashboard for Vape Cave Smoke & Stuff website management."
       >
         <div className="min-h-screen bg-gray-900 text-white p-4">
           <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
@@ -1547,8 +1547,8 @@ export default function AdminPage() {
 
   return (
     <MainLayout
-      title="Admin Dashboard | Vape Cave"
-      description="Admin dashboard for Vape Cave website management."
+      title="Admin Dashboard | Vape Cave Smoke & Stuff"
+      description="Admin dashboard for Vape Cave Smoke & Stuff website management."
     >
       <div className="min-h-screen bg-gray-900 text-white p-4">
         <div className="container mx-auto pt-4 pb-16">
@@ -3114,7 +3114,7 @@ export default function AdminPage() {
                               <FormControl>
                                 <Input
                                   className="bg-gray-900 border-gray-700 text-white" 
-                                  placeholder="Vape Cave"
+                                  placeholder="Vape Cave Smoke & Stuff"
                                   {...field}
                                 />
                               </FormControl>

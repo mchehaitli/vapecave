@@ -7,23 +7,23 @@ dotenv.config();
 // These aliases should be configured in your Gmail/Google Workspace settings
 export const EMAIL_ALIASES = {
   // Welcome and onboarding emails
-  welcome: '"Vape Cave" <welcome@vapecavetx.com>',
+  welcome: '"Vape Cave Smoke & Stuff" <welcome@vapecavetx.com>',
   // Account verification and password reset emails
-  verify: '"Vape Cave" <verify@vapecavetx.com>',
+  verify: '"Vape Cave Smoke & Stuff" <verify@vapecavetx.com>',
   // Order confirmations, receipts, and billing-related emails
-  billing: '"Vape Cave" <billing@vapecavetx.com>',
+  billing: '"Vape Cave Smoke & Stuff" <billing@vapecavetx.com>',
   // Delivery status updates and driver notifications
-  delivery: '"Vape Cave Delivery" <delivery@vapecavetx.com>',
+  delivery: '"Vape Cave Smoke & Stuff Delivery" <delivery@vapecavetx.com>',
   // Contact form notifications (internal)
-  contact: '"Vape Cave Contact" <contact@vapecavetx.com>',
+  contact: '"Vape Cave Smoke & Stuff Contact" <contact@vapecavetx.com>',
   // Support-related emails (rejections, issues)
-  support: '"Vape Cave Support" <support@vapecavetx.com>',
+  support: '"Vape Cave Smoke & Stuff Support" <support@vapecavetx.com>',
   // Newsletter and subscription emails
-  join: '"Vape Cave" <join@vapecavetx.com>',
+  join: '"Vape Cave Smoke & Stuff" <join@vapecavetx.com>',
   // Automated emails that don't expect replies
-  noreply: '"Vape Cave" <noreply@vapecavetx.com>',
+  noreply: '"Vape Cave Smoke & Stuff" <noreply@vapecavetx.com>',
   // Fallback for any other emails
-  default: '"Vape Cave" <noreply@vapecavetx.com>',
+  default: '"Vape Cave Smoke & Stuff" <noreply@vapecavetx.com>',
 } as const;
 
 // Interface for contact form data
@@ -263,14 +263,14 @@ export const sendNewsletterSubscriptionEmail = async (data: NewsletterSubscripti
 New Newsletter Subscription
 Email: ${data.email}
 
-This user has subscribed to receive updates from Vape Cave.
+This user has subscribed to receive updates from Vape Cave Smoke & Stuff.
     `.trim();
     
     const htmlContent = `
 <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
   <h2 style="color: #FF6B00;">New Newsletter Subscription</h2>
   <p><strong>Email:</strong> ${data.email}</p>
-  <p style="margin-top: 20px;">This user has subscribed to receive updates from Vape Cave.</p>
+  <p style="margin-top: 20px;">This user has subscribed to receive updates from Vape Cave Smoke & Stuff.</p>
   <p style="margin-top: 20px; color: #666;">This email was sent from the newsletter subscription form on vapecavetx.com</p>
 </div>
     `.trim();
@@ -313,7 +313,7 @@ export const sendDeliverySignupConfirmation = async (data: DeliverySignupData): 
     const textContent = `
 Hi ${data.fullName},
 
-Thank you for signing up for Vape Cave delivery service!
+Thank you for signing up for Vape Cave Smoke & Stuff delivery service!
 
 We've received your application and our team will review it once our delivery system launches. Once we launch and your account is approved, you'll receive an email notification with instructions to set up your password.
 
@@ -324,15 +324,15 @@ What happens next:
 In the meantime, if you have any questions, feel free to contact us.
 
 Thank you,
-Vape Cave Team
+Vape Cave Smoke & Stuff Team
     `.trim();
     
     const htmlContent = `
 <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; background-color: #f9f9f9;">
   <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <h2 style="color: #FF6B00; margin-top: 0;">Welcome to Vape Cave Delivery!</h2>
+    <h2 style="color: #FF6B00; margin-top: 0;">Welcome to Vape Cave Smoke & Stuff Delivery!</h2>
     <p>Hi ${data.fullName},</p>
-    <p>Thank you for signing up for Vape Cave delivery service!</p>
+    <p>Thank you for signing up for Vape Cave Smoke & Stuff delivery service!</p>
     <p style="background-color: #fff3e0; padding: 15px; border-left: 4px solid #FF6B00; margin: 20px 0;">
       We've received your application and our team will review it once our delivery system launches. Once we launch and your account is approved, you'll receive an email with instructions to set up your password.
     </p>
@@ -342,10 +342,10 @@ Vape Cave Team
       <li>You'll receive an email notification once our system launches with approval and instructions to set up your password</li>
     </ol>
     <p>In the meantime, if you have any questions, feel free to contact us.</p>
-    <p style="margin-top: 30px;">Thank you,<br><strong>Vape Cave Team</strong></p>
+    <p style="margin-top: 30px;">Thank you,<br><strong>Vape Cave Smoke & Stuff Team</strong></p>
   </div>
   <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-    This email was sent from Vape Cave Delivery Service
+    This email was sent from Vape Cave Smoke & Stuff Delivery Service
   </p>
 </div>
     `.trim();
@@ -353,7 +353,7 @@ Vape Cave Team
     const emailMessage = createEmailMessage(
       data.email,
       EMAIL_ALIASES.welcome,
-      'Welcome to Vape Cave Delivery - Application Received',
+      'Welcome to Vape Cave Smoke & Stuff Delivery - Application Received',
       textContent,
       htmlContent
     );
@@ -390,7 +390,7 @@ export const sendDeliveryApprovalEmail = async (data: DeliveryApprovalData): Pro
     const textContent = `
 Hi ${data.fullName},
 
-Great news! Your Vape Cave delivery account has been approved.
+Great news! Your Vape Cave Smoke & Stuff delivery account has been approved.
 
 To get started, please create your password by clicking the link below:
 ${setupLink}
@@ -404,9 +404,9 @@ Next steps:
 
 Once you've set your password, you can log in at vapecavetx.com/signin
 
-Thank you for choosing Vape Cave!
+Thank you for choosing Vape Cave Smoke & Stuff!
 
-Vape Cave Team
+Vape Cave Smoke & Stuff Team
     `.trim();
     
     const htmlContent = `
@@ -414,7 +414,7 @@ Vape Cave Team
   <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <h2 style="color: #4CAF50; margin-top: 0;">🎉 Account Approved!</h2>
     <p>Hi ${data.fullName},</p>
-    <p>Great news! Your Vape Cave delivery account has been <strong>approved</strong>.</p>
+    <p>Great news! Your Vape Cave Smoke & Stuff delivery account has been <strong>approved</strong>.</p>
     
     <p style="margin: 25px 0;">To get started, please create your password:</p>
     
@@ -435,10 +435,10 @@ Vape Cave Team
     
     <p>Once you've set your password, you can log in at <a href="https://vapecavetx.com/signin" style="color: #FF6B00; text-decoration: none; font-weight: bold;">vapecavetx.com/signin</a></p>
     
-    <p style="margin-top: 30px;">Thank you for choosing Vape Cave!<br><strong>Vape Cave Team</strong></p>
+    <p style="margin-top: 30px;">Thank you for choosing Vape Cave Smoke & Stuff!<br><strong>Vape Cave Smoke & Stuff Team</strong></p>
   </div>
   <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-    This email was sent from Vape Cave Delivery Service<br>
+    This email was sent from Vape Cave Smoke & Stuff Delivery Service<br>
     If the button doesn't work, copy and paste this link: ${setupLink}
   </p>
 </div>
@@ -447,7 +447,7 @@ Vape Cave Team
     const emailMessage = createEmailMessage(
       data.email,
       EMAIL_ALIASES.welcome,
-      'Your Vape Cave Account Has Been Approved!',
+      'Your Vape Cave Smoke & Stuff Account Has Been Approved!',
       textContent,
       htmlContent
     );
@@ -482,7 +482,7 @@ export const sendDeliveryRejectionEmail = async (data: DeliveryRejectionData): P
     const textContent = `
 Hi ${data.fullName},
 
-Thank you for your interest in Vape Cave's delivery service.
+Thank you for your interest in Vape Cave Smoke & Stuff's delivery service.
 
 Unfortunately, we are unable to approve your delivery account application at this time.
 
@@ -495,7 +495,7 @@ If you have questions or would like to reapply, please contact us:
 
 We appreciate your understanding.
 
-Vape Cave Team
+Vape Cave Smoke & Stuff Team
     `.trim();
     
     const htmlContent = `
@@ -503,7 +503,7 @@ Vape Cave Team
   <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <h2 style="color: #f44336; margin-top: 0;">Delivery Application Status</h2>
     <p>Hi ${data.fullName},</p>
-    <p>Thank you for your interest in Vape Cave's delivery service.</p>
+    <p>Thank you for your interest in Vape Cave Smoke & Stuff's delivery service.</p>
     
     <p>Unfortunately, we are unable to approve your delivery account application at this time.</p>
     
@@ -520,10 +520,10 @@ Vape Cave Team
       <li>Phone: Visit our store locations for assistance</li>
     </ul>
     
-    <p style="margin-top: 30px;">We appreciate your understanding.<br><strong>Vape Cave Team</strong></p>
+    <p style="margin-top: 30px;">We appreciate your understanding.<br><strong>Vape Cave Smoke & Stuff Team</strong></p>
   </div>
   <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-    This email was sent from Vape Cave Delivery Service
+    This email was sent from Vape Cave Smoke & Stuff Delivery Service
   </p>
 </div>
     `.trim();
@@ -531,7 +531,7 @@ Vape Cave Team
     const emailMessage = createEmailMessage(
       data.email,
       EMAIL_ALIASES.support,
-      'Delivery Application Status - Vape Cave',
+      'Delivery Application Status - Vape Cave Smoke & Stuff',
       textContent,
       htmlContent
     );
@@ -566,7 +566,7 @@ export const sendPasswordResetEmail = async (data: PasswordResetData): Promise<{
     const textContent = `
 Hi ${data.fullName},
 
-We received a request to reset your Vape Cave delivery account password.
+We received a request to reset your Vape Cave Smoke & Stuff delivery account password.
 
 Your temporary password is: ${data.temporaryPassword}
 
@@ -579,7 +579,7 @@ If you didn't request a password reset, please contact us immediately.
 
 This temporary password will expire in 24 hours.
 
-Vape Cave Team
+Vape Cave Smoke & Stuff Team
     `.trim();
     
     const htmlContent = `
@@ -587,7 +587,7 @@ Vape Cave Team
   <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <h2 style="color: #FF6B00; margin-top: 0;">Password Reset Request</h2>
     <p>Hi ${data.fullName},</p>
-    <p>We received a request to reset your Vape Cave delivery account password.</p>
+    <p>We received a request to reset your Vape Cave Smoke & Stuff delivery account password.</p>
     
     <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 25px 0;">
       <p style="margin: 0 0 10px 0; color: #666;">Your temporary password:</p>
@@ -607,10 +607,10 @@ Vape Cave Team
     
     <p style="color: #666; font-size: 14px;">This temporary password will expire in 24 hours.</p>
     
-    <p style="margin-top: 30px;">Vape Cave Team</p>
+    <p style="margin-top: 30px;">Vape Cave Smoke & Stuff Team</p>
   </div>
   <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-    This email was sent from Vape Cave Delivery Service
+    This email was sent from Vape Cave Smoke & Stuff Delivery Service
   </p>
 </div>
     `.trim();
@@ -618,7 +618,7 @@ Vape Cave Team
     const emailMessage = createEmailMessage(
       data.email,
       EMAIL_ALIASES.verify,
-      'Password Reset - Vape Cave Delivery',
+      'Password Reset - Vape Cave Smoke & Stuff Delivery',
       textContent,
       htmlContent
     );
@@ -721,9 +721,9 @@ Order Details:
 - Delivery Address: ${data.deliveryAddress}
 - Total: $${data.total}${deliveryInfo}
 
-Thank you for choosing Vape Cave!
+Thank you for choosing Vape Cave Smoke & Stuff!
 
-Vape Cave Team
+Vape Cave Smoke & Stuff Team
     `.trim();
     
     const htmlContent = `
@@ -750,10 +750,10 @@ Vape Cave Team
       <a href="https://vapecavetx.com/delivery/account" style="background-color: #FF6B00; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: bold;">View My Orders</a>
     </div>
     
-    <p style="margin-top: 30px;">Thank you for choosing Vape Cave!<br><strong>Vape Cave Team</strong></p>
+    <p style="margin-top: 30px;">Thank you for choosing Vape Cave Smoke & Stuff!<br><strong>Vape Cave Smoke & Stuff Team</strong></p>
   </div>
   <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-    This email was sent from Vape Cave Delivery Service
+    This email was sent from Vape Cave Smoke & Stuff Delivery Service
   </p>
 </div>
     `.trim();
@@ -761,7 +761,7 @@ Vape Cave Team
     const emailMessage = createEmailMessage(
       data.email,
       EMAIL_ALIASES.delivery,
-      `${statusInfo.subject} - Order #${data.orderId} - Vape Cave`,
+      `${statusInfo.subject} - Order #${data.orderId} - Vape Cave Smoke & Stuff`,
       textContent,
       htmlContent
     );
@@ -833,8 +833,8 @@ ${replacementNote}
 
 You can view your order details by visiting your account at vapecavetx.com/delivery/account
 
-Thank you for choosing Vape Cave!
-Vape Cave Team
+Thank you for choosing Vape Cave Smoke & Stuff!
+Vape Cave Smoke & Stuff Team
     `.trim();
     
     const htmlContent = `
@@ -898,10 +898,10 @@ Vape Cave Team
       <a href="https://vapecavetx.com/delivery/account" style="background-color: #FF6B00; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: bold;">View My Orders</a>
     </div>
     
-    <p style="margin-top: 30px;">Thank you for choosing Vape Cave!<br><strong>Vape Cave Team</strong></p>
+    <p style="margin-top: 30px;">Thank you for choosing Vape Cave Smoke & Stuff!<br><strong>Vape Cave Smoke & Stuff Team</strong></p>
   </div>
   <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-    This email was sent from Vape Cave Delivery Service
+    This email was sent from Vape Cave Smoke & Stuff Delivery Service
   </p>
 </div>
     `.trim();
@@ -909,7 +909,7 @@ Vape Cave Team
     const emailMessage = createEmailMessage(
       data.email,
       EMAIL_ALIASES.billing,
-      `Order Confirmed - #${data.orderId} - Vape Cave`,
+      `Order Confirmed - #${data.orderId} - Vape Cave Smoke & Stuff`,
       textContent,
       htmlContent
     );
@@ -1022,7 +1022,7 @@ ${data.notes ? `Special Instructions: ${data.notes}` : ''}
     </table>
   </div>
   <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-    Vape Cave Delivery System
+    Vape Cave Smoke & Stuff Delivery System
   </p>
 </div>
     `.trim();

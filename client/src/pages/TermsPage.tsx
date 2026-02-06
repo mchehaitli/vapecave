@@ -20,21 +20,21 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">1. Acceptance of Terms</h2>
             <p className="text-muted-foreground leading-relaxed">
-              By accessing and using the Vape Cave website and services, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
+              By accessing and using the Vape Cave Smoke & Stuff website and services, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">2. Age Verification</h2>
             <p className="text-muted-foreground leading-relaxed">
-              You must be at least 21 years of age to purchase products from Vape Cave. By placing an order, you certify that you are 21 years of age or older. We implement age verification systems and require valid government-issued photo identification for all deliveries. We reserve the right to refuse or cancel any order that fails age verification.
+              You must be at least 21 years of age to purchase products from Vape Cave Smoke & Stuff. By placing an order, you certify that you are 21 years of age or older. We implement age verification systems and require valid government-issued photo identification for all deliveries. We reserve the right to refuse or cancel any order that fails age verification.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">3. Products and Services</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Vape Cave offers vaping products, accessories, and related merchandise. All products sold comply with federal and Texas state regulations. Product availability, descriptions, and prices are subject to change without notice. We make every effort to display product information accurately, but we do not warrant that descriptions or other content are error-free.
+              Vape Cave Smoke & Stuff offers vaping products, accessories, and related merchandise. All products sold comply with federal and Texas state regulations. Product availability, descriptions, and prices are subject to change without notice. We make every effort to display product information accurately, but we do not warrant that descriptions or other content are error-free.
             </p>
           </section>
 
@@ -76,7 +76,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">9. Intellectual Property</h2>
             <p className="text-muted-foreground leading-relaxed">
-              All content on our website, including text, images, logos, and graphics, is the property of Vape Cave and is protected by copyright and trademark laws. You may not reproduce, distribute, or create derivative works without our express written permission.
+              All content on our website, including text, images, logos, and graphics, is the property of Vape Cave Smoke & Stuff and is protected by copyright and trademark laws. You may not reproduce, distribute, or create derivative works without our express written permission.
             </p>
           </section>
 
@@ -90,14 +90,14 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">11. Limitation of Liability</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Vape Cave shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of our services or products. Our total liability shall not exceed the amount paid for the specific product or service giving rise to the claim.
+              Vape Cave Smoke & Stuff shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of our services or products. Our total liability shall not exceed the amount paid for the specific product or service giving rise to the claim.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">12. Indemnification</h2>
             <p className="text-muted-foreground leading-relaxed">
-              You agree to indemnify and hold harmless Vape Cave, its officers, employees, and affiliates from any claims, damages, or expenses arising from your violation of these terms or your use of our products and services.
+              You agree to indemnify and hold harmless Vape Cave Smoke & Stuff, its officers, employees, and affiliates from any claims, damages, or expenses arising from your violation of these terms or your use of our products and services.
             </p>
           </section>
 
@@ -121,7 +121,7 @@ export default function TermsPage() {
               For questions about these Terms of Service, please contact us at:
             </p>
             <div className="mt-4 text-muted-foreground">
-              <p>Vape Cave</p>
+              <p>Vape Cave Smoke & Stuff</p>
               <p>6958 Main St #200</p>
               <p>Frisco, TX 75033</p>
               <p>Email: vapecavetex@gmail.com</p>

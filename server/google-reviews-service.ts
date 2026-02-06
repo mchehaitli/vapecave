@@ -31,7 +31,7 @@ const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 let reviewsCache: CachedReviews | null = null;
 
 const FRISCO_PLACE_ID = "ChIJZ2EXpXw9TIYRjUEpqkkI6Lg";
-const BUSINESS_NAME = "Vape Cave Frisco";
+const BUSINESS_NAME = "Vape Cave Smoke & Stuff Frisco";
 
 export async function fetchGoogleReviews(placeId: string = FRISCO_PLACE_ID): Promise<GoogleReviewsData> {
   if (reviewsCache && Date.now() < reviewsCache.expiresAt) {

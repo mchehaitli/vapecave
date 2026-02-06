@@ -56,7 +56,7 @@ const FriscoLocationPage: React.FC = () => {
   } : {
     // Fallback data structure while loading
     id: 1,
-    name: "Vape Cave Frisco",
+    name: "Vape Cave Smoke & Stuff Frisco",
     city: "Frisco",
     address: "Loading...",
     fullAddress: "Loading address...",
@@ -124,7 +124,7 @@ const FriscoLocationPage: React.FC = () => {
       "@type": "Store",
       "@id": "https://vapecavetx.com/locations/frisco",
       "name": location.name,
-      "alternateName": "Vape Cave Frisco - Premium Vape Shop",
+      "alternateName": "Vape Cave Smoke & Stuff Frisco - Premium Vape Shop",
       "url": "https://vapecavetx.com/locations/frisco",
       "logo": {
         "@type": "ImageObject",
@@ -162,7 +162,7 @@ const FriscoLocationPage: React.FC = () => {
         "@type": "GeoCoordinates",
         "latitude": location.coordinates.lat,
         "longitude": location.coordinates.lng,
-        "name": "Vape Cave Frisco Location Coordinates"
+        "name": "Vape Cave Smoke & Stuff Frisco Location Coordinates"
       },
       "hasMap": [
         {
@@ -311,7 +311,7 @@ const FriscoLocationPage: React.FC = () => {
           "reviewBody": "Best vape shop in Frisco! Amazing selection of products and the staff really know their products.",
           "itemReviewed": {
             "@type": "Store",
-            "name": "Vape Cave Frisco",
+            "name": "Vape Cave Smoke & Stuff Frisco",
             "@id": "https://vapecavetx.com/locations/frisco"
           }
         },
@@ -331,7 +331,7 @@ const FriscoLocationPage: React.FC = () => {
           "reviewBody": "Convenient location on Main Street with friendly staff and competitive prices.",
           "itemReviewed": {
             "@type": "Store",
-            "name": "Vape Cave Frisco",
+            "name": "Vape Cave Smoke & Stuff Frisco",
             "@id": "https://vapecavetx.com/locations/frisco"
           }
         }
@@ -355,25 +355,25 @@ const FriscoLocationPage: React.FC = () => {
   
   return (
     <MainLayout
-      title="Vape Cave Frisco TX | Best Vape Shop near Main St | Premium Vaping Products"
-      description="Visit Vape Cave at 6958 Main St #200 in Frisco, TX for premium vaping products, Elf Bar, Lost Mary, Geek Vape & accessories. Open daily 10AM-12AM."
+      title="Vape Cave Smoke & Stuff Frisco TX | Best Vape Shop near Main St | Premium Vaping Products"
+      description="Visit Vape Cave Smoke & Stuff at 6958 Main St #200 in Frisco, TX for premium vaping products, Elf Bar, Lost Mary, Geek Vape & accessories. Open daily 10AM-12AM."
       canonical="https://vapecavetx.com/locations/frisco"
       ogImage="https://vapecavetx.com/storefront-frisco.jpg"
       structuredData={generateFriscoStructuredData()}
     >
       {/* Additional SEO metadata specific to Frisco location */}
       <Helmet>
-        <title>Vape Cave Frisco | #1 Vape Shop in Frisco TX | Premium Vaping Products, Elf Bar & Lost Mary</title>
-        <meta name="description" content="Looking for the best vape shop in Frisco? Visit Vape Cave at 6958 Main St #200. Offering premium products including Elf Bar, Lost Mary, Geek Vape, disposables & accessories. Open daily 10AM-12AM." />
+        <title>Vape Cave Smoke & Stuff Frisco | #1 Vape Shop in Frisco TX | Premium Vaping Products, Elf Bar & Lost Mary</title>
+        <meta name="description" content="Looking for the best vape shop in Frisco? Visit Vape Cave Smoke & Stuff at 6958 Main St #200. Offering premium products including Elf Bar, Lost Mary, Geek Vape, disposables & accessories. Open daily 10AM-12AM." />
         <link rel="canonical" href="https://vapecavetx.com/locations/frisco" />
         
         {/* Open Graph & Twitter */}
         <meta property="og:locale" content="en_US" />
         <meta property="og:type" content="business.business" />
-        <meta property="og:title" content="Vape Cave Frisco TX | Best Vape Shop for Elf Bar, Lost Mary & More" />
+        <meta property="og:title" content="Vape Cave Smoke & Stuff Frisco TX | Best Vape Shop for Elf Bar, Lost Mary & More" />
         <meta property="og:description" content="Visit the #1 vape shop in Frisco at 6958 Main St #200. We offer premium products including Elf Bar, Lost Mary, GeekVape, and more at our convenient Main St location." />
         <meta property="og:url" content="https://vapecavetx.com/locations/frisco" />
-        <meta property="og:site_name" content="Vape Cave" />
+        <meta property="og:site_name" content="Vape Cave Smoke & Stuff" />
         <meta property="og:image" content="https://vapecavetx.com/storefront-frisco.jpg" />
         <meta property="business:contact_data:street_address" content="6958 Main St #200" />
         <meta property="business:contact_data:locality" content="Frisco" />
@@ -387,7 +387,7 @@ const FriscoLocationPage: React.FC = () => {
         <meta property="business:hours:end" content="24:00" />
         
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Vape Cave Frisco | #1 Vape Shop in Frisco TX" />
+        <meta name="twitter:title" content="Vape Cave Smoke & Stuff Frisco | #1 Vape Shop in Frisco TX" />
         <meta name="twitter:description" content="Top-rated vape shop in Frisco offering Elf Bar, Lost Mary, GeekVape & more at our Main St location. Convenient to Frisco, Allen, and Plano." />
         <meta name="twitter:image" content="https://vapecavetx.com/storefront-frisco.jpg" />
         
@@ -395,15 +395,15 @@ const FriscoLocationPage: React.FC = () => {
         <meta name="keywords" content="vape shop frisco tx, frisco vape store, vape cave frisco, vape near me frisco, vape products frisco, disposable vapes frisco, smoke shop frisco texas, premium vape frisco, vape shop google place id, geekvape frisco, elf bar frisco, lost mary frisco, hyde vape frisco, lost vape frisco, caliburn frisco, vape shop near me, smoke shop near me, best vape shop frisco" />
         
         {/* Dublin Core Metadata */}
-        <meta name="DC.title" content="Vape Cave Frisco TX | #1 Vape Shop for Elf Bar, Lost Mary & More" />
+        <meta name="DC.title" content="Vape Cave Smoke & Stuff Frisco TX | #1 Vape Shop for Elf Bar, Lost Mary & More" />
         <meta name="DC.description" content="Frisco's #1 vape shop at 6958 Main St #200. Offering high-quality products including Elf Bar, Lost Mary, GeekVape, and accessories." />
         <meta name="DC.subject" content="Vape Shop, Frisco, Elf Bar, Lost Mary, GeekVape, Disposable Vapes" />
-        <meta name="DC.creator" content="Vape Cave" />
+        <meta name="DC.creator" content="Vape Cave Smoke & Stuff" />
         <meta name="DC.type" content="LocalBusiness" />
         <meta name="DC.format" content="text/html" />
         <meta name="DC.language" content="en-US" />
         <meta name="DC.coverage" content="Frisco, Texas, United States" />
-        <meta name="DC.rights" content="Copyright Vape Cave 2023" />
+        <meta name="DC.rights" content="Copyright Vape Cave Smoke & Stuff 2023" />
         <meta name="DC.identifier" content="https://vapecavetx.com/locations/frisco" />
         
         {/* Geo meta tags */}
@@ -424,34 +424,34 @@ const FriscoLocationPage: React.FC = () => {
             "mainEntity": [
               {
                 "@type": "Question",
-                "name": "What are the hours for Vape Cave in Frisco, TX?",
+                "name": "What are the hours for Vape Cave Smoke & Stuff in Frisco, TX?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Vape Cave Frisco is open 7 days a week from 10:00 AM to 12:00 AM (midnight)."
+                  "text": "Vape Cave Smoke & Stuff Frisco is open 7 days a week from 10:00 AM to 12:00 AM (midnight)."
                 }
               },
               {
                 "@type": "Question",
-                "name": "What products does Vape Cave Frisco carry?",
+                "name": "What products does Vape Cave Smoke & Stuff Frisco carry?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Vape Cave Frisco carries a wide selection of premium vaping products including Elf Bar, Lost Mary, GeekVape, disposable vapes, vape devices, and accessories."
+                  "text": "Vape Cave Smoke & Stuff Frisco carries a wide selection of premium vaping products including Elf Bar, Lost Mary, GeekVape, disposable vapes, vape devices, and accessories."
                 }
               },
               {
                 "@type": "Question",
-                "name": "Where is Vape Cave located in Frisco?",
+                "name": "Where is Vape Cave Smoke & Stuff located in Frisco?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Vape Cave Frisco is located at 6958 Main St #200, Frisco, TX 75033, conveniently accessible from Plano, McKinney, and Allen."
+                  "text": "Vape Cave Smoke & Stuff Frisco is located at 6958 Main St #200, Frisco, TX 75033, conveniently accessible from Plano, McKinney, and Allen."
                 }
               },
               {
                 "@type": "Question", 
-                "name": "What forms of payment does Vape Cave Frisco accept?",
+                "name": "What forms of payment does Vape Cave Smoke & Stuff Frisco accept?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Vape Cave Frisco accepts cash, credit cards, and debit cards for all purchases."
+                  "text": "Vape Cave Smoke & Stuff Frisco accepts cash, credit cards, and debit cards for all purchases."
                 }
               }
             ]
@@ -469,7 +469,7 @@ const FriscoLocationPage: React.FC = () => {
         </div>
         <div className="container mx-auto px-4 flex flex-col justify-center relative z-10 text-foreground">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg font-['Poppins']">
-            Vape Cave <span className="text-primary">Frisco</span>
+            Vape Cave Smoke & Stuff <span className="text-primary">Frisco</span>
           </h1>
           <h2 
             className="text-xl md:text-2xl lg:text-3xl mb-8 text-foreground/90 font-medium max-w-[1100px] leading-relaxed"

@@ -25,8 +25,8 @@ const AgeVerificationModal: React.FC<AgeVerificationModalProps> = ({ onVerify })
             {
               "@context": "https://schema.org",
               "@type": "WebPage",
-              "name": "Age Verification - Vape Cave Frisco",
-              "description": "Verify your age to access Vape Cave Frisco's premium selection of vaping products. Must be 21+ to enter. Disposables, e-liquids & more.",
+              "name": "Age Verification - Vape Cave Smoke & Stuff Frisco",
+              "description": "Verify your age to access Vape Cave Smoke & Stuff Frisco's premium selection of vaping products. Must be 21+ to enter. Disposables, e-liquids & more.",
               "url": "https://vapecavetx.com",
               "isAccessibleForFree": true,
               "keywords": "age verification, vape shop frisco, premium vaping products frisco, frisco vape shop",
@@ -57,7 +57,7 @@ const AgeVerificationModal: React.FC<AgeVerificationModalProps> = ({ onVerify })
               },
               "publisher": {
                 "@type": "Store",
-                "name": "Vape Cave Frisco",
+                "name": "Vape Cave Smoke & Stuff Frisco",
                 "alternateName": ["Vape Cave Smoke & Stuff", "Premium Vape Shop Frisco"],
                 "address": {
                   "@type": "PostalAddress",
@@ -159,7 +159,7 @@ const AgeVerificationModal: React.FC<AgeVerificationModalProps> = ({ onVerify })
               I am 21 or older
             </span>
             <meta itemProp="location" content="6958 Main St #200, Frisco, TX 75033" />
-            <meta itemProp="description" content="Age verification for access to Vape Cave Frisco" />
+            <meta itemProp="description" content="Age verification for access to Vape Cave Smoke & Stuff Frisco" />
           </button>
           <button 
             onClick={() => handleVerify(false)}
@@ -179,7 +179,7 @@ const AgeVerificationModal: React.FC<AgeVerificationModalProps> = ({ onVerify })
         </div>
         
         <p className="text-xs text-gray-400 text-center">
-          By entering this site, you are confirming that you are of legal age to purchase vaping products in your location. Vape Cave Frisco only serves customers 21 and older.
+          By entering this site, you are confirming that you are of legal age to purchase vaping products in your location. Vape Cave Smoke & Stuff Frisco only serves customers 21 and older.
         </p>
         <div className="mt-2 text-xs text-gray-500 text-center" itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
           <span itemProp="streetAddress">6958 Main St #200</span>, 

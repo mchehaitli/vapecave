@@ -47,7 +47,7 @@ const HomePage = () => {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": "https://vapecavetx.com/#organization",
-    "name": "Vape Cave",
+    "name": "Vape Cave Smoke & Stuff",
     "url": "https://vapecavetx.com",
     "logo": {
       "@type": "ImageObject",
@@ -59,7 +59,7 @@ const HomePage = () => {
       "https://vapecavetx.com/vapecave-logo.png",
       "https://vapecavetx.com/vapecave-logo.svg"
     ],
-    "description": "Vape Cave offers premium vaping products, e-liquids, disposables, and accessories at our convenient Frisco, TX location. We provide expert advice and a wide selection for all your vaping needs.",
+    "description": "Vape Cave Smoke & Stuff offers premium vaping products, e-liquids, disposables, and accessories at our convenient Frisco, TX location. We provide expert advice and a wide selection for all your vaping needs.",
     "keywords": "vape shop, vape products, vape frisco tx, vape accessories, vape store near me",
     "sameAs": [
       "https://facebook.com/vapecavetx",
@@ -81,7 +81,7 @@ const HomePage = () => {
       {
         "@type": "Store",
         "@id": "https://vapecavetx.com/locations/frisco",
-        "name": "Vape Cave Frisco",
+        "name": "Vape Cave Smoke & Stuff Frisco",
         "url": "https://vapecavetx.com/locations/frisco",
         "telephone": "+14692940061",
         "priceRange": "$$",
@@ -171,17 +171,17 @@ const HomePage = () => {
 
   return (
     <MainLayout
-      title="Vape Cave | Premium Vaping Products & Accessories | Frisco TX"
-      description="Welcome to Vape Cave - your one-stop shop for premium vaping products, e-liquids, and accessories. Visit our conveniently located store in Frisco, TX."
+      title="Vape Cave Smoke & Stuff | Premium Vaping Products & Accessories | Frisco TX"
+      description="Welcome to Vape Cave Smoke & Stuff - your one-stop shop for premium vaping products, e-liquids, and accessories. Visit our conveniently located store in Frisco, TX."
       canonical="/"
     >
       <Helmet>
-        <title>Vape Cave | Premium Vape Shop in Frisco TX | Disposables & Accessories</title>
-        <meta name="description" content="Visit Vape Cave in Frisco TX for premium vaping products, disposables, and accessories. Located at 6958 Main St #200. Open daily with expert staff and competitive prices." />
+        <title>Vape Cave Smoke & Stuff | Premium Vape Shop in Frisco TX | Disposables & Accessories</title>
+        <meta name="description" content="Visit Vape Cave Smoke & Stuff in Frisco TX for premium vaping products, disposables, and accessories. Located at 6958 Main St #200. Open daily with expert staff and competitive prices." />
         <meta name="keywords" content="vape shop frisco, frisco vape shop, disposable vape frisco, vape products frisco tx, vaping frisco, frisco vaporizer shop, vape cave frisco" />
         <link rel="canonical" href="https://vapecavetx.com/" />
         <meta name="geo.position" content="33.150730;-96.822550" />
-        <meta name="geo.placename" content="Vape Cave Frisco" />
+        <meta name="geo.placename" content="Vape Cave Smoke & Stuff Frisco" />
         <meta name="geo.region" content="US-TX" />
         <meta name="ICBM" content="33.150730, -96.822550" />
         <meta name="google-place-id" content="ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" />
@@ -189,8 +189,8 @@ const HomePage = () => {
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://vapecavetx.com/" />
-        <meta property="og:title" content="Vape Cave Frisco | Premium Vape Shop on Main Street" />
-        <meta property="og:description" content="Visit Vape Cave in Frisco at 6958 Main St #200 for premium vaping products, expert advice, and a wide selection for all your vaping needs." />
+        <meta property="og:title" content="Vape Cave Smoke & Stuff Frisco | Premium Vape Shop on Main Street" />
+        <meta property="og:description" content="Visit Vape Cave Smoke & Stuff in Frisco at 6958 Main St #200 for premium vaping products, expert advice, and a wide selection for all your vaping needs." />
         <meta property="og:image" content="https://vapecavetx.com/vapecave-logo.png" />
         
         {/* Structured data for search engines */}
@@ -357,9 +357,9 @@ const HomePage = () => {
             }}
           />
         </div>
-        <meta itemProp="name" content="Vape Cave Frisco" />
+        <meta itemProp="name" content="Vape Cave Smoke & Stuff Frisco" />
         <meta itemProp="identifier" content="ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" />
-        <meta itemProp="alternateName" content="Vape Cave Frisco Main Street" />
+        <meta itemProp="alternateName" content="Vape Cave Smoke & Stuff Frisco Main Street" />
         <meta itemProp="description" content="Premier vape shop in Frisco, TX with a wide selection of vaping products and disposables. Conveniently located at 6958 Main St #200." />
         <meta itemProp="image" content="https://vapecavetx.com/vapecave-logo.png" />
         <meta itemProp="url" content="https://vapecavetx.com/locations/frisco" />

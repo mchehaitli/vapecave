@@ -1,8 +1,8 @@
-# Vape Cave Website
+# Vape Cave Smoke & Stuff Website
 
 ## Overview
 
-This project is a full-stack e-commerce website for "Vape Cave," specifically tailored for its Frisco, TX location. It features a React frontend, an Express.js backend, and a PostgreSQL database. The primary goals are to establish a strong online presence, manage product catalogs, facilitate customer interactions, and offer local delivery services within a 3-mile radius of the Frisco store. The application emphasizes comprehensive SEO for local search visibility and integrates with the Clover POS system for inventory and order management.
+This project is a full-stack e-commerce website for "Vape Cave Smoke & Stuff," specifically tailored for its Frisco, TX location. It features a React frontend, an Express.js backend, and a PostgreSQL database. The primary goals are to establish a strong online presence, manage product catalogs, facilitate customer interactions, and offer local delivery services within a 3-mile radius of the Frisco store. The application emphasizes comprehensive SEO for local search visibility and integrates with the Clover POS system for inventory and order management.
 
 ## User Preferences
 

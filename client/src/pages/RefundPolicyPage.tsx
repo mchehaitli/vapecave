@@ -22,7 +22,7 @@ export default function RefundPolicyPage() {
             <div>
               <h2 className="text-xl font-bold text-destructive mb-2">ALL SALES ARE FINAL</h2>
               <p className="text-foreground">
-                Vape Cave does not offer refunds, returns, or exchanges on any products. Please review your order carefully before completing your purchase.
+                Vape Cave Smoke & Stuff does not offer refunds, returns, or exchanges on any products. Please review your order carefully before completing your purchase.
               </p>
             </div>
           </div>
@@ -32,7 +32,7 @@ export default function RefundPolicyPage() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">1. No Refund Policy</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Due to the nature of our products and for health and safety reasons, all sales at Vape Cave are final. We do not accept returns, and we do not issue refunds or exchanges under any circumstances. This policy applies to all products purchased through our website or delivery service.
+              Due to the nature of our products and for health and safety reasons, all sales at Vape Cave Smoke & Stuff are final. We do not accept returns, and we do not issue refunds or exchanges under any circumstances. This policy applies to all products purchased through our website or delivery service.
             </p>
           </section>
 
@@ -111,7 +111,7 @@ export default function RefundPolicyPage() {
               If you have questions about this policy or concerns about an order, please contact us:
             </p>
             <div className="mt-4 text-muted-foreground">
-              <p>Vape Cave</p>
+              <p>Vape Cave Smoke & Stuff</p>
               <p>6958 Main St #200</p>
               <p>Frisco, TX 75033</p>
               <p>Email: vapecavetex@gmail.com</p>

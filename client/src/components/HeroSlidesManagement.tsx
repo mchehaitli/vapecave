@@ -358,7 +358,7 @@ export function HeroSlidesManagement() {
               <Input
                 value={slideTitle}
                 onChange={(e) => setSlideTitle(e.target.value)}
-                placeholder="e.g., Welcome to Vape Cave"
+                placeholder="e.g., Welcome to Vape Cave Smoke & Stuff"
                 className="mt-2 bg-gray-700 border-gray-600"
               />
             </div>

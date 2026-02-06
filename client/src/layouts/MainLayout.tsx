@@ -16,7 +16,7 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({
   children,
-  title = "Vape Cave - Premium Vaping Products & Accessories",
+  title = "Vape Cave Smoke & Stuff - Premium Vaping Products & Accessories",
   description = "Your One Stop Vape Shop for Disposables | E-Liquids | Salts | Delta | THC - A | Glass | Tobacco | Hookah / Shisha | Vaporizers | Mods | and much more",
   canonical = "",
   ogImage = "/images/vape-cave-share-image.jpg",
@@ -31,8 +31,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": "https://vapecavetx.com/#organization",
-    "name": "Vape Cave",
-    "alternateName": ["Vape Cave Frisco", "Vape Cave Smoke & Stuff", "Premium Vape Shop Frisco"],
+    "name": "Vape Cave Smoke & Stuff",
+    "alternateName": ["Vape Cave Smoke & Stuff Frisco", "Vape Cave Smoke & Stuff", "Premium Vape Shop Frisco"],
     "url": "https://vapecavetx.com",
     "logo": {
       "@type": "ImageObject",
@@ -45,7 +45,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     "keywords": "vape shop frisco, disposable vapes, e-liquids, salts, glass, tobacco, hookah, shisha, vaporizers, mods, vape products frisco tx, vape cave frisco",
     "founder": {
       "@type": "Person",
-      "name": "Vape Cave Founder",
+      "name": "Vape Cave Smoke & Stuff Founder",
       "jobTitle": "CEO"
     },
     "foundingDate": "2019",
@@ -90,7 +90,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     "location": [
       {
         "@type": "Store",
-        "name": "Vape Cave Frisco",
+        "name": "Vape Cave Smoke & Stuff Frisco",
         "url": "https://vapecavetx.com/locations/frisco",
         "image": "https://vapecavetx.com/storefront-frisco.jpg",
         "priceRange": "$$",
@@ -214,7 +214,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     ],
     "brand": {
       "@type": "Brand",
-      "name": "Vape Cave",
+      "name": "Vape Cave Smoke & Stuff",
       "logo": "https://vapecavetx.com/logo.png",
       "slogan": "Your One Stop Vape Shop for Disposables, E-Liquids and more"
     }
@@ -263,10 +263,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="keywords" content="vape shop frisco, disposable vapes, e-liquids, salts, glass, tobacco, hookah, shisha, vaporizers, mods, vape products frisco tx, vape cave frisco" />
-        <meta name="author" content="Vape Cave" />
+        <meta name="author" content="Vape Cave Smoke & Stuff" />
         <meta name="robots" content="index, follow" />
         <meta name="geo.position" content="33.150730;-96.822550" />
-        <meta name="geo.placename" content="Vape Cave Frisco" />
+        <meta name="geo.placename" content="Vape Cave Smoke & Stuff Frisco" />
         <meta name="geo.region" content="US-TX" />
         <meta name="ICBM" content="33.150730, -96.822550" />
         
@@ -280,12 +280,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             "@type": "WebSite",
             "@id": "https://vapecavetx.com/#website",
             "url": "https://vapecavetx.com",
-            "name": "Vape Cave - Premium Vaping Products & Accessories",
-            "description": "Vape Cave offers premium vaping products at our Frisco, TX location. Shop our selection of disposable vapes, e-liquids, and more.",
+            "name": "Vape Cave Smoke & Stuff - Premium Vaping Products & Accessories",
+            "description": "Vape Cave Smoke & Stuff offers premium vaping products at our Frisco, TX location. Shop our selection of disposable vapes, e-liquids, and more.",
             "publisher": {
               "@type": "Organization",
               "@id": "https://vapecavetx.com/#organization",
-              "name": "Vape Cave",
+              "name": "Vape Cave Smoke & Stuff",
               "logo": {
                 "@type": "ImageObject",
                 "url": "https://vapecavetx.com/vapecave-logo.png"
@@ -313,7 +313,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:image" content={`${baseUrl}${ogImage}`} />
-        <meta property="og:site_name" content="Vape Cave" />
+        <meta property="og:site_name" content="Vape Cave Smoke & Stuff" />
         <meta property="og:locale" content="en_US" />
         
         {/* Twitter */}

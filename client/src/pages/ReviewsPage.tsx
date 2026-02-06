@@ -214,8 +214,8 @@ export default function ReviewsPage() {
     "@context": "https://schema.org",
     "@type": "Store",
     "@id": "https://vapecavetx.com/reviews",
-    "name": "Vape Cave Frisco",
-    "description": "Read customer reviews for Vape Cave Frisco. See what our customers are saying about our premium vaping products and exceptional service.",
+    "name": "Vape Cave Smoke & Stuff Frisco",
+    "description": "Read customer reviews for Vape Cave Smoke & Stuff Frisco. See what our customers are saying about our premium vaping products and exceptional service.",
     "url": "https://vapecavetx.com/reviews",
     "aggregateRating": data ? {
       "@type": "AggregateRating",
@@ -243,15 +243,15 @@ export default function ReviewsPage() {
 
   return (
     <MainLayout
-      title="Customer Reviews | Vape Cave Frisco - Premium Vape Shop"
-      description="Read customer reviews for Vape Cave Frisco. See what our customers are saying about our premium vaping products, exceptional service, and competitive prices."
+      title="Customer Reviews | Vape Cave Smoke & Stuff Frisco - Premium Vape Shop"
+      description="Read customer reviews for Vape Cave Smoke & Stuff Frisco. See what our customers are saying about our premium vaping products, exceptional service, and competitive prices."
       canonical="https://vapecavetx.com/reviews"
       structuredData={structuredData}
     >
       <Helmet>
         <meta name="keywords" content="vape cave reviews, vape shop frisco reviews, vape cave frisco customer reviews, vape store reviews texas" />
-        <meta property="og:title" content="Customer Reviews | Vape Cave Frisco" />
-        <meta property="og:description" content="See what our customers are saying about Vape Cave Frisco. Read genuine reviews from real customers." />
+        <meta property="og:title" content="Customer Reviews | Vape Cave Smoke & Stuff Frisco" />
+        <meta property="og:description" content="See what our customers are saying about Vape Cave Smoke & Stuff Frisco. Read genuine reviews from real customers." />
         <meta property="og:type" content="website" />
       </Helmet>
 
@@ -266,7 +266,7 @@ export default function ReviewsPage() {
               Customer <span className="text-primary">Reviews</span>
             </h1>
             <p className="text-xl text-foreground/70 max-w-2xl mx-auto">
-              Don't just take our word for it. See what our customers have to say about their experience at Vape Cave Frisco.
+              Don't just take our word for it. See what our customers have to say about their experience at Vape Cave Smoke & Stuff Frisco.
             </p>
           </div>
 

@@ -42,7 +42,7 @@ export interface StoreLocation {
 export const storeLocations: StoreLocation[] = [
   {
     id: 1,
-    name: "Vape Cave Frisco",
+    name: "Vape Cave Smoke & Stuff Frisco",
     city: "Frisco",
     address: "6958 Main St #200",
     fullAddress: "6958 Main St #200, Frisco, TX 75033, United States",
@@ -166,7 +166,7 @@ export const generateStructuredDataForLocation = (location: StoreLocation) => {
     "@context": "https://schema.org",
     "@type": "Store",
     "name": location.name,
-    "alternateName": isFrisco ? "Vape Cave Frisco - Premium Vape Shop" : undefined,
+    "alternateName": isFrisco ? "Vape Cave Smoke & Stuff Frisco - Premium Vape Shop" : undefined,
     "url": `https://vapecavetx.com/locations/${location.id}`,
     "description": location.description,
     "telephone": formattedPhone,

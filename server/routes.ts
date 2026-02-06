@@ -2897,7 +2897,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const grayColor = '#666666';
 
       // Header - Company Info
-      doc.fontSize(24).fillColor(primaryColor).text('Vape Cave', { align: 'center' });
+      doc.fontSize(24).fillColor(primaryColor).text('Vape Cave Smoke & Stuff', { align: 'center' });
       doc.fontSize(10).fillColor(grayColor).text('Frisco, TX', { align: 'center' });
       doc.moveDown(0.5);
       
@@ -3058,7 +3058,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const grayColor = '#666666';
 
       // Header - Company Info
-      doc.fontSize(24).fillColor(primaryColor).text('Vape Cave', { align: 'center' });
+      doc.fontSize(24).fillColor(primaryColor).text('Vape Cave Smoke & Stuff', { align: 'center' });
       doc.fontSize(10).fillColor(grayColor).text('Frisco, TX', { align: 'center' });
       doc.moveDown(0.5);
       

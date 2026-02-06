@@ -128,7 +128,7 @@ export function GlobalFooter() {
         <div className="border-t border-border/30 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-muted-foreground text-xs md:text-sm">
-              © {currentYear} Vape Cave TX. All rights reserved.
+              © {currentYear} Vape Cave Smoke & Stuff TX. All rights reserved.
             </p>
             <p className="text-muted-foreground/60 text-xs">
               Must be 21+ to purchase. Please vape responsibly.

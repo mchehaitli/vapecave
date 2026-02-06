@@ -135,8 +135,8 @@ export default function DeliverySetPassword() {
   if (validating) {
     return (
       <MainLayout
-        title="Set Your Password - Vape Cave Delivery"
-        description="Create your password for Vape Cave delivery account"
+        title="Set Your Password - Vape Cave Smoke & Stuff Delivery"
+        description="Create your password for Vape Cave Smoke & Stuff delivery account"
         canonical="/delivery/set-password"
       >
         <div className="min-h-[80vh] bg-gradient-to-b from-background to-muted/20 flex items-center justify-center p-4">
@@ -154,7 +154,7 @@ export default function DeliverySetPassword() {
   if (!tokenValid) {
     return (
       <MainLayout
-        title="Invalid Link - Vape Cave Delivery"
+        title="Invalid Link - Vape Cave Smoke & Stuff Delivery"
         description="Password setup link is invalid or expired"
         canonical="/delivery/set-password"
       >
@@ -195,8 +195,8 @@ export default function DeliverySetPassword() {
 
   return (
     <MainLayout
-      title="Set Your Password - Vape Cave Delivery"
-      description="Create your password for Vape Cave delivery account"
+      title="Set Your Password - Vape Cave Smoke & Stuff Delivery"
+      description="Create your password for Vape Cave Smoke & Stuff delivery account"
       canonical="/delivery/set-password"
     >
       <div className="min-h-[80vh] bg-gradient-to-b from-background to-muted/20 flex items-center justify-center p-4">

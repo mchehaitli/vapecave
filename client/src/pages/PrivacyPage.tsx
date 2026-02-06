@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">1. Introduction</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Vape Cave ("we," "us," or "our") respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
+              Vape Cave Smoke & Stuff ("we," "us," or "our") respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
             </p>
           </section>
 
@@ -158,7 +158,7 @@ export default function PrivacyPage() {
               If you have questions or concerns about this Privacy Policy or our data practices, please contact us at:
             </p>
             <div className="mt-4 text-muted-foreground">
-              <p>Vape Cave</p>
+              <p>Vape Cave Smoke & Stuff</p>
               <p>6958 Main St #200</p>
               <p>Frisco, TX 75033</p>
               <p>Email: vapecavetex@gmail.com</p>

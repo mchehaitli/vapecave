@@ -94,7 +94,7 @@ const Footer = () => {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       "@id": "https://vapecavetx.com/locations/frisco#business",
-      "name": "Vape Cave Frisco",
+      "name": "Vape Cave Smoke & Stuff Frisco",
       "image": location.image,
       "url": "https://vapecavetx.com/locations/frisco",
       "telephone": "+14692940061",
@@ -339,7 +339,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-white/10 mt-8 pt-4 text-center md:flex md:justify-between md:text-left text-sm">
-          <p className="text-muted-foreground mb-2 md:mb-0">&copy; {new Date().getFullYear()} Vape Cave. All rights reserved.</p>
+          <p className="text-muted-foreground mb-2 md:mb-0">&copy; {new Date().getFullYear()} Vape Cave Smoke &amp; Stuff. All rights reserved.</p>
           <div className="space-x-4">
             <span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Privacy Policy</span>
             <span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Terms of Service</span>

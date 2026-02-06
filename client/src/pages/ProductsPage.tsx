@@ -56,8 +56,8 @@ const ProductsPage = () => {
   
   return (
     <MainLayout
-      title="Products - Vape Cave"
-      description="Browse our extensive collection of premium vaping devices, e-liquids, and accessories at Vape Cave."
+      title="Products - Vape Cave Smoke & Stuff"
+      description="Browse our extensive collection of premium vaping devices, e-liquids, and accessories at Vape Cave Smoke & Stuff."
     >
       {/* Products Header */}
       <section className="bg-background py-12 text-foreground relative overflow-hidden">

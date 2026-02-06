@@ -41,7 +41,7 @@ export function DeliveryFooter() {
           <motion.div variants={sectionVariants}>
             <img 
               src="/logo-orange.png" 
-              alt="Vape Cave" 
+              alt="Vape Cave Smoke & Stuff" 
               className="h-4 w-auto mb-3"
             />
             <div className="flex items-center gap-2">
@@ -206,7 +206,7 @@ export function DeliveryFooter() {
             ))}
           </div>
           <div className="text-xs text-muted-foreground">
-            <span>&copy; {new Date().getFullYear()} Vape Cave. Must be 21+ to purchase.</span>
+            <span>&copy; {new Date().getFullYear()} Vape Cave Smoke &amp; Stuff. Must be 21+ to purchase.</span>
           </div>
         </motion.div>
       </div>

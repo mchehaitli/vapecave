@@ -10,8 +10,8 @@ export default function SignupPage() {
 
   return (
     <MainLayout
-      title="Sign Up or Sign In | Vape Cave"
-      description="Create an account or sign in to shop at Vape Cave. Our account system works for both delivery and in-store pickup customers."
+      title="Sign Up or Sign In | Vape Cave Smoke & Stuff"
+      description="Create an account or sign in to shop at Vape Cave Smoke & Stuff. Our account system works for both delivery and in-store pickup customers."
     >
       <div className="min-h-screen bg-background py-12 px-4 flex items-center justify-center">
         <div className="container mx-auto max-w-md">
@@ -23,7 +23,7 @@ export default function SignupPage() {
           >
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold text-foreground mb-2">
-                Welcome to Vape Cave
+                Welcome to Vape Cave Smoke & Stuff
               </h1>
               <p className="text-muted-foreground">
                 Create an account or sign in to view pricing and shop our products. One account works for both delivery and in-store pickup.

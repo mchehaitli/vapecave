@@ -58,11 +58,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -128,11 +128,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -191,11 +191,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -254,11 +254,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -312,11 +312,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -391,11 +391,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -475,11 +475,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -540,11 +540,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -605,11 +605,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -668,11 +668,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -732,11 +732,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -790,11 +790,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -850,11 +850,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -905,11 +905,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -973,11 +973,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1034,11 +1034,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1107,11 +1107,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1167,11 +1167,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1222,11 +1222,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1283,11 +1283,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1341,11 +1341,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1402,11 +1402,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1463,11 +1463,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1524,11 +1524,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1585,11 +1585,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1638,11 +1638,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1696,11 +1696,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1751,11 +1751,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1806,11 +1806,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1864,11 +1864,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1927,11 +1927,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -1995,11 +1995,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -2064,11 +2064,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -2133,11 +2133,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -2205,11 +2205,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"
@@ -2279,11 +2279,11 @@ const blogPostsData = [
       "dateModified": "2025-10-29",
       "author": {
         "@type": "Organization",
-        "name": "Vape Cave TX"
+        "name": "Vape Cave Smoke & Stuff TX"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Vape Cave TX",
+        "name": "Vape Cave Smoke & Stuff TX",
         "logo": {
           "@type": "ImageObject",
           "url": "https://vapecavetx.com/logo.png"

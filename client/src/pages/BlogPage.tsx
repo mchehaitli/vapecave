@@ -15,7 +15,7 @@ export default function BlogPage() {
   
   return (
     <MainLayout
-      title="Blog | Vape Cave TX"
+      title="Blog | Vape Cave Smoke & Stuff"
       description="Read our latest articles about vaping products and industry news."
       canonical="/blog"
     >
@@ -27,7 +27,7 @@ export default function BlogPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            Vape Cave Blog
+            Vape Cave Smoke & Stuff Blog
           </motion.h1>
           <motion.p 
             className="text-lg text-center text-muted-foreground mb-8 max-w-2xl mx-auto"

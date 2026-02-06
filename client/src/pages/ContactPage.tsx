@@ -64,8 +64,8 @@ const ContactPage = () => {
   
   return (
     <MainLayout
-      title="Contact Vape Cave Frisco | Premium Vape Shop | Phone, Email & Directions"
-      description="Get in touch with Vape Cave Frisco for premium vaping products and more. Visit our store at 6958 Main St #200, Frisco, TX or call (469) 294-0061."
+      title="Contact Vape Cave Smoke & Stuff Frisco | Premium Vape Shop | Phone, Email & Directions"
+      description="Get in touch with Vape Cave Smoke & Stuff Frisco for premium vaping products and more. Visit our store at 6958 Main St #200, Frisco, TX or call (469) 294-0061."
     >
       {/* Contact Header */}
       <section className="bg-background py-12 text-foreground">

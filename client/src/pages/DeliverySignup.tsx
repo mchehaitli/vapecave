@@ -293,8 +293,8 @@ export default function DeliverySignup() {
 
   return (
     <MainLayout
-      title="Delivery Signup - Vape Cave"
-      description={`Sign up for Vape Cave delivery service. Get premium vaping products delivered to your door within ${deliveryRadiusMiles} miles of Frisco, TX.`}
+      title="Delivery Signup - Vape Cave Smoke & Stuff"
+      description={`Sign up for Vape Cave Smoke & Stuff delivery service. Get premium vaping products delivered to your door within ${deliveryRadiusMiles} miles of Frisco, TX.`}
       canonical="/register"
     >
       <div className="min-h-[80vh] bg-gradient-to-b from-background to-muted/20 flex items-center justify-center p-4 py-12">

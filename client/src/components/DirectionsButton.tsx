@@ -49,7 +49,7 @@ const DirectionsButton: React.FC<DirectionsButtonProps> = ({
     const city = cityMatch ? cityMatch[1].trim() : "Frisco"; // Default to Frisco for SEO focus
     
     // Create a more precise query with the location name appended for SEO
-    const enhancedQuery = `Vape Cave ${address} - Premium Vape Shop in ${city}`;
+    const enhancedQuery = `Vape Cave Smoke & Stuff ${address} - Premium Vape Shop in ${city}`;
     const encodedEnhancedQuery = encodeURIComponent(enhancedQuery);
     
     // Use provided Google Place ID or default for Frisco location
@@ -130,7 +130,7 @@ const DirectionsButton: React.FC<DirectionsButtonProps> = ({
               {
                 "@context": "https://schema.org",
                 "@type": "Store",
-                "name": "Vape Cave Frisco",
+                "name": "Vape Cave Smoke & Stuff Frisco",
                 "alternateName": ["Vape Cave Smoke & Stuff", "Vape Shop Frisco"],
                 "description": "Premium vape shop in Frisco, TX offering a wide selection of vapes, e-liquids, and smoking accessories.",
                 "url": "https://vapecavetx.com/locations/frisco",

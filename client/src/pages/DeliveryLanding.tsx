@@ -63,7 +63,7 @@ export default function DeliveryLanding() {
 
   return (
     <MainLayout
-      title="Delivery Service - Vape Cave"
+      title="Delivery Service - Vape Cave Smoke & Stuff"
       description={`Order our products for delivery within ${deliveryRadiusMiles} miles of Frisco, TX. Fast, convenient, and reliable delivery service.`}
       canonical="/delivery"
     >
@@ -209,7 +209,7 @@ export default function DeliveryLanding() {
           >
             <h2 className="text-3xl font-bold mb-4 text-foreground">Ready to Get Started?</h2>
             <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Join hundreds of satisfied customers who enjoy the convenience of Vape Cave delivery service.
+              Join hundreds of satisfied customers who enjoy the convenience of Vape Cave Smoke & Stuff delivery service.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button

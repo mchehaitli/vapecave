@@ -23,7 +23,7 @@ export default function BlogPostPage() {
   if (!isPostLoading && (!post || postError)) {
     return (
       <MainLayout
-        title="Post Not Found | Vape Cave TX Blog"
+        title="Post Not Found | Vape Cave Smoke & Stuff Blog"
         description="The blog post you're looking for could not be found."
         canonical={`/blog/${slug}`}
       >
@@ -43,7 +43,7 @@ export default function BlogPostPage() {
   if (isPostLoading || !post) {
     return (
       <MainLayout
-        title="Loading... | Vape Cave TX Blog"
+        title="Loading... | Vape Cave Smoke & Stuff Blog"
         description="Loading blog post content..."
       >
         <div className="bg-gradient-to-b from-black to-zinc-900 text-white min-h-screen">
@@ -69,7 +69,7 @@ export default function BlogPostPage() {
   
   return (
     <MainLayout
-      title={`${post.meta_title || post.title} | Vape Cave TX Blog`}
+      title={`${post.meta_title || post.title} | Vape Cave Smoke & Stuff Blog`}
       description={post.meta_description || post.summary}
       canonical={`/blog/${post.slug}`}
       ogImage={post.featured_image}

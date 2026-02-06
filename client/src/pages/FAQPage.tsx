@@ -199,7 +199,7 @@ export default function FAQPage() {
         },
         {
           question: "Where is the safest place to buy compliant vapes?",
-          answer: "From a verified, reputable local Texas retailer (like Vape Cave TX) that can certify their products' origins and ensure all disposables are U.S.-filled and compliant with SB 2024."
+          answer: "From a verified, reputable local Texas retailer (like Vape Cave Smoke & Stuff) that can certify their products' origins and ensure all disposables are U.S.-filled and compliant with SB 2024."
         }
       ]
     }
@@ -224,7 +224,7 @@ export default function FAQPage() {
 
   return (
     <MainLayout
-      title="38 Facts About Texas Vaping: SB 2024, Legal Vapes, & Rules | Vape Cave TX"
+      title="38 Facts About Texas Vaping: SB 2024, Legal Vapes, & Rules | Vape Cave Smoke & Stuff"
       description="Get 38 clear facts on Texas's SB 2024 vape ban, legal disposables, compliant brands (RAZ, Geek Bar), e-liquids, and purchasing rules."
       canonical="/faq"
       structuredData={faqSchema}

@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
         if (userData.isAdmin) {
           toast({
             title: "Login successful",
-            description: "Welcome to the Vape Cave admin panel.",
+            description: "Welcome to the Vape Cave Smoke & Stuff admin panel.",
             variant: "default",
           });
           navigate('/admin');
@@ -83,8 +83,8 @@ export default function AdminLoginPage() {
 
   return (
     <MainLayout
-      title="Admin Login | Vape Cave"
-      description="Admin login for Vape Cave website management."
+      title="Admin Login | Vape Cave Smoke & Stuff"
+      description="Admin login for Vape Cave Smoke & Stuff website management."
     >
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)] px-4 py-12 bg-zinc-900">
         <Card className="w-full max-w-md border border-zinc-700 bg-zinc-800 text-white shadow-xl">

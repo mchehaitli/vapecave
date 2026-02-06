@@ -97,8 +97,8 @@ export default function DeliveryLogin() {
 
   return (
     <MainLayout
-      title="Delivery Login - Vape Cave"
-      description="Sign in to your Vape Cave delivery account to browse products and place orders."
+      title="Delivery Login - Vape Cave Smoke & Stuff"
+      description="Sign in to your Vape Cave Smoke & Stuff delivery account to browse products and place orders."
       canonical="/signin"
     >
       <div className="min-h-[80vh] bg-background flex items-center justify-center p-4">

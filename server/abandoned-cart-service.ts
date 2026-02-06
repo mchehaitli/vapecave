@@ -50,7 +50,7 @@ export async function processAbandonedCarts(): Promise<{ sent: number; errors: n
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
     <tr>
       <td style="background: linear-gradient(135deg, #FF7100 0%, #FF8C33 100%); padding: 30px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Vape Cave</h1>
+        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Vape Cave Smoke & Stuff</h1>
         <p style="color: #fff3e0; margin: 10px 0 0 0; font-size: 14px;">Frisco, TX</p>
       </td>
     </tr>
@@ -93,7 +93,7 @@ export async function processAbandonedCarts(): Promise<{ sent: number; errors: n
     <tr>
       <td style="background-color: #1A1A1A; padding: 25px 30px; text-align: center;">
         <p style="color: #999999; font-size: 12px; margin: 0;">
-          Vape Cave | Frisco, TX<br>
+          Vape Cave Smoke & Stuff | Frisco, TX<br>
           <a href="https://vapecavefrisco.com" style="color: #FF7100; text-decoration: none;">vapecavefrisco.com</a>
         </p>
         <p style="color: #666666; font-size: 11px; margin: 15px 0 0 0;">
