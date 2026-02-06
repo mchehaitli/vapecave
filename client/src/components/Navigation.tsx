@@ -110,7 +110,7 @@ const Navigation = () => {
                       role="menuitem"
                       aria-label={item.ariaLabel}
                       aria-current={location === item.path ? "page" : undefined}
-                      className={`text-black hover:text-white transition-colors cursor-pointer font-medium relative text-sm ${
+                      className={`text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] ${
                         location === item.path 
                           ? 'font-bold after:block after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-black'
                           : 'after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300'
