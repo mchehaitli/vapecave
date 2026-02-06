@@ -98,7 +98,7 @@ const Navigation = () => {
           </button>
 
           {/* Desktop Navigation with Semantic Structure */}
-          <nav className="hidden md:flex items-center gap-4" aria-label="Main Navigation">
+          <nav className="hidden md:flex items-center gap-4 ml-[13px] mr-[13px]" aria-label="Main Navigation">
             <ul className="flex space-x-8 font-['Poppins'] font-medium" role="menubar">
               {navItems.map((item) => (
                 <li key={item.path} role="none">
@@ -175,7 +175,6 @@ const Navigation = () => {
           </div>
         )}
       </div>
-
       {/* Mobile Navigation with Improved Accessibility */}
       <div 
         id="mobile-menu"
