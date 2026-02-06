@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { DeliveryHeader } from "@/components/DeliveryHeader";
 import { DeliveryFooter } from "@/components/DeliveryFooter";
+import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
 import { Button } from "@/components/ui/button";
 import type { HeroSlide, SiteSettings, CategoryBanner } from "@shared/schema";
 
@@ -32,6 +33,23 @@ export default function DeliveryHome() {
   const isVideoSlide = currentSlideData?.mediaType === 'video';
 
   useEffect(() => {
+    heroSlides.forEach((slide) => {
+      const url = slide.mediaUrl || slide.image || '';
+      if (!url) return;
+      if (slide.mediaType === 'video') {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'video';
+        link.href = url;
+        document.head.appendChild(link);
+      } else {
+        const img = new Image();
+        img.src = url;
+      }
+    });
+  }, [heroSlides]);
+
+  useEffect(() => {
     if (heroSlides.length <= 1) return;
     
     const timer = setInterval(() => {
@@ -56,6 +74,8 @@ export default function DeliveryHome() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <DeliveryHeader />
+
+      <DeliveryCategoryNav />
 
       {siteSettings?.infoBarEnabled && siteSettings?.infoBarMessage && (
         <motion.div 
@@ -93,7 +113,9 @@ export default function DeliveryHome() {
                     playsInline
                     loop
                     preload="auto"
-                    onCanPlay={(e) => (e.target as HTMLVideoElement).play()}
+                    onLoadedData={(e) => (e.target as HTMLVideoElement).play()}
+                    onCanPlayThrough={(e) => (e.target as HTMLVideoElement).play()}
+                    style={{ willChange: 'transform' }}
                   />
                 ) : (
                   <img
@@ -103,7 +125,7 @@ export default function DeliveryHome() {
                   />
                 )}
 
-                <div className="absolute inset-0 flex items-end justify-center pb-6">
+                <div className="absolute inset-0 flex items-end justify-center pb-3">
                   <motion.div
                     initial={{ y: 60, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}

@@ -129,6 +129,10 @@ export function DeliveryHeader({
   };
 
   return (
+    <>
+    <div className="bg-[#c0392b] text-white text-center py-1.5 text-xs md:text-sm font-bold tracking-wide z-[60] relative">
+      WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.
+    </div>
     <header className="bg-card border-b sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto pl-2 pr-4">
         <div className="h-16 flex items-center justify-between gap-4">
@@ -525,5 +529,6 @@ export function DeliveryHeader({
         )}
       </AnimatePresence>
     </header>
+    </>
   );
 }

@@ -11,19 +11,19 @@ const Logo: React.FC<LogoProps> = ({
   variant = "orange", 
   location = "header" 
 }) => {
-  const sizeClasses = location === "header" 
-    ? "h-10 md:h-12 lg:h-14 w-auto" 
-    : "h-12 md:h-16 lg:h-20 w-auto";
-
   const useDark = variant === "dark" || variant === "black";
   const logoSrc = useDark ? darkLogoImage : whiteLogoImage;
+
+  const imgClass = location === "footer"
+    ? "h-[4rem] md:h-[5rem] lg:h-[6rem] w-auto scale-x-[1.1]"
+    : "h-[3.3rem] md:h-[3.85rem] lg:h-[4.62rem] w-auto scale-x-[1.1] ml-[16px] mr-[16px] -my-2 pt-[1px] pb-[1px]";
     
   return (
     <div className="flex items-center">
       <img 
         src={logoSrc} 
         alt="Vape Cave Smoke & Stuff" 
-        className="h-[3.3rem] md:h-[3.85rem] lg:h-[4.62rem] w-auto scale-x-[1.1] pl-[0px] pr-[0px] ml-[16px] mr-[16px] -my-2 pt-[1px] pb-[1px]"
+        className={imgClass}
       />
     </div>
   );
