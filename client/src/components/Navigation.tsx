@@ -74,7 +74,7 @@ const Navigation = () => {
 
   return (
     <header className="bg-primary sticky top-0 z-50 shadow-lg backdrop-blur-sm bg-opacity-95">
-      <div className="container mx-auto px-4 py-2">
+      <div className="container mx-auto px-4 py-1">
         <div className="flex items-center justify-between md:hidden">
           <Link href="/">
             <div className="logo-container cursor-pointer" role="img" aria-label="Vape Cave Smoke & Stuff - Go to homepage">
@@ -95,15 +95,13 @@ const Navigation = () => {
           </button>
         </div>
 
-        <div className="hidden md:block">
-          <div className="flex justify-center py-1">
-            <Link href="/">
-              <div className="logo-container cursor-pointer" role="img" aria-label="Vape Cave Smoke & Stuff - Go to homepage">
-                <Logo variant="black" location="header" />
-              </div>
-            </Link>
-          </div>
-          <nav className="relative flex items-center justify-center pt-1" aria-label="Main Navigation">
+        <div className="hidden md:flex items-center">
+          <Link href="/">
+            <div className="logo-container cursor-pointer shrink-0" role="img" aria-label="Vape Cave Smoke & Stuff - Go to homepage">
+              <Logo variant="black" location="header" />
+            </div>
+          </Link>
+          <nav className="flex-1 relative flex items-center justify-center" aria-label="Main Navigation">
             <ul className="flex items-center space-x-6 font-['Poppins'] font-medium" role="menubar">
               {navItems.map((item) => (
                 <li key={item.path} role="none">
@@ -124,30 +122,30 @@ const Navigation = () => {
                 </li>
               ))}
             </ul>
-            <div className="absolute right-0 flex items-center gap-2">
-              <Link href="/signup">
-                <span
-                  className="px-3 py-1.5 bg-black text-primary rounded-md hover:bg-black/80 transition-all duration-300 font-bold whitespace-nowrap cursor-pointer inline-block text-sm"
-                  aria-label="Sign up or sign in to your account"
-                  data-testid="button-signup-header"
-                >
-                  Sign Up/Sign In
-                </span>
-              </Link>
-              <button
-                onClick={toggleTheme}
-                className="p-1.5 rounded-full bg-black/10 hover:bg-black/20 transition-colors"
-                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-                data-testid="button-theme-toggle"
-              >
-                {theme === 'dark' ? (
-                  <Sun className="h-4 w-4 text-black" />
-                ) : (
-                  <Moon className="h-4 w-4 text-black" />
-                )}
-              </button>
-            </div>
           </nav>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link href="/signup">
+              <span
+                className="px-3 py-1.5 bg-black text-primary rounded-md hover:bg-black/80 transition-all duration-300 font-bold whitespace-nowrap cursor-pointer inline-block text-sm"
+                aria-label="Sign up or sign in to your account"
+                data-testid="button-signup-header"
+              >
+                Sign Up/Sign In
+              </span>
+            </Link>
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 rounded-full bg-black/10 hover:bg-black/20 transition-colors"
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              data-testid="button-theme-toggle"
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-4 w-4 text-black" />
+              ) : (
+                <Moon className="h-4 w-4 text-black" />
+              )}
+            </button>
+          </div>
         </div>
         
         {/* Scroll Navigation (only on homepage) */}
