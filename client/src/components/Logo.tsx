@@ -15,7 +15,7 @@ const Logo: React.FC<LogoProps> = ({
     ? "h-10 md:h-12 lg:h-14 w-auto" 
     : "h-12 md:h-16 lg:h-20 w-auto";
 
-  const useDark = variant === "dark";
+  const useDark = variant === "dark" || variant === "black";
   const logoSrc = useDark ? darkLogoImage : whiteLogoImage;
     
   return (
