@@ -152,7 +152,7 @@ export function DeliveryHeader({
             <Link href="/delivery/home" className="flex items-center gap-4 font-bold text-xl hover:opacity-80 transition-opacity">
               <img 
                 src="/logo-orange.png" 
-                alt="Vape Cave" 
+                alt="Vape Cave Smoke & Stuff" 
                 className="h-7 w-auto"
               />
               <Badge variant="secondary" className="hidden sm:inline-flex text-xs">

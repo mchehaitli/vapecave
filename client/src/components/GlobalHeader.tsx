@@ -53,7 +53,7 @@ export function GlobalHeader({ cartItemCount = 0, onCartClick }: GlobalHeaderPro
             >
               <img
                 src="/logo-orange.png"
-                alt="Vape Cave TX"
+                alt="Vape Cave Smoke & Stuff"
                 className="h-9 w-auto transition-transform duration-300 group-hover:scale-105"
               />
             </Link>
@@ -167,7 +167,7 @@ export function GlobalHeader({ cartItemCount = 0, onCartClick }: GlobalHeaderPro
                 <div className="flex items-center justify-between p-4 border-b border-border/50">
                   <img
                     src="/logo-orange.png"
-                    alt="Vape Cave TX"
+                    alt="Vape Cave Smoke & Stuff"
                     className="h-8 w-auto"
                   />
                   <button

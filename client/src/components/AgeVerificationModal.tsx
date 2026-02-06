@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import ageLogo from "../assets/age_verification_logo_new-optimized.png";
-import ageLogoWebP from "../assets/age_verification_logo_new.webp";
+import ageLogo from "../assets/vapecave-logo-white-transparent.png";
 import { Helmet } from "react-helmet";
 
 interface AgeVerificationModalProps {
@@ -119,16 +118,11 @@ const AgeVerificationModal: React.FC<AgeVerificationModalProps> = ({ onVerify })
       </Helmet>
       <div className="bg-black rounded-xl shadow-2xl max-w-md w-full mx-4 p-6 md:p-8 border-2 border-primary relative">
         <div className="mb-6 flex justify-center">
-          <picture>
-            <source srcSet={ageLogoWebP} type="image/webp" />
-            <img 
-              src={ageLogo} 
-              alt="Vape Cave - Smoke & Stuff" 
-              className="w-[300px] md:w-[350px] lg:w-[400px] h-auto"
-              width="800"
-              height="373"
-            />
-          </picture>
+          <img 
+            src={ageLogo} 
+            alt="Vape Cave Smoke & Stuff" 
+            className="w-[300px] md:w-[350px] lg:w-[400px] h-auto"
+          />
         </div>
         
         <div className="text-center mb-6">

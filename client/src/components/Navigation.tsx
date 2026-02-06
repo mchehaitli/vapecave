@@ -78,7 +78,7 @@ const Navigation = () => {
         <div className="flex justify-between items-center">
           {/* Logo with improved accessibility */}
           <Link href="/">
-            <div className="logo-container cursor-pointer" role="img" aria-label="Vape Cave Logo - Go to homepage">
+            <div className="logo-container cursor-pointer" role="img" aria-label="Vape Cave Smoke & Stuff - Go to homepage">
               <Logo variant="black" location="header" />
             </div>
           </Link>
