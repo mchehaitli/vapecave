@@ -123,7 +123,8 @@ function BrandCard({ brand }: { brand: DeliveryBrand }) {
             {brand.logo ? (
               <img 
                 src={brand.logo} 
-                alt={brand.name}
+                alt={`${brand.name} - Vape Cave Frisco`}
+                loading="lazy"
                 className="w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-110"
               />
             ) : (

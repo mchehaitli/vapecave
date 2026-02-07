@@ -29,7 +29,7 @@
     {
       "name": "Store Locations",
       "short_name": "Locations",
-      "description": "Find our Frisco and Arlington locations",
+      "description": "Find our Frisco location",
       "url": "/locations",
       "icons": [{ "src": "/vapecave-logo.png", "sizes": "96x96" }]
     },

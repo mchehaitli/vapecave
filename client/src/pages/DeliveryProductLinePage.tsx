@@ -369,7 +369,8 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                     <div className="relative aspect-square overflow-hidden bg-muted">
                       <img
                         src={product.image || '/placeholder-product.png'}
-                        alt={product.name}
+                        alt={`${product.name} - Vape Cave Frisco`}
+                        loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -461,7 +462,8 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                     <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden bg-muted">
                       <img
                         src={product.image || '/placeholder-product.png'}
-                        alt={product.name}
+                        alt={`${product.name} - Vape Cave Frisco`}
+                        loading="lazy"
                         className="w-full h-full object-cover"
                       />
                       {isFeatured && (

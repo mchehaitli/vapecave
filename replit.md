@@ -59,6 +59,26 @@ The application adopts a modular architecture with clear separation between fron
 - **UI & Styling**: Google Fonts (Poppins, Open Sans), Font Awesome, Lucide React.
 - **Archiving**: JSZip (for creating ZIP archives).
 
+## SEO Enhancement Plan (February 2026)
+
+A comprehensive Local SEO overhaul aligned with the Google Maps profile to rank #1 in Frisco, TX. Source of truth constants:
+- **Business Name:** "Vape Cave Smoke & Stuff" (Short: "Vape Cave")
+- **Single Location:** Frisco, TX ONLY
+- **Address:** 6958 Main St, Suite 200, Frisco, TX 75033
+- **Phone:** (469) 294-0061
+- **Email:** vapecavetx@gmail.com
+- **Hours:** Mon-Sun: 10:00 AM – 12:00 AM (Midnight)
+- **Coordinates:** 33.1507 (Lat), -96.8236 (Long)
+
+Tasks completed:
+1. Removed all Arlington references (AdminPage placeholders, manifest.json)
+2. Updated logo alt tag to "Vape Cave Smoke & Stuff - Frisco, TX"
+3. Updated JSON-LD schema in index.html (added VaporizerStore type, alternateName)
+4. Updated title, meta description, and canonical tag in index.html
+5. Updated hero sub-text to "Located on Main Street | Open Daily 10AM - Midnight"
+6. Fixed footer: correct phone (469) 294-0061, hard-coded address, hours
+7. Audited sitemap.xml, robots.txt, added loading="lazy" and Frisco alt tags to product images
+
 ## Recent Updates (January 2026)
 
 ### Delivery Portal Enhancements

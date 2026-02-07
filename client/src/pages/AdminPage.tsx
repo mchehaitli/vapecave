@@ -3132,7 +3132,7 @@ export default function AdminPage() {
                               <FormControl>
                                 <Input
                                   className="bg-gray-900 border-gray-700 text-white" 
-                                  placeholder="Arlington"
+                                  placeholder="Frisco"
                                   {...field}
                                 />
                               </FormControl>
@@ -3168,7 +3168,7 @@ export default function AdminPage() {
                               <FormControl>
                                 <Input
                                   className="bg-gray-900 border-gray-700 text-white" 
-                                  placeholder="123 Main St, Arlington, TX 76010"
+                                  placeholder="6958 Main St, Suite 200, Frisco, TX 75033"
                                   {...field}
                                 />
                               </FormControl>

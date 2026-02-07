@@ -127,8 +127,9 @@ export default function DeliveryHome() {
                 ) : (
                   <img
                     src={getMediaUrl(currentSlideData)}
-                    alt={currentSlideData?.title || 'Hero image'}
+                    alt={currentSlideData?.title || 'Vape Cave Smoke Shop Frisco Hero'}
                     className="w-full h-auto max-h-[80vh] object-cover"
+                    loading="lazy"
                   />
                 )}
 
@@ -221,8 +222,9 @@ export default function DeliveryHome() {
                     >
                       <motion.img
                         src={banner.image}
-                        alt={banner.title || 'Category banner'}
+                        alt={`${banner.title || 'Category'} - Vape Cave Frisco`}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                         initial={{ scale: 1 }}
                         whileHover={{ scale: 1.08 }}
                         transition={{ duration: 0.7, ease: "easeOut" }}

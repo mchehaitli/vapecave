@@ -245,7 +245,8 @@ export default function DeliveryCategoryPage() {
                     <div className="relative aspect-square bg-muted/50">
                       <img
                         src={product.image || "/placeholder-product.png"}
-                        alt={product.name}
+                        alt={`${product.name} - Vape Cave Frisco`}
+                        loading="lazy"
                         className={`w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300 ${isOutOfStock ? 'opacity-50' : ''}`}
                       />
                       {isFeatured && (
@@ -328,7 +329,8 @@ export default function DeliveryCategoryPage() {
                     <div className="relative w-20 h-20 bg-muted/50 rounded-lg flex-shrink-0">
                       <img
                         src={product.image || "/placeholder-product.png"}
-                        alt={product.name}
+                        alt={`${product.name} - Vape Cave Frisco`}
+                        loading="lazy"
                         className="w-full h-full object-contain p-1"
                       />
                       {isOutOfStock && (

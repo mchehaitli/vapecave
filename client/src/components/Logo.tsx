@@ -22,7 +22,7 @@ const Logo: React.FC<LogoProps> = ({
     <div className="flex items-center">
       <img 
         src={logoSrc} 
-        alt="Vape Cave Smoke & Stuff" 
+        alt="Vape Cave Smoke & Stuff - Frisco, TX" 
         className={imgClass}
       />
     </div>

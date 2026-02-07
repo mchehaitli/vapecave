@@ -276,16 +276,9 @@ const HomePage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
               >
-                Located on Main Street in Frisco's newly developed Rail District
+                Located on Main Street | Open Daily 10AM - Midnight
               </motion.p>
-              <motion.p 
-                className="text-base md:text-lg mb-4 text-primary font-semibold max-w-4xl mx-auto leading-relaxed"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-              >
-                Open Daily 10AM - Midnight
-              </motion.p>
+              
               <motion.div 
                 className="inline-block bg-primary/20 border border-primary/50 rounded-lg px-4 py-2 mb-6"
                 initial={{ opacity: 0, scale: 0.9 }}

@@ -288,7 +288,8 @@ function SaleProductCard({
           <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
             <img
               src={product.image || '/placeholder-product.png'}
-              alt={product.name}
+              alt={`${product.name} - Vape Cave Frisco`}
+              loading="lazy"
               className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
             />
             
