@@ -1,0 +1,86 @@
+Act as a Senior React Architect. We are implementing a "Hyper-Local" SEO strategy for this Vite/React project.
+
+**CRITICAL CONTEXT:**
+* This is a Client/Server repo. All frontend code is in the `client/` directory.
+* **TARGET FILE FOR ROUTES:** You must edit `client/src/App.tsx` (or `client/src/App.jsx`). Do not create a new App file; modify the existing one.
+
+We need to add 5 "Virtual Landing Pages" and inject specific Blog Content to target "Frisco, TX" keywords.
+
+### 📦 STEP 1: DEPENDENCY CHECK (Execute in Shell)
+Check if `react-helmet-async` is installed in the `client` directory.
+* If not, run: `cd client && npm install react-helmet-async`
+* **Action:** In `client/src/main.tsx` (or `index.tsx`), wrap the entire app in `<HelmetProvider>`.
+
+### 📄 STEP 2: CREATE THE "SEO PAGE" COMPONENT
+Create a new file: `client/src/pages/SeoLandingPage.tsx`.
+This component will act as a template for our 5 new virtual pages.
+
+**Requirements for this component:**
+1.  Accept props: `title` (string), `headline` (string), `content` (string/JSX).
+2.  **Crucial:** Use `<Helmet>` to set the document `<title>` to the `props.title`.
+3.  **Crucial:** Use `<Helmet>` to set a `<meta name="description">` containing "Frisco, TX".
+4.  Render the `headline` as an `<h1>`.
+5.  Render the `content` in a clean, readable container.
+6.  Render a "Call to Action" button that links to your `/contact` or `/products` page.
+
+### 🛣️ STEP 3: CONFIGURE ROUTES
+**Target File:** `client/src/App.tsx`
+Import `SeoLandingPage` at the top.
+Add the following 5 specific Routes to your existing `<Routes>` block. Do NOT delete existing routes.
+
+**The 5 Routes to Add:**
+
+1.  **Path:** `/disposables`
+    * **Prop title:** "Best Disposable Vapes in Frisco, TX | Vape Cave"
+    * **Prop headline:** "Frisco's #1 Destination for Geek Bar, Raz & Lost Mary"
+    * **Content:** "Looking for disposable vapes in Frisco? We stock the largest inventory on Main St. From the Geek Bar Pulse to the latest Lost Mary, find your favorite flavors here."
+
+2.  **Path:** `/thca-hemp`
+    * **Prop title:** "THCA Flower & Delta-8 Shop Frisco | Vape Cave"
+    * **Prop headline:** "Premium THCA Flower & Legal Delta-8 in Frisco"
+    * **Content:** "Your trusted source for lab-tested THCA and Hemp products in Downtown Frisco. We carry fresh flower, pre-rolls, and gummies that are 100% legal and potent."
+
+3.  **Path:** `/kratom-cbd`
+    * **Prop title:** "Kratom & CBD Store Frisco | High Potency"
+    * **Prop headline:** "Top-Shelf Kratom & CBD Oil in Frisco"
+    * **Content:** "From Maeng Da to Bali, find the best Kratom strains right here in Frisco. We also carry premium CBD oils and topicals for relief."
+
+4.  **Path:** `/glass-hookah`
+    * **Prop title:** "Glass Pipes & Hookah Gallery Frisco | Vape Cave"
+    * **Prop headline:** "Hand-Blown Glass & Premium Hookah Tobacco"
+    * **Content:** "Visit our glass gallery on Main St. We carry RooR, Toro, and premier Hookah shisha brands like Al Fakher and Starbuzz."
+
+5.  **Path:** `/vape-juice`
+    * **Prop title:** "Premium E-Liquid & Vape Juice Frisco | Vape Cave"
+    * **Prop headline:** "The Best Vape Juice Selection in Frisco, TX"
+    * **Content:** "Salt Nic or Freebase? We have every flavor imaginable at Vape Cave Frisco. Stocking premium brands like Naked 100, Juice Head, and more."
+
+### 📝 STEP 4: INJECT "FRISCO" BLOG POSTS
+Find your blog data file (likely `client/src/data/blogs.ts` or inside `client/src/pages/Blog.tsx`).
+* **Task:** Add these 3 specific post objects to the data array.
+
+**Post 1:**
+* **Title:** "Top 5 Disposable Vapes Trending in Frisco (2026)"
+* **Summary:** "Geek Bar Pulse vs. Raz? We breakdown what Frisco locals are buying most this month."
+* **Tag:** "Vape Guide"
+
+**Post 2:**
+* **Title:** "THCA vs. Delta-8: What is Legal in Frisco, TX?"
+* **Summary:** "Confused by the laws? We explain everything you need to know about buying legal hemp in Frisco."
+* **Tag:** "Education"
+
+**Post 3:**
+* **Title:** "Why Vape Cave is Frisco's Highest Rated Smoke Shop"
+* **Summary:** "With over 100 5-Star reviews, see why our neighbors on Main St choose us."
+* **Tag:** "Community"
+
+### 🧭 STEP 5: SITEMAP UPDATE
+Create (or update) `client/public/sitemap.xml`.
+* **Action:** Ensure it lists all 5 new URLs:
+    * `https://vapecavetx.com/disposables`
+    * `https://vapecavetx.com/thca-hemp`
+    * `https://vapecavetx.com/kratom-cbd`
+    * `https://vapecavetx.com/glass-hookah`
+    * `https://vapecavetx.com/vape-juice`
+
+**Final Check:** Ensure `SeoLandingPage` uses `react-helmet-async` to dynamically change the browser tab title.
