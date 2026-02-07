@@ -78,6 +78,9 @@ Tasks completed:
 5. Updated hero sub-text to "Located on Main Street | Open Daily 10AM - Midnight"
 6. Fixed footer: correct phone (469) 294-0061, hard-coded address, hours
 7. Audited sitemap.xml, robots.txt, added loading="lazy" and Frisco alt tags to product images
+8. Added 5 hyper-local SEO landing pages (/disposables, /thca-hemp, /kratom-cbd, /glass-hookah, /vape-juice) via reusable SeoLandingPage component
+9. Inserted 3 Frisco-themed blog posts into database (disposables guide, THCA/Delta-8 legal guide, community spotlight)
+10. Updated sitemap.xml with all 5 new landing page URLs
 
 ## Recent Updates (January 2026)
 
