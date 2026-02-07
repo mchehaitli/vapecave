@@ -230,7 +230,7 @@ const Footer = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                <span className="text-muted-foreground">(469) 294-0061</span>
+                <a href="tel:+14692940061" className="text-muted-foreground hover:text-primary/80 transition-colors" onClick={() => (window as any).gtag?.('event', 'click_to_call', { event_category: 'lead', event_label: 'footer_phone' })}>(469) 294-0061</a>
               </li>
               <li className="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -298,7 +298,7 @@ const Footer = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <div>
-                  <a href="https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7" target="_blank" rel="noopener noreferrer">
+                  <a href="https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7" target="_blank" rel="noopener noreferrer" onClick={() => (window as any).gtag?.('event', 'get_directions', { event_category: 'lead', event_label: 'footer_address' })}>
                     <span className="text-muted-foreground hover:text-primary/80 block">6958 Main St, Suite 200, Frisco, TX 75033</span>
                     <span className="text-primary/80 hover:text-primary text-xs">Google Maps</span>
                   </a>
@@ -308,6 +308,7 @@ const Footer = () => {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-primary/80 hover:text-primary text-xs"
+                    onClick={() => (window as any).gtag?.('event', 'get_directions', { event_category: 'lead', event_label: 'footer_address' })}
                   >
                     View on Apple Maps
                   </a>
@@ -317,7 +318,7 @@ const Footer = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                <span className="text-muted-foreground">(469) 294-0061</span>
+                <a href="tel:+14692940061" className="text-muted-foreground hover:text-primary/80 transition-colors" onClick={() => (window as any).gtag?.('event', 'click_to_call', { event_category: 'lead', event_label: 'footer_phone' })}>(469) 294-0061</a>
               </li>
               <li className="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
