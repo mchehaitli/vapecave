@@ -341,8 +341,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Helmet>
-      
-      <div className="bg-[#c0392b] text-white text-center py-1.5 text-xs md:text-sm font-bold tracking-wide z-[60] relative">
+      <div className="text-white text-center py-1.5 text-xs md:text-sm font-bold tracking-wide z-[60] relative bg-[#1a1a1a]">
         WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.
       </div>
       <Navigation />
