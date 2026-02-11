@@ -86,7 +86,7 @@ export default function DeliveryHome() {
 
       {siteSettings?.infoBarEnabled && siteSettings?.infoBarMessage && (
         <motion.div 
-          className="bg-primary text-primary-foreground py-2 text-center"
+          className="bg-black text-white py-2 text-center"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
