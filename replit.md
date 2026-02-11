@@ -85,7 +85,8 @@ Tasks completed:
 12. Renamed /thca-hemp route to /thca-flower, removed /kratom-cbd route entirely
 13. Updated SeoLandingPage meta description formula: "{headline}. Visit Vape Cave in Frisco, TX for {title}. Open Daily 10AM-12AM on Main St. Call (469) 294-0061."
 14. Updated HomePage meta title: "Vape Cave | #1 Vape Shop in Frisco, TX (Open Late)"
-15. Updated index.html JSON-LD schema with department array (Vape Shop, THCA Flower Shop, Glass Gallery)
+15. Updated index.html JSON-LD schema to `SmokeShop` type with `@id`, `url`, `priceRange`, `hasMap`, and multiple images
+16. Updated /disposables title to include "Raz" brand
 16. Added neighborhood text to Footer for "near me" SEO targeting
 17. Updated phone click tracking to use gtag event 'click_phone'
 18. Added loading="lazy" and Frisco-branded alt text to all img tags across codebase

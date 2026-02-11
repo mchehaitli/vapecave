@@ -118,7 +118,7 @@ function Router() {
           <Route path="/disposables">
             {() => (
               <SeoLandingPage
-                title="Best Disposable Vapes in Frisco, TX | Geek Bar & Lost Mary"
+                title="Best Disposable Vapes in Frisco, TX | Geek Bar, Raz & Lost Mary"
                 headline="#1 Disposable Vape Shop in Frisco"
                 content="Looking for the newest Geek Bar Pulse, Lost Mary, or Raz vapes in Frisco? Vape Cave has the largest fresh inventory on Main St."
               />
