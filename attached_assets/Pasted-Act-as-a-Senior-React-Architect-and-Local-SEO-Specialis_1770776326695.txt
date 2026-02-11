@@ -1,0 +1,111 @@
+Act as a Senior React Architect and Local SEO Specialist. I need you to perform a "Deep Dive" SEO overhaul on this Vite/React project.
+
+**STRICT CONSTRAINT:** Remove ANY AND ALL references to "Kratom" from the entire codebase (text, meta tags, schema, images). We do not sell this product.
+
+**GOAL:** Rank #1 in Frisco, TX for "Vape Shop", "Smoke Shop", "THCA", and "Disposables".
+
+### 📂 SECTION 1: ARCHITECTURE & ROUTING (The "Virtual Shelves")
+We need to create specific landing pages to capture different search intents.
+**Action:** In `client/src/App.tsx` (or where your Routes are defined), ADD these 4 new routes. Do not replace existing routes, just add these:
+
+1.  **Route:** `/disposables`
+    * **Component:** `SeoPage` (we will create this in Section 2)
+    * **Title:** "Best Disposable Vapes in Frisco, TX | Geek Bar & Lost Mary"
+    * **Headline:** "#1 Disposable Vape Shop in Frisco"
+    * **Content:** "Looking for the newest Geek Bar Pulse, Lost Mary, or Raz vapes in Frisco? Vape Cave has the largest fresh inventory on Main St."
+
+2.  **Route:** `/thca-flower`
+    * **Title:** "Premium THCA Flower & Delta-8 Shop Frisco | Vape Cave"
+    * **Headline:** "Top Shelf THCA Flower & Legal Hemp in Frisco"
+    * **Content:** "From exotic strains of THCA flower to potent Delta-8 gummies, we are Frisco's trusted source for legal hemp products."
+
+3.  **Route:** `/glass-hookah`
+    * **Title:** "Glass Pipes, Bongs & Hookah Store Frisco | Vape Cave"
+    * **Headline:** "Hand-Blown Glass & Premium Hookah Tobacco"
+    * **Content:** "Visit our glass gallery in Downtown Frisco. We carry RooR, Toro, and top Hookah brands like Al Fakher and Starbuzz."
+
+4.  **Route:** `/vape-juice`
+    * **Title:** "E-Liquid & Vape Juice Shop Frisco | Salt Nic & Freebase"
+    * **Headline:** "Massive E-Liquid Selection in Frisco, TX"
+    * **Content:** "Stocking premium brands like Naked 100, Coastal Clouds, and Juice Head. The best prices on vape juice in Frisco."
+
+---
+
+### 📄 SECTION 2: THE "SEO PAGE" COMPONENT
+**Action:** Create a reusable component `client/src/pages/SeoPage.tsx`.
+* **Props:** `title`, `headline`, `content`.
+* **Functionality:**
+    1.  Use `react-helmet-async` to dynamically set the document `<title>` and `<meta name="description">`.
+    2.  **Meta Description Formula:** `"{headline}. Visit Vape Cave in Frisco, TX for {title}. Open Daily 10AM-12AM on Main St. Call (469) 294-0061."`
+    3.  Render the `headline` as an `<h1>`.
+    4.  Render the `content` text.
+    5.  **Crucial:** Add a "Call to Action" button: `<a href="/contact" className="btn-primary">Get Directions to Frisco Shop</a>`.
+
+---
+
+### 🏠 SECTION 3: HOMEPAGE OVERHAUL (The "Click Magnet")
+**Action:** Open `client/src/pages/Home.tsx` (or `App.tsx`).
+* **H1 Tag:** Change to `<h1>Frisco's Premier Vape & Smoke Shop</h1>`.
+* **Meta Title:** `<title>Vape Cave | #1 Vape Shop in Frisco, TX (Open Late)</title>`
+* **Meta Description:** `<meta name="description" content="Rated #1 Vape & Smoke Shop in Frisco. Huge selection of Geek Bar, THCA, Glass & Hookah. Open Daily 10AM-Midnight on Main St. (469) 294-0061." />`
+* **Content Update:** If you see any mention of "Arlington" or "Kratom", DELETE IT.
+
+---
+
+### 🗺️ SECTION 4: LOCAL SEO FOOTER (The "Near Me" Trap)
+**Action:** Open `client/src/components/Footer.tsx`.
+* **Neighborhood Injection:** Add this exact text block at the bottom of the footer (small text):
+    > "Proudly serving: Frisco (75033, 75034), The Rail District, Little Elm, The Colony, Hackberry, Plano, and Prosper. Your local vape shop near me."
+* **Phone Click Tracking:** Ensure the phone link is: `<a href="tel:+14692940061" onClick={() => window.gtag('event', 'click_phone')}> (469) 294-0061 </a>`
+
+---
+
+### 🤖 SECTION 5: TECHNICAL SEO (Schema & Assets)
+**Action:** Update `index.html` head section.
+* **Inject JSON-LD Schema:**
+    ```json
+    <script type="application/ld+json">
+    {
+      "@context": "[https://schema.org](https://schema.org)",
+      "@type": ["Store", "TobaccoStore", "VaporizerStore"],
+      "name": "Vape Cave Smoke & Stuff",
+      "image": "[https://vapecavetx.com/logo.png](https://vapecavetx.com/logo.png)",
+      "telephone": "(469) 294-0061",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "6958 Main St, Suite 200",
+        "addressLocality": "Frisco",
+        "addressRegion": "TX",
+        "postalCode": "75033",
+        "addressCountry": "US"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 33.1507,
+        "longitude": -96.8236
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+          "opens": "10:00",
+          "closes": "00:00"
+        }
+      ],
+      "department": [
+        { "@type": "Store", "name": "Vape Shop" },
+        { "@type": "Store", "name": "THCA Flower Shop" },
+        { "@type": "Store", "name": "Glass Gallery" }
+      ]
+    }
+    </script>
+    ```
+
+**Action:** Generate `public/sitemap.xml`.
+* Create a file listing: `/`, `/disposables`, `/thca-flower`, `/glass-hookah`, `/vape-juice`, `/contact`.
+
+**Action:** Performance Scan.
+* Add `loading="lazy"` to ALL `<img>` tags in the codebase.
+* Add `alt` text to images following this pattern: `alt="Vape Cave Frisco - [Product Name]"`.
+
+**Confirm when all 5 sections are complete.**
