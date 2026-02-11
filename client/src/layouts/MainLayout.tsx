@@ -341,8 +341,28 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Helmet>
-      <div className="text-white text-center py-1.5 text-xs md:text-sm font-bold tracking-wide z-[60] relative bg-[#1a1a1a]">
-        WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.
+      <div 
+        className="overflow-hidden py-1.5 z-[60] relative bg-black"
+        style={{
+          boxShadow: '0 0 10px rgba(255, 113, 0, 0.5), 0 0 20px rgba(255, 113, 0, 0.3), 0 0 30px rgba(255, 113, 0, 0.15)'
+        }}
+      >
+        <div className="animate-marquee whitespace-nowrap text-white text-xs md:text-sm font-bold tracking-wide">
+          <span className="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span>
+          <span className="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span>
+          <span className="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span>
+          <span className="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span>
+        </div>
+        <style>{`
+          @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-marquee {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+          }
+        `}</style>
       </div>
       <Navigation />
       <main className="flex-grow">
