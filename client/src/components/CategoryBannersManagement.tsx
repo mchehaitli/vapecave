@@ -229,7 +229,8 @@ export function CategoryBannersManagement() {
               <div className="w-32 h-20 rounded overflow-hidden bg-gray-700 flex-shrink-0">
                 <img
                   src={banner.image || '/placeholder-product.png'}
-                  alt={banner.title || 'Category banner'}
+                  alt={`Vape Cave Frisco - ${banner.title || 'Category Banner'}`}
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -341,7 +342,7 @@ export function CategoryBannersManagement() {
               />
               {image && (
                 <div className="mt-2">
-                  <img src={image} alt="Preview" className="w-full h-32 object-cover rounded border border-gray-700" />
+                  <img src={image} alt="Vape Cave Frisco - Category Banner Preview" loading="lazy" className="w-full h-32 object-cover rounded border border-gray-700" />
                 </div>
               )}
             </div>

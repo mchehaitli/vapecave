@@ -1007,7 +1007,7 @@ export function CategoryBrandManagement() {
                 />
                 {categoryImage && (
                   <div className="w-12 h-12 rounded overflow-hidden border border-gray-600">
-                    <img src={categoryImage} alt="" className="w-full h-full object-cover" />
+                    <img src={categoryImage} alt="Vape Cave Frisco - Category Image Preview" loading="lazy" className="w-full h-full object-cover" />
                   </div>
                 )}
               </div>
@@ -1099,7 +1099,7 @@ export function CategoryBrandManagement() {
                 </div>
                 {brandLogo && (
                   <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-600 bg-white p-2">
-                    <img src={brandLogo} alt="Brand logo preview" className="w-full h-full object-contain" />
+                    <img src={brandLogo} alt="Vape Cave Frisco - Brand Logo Preview" loading="lazy" className="w-full h-full object-contain" />
                   </div>
                 )}
               </div>
@@ -1169,7 +1169,7 @@ export function CategoryBrandManagement() {
                 />
                 {productLineLogo && (
                   <div className="w-12 h-12 rounded overflow-hidden border border-gray-600 bg-white p-1">
-                    <img src={productLineLogo} alt="" className="w-full h-full object-contain" />
+                    <img src={productLineLogo} alt="Vape Cave Frisco - Product Line Logo Preview" loading="lazy" className="w-full h-full object-contain" />
                   </div>
                 )}
               </div>
@@ -1269,7 +1269,7 @@ export function CategoryBrandManagement() {
                       )}
                     </div>
                     {product.image && (
-                      <img src={product.image} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                      <img src={product.image} alt={`Vape Cave Frisco - ${product.name}`} loading="lazy" className="w-12 h-12 object-cover rounded" />
                     )}
                     <div className="flex-1">
                       <div className="font-medium">{product.name}</div>

@@ -182,7 +182,7 @@ export default function AdminBrandImagesPage() {
                         <div className="flex items-start gap-6 mb-6">
                           <div className="w-24 h-24 bg-white rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
                             {brand.logo ? (
-                              <img src={brand.logo} alt={brand.name} className="w-full h-full object-contain p-2" />
+                              <img src={brand.logo} alt={`Vape Cave Frisco - ${brand.name}`} loading="lazy" className="w-full h-full object-contain p-2" />
                             ) : (
                               <ImageIcon className="w-10 h-10 text-gray-300" />
                             )}
@@ -238,7 +238,7 @@ export default function AdminBrandImagesPage() {
                                   <Card key={productLine.id} className="bg-gray-900 border-gray-700 p-4">
                                     <div className="w-full aspect-square bg-white rounded-lg flex items-center justify-center overflow-hidden mb-3">
                                       {productLine.logo ? (
-                                        <img src={productLine.logo} alt={productLine.name} className="w-full h-full object-contain p-2" />
+                                        <img src={productLine.logo} alt={`Vape Cave Frisco - ${productLine.name}`} loading="lazy" className="w-full h-full object-contain p-2" />
                                       ) : (
                                         <ImageIcon className="w-8 h-8 text-gray-300" />
                                       )}

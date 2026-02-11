@@ -1952,7 +1952,8 @@ export default function AdminPage() {
                                           <div className="relative w-full max-w-md mx-auto">
                                             <img 
                                               src={product.image} 
-                                              alt={product.name} 
+                                              alt={`Vape Cave Frisco - ${product.name}`} 
+                                              loading="lazy"
                                               className="rounded-lg max-h-[300px] object-contain mx-auto border border-gray-600 bg-gray-700 p-2"
                                               onError={(e) => {
                                                 (e.target as HTMLImageElement).src = 'https://placehold.co/300x300?text=No+Image';
@@ -1977,7 +1978,8 @@ export default function AdminPage() {
                                 >
                                   <img 
                                     src={product.image} 
-                                    alt={product.name} 
+                                    alt={`Vape Cave Frisco - ${product.name}`} 
+                                    loading="lazy"
                                     className="w-full h-full object-contain" 
                                     onError={(e) => {
                                       (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Error';
@@ -2444,7 +2446,8 @@ export default function AdminPage() {
                                   >
                                     <img 
                                       src={brand.image} 
-                                      alt={brand.name} 
+                                      alt={`Vape Cave Frisco - ${brand.name}`} 
+                                      loading="lazy"
                                       className="w-full h-full object-contain" 
                                       onError={(e) => {
                                         (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Error';
@@ -2628,7 +2631,8 @@ export default function AdminPage() {
                                   <div className="w-32 h-32 bg-gray-900 rounded flex items-center justify-center overflow-hidden">
                                     <img 
                                       src={field.value} 
-                                      alt="Brand preview" 
+                                      alt="Vape Cave Frisco - Brand Preview" 
+                                      loading="lazy"
                                       className="max-w-full max-h-full object-contain"
                                       onError={(e) => {
                                         (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Invalid+Image';
@@ -3017,7 +3021,8 @@ export default function AdminPage() {
                               <div className="w-12 h-12 rounded bg-gray-700 overflow-hidden border border-gray-600">
                                 <img 
                                   src={location.image} 
-                                  alt={location.name} 
+                                  alt={`Vape Cave Frisco - ${location.name}`} 
+                                  loading="lazy"
                                   className="w-full h-full object-cover" 
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Store';

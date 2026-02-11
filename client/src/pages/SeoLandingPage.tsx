@@ -2,7 +2,7 @@ import MainLayout from "@/layouts/MainLayout";
 import { Helmet } from "react-helmet";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, Phone } from "lucide-react";
 
 interface SeoLandingPageProps {
   title: string;
@@ -13,11 +13,13 @@ interface SeoLandingPageProps {
 export default function SeoLandingPage({ title, headline, content }: SeoLandingPageProps) {
   const [location] = useLocation();
 
+  const metaDescription = `${headline}. Visit Vape Cave in Frisco, TX for ${title}. Open Daily 10AM-12AM on Main St. Call (469) 294-0061.`;
+
   return (
     <MainLayout>
       <Helmet>
         <title>{title}</title>
-        <meta name="description" content={`${headline} — Visit Vape Cave in Frisco, TX for the best selection and prices.`} />
+        <meta name="description" content={metaDescription} />
         <link rel="canonical" href={`https://vapecavetx.com${location}`} />
       </Helmet>
 
@@ -39,16 +41,16 @@ export default function SeoLandingPage({ title, headline, content }: SeoLandingP
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/products">
-              <Button size="lg" className="gap-2">
-                Browse Products <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
             <Link href="/contact">
-              <Button size="lg" variant="outline" className="gap-2">
-                <MapPin className="h-4 w-4" /> Visit Us in Frisco
+              <Button size="lg" className="gap-2">
+                <MapPin className="h-4 w-4" /> Get Directions to Frisco Shop
               </Button>
             </Link>
+            <a href="tel:+14692940061" onClick={() => (window as any).gtag?.('event', 'click_phone')}>
+              <Button size="lg" variant="outline" className="gap-2">
+                <Phone className="h-4 w-4" /> (469) 294-0061
+              </Button>
+            </a>
           </div>
         </div>
       </section>

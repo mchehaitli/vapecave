@@ -97,7 +97,8 @@ function SortableSlide({
         ) : (
           <img
             src={mediaUrl || '/placeholder-product.png'}
-            alt={slide.title}
+            alt={`Vape Cave Frisco - ${slide.title}`}
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         )}
@@ -463,7 +464,7 @@ export function HeroSlidesManagement() {
               </p>
               {slideMediaUrl && slideMediaType === 'image' && (
                 <div className="mt-2 h-32 rounded overflow-hidden border border-gray-600">
-                  <img src={slideMediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={slideMediaUrl} alt="Vape Cave Frisco - Hero Slide Preview" loading="lazy" className="w-full h-full object-cover" />
                 </div>
               )}
               {slideMediaUrl && slideMediaType === 'video' && (

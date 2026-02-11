@@ -41,7 +41,8 @@ export function DeliveryFooter() {
           <motion.div variants={sectionVariants}>
             <img 
               src="/logo-orange.png" 
-              alt="Vape Cave Smoke & Stuff - Frisco, TX" 
+              alt="Vape Cave Frisco - Logo" 
+              loading="lazy"
               className="h-4 w-auto mb-3"
             />
             <div className="flex items-center gap-2">

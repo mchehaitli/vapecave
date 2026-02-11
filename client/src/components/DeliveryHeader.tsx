@@ -156,7 +156,8 @@ export function DeliveryHeader({
             <Link href="/delivery/home" className="flex items-center gap-4 font-bold text-xl hover:opacity-80 transition-opacity">
               <img 
                 src="/logo-orange.png" 
-                alt="Vape Cave Smoke & Stuff - Frisco, TX" 
+                alt="Vape Cave Frisco - Logo" 
+                loading="lazy"
                 className="h-12 w-auto scale-x-[1.15]"
               />
               <Badge variant="secondary" className="hidden sm:inline-flex text-xs">
@@ -243,7 +244,8 @@ export function DeliveryHeader({
                           {product.image && (
                             <img 
                               src={product.image} 
-                              alt={product.name}
+                              alt={`Vape Cave Frisco - ${product.name}`}
+                              loading="lazy"
                               className="w-10 h-10 object-cover rounded"
                             />
                           )}
@@ -380,7 +382,8 @@ export function DeliveryHeader({
                         {product.image && (
                           <img 
                             src={product.image} 
-                            alt={product.name}
+                            alt={`Vape Cave Frisco - ${product.name}`}
+                            loading="lazy"
                             className="w-10 h-10 object-cover rounded"
                           />
                         )}

@@ -819,7 +819,8 @@ export function DeliveryCustomersTab() {
           <div className="mt-4">
             <img 
               src={selectedCustomer?.photoIdUrl} 
-              alt="Photo ID" 
+              alt="Vape Cave Frisco - Customer Photo ID" 
+              loading="lazy"
               className="w-full rounded border border-gray-700"
               data-testid="img-photo-id"
             />
@@ -3203,7 +3204,7 @@ export function DeliveryProductsTab() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {product.image && (
-                              <img src={product.image} alt={product.name} className="w-10 h-10 object-cover rounded" />
+                              <img src={product.image} alt={`Vape Cave Frisco - ${product.name}`} loading="lazy" className="w-10 h-10 object-cover rounded" />
                             )}
                             <div>
                               <div className="font-medium">{product.name}</div>

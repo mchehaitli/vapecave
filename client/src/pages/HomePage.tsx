@@ -171,13 +171,13 @@ const HomePage = () => {
 
   return (
     <MainLayout
-      title="Vape Cave Smoke & Stuff | Premium Vaping Products & Accessories | Frisco TX"
-      description="Welcome to Vape Cave Smoke & Stuff - your one-stop shop for premium vaping products, e-liquids, and accessories. Visit our conveniently located store in Frisco, TX."
+      title="Vape Cave | #1 Vape Shop in Frisco, TX (Open Late)"
+      description="Rated #1 Vape & Smoke Shop in Frisco. Huge selection of Geek Bar, THCA, Glass & Hookah. Open Daily 10AM-Midnight on Main St. (469) 294-0061."
       canonical="/"
     >
       <Helmet>
-        <title>Vape Cave Smoke & Stuff | Premium Vape Shop in Frisco TX | Disposables & Accessories</title>
-        <meta name="description" content="Visit Vape Cave Smoke & Stuff in Frisco TX for premium vaping products, disposables, and accessories. Located at 6958 Main St #200. Open daily with expert staff and competitive prices." />
+        <title>Vape Cave | #1 Vape Shop in Frisco, TX (Open Late)</title>
+        <meta name="description" content="Rated #1 Vape & Smoke Shop in Frisco. Huge selection of Geek Bar, THCA, Glass & Hookah. Open Daily 10AM-Midnight on Main St. (469) 294-0061." />
         <meta name="keywords" content="vape shop frisco, frisco vape shop, disposable vape frisco, vape products frisco tx, vaping frisco, frisco vaporizer shop, vape cave frisco" />
         <link rel="canonical" href="https://vapecavetx.com/" />
         <meta name="geo.position" content="33.150730;-96.822550" />

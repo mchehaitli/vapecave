@@ -120,7 +120,8 @@ const AgeVerificationModal: React.FC<AgeVerificationModalProps> = ({ onVerify })
         <div className="mb-6 flex justify-center">
           <img 
             src={ageLogo} 
-            alt="Vape Cave Smoke & Stuff" 
+            alt="Vape Cave Frisco - Age Verification" 
+            loading="lazy"
             className="w-[300px] md:w-[350px] lg:w-[400px] h-auto"
           />
         </div>

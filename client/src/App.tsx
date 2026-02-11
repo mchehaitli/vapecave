@@ -118,45 +118,36 @@ function Router() {
           <Route path="/disposables">
             {() => (
               <SeoLandingPage
-                title="Best Disposable Vapes in Frisco, TX | Vape Cave"
-                headline="Frisco's #1 Destination for Geek Bar, Raz & Lost Mary"
-                content="Looking for disposable vapes in Frisco? We stock the largest inventory on Main St. From the Geek Bar Pulse to the latest Lost Mary, find your favorite flavors here."
+                title="Best Disposable Vapes in Frisco, TX | Geek Bar & Lost Mary"
+                headline="#1 Disposable Vape Shop in Frisco"
+                content="Looking for the newest Geek Bar Pulse, Lost Mary, or Raz vapes in Frisco? Vape Cave has the largest fresh inventory on Main St."
               />
             )}
           </Route>
-          <Route path="/thca-hemp">
+          <Route path="/thca-flower">
             {() => (
               <SeoLandingPage
-                title="THCA Flower & Delta-8 Shop Frisco | Vape Cave"
-                headline="Premium THCA Flower & Legal Delta-8 in Frisco"
-                content="Your trusted source for lab-tested THCA and Hemp products in Downtown Frisco. We carry fresh flower, pre-rolls, and gummies that are 100% legal and potent."
-              />
-            )}
-          </Route>
-          <Route path="/kratom-cbd">
-            {() => (
-              <SeoLandingPage
-                title="Kratom & CBD Store Frisco | High Potency"
-                headline="Top-Shelf Kratom & CBD Oil in Frisco"
-                content="From Maeng Da to Bali, find the best Kratom strains right here in Frisco. We also carry premium CBD oils and topicals for relief."
+                title="Premium THCA Flower & Delta-8 Shop Frisco | Vape Cave"
+                headline="Top Shelf THCA Flower & Legal Hemp in Frisco"
+                content="From exotic strains of THCA flower to potent Delta-8 gummies, we are Frisco's trusted source for legal hemp products."
               />
             )}
           </Route>
           <Route path="/glass-hookah">
             {() => (
               <SeoLandingPage
-                title="Glass Pipes & Hookah Gallery Frisco | Vape Cave"
+                title="Glass Pipes, Bongs & Hookah Store Frisco | Vape Cave"
                 headline="Hand-Blown Glass & Premium Hookah Tobacco"
-                content="Visit our glass gallery on Main St. We carry RooR, Toro, and premier Hookah shisha brands like Al Fakher and Starbuzz."
+                content="Visit our glass gallery in Downtown Frisco. We carry RooR, Toro, and top Hookah brands like Al Fakher and Starbuzz."
               />
             )}
           </Route>
           <Route path="/vape-juice">
             {() => (
               <SeoLandingPage
-                title="Premium E-Liquid & Vape Juice Frisco | Vape Cave"
-                headline="The Best Vape Juice Selection in Frisco, TX"
-                content="Salt Nic or Freebase? We have every flavor imaginable at Vape Cave Frisco. Stocking premium brands like Naked 100, Juice Head, and more."
+                title="E-Liquid & Vape Juice Shop Frisco | Salt Nic & Freebase"
+                headline="Massive E-Liquid Selection in Frisco, TX"
+                content="Stocking premium brands like Naked 100, Coastal Clouds, and Juice Head. The best prices on vape juice in Frisco."
               />
             )}
           </Route>
