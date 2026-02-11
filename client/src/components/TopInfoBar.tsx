@@ -29,7 +29,7 @@ export function TopInfoBar() {
         animate={{ height: "auto", opacity: 1 }}
         exit={{ height: 0, opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-primary text-primary-foreground overflow-hidden"
+        className="bg-black text-white overflow-hidden"
         data-testid="top-info-bar"
       >
         <div className="container mx-auto px-4 py-2 flex items-center justify-between">
