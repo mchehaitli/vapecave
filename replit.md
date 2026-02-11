@@ -78,9 +78,17 @@ Tasks completed:
 5. Updated hero sub-text to "Located on Main Street | Open Daily 10AM - Midnight"
 6. Fixed footer: correct phone (469) 294-0061, hard-coded address, hours
 7. Audited sitemap.xml, robots.txt, added loading="lazy" and Frisco alt tags to product images
-8. Added 5 hyper-local SEO landing pages (/disposables, /thca-hemp, /kratom-cbd, /glass-hookah, /vape-juice) via reusable SeoLandingPage component
+8. Added 4 hyper-local SEO landing pages (/disposables, /thca-flower, /glass-hookah, /vape-juice) via reusable SeoLandingPage component
 9. Inserted 3 Frisco-themed blog posts into database (disposables guide, THCA/Delta-8 legal guide, community spotlight)
-10. Updated sitemap.xml with all 5 new landing page URLs
+10. Updated sitemap.xml with all SEO landing page URLs
+11. **Removed all Kratom references** from entire codebase (meta tags, routes, sitemaps) - product not sold
+12. Renamed /thca-hemp route to /thca-flower, removed /kratom-cbd route entirely
+13. Updated SeoLandingPage meta description formula: "{headline}. Visit Vape Cave in Frisco, TX for {title}. Open Daily 10AM-12AM on Main St. Call (469) 294-0061."
+14. Updated HomePage meta title: "Vape Cave | #1 Vape Shop in Frisco, TX (Open Late)"
+15. Updated index.html JSON-LD schema with department array (Vape Shop, THCA Flower Shop, Glass Gallery)
+16. Added neighborhood text to Footer for "near me" SEO targeting
+17. Updated phone click tracking to use gtag event 'click_phone'
+18. Added loading="lazy" and Frisco-branded alt text to all img tags across codebase
 
 ## Recent Updates (January 2026)
 
