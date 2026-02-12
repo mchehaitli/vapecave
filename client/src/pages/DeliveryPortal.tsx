@@ -31,6 +31,8 @@ function BrandCarousel({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
+  const isPausedRef = useRef(false);
+  const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -42,6 +44,12 @@ function BrandCarousel({
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
+      isPausedRef.current = true;
+      if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+      pauseTimeoutRef.current = setTimeout(() => {
+        isPausedRef.current = false;
+      }, 3000);
+
       const scrollAmount = 320;
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
@@ -71,6 +79,12 @@ function BrandCarousel({
     
     const smoothScroll = (currentTime: number) => {
       if (!scrollRef.current) {
+        animationFrameId = requestAnimationFrame(smoothScroll);
+        return;
+      }
+
+      if (isPausedRef.current) {
+        lastTime = 0;
         animationFrameId = requestAnimationFrame(smoothScroll);
         return;
       }
@@ -220,7 +234,8 @@ function ProductCarousel({
   onQuickView,
   cartItems,
   seeAllLink,
-  onUpdateQuantity 
+  onUpdateQuantity,
+  brandMap
 }: { 
   title: string;
   products: DeliveryProduct[];
@@ -228,12 +243,15 @@ function ProductCarousel({
   onQuickView: (product: DeliveryProduct) => void;
   cartItems: Record<number, number>;
   seeAllLink?: string;
+  brandMap?: Record<number, DeliveryBrand>;
   onUpdateQuantity?: (productId: number, quantity: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
+  const isPausedRef = useRef(false);
+  const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -245,6 +263,12 @@ function ProductCarousel({
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
+      isPausedRef.current = true;
+      if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+      pauseTimeoutRef.current = setTimeout(() => {
+        isPausedRef.current = false;
+      }, 3000);
+
       const scrollAmount = 320;
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
@@ -274,6 +298,12 @@ function ProductCarousel({
     
     const smoothScroll = (currentTime: number) => {
       if (!scrollRef.current) {
+        animationFrameId = requestAnimationFrame(smoothScroll);
+        return;
+      }
+
+      if (isPausedRef.current) {
+        lastTime = 0;
         animationFrameId = requestAnimationFrame(smoothScroll);
         return;
       }
@@ -383,9 +413,23 @@ function ProductCarousel({
               <Card className="group h-full overflow-hidden bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
                 <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
                   <img
-                    src={product.image || '/placeholder-product.png'}
+                    src={product.image || (brandMap && product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.png'}
                     alt={product.name}
                     className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target.dataset.fallbackAttempted) {
+                        target.src = '/placeholder-product.png';
+                        return;
+                      }
+                      target.dataset.fallbackAttempted = '1';
+                      const brandLogo = brandMap && product.brandId ? brandMap[product.brandId]?.logo : null;
+                      if (brandLogo) {
+                        target.src = brandLogo;
+                      } else {
+                        target.src = '/placeholder-product.png';
+                      }
+                    }}
                   />
                   
                   {product.badge && (
@@ -507,6 +551,7 @@ export default function DeliveryPortal() {
   const { toast } = useToast();
   const [deliveryMethod] = useState<"pickup" | "delivery">("delivery");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'featured' | 'category'>('featured');
   const [searchQuery, setSearchQuery] = useState("");
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [cartJiggle, setCartJiggle] = useState(false);
@@ -585,6 +630,12 @@ export default function DeliveryPortal() {
   const activeBrands = deliveryBrands
     .filter(b => b.isActive)
     .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+
+  const brandMap = useMemo(() => {
+    const map: Record<number, DeliveryBrand> = {};
+    deliveryBrands.forEach(b => { map[b.id] = b; });
+    return map;
+  }, [deliveryBrands]);
 
   const activeProductLines = deliveryProductLines
     .filter(pl => pl.isActive)
@@ -903,8 +954,15 @@ export default function DeliveryPortal() {
 
       {/* Horizontal Categories Navigation with Dropdown */}
       <DeliveryCategoryNav 
-        onCategorySelect={setSelectedCategory}
+        onCategorySelect={(cat) => {
+          setSelectedCategory(cat);
+          if (cat !== null) {
+            setViewMode('category');
+          }
+        }}
         selectedCategory={selectedCategory}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       <main className="flex-1">
@@ -1037,9 +1095,24 @@ export default function DeliveryPortal() {
                         transition={{ duration: 3, repeat: Infinity }}
                       />
                       <img
-                        src={featuredProducts[featuredIndex].image || '/placeholder-product.png'}
+                        src={featuredProducts[featuredIndex].image || (featuredProducts[featuredIndex].brandId ? brandMap[featuredProducts[featuredIndex].brandId!]?.logo : null) || '/placeholder-product.png'}
                         alt={featuredProducts[featuredIndex].name}
                         className="max-w-[150px] max-h-[160px] md:max-w-[200px] md:max-h-[220px] object-contain relative z-10 drop-shadow-2xl"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target.dataset.fallbackAttempted) {
+                            target.src = '/placeholder-product.png';
+                            return;
+                          }
+                          target.dataset.fallbackAttempted = '1';
+                          const fp = featuredProducts[featuredIndex];
+                          const brandLogo = fp.brandId ? brandMap[fp.brandId]?.logo : null;
+                          if (brandLogo) {
+                            target.src = brandLogo;
+                          } else {
+                            target.src = '/placeholder-product.png';
+                          }
+                        }}
                       />
                     </motion.div>
                   </div>
@@ -1086,118 +1159,181 @@ export default function DeliveryPortal() {
         <div className="container mx-auto px-4 py-4">
           {/* Main Content Area */}
           <div className="flex-1 min-w-0">
-              {popularProducts.length > 0 && (
-                <ProductCarousel
-                  title="Popular Right Now"
-                  products={popularProducts}
-                  onAddToCart={addToCart}
-                  onQuickView={setQuickViewProduct}
-                  cartItems={cartItems}
-                  onUpdateQuantity={updateCartQuantity}
-                />
-              )}
+              {viewMode === 'featured' ? (
+                <>
+                  {(() => {
+                    const featuredEnabledProducts = enabledProducts.filter(p => p.isFeaturedSlideshow);
+                    if (featuredEnabledProducts.length === 0) {
+                      return (
+                        <div className="text-center py-20">
+                          <Sparkles className="w-20 h-20 mx-auto text-muted-foreground/50 mb-6" />
+                          <h3 className="text-2xl font-bold text-foreground mb-2">No featured products yet</h3>
+                          <p className="text-muted-foreground">Check back soon for our featured selections!</p>
+                        </div>
+                      );
+                    }
 
-              {newProducts.length > 0 && (
-                <ProductCarousel
-                  title="New Arrivals"
-                  products={newProducts}
-                  onAddToCart={addToCart}
-                  onQuickView={setQuickViewProduct}
-                  cartItems={cartItems}
-                  onUpdateQuantity={updateCartQuantity}
-                />
-              )}
+                    const featuredPopular = featuredEnabledProducts.filter(p => p.badge === 'popular').slice(0, 12);
+                    const featuredNew = featuredEnabledProducts.filter(p => p.badge === 'new').slice(0, 12);
+                    const featuredPopularIds = new Set(featuredPopular.map(p => p.id));
+                    const featuredNewIds = new Set(featuredNew.map(p => p.id));
+                    const remainingFeatured = featuredEnabledProducts.filter(p => !featuredPopularIds.has(p.id) && !featuredNewIds.has(p.id));
 
-              {/* When "All Products" is selected, show all category sections */}
-              {selectedCategory === null && activeCategories.map((category) => {
-                const categoryProducts = getProductsByCategory(category.id);
-                
-                // Skip empty categories (no products at all)
-                if (categoryProducts.length === 0) return null;
-                
-                return (
-                  <div key={category.id} id={`category-${category.slug}`} className="py-4">
+                    return (
+                      <>
+                        {featuredPopular.length > 0 && (
+                          <ProductCarousel
+                            title="Popular Right Now"
+                            products={featuredPopular}
+                            onAddToCart={addToCart}
+                            onQuickView={setQuickViewProduct}
+                            cartItems={cartItems}
+                            onUpdateQuantity={updateCartQuantity}
+                            brandMap={brandMap}
+                          />
+                        )}
+                        {featuredNew.length > 0 && (
+                          <ProductCarousel
+                            title="New Arrivals"
+                            products={featuredNew}
+                            onAddToCart={addToCart}
+                            onQuickView={setQuickViewProduct}
+                            cartItems={cartItems}
+                            onUpdateQuantity={updateCartQuantity}
+                            brandMap={brandMap}
+                          />
+                        )}
+                        {remainingFeatured.length > 0 && (
+                          <ProductCarousel
+                            title="Featured Products"
+                            products={remainingFeatured.slice(0, 20)}
+                            onAddToCart={addToCart}
+                            onQuickView={setQuickViewProduct}
+                            cartItems={cartItems}
+                            onUpdateQuantity={updateCartQuantity}
+                            brandMap={brandMap}
+                          />
+                        )}
+                      </>
+                    );
+                  })()}
+                </>
+              ) : (
+                <>
+                  {popularProducts.length > 0 && (
                     <ProductCarousel
-                      title={category.name}
-                      products={categoryProducts}
+                      title="Popular Right Now"
+                      products={popularProducts}
                       onAddToCart={addToCart}
                       onQuickView={setQuickViewProduct}
                       cartItems={cartItems}
-                      seeAllLink={`/delivery/category/${category.slug}`}
                       onUpdateQuantity={updateCartQuantity}
+                      brandMap={brandMap}
                     />
-                  </div>
-                );
-              })}
+                  )}
 
-              {/* When a specific category is selected, show brand carousels */}
-              {selectedCategory !== null && activeBrands.map((brand) => {
-                const brandProducts = getProductsByBrand(brand.id);
-                if (brandProducts.length === 0) return null;
-                
-                return (
-                  <div key={brand.id} id={`brand-${brand.slug}`}>
+                  {newProducts.length > 0 && (
                     <ProductCarousel
-                      title={brand.name}
-                      products={brandProducts}
+                      title="New Arrivals"
+                      products={newProducts}
                       onAddToCart={addToCart}
                       onQuickView={setQuickViewProduct}
                       cartItems={cartItems}
-                      seeAllLink={`/delivery/brand/${brand.slug}`}
                       onUpdateQuantity={updateCartQuantity}
+                      brandMap={brandMap}
                     />
-                  </div>
-                );
-              })}
+                  )}
 
-              {filteredProducts.length === 0 && (
-                <div className="text-center py-20">
-                  <Package className="w-20 h-20 mx-auto text-muted-foreground/50 mb-6" />
-                  <h3 className="text-2xl font-bold text-foreground mb-2">No products found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search or category filter</p>
-                  <Button 
-                    variant="outline" 
-                    className="mt-6"
-                    onClick={() => {
-                      setSelectedCategory(null);
-                      setSearchQuery("");
-                    }}
-                  >
-                    Clear Filters
-                  </Button>
-                </div>
+                  {selectedCategory === null && activeCategories.map((category) => {
+                    const categoryProducts = getProductsByCategory(category.id);
+                    if (categoryProducts.length === 0) return null;
+                    
+                    return (
+                      <div key={category.id} id={`category-${category.slug}`} className="py-4">
+                        <ProductCarousel
+                          title={category.name}
+                          products={categoryProducts}
+                          onAddToCart={addToCart}
+                          onQuickView={setQuickViewProduct}
+                          cartItems={cartItems}
+                          seeAllLink={`/delivery/category/${category.slug}`}
+                          onUpdateQuantity={updateCartQuantity}
+                          brandMap={brandMap}
+                        />
+                      </div>
+                    );
+                  })}
+
+                  {selectedCategory !== null && activeBrands.map((brand) => {
+                    const brandProducts = getProductsByBrand(brand.id);
+                    if (brandProducts.length === 0) return null;
+                    
+                    return (
+                      <div key={brand.id} id={`brand-${brand.slug}`}>
+                        <ProductCarousel
+                          title={brand.name}
+                          products={brandProducts}
+                          onAddToCart={addToCart}
+                          onQuickView={setQuickViewProduct}
+                          cartItems={cartItems}
+                          seeAllLink={`/delivery/brand/${brand.slug}`}
+                          onUpdateQuantity={updateCartQuantity}
+                          brandMap={brandMap}
+                        />
+                      </div>
+                    );
+                  })}
+
+                  {filteredProducts.length === 0 && (
+                    <div className="text-center py-20">
+                      <Package className="w-20 h-20 mx-auto text-muted-foreground/50 mb-6" />
+                      <h3 className="text-2xl font-bold text-foreground mb-2">No products found</h3>
+                      <p className="text-muted-foreground">Try adjusting your search or category filter</p>
+                      <Button 
+                        variant="outline" 
+                        className="mt-6"
+                        onClick={() => {
+                          setSelectedCategory(null);
+                          setSearchQuery("");
+                        }}
+                      >
+                        Clear Filters
+                      </Button>
+                    </div>
+                  )}
+
+                  {(() => {
+                    const productsInBrandCarousels = new Set(
+                      activeBrands.flatMap(brand => 
+                        filteredProducts.filter(p => p.brandId === brand.id).map(p => p.id)
+                      )
+                    );
+                    const productsInPopular = new Set(popularProducts.map(p => p.id));
+                    const productsInNew = new Set(newProducts.map(p => p.id));
+                    
+                    const otherProducts = filteredProducts.filter(p => 
+                      !productsInBrandCarousels.has(p.id) && 
+                      !productsInPopular.has(p.id) && 
+                      !productsInNew.has(p.id)
+                    );
+                    
+                    if (otherProducts.length > 0) {
+                      return (
+                        <ProductCarousel
+                          title="All Products"
+                          products={otherProducts.slice(0, 20)}
+                          onAddToCart={addToCart}
+                          onUpdateQuantity={updateCartQuantity}
+                          onQuickView={setQuickViewProduct}
+                          cartItems={cartItems}
+                          brandMap={brandMap}
+                        />
+                      );
+                    }
+                    return null;
+                  })()}
+                </>
               )}
-
-              {/* All Products section - shows products not in any brand carousel */}
-              {(() => {
-                const productsInBrandCarousels = new Set(
-                  activeBrands.flatMap(brand => 
-                    filteredProducts.filter(p => p.brandId === brand.id).map(p => p.id)
-                  )
-                );
-                const productsInPopular = new Set(popularProducts.map(p => p.id));
-                const productsInNew = new Set(newProducts.map(p => p.id));
-                
-                const otherProducts = filteredProducts.filter(p => 
-                  !productsInBrandCarousels.has(p.id) && 
-                  !productsInPopular.has(p.id) && 
-                  !productsInNew.has(p.id)
-                );
-                
-                if (otherProducts.length > 0) {
-                  return (
-                    <ProductCarousel
-                      title="All Products"
-                      products={otherProducts.slice(0, 20)}
-                      onAddToCart={addToCart}
-                      onUpdateQuantity={updateCartQuantity}
-                      onQuickView={setQuickViewProduct}
-                      cartItems={cartItems}
-                    />
-                  );
-                }
-                return null;
-              })()}
           </div>
         </div>
       </main>

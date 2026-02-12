@@ -417,6 +417,8 @@ export function CategoryBrandManagement() {
   const [categoryName, setCategoryName] = useState("");
   const [categoryImage, setCategoryImage] = useState("");
   const [categoryActive, setCategoryActive] = useState(true);
+  const [categoryImageUploading, setCategoryImageUploading] = useState(false);
+  const categoryImageInputRef = useRef<HTMLInputElement>(null);
   
   const [brandDialog, setBrandDialog] = useState(false);
   const [editingBrand, setEditingBrand] = useState<DeliveryBrand | null>(null);
@@ -455,6 +457,12 @@ export function CategoryBrandManagement() {
 
       if (!uploadResponse.ok) throw new Error('Failed to upload image');
 
+      await fetch('/api/storage/set-public', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ objectPath })
+      });
+
       setBrandLogo(objectPath);
       toast({ title: "Logo uploaded successfully" });
     } catch (error) {
@@ -468,12 +476,108 @@ export function CategoryBrandManagement() {
     }
   };
 
+  const handleCategoryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setCategoryImageUploading(true);
+    try {
+      const response = await fetch('/api/admin/delivery/products/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: file.name,
+          size: file.size,
+          contentType: file.type
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to get upload URL');
+
+      const { uploadURL, objectPath } = await response.json();
+
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        body: file
+      });
+
+      if (!uploadResponse.ok) throw new Error('Failed to upload image');
+
+      await fetch('/api/storage/set-public', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ objectPath })
+      });
+
+      setCategoryImage(objectPath);
+      toast({ title: "Image uploaded successfully" });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({ title: "Failed to upload image", variant: "destructive" });
+    } finally {
+      setCategoryImageUploading(false);
+      if (categoryImageInputRef.current) {
+        categoryImageInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleProductLineLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setProductLineLogoUploading(true);
+    try {
+      const response = await fetch('/api/admin/delivery/products/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: file.name,
+          size: file.size,
+          contentType: file.type
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to get upload URL');
+
+      const { uploadURL, objectPath } = await response.json();
+
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        body: file
+      });
+
+      if (!uploadResponse.ok) throw new Error('Failed to upload image');
+
+      await fetch('/api/storage/set-public', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ objectPath })
+      });
+
+      setProductLineLogo(objectPath);
+      toast({ title: "Logo uploaded successfully" });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({ title: "Failed to upload logo", variant: "destructive" });
+    } finally {
+      setProductLineLogoUploading(false);
+      if (productLineLogoInputRef.current) {
+        productLineLogoInputRef.current.value = '';
+      }
+    }
+  };
+
   const [productLineDialog, setProductLineDialog] = useState(false);
   const [editingProductLine, setEditingProductLine] = useState<DeliveryProductLine | null>(null);
   const [productLineBrandId, setProductLineBrandId] = useState<number | null>(null);
   const [productLineName, setProductLineName] = useState("");
   const [productLineLogo, setProductLineLogo] = useState("");
   const [productLineActive, setProductLineActive] = useState(true);
+  const [productLineLogoUploading, setProductLineLogoUploading] = useState(false);
+  const productLineLogoInputRef = useRef<HTMLInputElement>(null);
   
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'category' | 'brand' | 'productLine'; id: number; name: string } | null>(null);
@@ -730,6 +834,10 @@ export function CategoryBrandManagement() {
     setCategoryName("");
     setCategoryImage("");
     setCategoryActive(true);
+    setCategoryImageUploading(false);
+    if (categoryImageInputRef.current) {
+      categoryImageInputRef.current.value = '';
+    }
   };
 
   const resetBrandForm = () => {
@@ -748,6 +856,10 @@ export function CategoryBrandManagement() {
     setProductLineName("");
     setProductLineLogo("");
     setProductLineActive(true);
+    setProductLineLogoUploading(false);
+    if (productLineLogoInputRef.current) {
+      productLineLogoInputRef.current.value = '';
+    }
   };
 
   const openEditCategory = (category: DeliveryCategory) => {
@@ -998,22 +1110,44 @@ export function CategoryBrandManagement() {
             </div>
             <div>
               <Label>Category Image (Optional)</Label>
-              <div className="flex gap-2 mt-2">
-                <Input
-                  value={categoryImage}
-                  onChange={(e) => setCategoryImage(e.target.value)}
-                  placeholder="Upload or paste image URL"
-                  className="flex-1 bg-gray-700 border-gray-600"
-                />
+              <div className="flex flex-col gap-3 mt-2">
+                <div className="flex gap-2">
+                  <Input
+                    value={categoryImage}
+                    onChange={(e) => setCategoryImage(e.target.value)}
+                    placeholder="Enter URL or upload an image"
+                    className="flex-1 bg-gray-700 border-gray-600"
+                  />
+                  <input
+                    ref={categoryImageInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCategoryImageUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => categoryImageInputRef.current?.click()}
+                    disabled={categoryImageUploading}
+                    className="border-gray-600"
+                  >
+                    {categoryImageUploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
                 {categoryImage && (
-                  <div className="w-12 h-12 rounded overflow-hidden border border-gray-600">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-600 bg-white p-2">
                     <img src={categoryImage} alt="Vape Cave Frisco - Category Image Preview" loading="lazy" className="w-full h-full object-cover" />
                   </div>
                 )}
+                <p className="text-xs text-gray-500">
+                  Recommended: 600 x 400px. JPG or PNG.
+                </p>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Recommended: 600 x 400px. JPG or PNG.
-              </p>
             </div>
             <div className="flex items-center gap-2">
               <Switch checked={categoryActive} onCheckedChange={setCategoryActive} />
@@ -1165,19 +1299,44 @@ export function CategoryBrandManagement() {
               />
             </div>
             <div>
-              <Label>Product Line Logo URL (Optional)</Label>
-              <div className="flex gap-2 mt-2">
-                <Input
-                  value={productLineLogo}
-                  onChange={(e) => setProductLineLogo(e.target.value)}
-                  placeholder="https://example.com/logo.png"
-                  className="flex-1 bg-gray-700 border-gray-600"
-                />
+              <Label>Product Line Logo (Optional)</Label>
+              <div className="flex flex-col gap-3 mt-2">
+                <div className="flex gap-2">
+                  <Input
+                    value={productLineLogo}
+                    onChange={(e) => setProductLineLogo(e.target.value)}
+                    placeholder="Enter URL or upload an image"
+                    className="flex-1 bg-gray-700 border-gray-600"
+                  />
+                  <input
+                    ref={productLineLogoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProductLineLogoUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => productLineLogoInputRef.current?.click()}
+                    disabled={productLineLogoUploading}
+                    className="border-gray-600"
+                  >
+                    {productLineLogoUploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
                 {productLineLogo && (
-                  <div className="w-12 h-12 rounded overflow-hidden border border-gray-600 bg-white p-1">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-600 bg-white p-2">
                     <img src={productLineLogo} alt="Vape Cave Frisco - Product Line Logo Preview" loading="lazy" className="w-full h-full object-contain" />
                   </div>
                 )}
+                <p className="text-xs text-gray-500">
+                  Recommended: 400 x 400px (square). PNG with transparent background preferred.
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">

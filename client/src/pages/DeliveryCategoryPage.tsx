@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useRoute, Link } from "wouter";
@@ -58,6 +58,12 @@ export default function DeliveryCategoryPage() {
       return response.json();
     },
   });
+
+  const brandMap = useMemo(() => {
+    const map: Record<number, DeliveryBrand> = {};
+    brands.forEach(b => { map[b.id] = b; });
+    return map;
+  }, [brands]);
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -244,10 +250,24 @@ export default function DeliveryCategoryPage() {
                   <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/50">
                     <div className="relative aspect-square bg-muted/50">
                       <img
-                        src={product.image || "/placeholder-product.png"}
+                        src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || "/placeholder-product.png"}
                         alt={`${product.name} - Vape Cave Frisco`}
                         loading="lazy"
                         className={`w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300 ${isOutOfStock ? 'opacity-50' : ''}`}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target.dataset.fallbackAttempted) {
+                            target.src = '/placeholder-product.png';
+                            return;
+                          }
+                          target.dataset.fallbackAttempted = '1';
+                          const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
+                          if (brandLogo) {
+                            target.src = brandLogo;
+                          } else {
+                            target.src = '/placeholder-product.png';
+                          }
+                        }}
                       />
                       {isFeatured && (
                         <Badge className="absolute top-2 left-2 bg-primary/90">
@@ -328,10 +348,24 @@ export default function DeliveryCategoryPage() {
                   <Card className={`flex items-center gap-4 p-4 hover:shadow-lg transition-all duration-300 hover:border-primary/50 ${isOutOfStock ? 'opacity-60' : ''}`}>
                     <div className="relative w-20 h-20 bg-muted/50 rounded-lg flex-shrink-0">
                       <img
-                        src={product.image || "/placeholder-product.png"}
+                        src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || "/placeholder-product.png"}
                         alt={`${product.name} - Vape Cave Frisco`}
                         loading="lazy"
                         className="w-full h-full object-contain p-1"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target.dataset.fallbackAttempted) {
+                            target.src = '/placeholder-product.png';
+                            return;
+                          }
+                          target.dataset.fallbackAttempted = '1';
+                          const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
+                          if (brandLogo) {
+                            target.src = brandLogo;
+                          } else {
+                            target.src = '/placeholder-product.png';
+                          }
+                        }}
                       />
                       {isOutOfStock && (
                         <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-lg">

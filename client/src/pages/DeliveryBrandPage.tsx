@@ -54,6 +54,16 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
     enabled: !!brand?.id
   });
 
+  const { data: brands = [] } = useQuery<DeliveryBrand[]>({
+    queryKey: ['/api/delivery/brands'],
+  });
+
+  const brandMap = useMemo(() => {
+    const map: Record<number, DeliveryBrand> = {};
+    brands.forEach(b => { map[b.id] = b; });
+    return map;
+  }, [brands]);
+
   const { data: allProducts = [] } = useQuery<DeliveryProduct[]>({
     queryKey: ['/api/delivery/products'],
   });
@@ -257,6 +267,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                   onAddToCart={handleAddToCart}
                   onUpdateQuantity={handleUpdateQuantity}
                   onQuickView={setQuickViewProduct}
+                  brandMap={brandMap}
                 />
               ))}
             </AnimatePresence>
@@ -297,7 +308,8 @@ function ProductCard({
   inCart, 
   onAddToCart, 
   onUpdateQuantity, 
-  onQuickView 
+  onQuickView,
+  brandMap
 }: { 
   product: DeliveryProduct;
   index: number;
@@ -305,6 +317,7 @@ function ProductCard({
   onAddToCart: (productId: number) => void;
   onUpdateQuantity: (productId: number, quantity: number) => void;
   onQuickView: (product: DeliveryProduct) => void;
+  brandMap: Record<number, DeliveryBrand>;
 }) {
   const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
   const isOutOfStock = stock === 0;
@@ -327,9 +340,23 @@ function ProductCard({
         <Card className="group h-full overflow-hidden bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
           <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
             <img
-              src={product.image || '/placeholder-product.png'}
+              src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.png'}
               alt={product.name}
               className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (target.dataset.fallbackAttempted) {
+                  target.src = '/placeholder-product.png';
+                  return;
+                }
+                target.dataset.fallbackAttempted = '1';
+                const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
+                if (brandLogo) {
+                  target.src = brandLogo;
+                } else {
+                  target.src = '/placeholder-product.png';
+                }
+              }}
             />
             
             {product.badge && (

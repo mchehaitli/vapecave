@@ -7,11 +7,15 @@ import type { DeliveryCategory, DeliveryBrand, DeliveryProductLine } from "@shar
 interface DeliveryCategoryNavProps {
   onCategorySelect?: (category: string | null) => void;
   selectedCategory?: string | null;
+  viewMode?: 'featured' | 'category';
+  onViewModeChange?: (mode: 'featured' | 'category') => void;
 }
 
 export function DeliveryCategoryNav({ 
   onCategorySelect,
-  selectedCategory = null
+  selectedCategory = null,
+  viewMode = 'featured',
+  onViewModeChange,
 }: DeliveryCategoryNavProps) {
   const [location] = useLocation();
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
@@ -51,11 +55,12 @@ export function DeliveryCategoryNav({
             <button
               onClick={() => {
                 onCategorySelect?.(null);
+                onViewModeChange?.('featured');
                 setExpandedCategories(new Set());
                 setExpandedBrands(new Set());
               }}
               className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                location === '/delivery/shop' && selectedCategory === null
+                location === '/delivery/shop' && viewMode === 'featured'
                   ? "bg-primary text-primary-foreground"
                   : "text-foreground/80 hover:text-primary hover:bg-muted/50"
               }`}
