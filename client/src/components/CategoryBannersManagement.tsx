@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -31,11 +31,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { ObjectUploader } from "@/components/ObjectUploader";
 import {
   Plus,
   Edit2,
   Trash2,
   Image as ImageIcon,
+  Upload,
 } from "lucide-react";
 import type { CategoryBanner, InsertCategoryBanner } from "@shared/schema";
 
@@ -47,6 +49,7 @@ interface DeliveryCategory {
 
 export function CategoryBannersManagement() {
   const { toast } = useToast();
+  const pendingObjectPathRef = useRef<string | null>(null);
   
   const [bannerDialog, setBannerDialog] = useState(false);
   const [editingBanner, setEditingBanner] = useState<CategoryBanner | null>(null);
@@ -163,7 +166,7 @@ export function CategoryBannersManagement() {
       return;
     }
     if (!image.trim()) {
-      toast({ title: "Image URL is required", variant: "destructive" });
+      toast({ title: "Banner image is required", variant: "destructive" });
       return;
     }
 
@@ -333,13 +336,63 @@ export function CategoryBannersManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-gray-200">Image URL *</Label>
-              <Input
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                placeholder="https://example.com/banner.jpg"
-                className="bg-gray-800 border-gray-600 text-white"
-              />
+              <Label className="text-gray-200">Banner Image *</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={image}
+                  onChange={(e) => setImage(e.target.value)}
+                  placeholder="Upload an image or paste URL"
+                  className="flex-1 bg-gray-800 border-gray-600 text-white"
+                />
+                <ObjectUploader
+                  maxFileSize={10485760}
+                  onGetUploadParameters={async (file) => {
+                    try {
+                      const response = await apiRequest('POST', '/api/storage/presign', {
+                        fileName: file.name,
+                        contentType: file.type,
+                        directory: 'banners',
+                      });
+                      const data = await response.json();
+                      pendingObjectPathRef.current = data.objectPath;
+                      return {
+                        method: 'PUT' as const,
+                        url: data.uploadUrl,
+                        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+                      };
+                    } catch (error) {
+                      toast({
+                        title: "Upload failed",
+                        description: "Could not get upload URL. Please try again.",
+                        variant: "destructive",
+                      });
+                      throw error;
+                    }
+                  }}
+                  onComplete={async (result) => {
+                    if (result.successful?.length) {
+                      const objectPath = pendingObjectPathRef.current;
+                      if (objectPath) {
+                        try {
+                          await apiRequest('POST', '/api/storage/set-public', { objectPath });
+                        } catch (err) {
+                          console.warn("Could not set public ACL:", err);
+                        }
+                        setImage(objectPath);
+                        pendingObjectPathRef.current = null;
+                        toast({ title: "Image uploaded successfully" });
+                      }
+                    }
+                  }}
+                  buttonClassName="bg-gray-700 hover:bg-gray-600 border-gray-600"
+                >
+                  <Upload size={16} className="mr-2" />
+                  Upload
+                </ObjectUploader>
+              </div>
+              <p className="text-xs text-gray-500">
+                Recommended: 2200 x 1100px (2:1 ratio). Max 10MB. JPG or PNG.
+              </p>
               {image && (
                 <div className="mt-2">
                   <img src={image} alt="Vape Cave Frisco - Category Banner Preview" loading="lazy" className="w-full h-32 object-cover rounded border border-gray-700" />

@@ -460,7 +460,9 @@ export function HeroSlidesManagement() {
                 </ObjectUploader>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                {slideMediaType === 'video' ? 'Upload MP4 video (max 100MB) or paste URL' : 'Upload image or paste URL'}
+                {slideMediaType === 'video' 
+                  ? 'Recommended: 1920 x 1080px (16:9 ratio). MP4 format, max 100MB.' 
+                  : 'Recommended: 1920 x 800px (landscape). Max 10MB. JPG or PNG.'}
               </p>
               {slideMediaUrl && slideMediaType === 'image' && (
                 <div className="mt-2 h-32 rounded overflow-hidden border border-gray-600">

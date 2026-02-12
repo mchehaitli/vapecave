@@ -3239,6 +3239,7 @@ export function DeliveryProductsTab() {
                           <label 
                             htmlFor={`image-upload-${product.id}`} 
                             className="cursor-pointer flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300"
+                            title="Recommended: 800 x 800px (square). Max 5MB."
                           >
                             <Upload className="h-4 w-4" />
                             Upload
@@ -3625,7 +3626,7 @@ export function DeliveryProductsTab() {
                 )}
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Upload an image to apply to all selected products (max 5MB)
+                Recommended: 800 x 800px (square). Max 5MB. JPG or PNG.
               </p>
             </div>
 

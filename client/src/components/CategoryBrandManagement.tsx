@@ -997,12 +997,12 @@ export function CategoryBrandManagement() {
               />
             </div>
             <div>
-              <Label>Category Image URL (Optional)</Label>
+              <Label>Category Image (Optional)</Label>
               <div className="flex gap-2 mt-2">
                 <Input
                   value={categoryImage}
                   onChange={(e) => setCategoryImage(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
+                  placeholder="Upload or paste image URL"
                   className="flex-1 bg-gray-700 border-gray-600"
                 />
                 {categoryImage && (
@@ -1011,6 +1011,9 @@ export function CategoryBrandManagement() {
                   </div>
                 )}
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Recommended: 600 x 400px. JPG or PNG.
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <Switch checked={categoryActive} onCheckedChange={setCategoryActive} />
@@ -1102,6 +1105,9 @@ export function CategoryBrandManagement() {
                     <img src={brandLogo} alt="Vape Cave Frisco - Brand Logo Preview" loading="lazy" className="w-full h-full object-contain" />
                   </div>
                 )}
+                <p className="text-xs text-gray-500">
+                  Recommended: 400 x 400px (square). PNG with transparent background preferred.
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
