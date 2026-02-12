@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import ageLogo from "../assets/vapecave-logo-white-transparent.png";
-import { Helmet } from "react-helmet";
 
 interface AgeVerificationModalProps {
   onVerify: (isVerified: boolean) => void;
@@ -19,103 +18,6 @@ const AgeVerificationModal: React.FC<AgeVerificationModalProps> = ({ onVerify })
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 backdrop-blur-md" style={{ willChange: 'opacity' }}>
-      <Helmet>
-        <script type="application/ld+json">
-          {`
-            {
-              "@context": "https://schema.org",
-              "@type": "WebPage",
-              "name": "Age Verification - Vape Cave Smoke & Stuff Frisco",
-              "description": "Verify your age to access Vape Cave Smoke & Stuff Frisco's premium selection of vaping products. Must be 21+ to enter. Disposables, e-liquids & more.",
-              "url": "https://vapecavetx.com",
-              "isAccessibleForFree": true,
-              "keywords": "age verification, vape shop frisco, premium vaping products frisco, frisco vape shop",
-              "speakable": {
-                "@type": "SpeakableSpecification",
-                "cssSelector": ["h3", ".text-gray-300"]
-              },
-              "mainContentOfPage": {
-                "@type": "WebPageElement",
-                "cssSelector": ".bg-black.rounded-xl"
-              },
-              "breadcrumb": {
-                "@type": "BreadcrumbList",
-                "itemListElement": [
-                  {
-                    "@type": "ListItem",
-                    "position": 1,
-                    "name": "Home",
-                    "item": "https://vapecavetx.com"
-                  },
-                  {
-                    "@type": "ListItem",
-                    "position": 2,
-                    "name": "Age Verification",
-                    "item": "https://vapecavetx.com/age-verification"
-                  }
-                ]
-              },
-              "publisher": {
-                "@type": "Store",
-                "name": "Vape Cave Smoke & Stuff Frisco",
-                "alternateName": ["Vape Cave Smoke & Stuff", "Premium Vape Shop Frisco"],
-                "address": {
-                  "@type": "PostalAddress",
-                  "streetAddress": "6958 Main St #200",
-                  "addressLocality": "Frisco",
-                  "addressRegion": "TX",
-                  "postalCode": "75033",
-                  "addressCountry": "US"
-                },
-                "geo": {
-                  "@type": "GeoCoordinates",
-                  "latitude": 33.150730,
-                  "longitude": -96.822550
-                },
-                "openingHoursSpecification": [
-                  {
-                    "@type": "OpeningHoursSpecification",
-                    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Sunday"],
-                    "opens": "10:00",
-                    "closes": "24:00"
-                  },
-                  {
-                    "@type": "OpeningHoursSpecification",
-                    "dayOfWeek": ["Friday", "Saturday"],
-                    "opens": "10:00",
-                    "closes": "01:00"
-                  }
-                ],
-                "telephone": "+14692940061",
-                "email": "info@vapecavetx.com",
-                "priceRange": "$$",
-                "paymentAccepted": "Cash, Credit Card, Debit Card",
-                "hasMap": [
-                  {
-                    "@type": "Map",
-                    "name": "Google Maps",
-                    "url": "https://www.google.com/maps/place/?q=place_id:ChIJZ2EXpXw9TIYRjUEpqkkI6Lg",
-                    "description": "Find our Frisco vape shop using Google Maps"
-                  },
-                  {
-                    "@type": "Map",
-                    "name": "Google Maps Search",
-                    "url": "https://www.google.com/maps/search/?api=1&query=Vape+Cave+Frisco+TX",
-                    "description": "Direct link to our location using Google Maps search"
-                  }
-                ],
-                "identifier": [
-                  {
-                    "@type": "PropertyValue",
-                    "name": "Google Place ID",
-                    "value": "ChIJZ2EXpXw9TIYRjUEpqkkI6Lg"
-                  }
-                ]
-              }
-            }
-          `}
-        </script>
-      </Helmet>
       <div className="bg-black rounded-xl shadow-2xl max-w-md w-full mx-4 p-6 md:p-8 border-2 border-primary relative">
         <div className="mb-6 flex justify-center">
           <img 

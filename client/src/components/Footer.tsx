@@ -1,10 +1,8 @@
 import { Link } from "wouter";
 import { useState } from "react";
-import { Helmet } from "react-helmet";
 import Logo from "./Logo";
 import { 
-  useFriscoLocation, 
-  getOrderedOpeningHours 
+  useFriscoLocation 
 } from "@/hooks/use-store-locations";
 
 const Footer = () => {
@@ -66,106 +64,8 @@ const Footer = () => {
   // Get location data from API
   const { data: frisco, isLoading: isFriscoLoading } = useFriscoLocation();
   
-  // Generate LocalBusiness JSON-LD for footer
-  const generateLocalBusinessSchema = () => {
-    if (!frisco) return {}; // Return empty object if data is not loaded yet
-    
-    // Transform database field names to the expected format
-    const location = {
-      image: frisco.image,
-      description: frisco.description,
-      acceptedPayments: frisco.accepted_payments || [],
-      googlePlaceId: frisco.google_place_id,
-      appleMapsLink: frisco.apple_maps_link,
-      fullAddress: frisco.full_address,
-      coordinates: {
-        lat: parseFloat(frisco.lat as string),
-        lng: parseFloat(frisco.lng as string)
-      },
-      socialProfiles: {
-        facebook: frisco.social_profiles?.facebook,
-        instagram: frisco.social_profiles?.instagram,
-        twitter: frisco.social_profiles?.twitter,
-        yelp: frisco.social_profiles?.yelp
-      }
-    };
-    
-    return {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "@id": "https://vapecavetx.com/locations/frisco#business",
-      "name": "Vape Cave Smoke & Stuff Frisco",
-      "image": location.image,
-      "url": "https://vapecavetx.com/locations/frisco",
-      "telephone": "+14692940061",
-      "email": "vapecavetx@gmail.com",
-      "priceRange": "$$",
-      "description": location.description,
-      "currenciesAccepted": "USD",
-      "paymentAccepted": location.acceptedPayments.join(", "),
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "6958 Main St #200",
-        "addressLocality": "Frisco",
-        "addressRegion": "TX",
-        "postalCode": "75033",
-        "addressCountry": "US"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": location.coordinates.lat,
-        "longitude": location.coordinates.lng
-      },
-      "additionalProperty": [
-        {
-          "@type": "PropertyValue",
-          "name": "googlePlaceId",
-          "value": location.googlePlaceId || ""
-        }
-      ],
-      "openingHoursSpecification": [
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Sunday"],
-          "opens": "10:00",
-          "closes": "24:00"
-        },
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Friday", "Saturday"],
-          "opens": "10:00",
-          "closes": "01:00"
-        }
-      ],
-      "sameAs": [
-        location.socialProfiles?.facebook,
-        location.socialProfiles?.instagram,
-        location.socialProfiles?.twitter,
-        location.socialProfiles?.yelp
-      ],
-      "keywords": "vape shop frisco, premium vape shop frisco, frisco vape shop, disposable vapes frisco",
-      "hasMap": [
-        {
-          "@type": "Map",
-          "url": location.googlePlaceId ? `https://www.google.com/maps/place/?q=place_id:${location.googlePlaceId}` : `https://www.google.com/maps/dir/?api=1&destination=${location.coordinates.lat},${location.coordinates.lng}`
-        },
-        {
-          "@type": "Map",
-          "url": location.appleMapsLink || `https://maps.apple.com/?q=${encodeURIComponent(location.fullAddress)}`
-        }
-      ]
-    };
-  };
-
   return (
     <footer className="bg-card text-foreground border-t border-border">
-      {/* LocalBusiness JSON-LD Schema for SEO */}
-      <Helmet>
-        <script type="application/ld+json">
-          {JSON.stringify(generateLocalBusinessSchema())}
-        </script>
-      </Helmet>
-      
       <div className="container mx-auto px-4 py-8">        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Column 1: Social Media & Quick Links */}
