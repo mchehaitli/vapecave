@@ -252,7 +252,7 @@ export default function DeliveryHome() {
                           )}
                           <Button 
                             size="lg"
-                            className="bg-[#FF7100] hover:bg-[#FF7100]/90 text-white font-bold uppercase tracking-wide px-8 py-6 h-auto text-base md:text-lg group-hover:scale-105 transition-transform duration-300 border-2 border-[#FF7100] hover:border-[#FF7100]/80"
+                            className="bg-primary/30 hover:bg-primary/50 text-primary-foreground/70 font-bold uppercase tracking-wide px-8 py-6 h-auto text-base md:text-lg group-hover:scale-105 transition-all duration-300 border border-primary/50 shadow-[0_0_15px_rgba(255,113,0,0.3)] hover:shadow-[0_0_25px_rgba(255,113,0,0.5)]"
                           >
                             {banner.buttonText || "Shop Now"}
                             <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
