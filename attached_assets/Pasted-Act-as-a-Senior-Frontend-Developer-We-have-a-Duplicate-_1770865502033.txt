@@ -1,0 +1,107 @@
+Act as a Senior Frontend Developer. We have a "Duplicate Schema" issue in `index.html` that is confusing Google.
+
+**THE TASK:**
+1.  Open `index.html`.
+2.  **Scan the `<head>` section.** You will likely find multiple `<script type="application/ld+json">` tags stacked on top of each other.
+3.  **DELETE ALL OF THEM.** (We need a clean slate).
+4.  **INSERT** the single, consolidated Schema block below.
+
+**CRITICAL REQUIREMENTS FOR THE NEW CODE:**
+* It must be a single `<script>` tag.
+* It must include `priceRange` (to prevent errors).
+* It must include the full `OfferCatalog` (the inventory list).
+* It must use the correct Google Maps URL provided below.
+
+**HERE IS THE CODE TO INSERT:**
+
+```html
+<script type="application/ld+json">
+{
+  "@context": "[https://schema.org](https://schema.org)",
+  "@type": "SmokeShop",
+  "name": "Vape Cave Smoke & Stuff",
+  "image": [
+    "[https://vapecavetx.com/logo.png](https://vapecavetx.com/logo.png)",
+    "[https://vapecavetx.com/storefront.jpg](https://vapecavetx.com/storefront.jpg)"
+  ],
+  "@id": "[https://vapecavetx.com/#store](https://vapecavetx.com/#store)",
+  "url": "[https://vapecavetx.com](https://vapecavetx.com)",
+  "telephone": "+14692940061",
+  "priceRange": "$$",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "6958 Main St, Suite 200",
+    "addressLocality": "Frisco",
+    "addressRegion": "TX",
+    "postalCode": "75033",
+    "addressCountry": "US"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 33.1507,
+    "longitude": -96.8236
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "10:00",
+      "closes": "00:00"
+    }
+  ],
+  "hasMap": "[https://www.google.com/maps/dir//Vape+Cave+Smoke+%26+Stuff+Frisco+TX](https://www.google.com/maps/dir//Vape+Cave+Smoke+%26+Stuff+Frisco+TX)",
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Vape Cave Inventory",
+    "itemListElement": [
+      {
+        "@type": "OfferCatalog",
+        "name": "Disposable Vapes",
+        "itemListElement": [
+          { "@type": "Brand", "name": "Geek Bar Pulse" },
+          { "@type": "Brand", "name": "Geek Bar Meloso" },
+          { "@type": "Brand", "name": "Geek Bar Skyview" },
+          { "@type": "Brand", "name": "Uno Mas" },
+          { "@type": "Brand", "name": "Uno 4k" },
+          { "@type": "Brand", "name": "Uno Nine" },
+          { "@type": "Brand", "name": "Lost Mary Turbo" },
+          { "@type": "Brand", "name": "Off-Stamp SW9000" },
+          { "@type": "Brand", "name": "Tyson 2.0 Heavyweight" },
+          { "@type": "Brand", "name": "Foger Switch Pro" },
+          { "@type": "Brand", "name": "Fifty Bar" },
+          { "@type": "Brand", "name": "Raz TN9000" }
+        ]
+      },
+      {
+        "@type": "OfferCatalog",
+        "name": "Premium E-Liquid",
+        "itemListElement": [
+          { "@type": "Brand", "name": "Vapetasia" },
+          { "@type": "Brand", "name": "BSX Series" },
+          { "@type": "Brand", "name": "Candy King" },
+          { "@type": "Brand", "name": "Naked 100" },
+          { "@type": "Brand", "name": "Coastal Clouds" },
+          { "@type": "Brand", "name": "Sadboy" },
+          { "@type": "Brand", "name": "Twist E-Liquids" },
+          { "@type": "Brand", "name": "Cloud Nurdz" }
+        ]
+      },
+      {
+        "@type": "OfferCatalog",
+        "name": "THCA & Hemp",
+        "itemListElement": [
+          { "@type": "Brand", "name": "Looper Melted Series" },
+          { "@type": "Brand", "name": "FVKD Exotics" },
+          { "@type": "Brand", "name": "Modus Upper Cut" },
+          { "@type": "Brand", "name": "Hidden Hills" },
+          { "@type": "Brand", "name": "3CHI True Strains" },
+          { "@type": "Brand", "name": "Stiiizy Hemp" },
+          { "@type": "Brand", "name": "Urb" },
+          { "@type": "Brand", "name": "Torch" },
+          { "@type": "Brand", "name": "Tre House" }
+        ]
+      }
+    ]
+  }
+}
+</script>
