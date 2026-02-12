@@ -210,43 +210,11 @@ export default function ReviewsPage() {
     refetchOnWindowFocus: false,
   });
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "Store",
-    "@id": "https://vapecavetx.com/reviews",
-    "name": "Vape Cave Smoke & Stuff Frisco",
-    "description": "Read customer reviews for Vape Cave Smoke & Stuff Frisco. See what our customers are saying about our premium vaping products and exceptional service.",
-    "url": "https://vapecavetx.com/reviews",
-    "aggregateRating": data ? {
-      "@type": "AggregateRating",
-      "ratingValue": data.rating,
-      "reviewCount": data.totalReviews,
-      "bestRating": 5,
-      "worstRating": 1
-    } : undefined,
-    "review": data?.reviews?.map(review => ({
-      "@type": "Review",
-      "author": {
-        "@type": "Person",
-        "name": review.authorName
-      },
-      "reviewRating": {
-        "@type": "Rating",
-        "ratingValue": review.rating,
-        "bestRating": 5,
-        "worstRating": 1
-      },
-      "reviewBody": review.text,
-      "datePublished": new Date(review.time * 1000).toISOString()
-    }))
-  };
-
   return (
     <MainLayout
       title="Customer Reviews | Vape Cave Smoke & Stuff Frisco - Premium Vape Shop"
       description="Read customer reviews for Vape Cave Smoke & Stuff Frisco. See what our customers are saying about our premium vaping products, exceptional service, and competitive prices."
       canonical="https://vapecavetx.com/reviews"
-      structuredData={structuredData}
     >
       <Helmet>
         <meta name="keywords" content="vape cave reviews, vape shop frisco reviews, vape cave frisco customer reviews, vape store reviews texas" />

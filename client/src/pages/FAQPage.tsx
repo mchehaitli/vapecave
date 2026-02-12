@@ -227,7 +227,6 @@ export default function FAQPage() {
       title="38 Facts About Texas Vaping: SB 2024, Legal Vapes, & Rules | Vape Cave Smoke & Stuff"
       description="Get 38 clear facts on Texas's SB 2024 vape ban, legal disposables, compliant brands (RAZ, Geek Bar), e-liquids, and purchasing rules."
       canonical="/faq"
-      structuredData={faqSchema}
     >
       <div className="bg-background text-foreground min-h-screen">
         <div className="container mx-auto px-4 py-12 max-w-4xl">

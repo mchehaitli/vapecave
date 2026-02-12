@@ -65,15 +65,12 @@ export default function BlogPostPage() {
     );
   }
   
-  const structuredData = post.jsonld_schema ? JSON.parse(post.jsonld_schema) : null;
-  
   return (
     <MainLayout
       title={`${post.meta_title || post.title} | Vape Cave Smoke & Stuff Blog`}
       description={post.meta_description || post.summary}
       canonical={`/blog/${post.slug}`}
       ogImage={post.featured_image}
-      structuredData={structuredData}
     >
       <div className="bg-gradient-to-b from-black to-zinc-900 text-white min-h-screen">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
