@@ -1249,7 +1249,7 @@ export default function DeliveryPortal() {
                                 onAddToCart={addToCart}
                                 onQuickView={setQuickViewProduct}
                                 cartItems={cartItems}
-                                seeAllLink={`/delivery/category/${cat.slug}`}
+                                seeAllLink={`/delivery/category/${cat.slug}?view=featured`}
                                 onUpdateQuantity={updateCartQuantity}
                                 brandMap={brandMap}
                               />

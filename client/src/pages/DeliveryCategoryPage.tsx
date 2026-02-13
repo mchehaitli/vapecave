@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { useRoute, Link } from "wouter";
+import { useRoute, Link, useSearch } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, Grid3X3, List, Star, Package, Plus, Eye } from "lucide-react";
+import { ArrowLeft, Grid3X3, List, Star, Package, Plus, Eye, Sparkles, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,9 +34,16 @@ interface CartItem {
 export default function DeliveryCategoryPage() {
   const [, params] = useRoute("/delivery/category/:slug");
   const slug = params?.slug;
+  const searchString = useSearch();
+  const urlViewParam = new URLSearchParams(searchString).get("view");
+  const [activeTab, setActiveTab] = useState<"featured" | "all">(urlViewParam === "featured" ? "featured" : "all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [quickViewProduct, setQuickViewProduct] = useState<DeliveryProduct | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setActiveTab(urlViewParam === "featured" ? "featured" : "all");
+  }, [urlViewParam]);
 
   const { data: categories = [] } = useQuery<DeliveryCategory[]>({
     queryKey: ["/api/delivery/categories"],
@@ -120,6 +127,9 @@ export default function DeliveryCategoryPage() {
       return (a.displayOrder || 0) - (b.displayOrder || 0);
     });
 
+  const featuredProducts = categoryProducts.filter(p => featuredIds.includes(p.id));
+  const displayProducts = activeTab === "featured" ? featuredProducts : categoryProducts;
+
   const categoryBrands = brands.filter((b) => b.categoryId === category?.id && b.isActive);
 
   if (!category) {
@@ -186,7 +196,7 @@ export default function DeliveryCategoryPage() {
             >
               <h1 className="text-3xl font-bold">{category.name}</h1>
               <p className="text-muted-foreground">
-                {categoryProducts.length} products
+                {displayProducts.length} product{displayProducts.length !== 1 ? 's' : ''}
               </p>
             </motion.div>
           </div>
@@ -216,6 +226,34 @@ export default function DeliveryCategoryPage() {
           </motion.div>
         </motion.div>
 
+        {(featuredProducts.length > 0 || activeTab === "featured") && (
+          <motion.div
+            className="flex items-center gap-2 mb-6"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.4 }}
+          >
+            <Button
+              variant={activeTab === "featured" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveTab("featured")}
+              className="gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Featured ({featuredProducts.length})
+            </Button>
+            <Button
+              variant={activeTab === "all" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveTab("all")}
+              className="gap-1.5"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              All Products ({categoryProducts.length})
+            </Button>
+          </motion.div>
+        )}
+
         {categoryBrands.length > 0 && (
           <div className="mb-8">
             <h3 className="text-lg font-semibold mb-4">Browse by Brand</h3>
@@ -233,7 +271,7 @@ export default function DeliveryCategoryPage() {
 
         {viewMode === "grid" ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {categoryProducts.map((product, index) => {
+            {displayProducts.map((product, index) => {
               const isFeatured = featuredIds.includes(product.id);
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
               const isOutOfStock = stock <= 0;
@@ -331,7 +369,7 @@ export default function DeliveryCategoryPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {categoryProducts.map((product, index) => {
+            {displayProducts.map((product, index) => {
               const isFeatured = featuredIds.includes(product.id);
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
               const isOutOfStock = stock <= 0;
@@ -430,13 +468,21 @@ export default function DeliveryCategoryPage() {
           </div>
         )}
 
-        {categoryProducts.length === 0 && (
+        {displayProducts.length === 0 && (
           <div className="text-center py-20">
             <Package className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-xl font-bold mb-2">No products in this category</h3>
-            <Link href="/delivery/shop">
-              <Button variant="outline">Back to Shop</Button>
-            </Link>
+            <h3 className="text-xl font-bold mb-2">
+              {activeTab === "featured" ? "No featured products yet" : "No products in this category"}
+            </h3>
+            {activeTab === "featured" ? (
+              <Button variant="outline" onClick={() => setActiveTab("all")}>
+                View All Products
+              </Button>
+            ) : (
+              <Link href="/delivery/shop">
+                <Button variant="outline">Back to Shop</Button>
+              </Link>
+            )}
           </div>
         )}
       </main>
