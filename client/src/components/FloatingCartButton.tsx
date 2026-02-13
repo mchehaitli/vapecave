@@ -35,8 +35,8 @@ export function FloatingCartButton({
   cartItems,
   products,
   deliveryMethod = "delivery",
-  freeDeliveryThreshold = 99,
-  deliveryFee: baseFee = 5.99,
+  freeDeliveryThreshold = 100,
+  deliveryFee: baseFee = 0,
 }: FloatingCartButtonProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [, setLocation] = useLocation();

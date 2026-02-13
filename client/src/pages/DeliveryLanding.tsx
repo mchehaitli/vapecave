@@ -4,12 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useDeliveryRadiusMiles } from "@/hooks/useSettings";
 import MainLayout from "@/layouts/MainLayout";
 
 export default function DeliveryLanding() {
   const [, setLocation] = useLocation();
   const deliveryRadiusMiles = useDeliveryRadiusMiles();
+  const { data: siteSettings } = useQuery<{ freeDeliveryThreshold: string }>({
+    queryKey: ['/api/site-settings'],
+  });
+  const freeDeliveryThreshold = parseFloat(siteSettings?.freeDeliveryThreshold || "100");
 
   // If user is already authenticated, redirect to portal
   useEffect(() => {
@@ -36,8 +41,8 @@ export default function DeliveryLanding() {
     },
     {
       icon: <DollarSign className="w-8 h-8" />,
-      title: "Free Delivery Over $99",
-      description: "No delivery fees when you spend $99 or more"
+      title: `Free Delivery Over $${freeDeliveryThreshold}`,
+      description: `No delivery fees when you spend $${freeDeliveryThreshold} or more`
     },
     {
       icon: <Clock className="w-8 h-8" />,

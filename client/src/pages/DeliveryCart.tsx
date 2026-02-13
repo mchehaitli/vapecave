@@ -123,17 +123,53 @@ export default function DeliveryCart() {
     },
   });
 
-  // Calculate totals
+  const { data: feeData } = useQuery<{
+    distance: number;
+    feeType: string;
+    flatFee: number;
+    perMileFee: number;
+    perItemFee: number;
+    withinDeliveryZone: boolean;
+    deliveryRadiusMiles: number;
+  }>({
+    queryKey: ['/api/delivery/calculate-fee'],
+    queryFn: async () => {
+      const response = await fetch('/api/delivery/calculate-fee', { credentials: 'include' });
+      if (!response.ok) throw new Error('Failed to fetch fee data');
+      return response.json();
+    },
+  });
+
+  const { data: siteSettings } = useQuery<{
+    freeDeliveryThreshold: string;
+  }>({
+    queryKey: ['/api/site-settings'],
+  });
+
   const subtotal = cartItems.reduce((sum, item) => {
     return sum + (parseFloat(item.product.price) * item.quantity);
   }, 0);
 
-  const DELIVERY_FEE = 10;
-  const FREE_DELIVERY_THRESHOLD = 99;
-  const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+  const freeDeliveryThreshold = parseFloat(siteSettings?.freeDeliveryThreshold || "100");
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const calculateCartDeliveryFee = () => {
+    if (!feeData) return 0;
+    const distance = feeData.distance;
+    switch (feeData.feeType) {
+      case 'flat': return feeData.flatFee;
+      case 'per_mile': return feeData.perMileFee * distance;
+      case 'per_item': return feeData.perItemFee * totalItems;
+      case 'combined': return feeData.flatFee + feeData.perMileFee * distance + feeData.perItemFee * totalItems;
+      default: return feeData.flatFee;
+    }
+  };
+
+  const baseFee = calculateCartDeliveryFee();
+  const deliveryFee = subtotal >= freeDeliveryThreshold ? 0 : baseFee;
   const total = subtotal + deliveryFee;
-  const amountUntilFreeDelivery = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
-  const freeDeliveryProgress = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100);
+  const amountUntilFreeDelivery = Math.max(0, freeDeliveryThreshold - subtotal);
+  const freeDeliveryProgress = Math.min(100, (subtotal / freeDeliveryThreshold) * 100);
 
   const handleUpdateQuantity = (id: number, currentQuantity: number, change: number) => {
     const newQuantity = currentQuantity + change;

@@ -3437,9 +3437,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Calculate delivery fee and tax
+      // SERVER-SIDE: Recalculate delivery fee from admin settings
       const discountedSubtotal = Math.max(0, subtotal - discount);
-      const deliveryFee = parseFloat(clientDeliveryFee || "0");
+      
+      const customerLat = parseFloat(customer.lat);
+      const customerLng = parseFloat(customer.lng);
+      const friscoLat = 33.1507;
+      const friscoLng = -96.8236;
+      const checkoutDistance = (!isNaN(customerLat) && !isNaN(customerLng)) ? calculateDistance(customerLat, customerLng, friscoLat, friscoLng) : 0;
+      
+      const chkFeeType = await storage.getSetting('delivery_fee_type');
+      const chkFlatFee = await storage.getSetting('delivery_flat_fee');
+      const chkPerMileFee = await storage.getSetting('delivery_per_mile_fee');
+      const chkPerItemFee = await storage.getSetting('delivery_per_item_fee');
+      const chkSiteSettings = await storage.getSiteSettings();
+      
+      const chkFeeTypeVal = chkFeeType?.value || 'flat';
+      const chkFlatFeeVal = parseFloat(chkFlatFee?.value || '10.00');
+      const chkPerMileFeeVal = parseFloat(chkPerMileFee?.value || '1.50');
+      const chkPerItemFeeVal = parseFloat(chkPerItemFee?.value || '0.50');
+      const chkFreeThreshold = parseFloat(chkSiteSettings?.freeDeliveryThreshold || '100');
+      const chkTotalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+      
+      let chkCalculatedFee = 0;
+      if (subtotal < chkFreeThreshold) {
+        switch (chkFeeTypeVal) {
+          case 'flat': chkCalculatedFee = chkFlatFeeVal; break;
+          case 'per_mile': chkCalculatedFee = chkPerMileFeeVal * checkoutDistance; break;
+          case 'per_item': chkCalculatedFee = chkPerItemFeeVal * chkTotalItems; break;
+          case 'combined': chkCalculatedFee = chkFlatFeeVal + chkPerMileFeeVal * checkoutDistance + chkPerItemFeeVal * chkTotalItems; break;
+          default: chkCalculatedFee = chkFlatFeeVal;
+        }
+      }
+      const deliveryFee = Math.round(chkCalculatedFee * 100) / 100;
       const tax = discountedSubtotal * 0.0825;
 
       // Add delivery fee as line item
@@ -3676,9 +3706,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // SERVER-SIDE: Calculate tax and total
+      // SERVER-SIDE: Recalculate delivery fee from admin settings (don't trust client)
       const discountedSubtotal = Math.max(0, subtotal - discount);
-      const deliveryFee = parseFloat(clientDeliveryFee || "0");
+      
+      const feeTypeSetting = await storage.getSetting('delivery_fee_type');
+      const flatFeeSetting = await storage.getSetting('delivery_flat_fee');
+      const perMileFeeSetting = await storage.getSetting('delivery_per_mile_fee');
+      const perItemFeeSetting = await storage.getSetting('delivery_per_item_fee');
+      const siteSettings = await storage.getSiteSettings();
+      
+      const feeTypeVal = feeTypeSetting?.value || 'flat';
+      const flatFeeVal = parseFloat(flatFeeSetting?.value || '10.00');
+      const perMileFeeVal = parseFloat(perMileFeeSetting?.value || '1.50');
+      const perItemFeeVal = parseFloat(perItemFeeSetting?.value || '0.50');
+      const freeThreshold = parseFloat(siteSettings?.freeDeliveryThreshold || '100');
+      const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+      
+      let calculatedFee = 0;
+      if (subtotal < freeThreshold) {
+        switch (feeTypeVal) {
+          case 'flat': calculatedFee = flatFeeVal; break;
+          case 'per_mile': calculatedFee = perMileFeeVal * distance; break;
+          case 'per_item': calculatedFee = perItemFeeVal * totalItems; break;
+          case 'combined': calculatedFee = flatFeeVal + perMileFeeVal * distance + perItemFeeVal * totalItems; break;
+          default: calculatedFee = flatFeeVal;
+        }
+      }
+      const deliveryFee = Math.round(calculatedFee * 100) / 100;
+      
       const tax = discountedSubtotal * 0.0825; // 8.25% Texas sales tax
       const total = discountedSubtotal + deliveryFee + tax;
 

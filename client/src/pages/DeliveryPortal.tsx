@@ -619,6 +619,40 @@ export default function DeliveryPortal() {
     },
   });
 
+  const { data: feeData } = useQuery<{
+    distance: number;
+    feeType: string;
+    flatFee: number;
+    perMileFee: number;
+    perItemFee: number;
+    withinDeliveryZone: boolean;
+    deliveryRadiusMiles: number;
+  }>({
+    queryKey: ['/api/delivery/calculate-fee'],
+    queryFn: async () => {
+      const response = await fetch('/api/delivery/calculate-fee', { credentials: 'include' });
+      if (!response.ok) return null;
+      return response.json();
+    },
+    retry: false,
+  });
+
+  const { data: feeSettingsFallback } = useQuery<{
+    feeType: string;
+    flatFee: string;
+    perMileFee: string;
+    perItemFee: string;
+  }>({
+    queryKey: ['/api/delivery/fee-settings'],
+    enabled: !feeData,
+  });
+
+  const { data: siteSettings } = useQuery<{
+    freeDeliveryThreshold: string;
+  }>({
+    queryKey: ['/api/site-settings'],
+  });
+
   const cartItems = useMemo(() => {
     const items: Record<number, number> = {};
     apiCartItems.forEach(item => {
@@ -739,8 +773,32 @@ export default function DeliveryPortal() {
   }, 0);
 
   const cartItemCount = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0);
-  const freeDeliveryThreshold = 99;
-  const deliveryFee = cartTotal >= freeDeliveryThreshold ? 0 : 5.99;
+  const freeDeliveryThreshold = parseFloat(siteSettings?.freeDeliveryThreshold || "100");
+  
+  const calculatePortalDeliveryFee = () => {
+    if (feeData) {
+      const distance = feeData.distance;
+      switch (feeData.feeType) {
+        case 'flat': return feeData.flatFee;
+        case 'per_mile': return feeData.perMileFee * distance;
+        case 'per_item': return feeData.perItemFee * cartItemCount;
+        case 'combined': return feeData.flatFee + feeData.perMileFee * distance + feeData.perItemFee * cartItemCount;
+        default: return feeData.flatFee;
+      }
+    }
+    if (feeSettingsFallback) {
+      const flatFee = parseFloat(feeSettingsFallback.flatFee || "0");
+      const perItemFee = parseFloat(feeSettingsFallback.perItemFee || "0");
+      switch (feeSettingsFallback.feeType) {
+        case 'flat': return flatFee;
+        case 'per_item': return perItemFee * cartItemCount;
+        case 'combined': return flatFee + perItemFee * cartItemCount;
+        default: return flatFee;
+      }
+    }
+    return 0;
+  };
+  const deliveryFee = cartTotal >= freeDeliveryThreshold ? 0 : calculatePortalDeliveryFee();
 
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
