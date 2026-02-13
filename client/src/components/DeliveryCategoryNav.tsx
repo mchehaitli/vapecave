@@ -17,7 +17,7 @@ export function DeliveryCategoryNav({
   viewMode = 'featured',
   onViewModeChange,
 }: DeliveryCategoryNavProps) {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const [expandedBrands, setExpandedBrands] = useState<Set<number>>(new Set());
 
@@ -113,17 +113,23 @@ export function DeliveryCategoryNav({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setExpandedCategories(prev => {
-                      const newSet = new Set<number>();
-                      if (!prev.has(category.id)) {
-                        newSet.add(category.id);
-                      }
-                      return newSet;
-                    });
-                    setExpandedBrands(new Set());
+                    if (categoryBrands.length === 0) {
+                      setLocation(`/delivery/category/${category.slug}`);
+                      setExpandedCategories(new Set());
+                      setExpandedBrands(new Set());
+                    } else {
+                      setExpandedCategories(prev => {
+                        const newSet = new Set<number>();
+                        if (!prev.has(category.id)) {
+                          newSet.add(category.id);
+                        }
+                        return newSet;
+                      });
+                      setExpandedBrands(new Set());
+                    }
                   }}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                    isOpen
+                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all cursor-pointer ${
+                    isOpen || location === `/delivery/category/${category.slug}`
                       ? "bg-primary text-primary-foreground"
                       : "text-foreground/80 hover:text-primary hover:bg-muted/50"
                   }`}
