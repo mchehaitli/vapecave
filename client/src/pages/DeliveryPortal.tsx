@@ -645,17 +645,17 @@ export default function DeliveryPortal() {
     .filter(pl => pl.isActive)
     .sort((a, b) => a.name.localeCompare(b.name));
   
-  const featuredProducts = products.filter(p => p.isFeaturedSlideshow && p.enabled)
+  const heroProducts = products.filter(p => p.isHeroSlideshow && p.enabled)
     .sort((a, b) => (a.slideshowPosition ?? 0) - (b.slideshowPosition ?? 0));
 
   useEffect(() => {
-    if (featuredProducts.length > 1) {
+    if (heroProducts.length > 1) {
       const interval = setInterval(() => {
-        setFeaturedIndex((prev) => (prev + 1) % featuredProducts.length);
+        setFeaturedIndex((prev) => (prev + 1) % heroProducts.length);
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [featuredProducts.length]);
+  }, [heroProducts.length]);
 
   const enabledProducts = products.filter(p => p.enabled);
 
@@ -970,7 +970,7 @@ export default function DeliveryPortal() {
       />
 
       <main className="flex-1">
-        {featuredProducts.length > 0 && (
+        {heroProducts.length > 0 && (
           <section className="relative w-full py-6 overflow-hidden bg-gradient-to-b from-background to-card">
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"
@@ -1022,27 +1022,27 @@ export default function DeliveryPortal() {
                       </motion.div>
                       
                       <h1 className="text-lg sm:text-2xl md:text-3xl font-black mb-2 text-foreground leading-tight">
-                        {featuredProducts[featuredIndex].name}
+                        {heroProducts[featuredIndex].name}
                       </h1>
                       
-                      {featuredProducts[featuredIndex].description && 
-                       featuredProducts[featuredIndex].description !== featuredProducts[featuredIndex].name && (
+                      {heroProducts[featuredIndex].description && 
+                       heroProducts[featuredIndex].description !== heroProducts[featuredIndex].name && (
                         <p className="text-base mb-4 text-foreground/70 line-clamp-2">
-                          {featuredProducts[featuredIndex].description}
+                          {heroProducts[featuredIndex].description}
                         </p>
                       )}
                       
                       <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                         <span className="text-lg sm:text-xl md:text-2xl font-bold text-primary">
-                          ${featuredProducts[featuredIndex].salePrice || featuredProducts[featuredIndex].price}
+                          ${heroProducts[featuredIndex].salePrice || heroProducts[featuredIndex].price}
                         </span>
-                        {featuredProducts[featuredIndex].salePrice && (
+                        {heroProducts[featuredIndex].salePrice && (
                           <span className="text-sm sm:text-base text-muted-foreground line-through">
-                            ${featuredProducts[featuredIndex].price}
+                            ${heroProducts[featuredIndex].price}
                           </span>
                         )}
                         {(() => {
-                          const featuredStock = parseInt(featuredProducts[featuredIndex].stockQuantity || '0');
+                          const featuredStock = parseInt(heroProducts[featuredIndex].stockQuantity || '0');
                           const isFeaturedOutOfStock = featuredStock === 0;
                           const isFeaturedLowStock = featuredStock > 0 && featuredStock <= 2;
                           
@@ -1064,7 +1064,7 @@ export default function DeliveryPortal() {
                               <Button
                                 size="sm"
                                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/30 text-xs sm:text-sm h-8 sm:h-9"
-                                onClick={() => addToCart(featuredProducts[featuredIndex].id)}
+                                onClick={() => addToCart(heroProducts[featuredIndex].id)}
                               >
                                 <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                                 Add to Cart
@@ -1099,8 +1099,8 @@ export default function DeliveryPortal() {
                         transition={{ duration: 3, repeat: Infinity }}
                       />
                       <img
-                        src={featuredProducts[featuredIndex].image || (featuredProducts[featuredIndex].brandId ? brandMap[featuredProducts[featuredIndex].brandId!]?.logo : null) || '/placeholder-product.png'}
-                        alt={featuredProducts[featuredIndex].name}
+                        src={heroProducts[featuredIndex].image || (heroProducts[featuredIndex].brandId ? brandMap[heroProducts[featuredIndex].brandId!]?.logo : null) || '/placeholder-product.png'}
+                        alt={heroProducts[featuredIndex].name}
                         className="max-w-[150px] max-h-[160px] md:max-w-[200px] md:max-h-[220px] object-contain relative z-10 drop-shadow-2xl"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
@@ -1109,7 +1109,7 @@ export default function DeliveryPortal() {
                             return;
                           }
                           target.dataset.fallbackAttempted = '1';
-                          const fp = featuredProducts[featuredIndex];
+                          const fp = heroProducts[featuredIndex];
                           const brandLogo = fp.brandId ? brandMap[fp.brandId]?.logo : null;
                           if (brandLogo) {
                             target.src = brandLogo;
@@ -1123,18 +1123,18 @@ export default function DeliveryPortal() {
                 </motion.div>
               </AnimatePresence>
 
-              {featuredProducts.length > 1 && (
+              {heroProducts.length > 1 && (
                 <div className="flex justify-center gap-2 mt-6">
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setFeaturedIndex((prev) => (prev - 1 + featuredProducts.length) % featuredProducts.length)}
+                    onClick={() => setFeaturedIndex((prev) => (prev - 1 + heroProducts.length) % heroProducts.length)}
                     className="h-10 w-10 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card border border-border/50"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </Button>
                   <div className="flex items-center gap-2">
-                    {featuredProducts.map((_, index) => (
+                    {heroProducts.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setFeaturedIndex(index)}
@@ -1149,7 +1149,7 @@ export default function DeliveryPortal() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setFeaturedIndex((prev) => (prev + 1) % featuredProducts.length)}
+                    onClick={() => setFeaturedIndex((prev) => (prev + 1) % heroProducts.length)}
                     className="h-10 w-10 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card border border-border/50"
                   >
                     <ChevronRight className="h-5 w-5" />
@@ -1177,40 +1177,51 @@ export default function DeliveryPortal() {
                       );
                     }
 
-                    const featuredPopular = featuredEnabledProducts.filter(p => p.badge === 'popular').slice(0, 12);
-                    const featuredNew = featuredEnabledProducts.filter(p => p.badge === 'new').slice(0, 12);
-                    const featuredPopularIds = new Set(featuredPopular.map(p => p.id));
-                    const featuredNewIds = new Set(featuredNew.map(p => p.id));
-                    const remainingFeatured = featuredEnabledProducts.filter(p => !featuredPopularIds.has(p.id) && !featuredNewIds.has(p.id));
+                    const featuredByCategory: Record<number, DeliveryProduct[]> = {};
+                    const uncategorized: DeliveryProduct[] = [];
+                    
+                    featuredEnabledProducts.forEach(p => {
+                      const catId = activeCategories.find(cat => {
+                        if (!p.category) return false;
+                        const productCat = p.category.toLowerCase().trim().replace(/s$/, '');
+                        const catName = cat.name.toLowerCase().trim().replace(/s$/, '');
+                        const catSlug = cat.slug.toLowerCase().trim().replace(/s$/, '');
+                        return productCat === catName || productCat === catSlug || 
+                               catName.includes(productCat) || productCat.includes(catName);
+                      })?.id;
+                      
+                      if (catId) {
+                        if (!featuredByCategory[catId]) featuredByCategory[catId] = [];
+                        featuredByCategory[catId].push(p);
+                      } else {
+                        uncategorized.push(p);
+                      }
+                    });
 
                     return (
                       <>
-                        {featuredPopular.length > 0 && (
-                          <ProductCarousel
-                            title="Popular Right Now"
-                            products={featuredPopular}
-                            onAddToCart={addToCart}
-                            onQuickView={setQuickViewProduct}
-                            cartItems={cartItems}
-                            onUpdateQuantity={updateCartQuantity}
-                            brandMap={brandMap}
-                          />
-                        )}
-                        {featuredNew.length > 0 && (
-                          <ProductCarousel
-                            title="New Arrivals"
-                            products={featuredNew}
-                            onAddToCart={addToCart}
-                            onQuickView={setQuickViewProduct}
-                            cartItems={cartItems}
-                            onUpdateQuantity={updateCartQuantity}
-                            brandMap={brandMap}
-                          />
-                        )}
-                        {remainingFeatured.length > 0 && (
+                        {activeCategories.map(cat => {
+                          const catProducts = featuredByCategory[cat.id];
+                          if (!catProducts || catProducts.length === 0) return null;
+                          return (
+                            <div key={cat.id} className="py-2">
+                              <ProductCarousel
+                                title={`Featured ${cat.name}`}
+                                products={catProducts}
+                                onAddToCart={addToCart}
+                                onQuickView={setQuickViewProduct}
+                                cartItems={cartItems}
+                                seeAllLink={`/delivery/category/${cat.slug}`}
+                                onUpdateQuantity={updateCartQuantity}
+                                brandMap={brandMap}
+                              />
+                            </div>
+                          );
+                        })}
+                        {uncategorized.length > 0 && (
                           <ProductCarousel
                             title="Featured Products"
-                            products={remainingFeatured.slice(0, 20)}
+                            products={uncategorized}
                             onAddToCart={addToCart}
                             onQuickView={setQuickViewProduct}
                             cartItems={cartItems}

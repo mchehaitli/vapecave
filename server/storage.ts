@@ -3068,6 +3068,7 @@ export class MemStorage implements IStorage {
       displayOrder: product.displayOrder ?? null,
       badge: product.badge ?? null,
       isFeaturedSlideshow: product.isFeaturedSlideshow ?? null,
+      isHeroSlideshow: product.isHeroSlideshow ?? null,
       slideshowPosition: product.slideshowPosition ?? null,
       stockQuantity: product.stockQuantity ?? null,
       enabled: product.enabled ?? null,

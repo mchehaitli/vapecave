@@ -163,6 +163,7 @@ export class CloverService {
       badge: null,
       displayOrder: 0,
       isFeaturedSlideshow: false,
+      isHeroSlideshow: false,
       slideshowPosition: 0,
     };
   }

@@ -2337,6 +2337,7 @@ interface DeliveryProduct {
   displayOrder: number | null;
   badge: string | null;
   isFeaturedSlideshow: boolean | null;
+  isHeroSlideshow: boolean | null;
   slideshowPosition: number | null;
   stockQuantity: string | null;
   enabled: boolean | null;
@@ -3185,6 +3186,7 @@ export function DeliveryProductsTab() {
                       </TableHead>
                       <TableHead>Image</TableHead>
                       <TableHead>Featured</TableHead>
+                      <TableHead>Hero</TableHead>
                       <TableHead>Badge</TableHead>
                       <TableHead>Enabled</TableHead>
                       <TableHead>Display Order</TableHead>
@@ -3263,6 +3265,18 @@ export function DeliveryProductsTab() {
                             })}
                             className="h-4 w-4"
                             data-testid={`checkbox-featured-${product.id}`}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <input
+                            type="checkbox"
+                            checked={product.isHeroSlideshow || false}
+                            onChange={(e) => updateProductMutation.mutate({ 
+                              productId: product.id, 
+                              data: { isHeroSlideshow: e.target.checked } 
+                            })}
+                            className="h-4 w-4"
+                            data-testid={`checkbox-hero-${product.id}`}
                           />
                         </TableCell>
                         <TableCell>

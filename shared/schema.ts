@@ -554,6 +554,7 @@ export const deliveryProducts = pgTable("delivery_products", {
   badge: text("badge"), // popular, new, sale, or null (concept1)
   displayOrder: integer("display_order").default(0),
   isFeaturedSlideshow: boolean("is_featured_slideshow").default(false),
+  isHeroSlideshow: boolean("is_hero_slideshow").default(false),
   slideshowPosition: integer("slideshow_position").default(0),
   showOnHomePage: boolean("show_on_home_page").default(false),
   homePageOrder: integer("home_page_order").default(0),
@@ -578,6 +579,7 @@ export const insertDeliveryProductSchema = createInsertSchema(deliveryProducts).
   badge: true,
   displayOrder: true,
   isFeaturedSlideshow: true,
+  isHeroSlideshow: true,
   slideshowPosition: true,
   showOnHomePage: true,
   homePageOrder: true,
