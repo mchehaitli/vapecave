@@ -2400,12 +2400,12 @@ const ProductRow = React.memo(function ProductRow({
       <TableCell className="py-1 px-1">
         <Checkbox checked={isSelected} onCheckedChange={() => onToggleSelect(product.id)} />
       </TableCell>
-      <TableCell className="py-1 px-1">
-        <div className="flex items-center gap-1.5">
+      <TableCell className="py-1 px-0.5">
+        <div className="flex items-center gap-1">
           {product.image && (
-            <img src={product.image} alt={product.name} loading="lazy" className="w-8 h-8 object-cover rounded flex-shrink-0" />
+            <img src={product.image} alt={product.name} loading="lazy" className="w-6 h-6 object-cover rounded flex-shrink-0" />
           )}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <input
               type="text"
               value={localName}
@@ -2420,16 +2420,16 @@ const ProductRow = React.memo(function ProductRow({
                 }
               }}
               onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-              className="w-40 bg-transparent border border-gray-600 rounded px-1.5 py-0.5 text-[11px] font-medium text-white focus:border-primary focus:outline-none"
+              className="w-full bg-transparent border border-gray-600 rounded px-1 py-0.5 text-[11px] font-medium text-white focus:border-primary focus:outline-none"
               title="Edit name (survives Clover sync)"
             />
             <div className="text-[10px] text-gray-500 truncate">{product.cloverItemId || product.id}</div>
           </div>
         </div>
       </TableCell>
-      <TableCell className="py-1 px-1">
+      <TableCell className="py-1 px-0.5">
         <Select value={product.category || ""} onValueChange={(v) => onUpdate(product.id, { category: v || null })}>
-          <SelectTrigger className="w-24 h-7 bg-gray-700 border-gray-600 text-[11px]">
+          <SelectTrigger className="w-20 h-7 bg-gray-700 border-gray-600 text-[11px] px-1.5">
             <SelectValue placeholder="—" />
           </SelectTrigger>
           <SelectContent>
@@ -2439,35 +2439,35 @@ const ProductRow = React.memo(function ProductRow({
           </SelectContent>
         </Select>
       </TableCell>
-      <TableCell className="py-1 px-1 text-[11px] font-medium">
+      <TableCell className="py-1 px-0.5 text-[11px] font-medium whitespace-nowrap">
         {product.salePrice ? (
           <div><span className="text-red-400">${product.salePrice}</span><br/><span className="text-gray-500 line-through">${product.price}</span></div>
         ) : <span>${product.price}</span>}
       </TableCell>
-      <TableCell className="py-1 px-1">
+      <TableCell className="py-1 px-0.5">
         {product.stockQuantity !== null ? (
           parseInt(product.stockQuantity) <= 0 ? (
-            <Badge variant="destructive" className="text-[10px] px-1">Out of Stock</Badge>
+            <Badge variant="destructive" className="text-[10px] px-0.5 whitespace-nowrap">Out of Stock</Badge>
           ) : (
-            <Badge variant={parseInt(product.stockQuantity) < 10 ? "secondary" : "default"} className="text-[10px] px-1">
+            <Badge variant={parseInt(product.stockQuantity) < 10 ? "secondary" : "default"} className="text-[10px] px-0.5">
               {product.stockQuantity}
             </Badge>
           )
         ) : <span className="text-gray-500 text-[10px]">—</span>}
       </TableCell>
-      <TableCell className="py-1 px-1">
+      <TableCell className="py-1 px-0.5">
         <label htmlFor={`img-${product.id}`} className="cursor-pointer text-blue-400 hover:text-blue-300" title="Upload image (800x800px, max 5MB)">
-          <Upload className="h-3.5 w-3.5" />
+          <Upload className="h-3 w-3" />
         </label>
         <input id={`img-${product.id}`} type="file" accept="image/*" className="hidden" onChange={(e) => onImageUpload(product.id, e)} />
       </TableCell>
-      <TableCell className="py-1 px-1">
+      <TableCell className="py-1 px-0.5">
         {(() => {
           const matchedCategory = product.category ? deliveryCategories.find(c => c.name === product.category) : null;
           const filteredBrands = deliveryBrands.filter(b => b.isActive && (!matchedCategory || b.categoryId === matchedCategory.id)).sort((a, b) => a.name.localeCompare(b.name));
           return (
             <Select value={product.brandId?.toString() || "none"} onValueChange={(v) => onUpdate(product.id, { brandId: v === "none" ? null : parseInt(v), productLineId: null })}>
-              <SelectTrigger className="w-24 h-7 bg-gray-700 border-gray-600 text-[11px]">
+              <SelectTrigger className="w-20 h-7 bg-gray-700 border-gray-600 text-[11px] px-1.5">
                 <SelectValue placeholder="—" />
               </SelectTrigger>
               <SelectContent>
@@ -2480,9 +2480,9 @@ const ProductRow = React.memo(function ProductRow({
           );
         })()}
       </TableCell>
-      <TableCell className="py-1 px-1">
+      <TableCell className="py-1 px-0.5">
         <Select value={product.productLineId?.toString() || "none"} onValueChange={(v) => onUpdate(product.id, { productLineId: v === "none" ? null : parseInt(v) })}>
-          <SelectTrigger className="w-24 h-7 bg-gray-700 border-gray-600 text-[11px]">
+          <SelectTrigger className="w-20 h-7 bg-gray-700 border-gray-600 text-[11px] px-1.5">
             <SelectValue placeholder="—" />
           </SelectTrigger>
           <SelectContent>
@@ -2493,23 +2493,20 @@ const ProductRow = React.memo(function ProductRow({
           </SelectContent>
         </Select>
       </TableCell>
-      <TableCell className="py-1 px-1">
-        <div className="flex items-center gap-2">
-          <label className="flex items-center gap-0.5 cursor-pointer" title="Featured">
-            <input type="checkbox" checked={product.isFeaturedSlideshow || false} onChange={(e) => onUpdate(product.id, { isFeaturedSlideshow: e.target.checked })} className="h-3.5 w-3.5" />
-            <span className="text-[9px] text-gray-400">F</span>
+      <TableCell className="py-1 px-0.5">
+        <div className="flex items-center gap-1">
+          <label className="flex items-center cursor-pointer" title="Featured">
+            <input type="checkbox" checked={product.isFeaturedSlideshow || false} onChange={(e) => onUpdate(product.id, { isFeaturedSlideshow: e.target.checked })} className="h-3 w-3" />
           </label>
-          <label className="flex items-center gap-0.5 cursor-pointer" title="Hero">
-            <input type="checkbox" checked={product.isHeroSlideshow || false} onChange={(e) => onUpdate(product.id, { isHeroSlideshow: e.target.checked })} className="h-3.5 w-3.5" />
-            <span className="text-[9px] text-gray-400">H</span>
+          <label className="flex items-center cursor-pointer" title="Hero">
+            <input type="checkbox" checked={product.isHeroSlideshow || false} onChange={(e) => onUpdate(product.id, { isHeroSlideshow: e.target.checked })} className="h-3 w-3" />
           </label>
-          <label className="flex items-center gap-0.5 cursor-pointer" title="Enabled">
-            <input type="checkbox" checked={product.enabled || false} onChange={(e) => onUpdate(product.id, { enabled: e.target.checked })} className="h-3.5 w-3.5" />
-            <span className="text-[9px] text-gray-400">E</span>
+          <label className="flex items-center cursor-pointer" title="Enabled">
+            <input type="checkbox" checked={product.enabled || false} onChange={(e) => onUpdate(product.id, { enabled: e.target.checked })} className="h-3 w-3" />
           </label>
         </div>
       </TableCell>
-      <TableCell className="py-1 px-1">
+      <TableCell className="py-1 px-0.5">
         <input
           type="text"
           value={localBadge}
@@ -2517,16 +2514,16 @@ const ProductRow = React.memo(function ProductRow({
           onBlur={() => onUpdate(product.id, { badge: localBadge || null })}
           onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
           placeholder="—"
-          className="w-16 bg-transparent border border-gray-600 rounded px-1 py-0.5 text-[11px] text-white focus:border-primary focus:outline-none"
+          className="w-14 bg-transparent border border-gray-600 rounded px-0.5 py-0.5 text-[11px] text-white focus:border-primary focus:outline-none"
         />
       </TableCell>
-      <TableCell className="py-1 px-1">
-        <div className="flex gap-0.5">
-          <button onClick={() => onEdit(product)} className="p-1 text-blue-400 hover:text-blue-300 rounded hover:bg-blue-900/20" title="Edit">
-            <Edit className="h-3.5 w-3.5" />
+      <TableCell className="py-1 px-0.5">
+        <div className="flex gap-0">
+          <button onClick={() => onEdit(product)} className="p-0.5 text-blue-400 hover:text-blue-300 rounded hover:bg-blue-900/20" title="Edit">
+            <Edit className="h-3 w-3" />
           </button>
-          <button onClick={() => onDelete(product.id)} className="p-1 text-red-400 hover:text-red-300 rounded hover:bg-red-900/20" title="Delete">
-            <Trash2 className="h-3.5 w-3.5" />
+          <button onClick={() => onDelete(product.id)} className="p-0.5 text-red-400 hover:text-red-300 rounded hover:bg-red-900/20" title="Delete">
+            <Trash2 className="h-3 w-3" />
           </button>
         </div>
       </TableCell>
@@ -3350,23 +3347,23 @@ export function DeliveryProductsTab() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-gray-700">
-                      <TableHead className="w-8 px-1"><Checkbox checked={selectedProducts.size === data?.products.length && data?.products.length > 0} onCheckedChange={handleSelectAll} /></TableHead>
-                      <TableHead className="px-1 cursor-pointer hover:bg-gray-700/50 select-none" onClick={() => handleSort("name")}>
+                      <TableHead className="w-7 px-0.5"><Checkbox checked={selectedProducts.size === data?.products.length && data?.products.length > 0} onCheckedChange={handleSelectAll} /></TableHead>
+                      <TableHead className="px-0.5 cursor-pointer hover:bg-gray-700/50 select-none min-w-[200px]" onClick={() => handleSort("name")}>
                         <div className="flex items-center gap-1 text-[11px]">Product {sortField === "name" && <span>{sortDirection === "asc" ? "↑" : "↓"}</span>}</div>
                       </TableHead>
-                      <TableHead className="px-1 text-[11px]">Category</TableHead>
-                      <TableHead className="px-1 cursor-pointer hover:bg-gray-700/50 select-none text-[11px]" onClick={() => handleSort("price")}>
+                      <TableHead className="px-0.5 text-[11px] whitespace-nowrap">Cat</TableHead>
+                      <TableHead className="px-0.5 cursor-pointer hover:bg-gray-700/50 select-none text-[11px] whitespace-nowrap" onClick={() => handleSort("price")}>
                         <div className="flex items-center gap-1">Price {sortField === "price" && <span>{sortDirection === "asc" ? "↑" : "↓"}</span>}</div>
                       </TableHead>
-                      <TableHead className="px-1 cursor-pointer hover:bg-gray-700/50 select-none text-[11px]" onClick={() => handleSort("stock")}>
+                      <TableHead className="px-0.5 cursor-pointer hover:bg-gray-700/50 select-none text-[11px] whitespace-nowrap" onClick={() => handleSort("stock")}>
                         <div className="flex items-center gap-1">Stock {sortField === "stock" && <span>{sortDirection === "asc" ? "↑" : "↓"}</span>}</div>
                       </TableHead>
-                      <TableHead className="px-1 text-[11px]">Img</TableHead>
-                      <TableHead className="px-1 text-[11px]">Brand</TableHead>
-                      <TableHead className="px-1 text-[11px]">Sub-brand</TableHead>
-                      <TableHead className="px-1 text-[11px]"><div>Featured / Hero / Enabled</div></TableHead>
-                      <TableHead className="px-1 text-[11px]">Badge</TableHead>
-                      <TableHead className="px-1 text-[11px]">Act</TableHead>
+                      <TableHead className="px-0.5 text-[11px] w-6"></TableHead>
+                      <TableHead className="px-0.5 text-[11px] whitespace-nowrap">Brand</TableHead>
+                      <TableHead className="px-0.5 text-[11px] whitespace-nowrap">Sub</TableHead>
+                      <TableHead className="px-0.5 text-[11px] whitespace-nowrap" title="Featured / Hero / Enabled">F/H/E</TableHead>
+                      <TableHead className="px-0.5 text-[11px] whitespace-nowrap">Badge</TableHead>
+                      <TableHead className="px-0.5 text-[11px] w-12"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
