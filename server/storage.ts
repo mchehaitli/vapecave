@@ -1272,15 +1272,18 @@ export class DbStorage implements IStorage {
         
         if (existing) {
           // Update existing product but preserve admin settings
-          await this.updateDeliveryProduct(existing.id, {
-            name: product.name,
+          // If customName is set, don't overwrite name from Clover
+          const updateData: any = {
             price: product.price,
             image: product.image,
             description: product.description,
             category: product.category,
             stockQuantity: product.stockQuantity,
-            // Keep existing admin settings: enabled, badge, displayOrder, isFeaturedSlideshow, slideshowPosition
-          });
+          };
+          if (!existing.customName) {
+            updateData.name = product.name;
+          }
+          await this.updateDeliveryProduct(existing.id, updateData);
           updated++;
         } else {
           // Create new product

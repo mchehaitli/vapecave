@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, CheckCircle, XCircle, Clock, AlertCircle, Package, Edit, Mail, Trash2, Upload, ChevronLeft, ChevronRight, RefreshCw, Download, DollarSign } from "lucide-react";
-import type { DeliveryBrand } from "@shared/schema";
+import type { DeliveryBrand, DeliveryCategory } from "@shared/schema";
 
 interface DeliveryCustomer {
   id: number;
@@ -2330,6 +2330,7 @@ interface DeliveryProduct {
   id: number;
   cloverItemId: string | null;
   name: string;
+  customName: string | null;
   price: string;
   image: string;
   description: string;
@@ -2341,6 +2342,9 @@ interface DeliveryProduct {
   slideshowPosition: number | null;
   stockQuantity: string | null;
   enabled: boolean | null;
+  brandId: number | null;
+  productLineId: number | null;
+  salePrice: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -2429,6 +2433,11 @@ export function DeliveryProductsTab() {
   // Fetch delivery brands for assignment
   const { data: deliveryBrands = [] } = useQuery<DeliveryBrand[]>({
     queryKey: ['/api/delivery/brands'],
+  });
+
+  // Fetch delivery categories for assignment
+  const { data: deliveryCategories = [] } = useQuery<DeliveryCategory[]>({
+    queryKey: ["/api/delivery/categories"],
   });
 
   // Fetch product lines for assignment
@@ -3185,6 +3194,8 @@ export function DeliveryProductsTab() {
                         </div>
                       </TableHead>
                       <TableHead>Image</TableHead>
+                      <TableHead>Brand</TableHead>
+                      <TableHead>Sub-brand</TableHead>
                       <TableHead>Featured</TableHead>
                       <TableHead>Hero</TableHead>
                       <TableHead>Badge</TableHead>
@@ -3209,7 +3220,28 @@ export function DeliveryProductsTab() {
                               <img src={product.image} alt={`Vape Cave Frisco - ${product.name}`} loading="lazy" className="w-10 h-10 object-cover rounded" />
                             )}
                             <div>
-                              <div className="font-medium">{product.name}</div>
+                              <Input
+                                defaultValue={product.customName || product.name}
+                                onBlur={(e) => {
+                                  const newName = e.target.value.trim();
+                                  if (newName && newName !== product.name) {
+                                    updateProductMutation.mutate({
+                                      productId: product.id,
+                                      data: { customName: newName, name: newName }
+                                    });
+                                  } else if (newName === product.name || !newName) {
+                                    updateProductMutation.mutate({
+                                      productId: product.id,
+                                      data: { customName: null, name: product.name }
+                                    });
+                                  }
+                                }}
+                                className="w-48 bg-gray-700 border-gray-600 text-xs font-medium"
+                                title="Edit product display name (survives Clover sync)"
+                              />
+                              {product.customName && (
+                                <div className="text-xs text-orange-400 mt-0.5">Custom name (Clover: {product.name})</div>
+                              )}
                               {product.description && (
                                 <div className="text-xs text-gray-400 max-w-xs truncate">{product.description}</div>
                               )}
@@ -3217,7 +3249,24 @@ export function DeliveryProductsTab() {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-sm">{product.category}</TableCell>
+                        <TableCell>
+                          <Select
+                            value={product.category || ""}
+                            onValueChange={(value) => updateProductMutation.mutate({
+                              productId: product.id,
+                              data: { category: value || null }
+                            })}
+                          >
+                            <SelectTrigger className="w-32 bg-gray-700 border-gray-600 text-xs">
+                              <SelectValue placeholder="Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {deliveryCategories.filter(c => c.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)).map(cat => (
+                                <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
                         <TableCell className="text-sm font-medium">
                           {product.salePrice ? (
                             <div className="flex flex-col">
@@ -3254,6 +3303,44 @@ export function DeliveryProductsTab() {
                             onChange={(e) => handleImageUpload(product.id, e)}
                             data-testid={`input-upload-image-${product.id}`}
                           />
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            value={product.brandId?.toString() || "none"}
+                            onValueChange={(value) => updateProductMutation.mutate({
+                              productId: product.id,
+                              data: { brandId: value === "none" ? null : parseInt(value) }
+                            })}
+                          >
+                            <SelectTrigger className="w-28 bg-gray-700 border-gray-600 text-xs">
+                              <SelectValue placeholder="Brand" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">None</SelectItem>
+                              {deliveryBrands.filter(b => b.isActive).sort((a, b) => a.name.localeCompare(b.name)).map(brand => (
+                                <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            value={product.productLineId?.toString() || "none"}
+                            onValueChange={(value) => updateProductMutation.mutate({
+                              productId: product.id,
+                              data: { productLineId: value === "none" ? null : parseInt(value) }
+                            })}
+                          >
+                            <SelectTrigger className="w-28 bg-gray-700 border-gray-600 text-xs">
+                              <SelectValue placeholder="Sub-brand" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">None</SelectItem>
+                              {deliveryProductLines.filter(pl => pl.isActive && (!product.brandId || pl.brandId === product.brandId)).map(pl => (
+                                <SelectItem key={pl.id} value={pl.id.toString()}>{pl.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell>
                           <input

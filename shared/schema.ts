@@ -542,6 +542,7 @@ export const deliveryProducts = pgTable("delivery_products", {
   id: serial("id").primaryKey(),
   cloverItemId: text("clover_item_id").unique(), // Nullable for manual products
   name: text("name").notNull(),
+  customName: text("custom_name"),
   brand: text("brand"), // Concept1: brand filter support (legacy text field)
   brandId: integer("brand_id"), // Links to deliveryBrands table
   productLineId: integer("product_line_id"), // Links to deliveryProductLines table (subcategory within brand)
@@ -567,6 +568,7 @@ export const deliveryProducts = pgTable("delivery_products", {
 export const insertDeliveryProductSchema = createInsertSchema(deliveryProducts).pick({
   cloverItemId: true,
   name: true,
+  customName: true,
   brand: true,
   brandId: true,
   productLineId: true,

@@ -2038,7 +2038,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/delivery/products', async (req, res) => {
     try {
       const products = await storage.getEnabledDeliveryProducts();
-      res.json(products);
+      const mapped = products.map(p => ({
+        ...p,
+        name: p.customName || p.name,
+      }));
+      res.json(mapped);
     } catch (error) {
       console.error("Error fetching delivery products:", error);
       res.status(500).json({ error: "Failed to fetch products" });
