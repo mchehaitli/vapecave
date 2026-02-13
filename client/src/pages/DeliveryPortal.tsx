@@ -48,13 +48,15 @@ function BrandCarousel({
       if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
       pauseTimeoutRef.current = setTimeout(() => {
         isPausedRef.current = false;
-      }, 3000);
+      }, 5000);
 
-      const scrollAmount = 320;
+      const containerWidth = scrollRef.current.clientWidth;
+      const scrollAmount = Math.max(containerWidth * 0.75, 300);
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
+      setTimeout(checkScroll, 350);
     }
   };
 
@@ -173,7 +175,7 @@ function BrandCarousel({
 
       <div
         ref={scrollRef}
-        className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-2 px-2 sm:-mx-4 sm:px-4 snap-x snap-mandatory"
+        className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-2 px-2 sm:-mx-4 sm:px-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -181,7 +183,7 @@ function BrandCarousel({
         {brands.map((brand) => (
           <Link key={brand.id} href={`/delivery/brand/${brand.slug}`}>
             <motion.div
-              className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px] snap-start cursor-pointer"
+              className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px] cursor-pointer"
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
             >
@@ -267,13 +269,15 @@ function ProductCarousel({
       if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
       pauseTimeoutRef.current = setTimeout(() => {
         isPausedRef.current = false;
-      }, 3000);
+      }, 5000);
 
-      const scrollAmount = 320;
+      const containerWidth = scrollRef.current.clientWidth;
+      const scrollAmount = Math.max(containerWidth * 0.75, 300);
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
+      setTimeout(checkScroll, 350);
     }
   };
 
@@ -392,7 +396,7 @@ function ProductCarousel({
 
       <div
         ref={scrollRef}
-        className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-4 -mx-2 px-2 sm:-mx-4 sm:px-4 snap-x snap-mandatory"
+        className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-4 -mx-2 px-2 sm:-mx-4 sm:px-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -406,7 +410,7 @@ function ProductCarousel({
           return (
             <motion.div
               key={product.id}
-              className="flex-shrink-0 w-[145px] sm:w-[180px] md:w-[240px] lg:w-[280px] snap-start"
+              className="flex-shrink-0 w-[145px] sm:w-[180px] md:w-[240px] lg:w-[280px]"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >
