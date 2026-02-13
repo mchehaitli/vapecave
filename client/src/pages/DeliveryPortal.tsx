@@ -403,7 +403,7 @@ function ProductCarousel({
       >
         {products.map((product) => {
           const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
-          const isOutOfStock = stock === 0;
+          const isOutOfStock = stock <= 0;
           const isLowStock = stock > 0 && stock <= 2;
           const inCart = cartItems[product.id];
 
@@ -1101,7 +1101,7 @@ export default function DeliveryPortal() {
                         )}
                         {(() => {
                           const featuredStock = parseInt(heroProducts[featuredIndex].stockQuantity || '0');
-                          const isFeaturedOutOfStock = featuredStock === 0;
+                          const isFeaturedOutOfStock = featuredStock <= 0;
                           const isFeaturedLowStock = featuredStock > 0 && featuredStock <= 2;
                           
                           if (isFeaturedOutOfStock) {

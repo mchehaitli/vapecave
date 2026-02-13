@@ -345,7 +345,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
               const isFeatured = featuredIds.includes(product.id);
               
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
-              const isOutOfStock = stock === 0;
+              const isOutOfStock = stock <= 0;
               const isLowStock = stock > 0 && stock <= 2;
 
               return (
@@ -472,7 +472,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
               const quantity = derivedCartQuantities[product.id] || 0;
               const isFeatured = featuredIds.includes(product.id);
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
-              const isOutOfStock = stock === 0;
+              const isOutOfStock = stock <= 0;
               const isLowStock = stock > 0 && stock <= 2;
               
               return (

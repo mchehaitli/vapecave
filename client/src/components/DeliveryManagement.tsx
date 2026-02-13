@@ -103,7 +103,7 @@ export function DeliveryOverviewTab({ onNavigateToTab }: { onNavigateToTab?: (ta
   });
   const outOfStockProducts = products.filter(p => {
     const qty = parseFloat(p.stockQuantity || '0');
-    return p.enabled && qty === 0;
+    return p.enabled && qty <= 0;
   });
   
   // Recent orders (last 5)
@@ -2391,11 +2391,9 @@ const ProductRow = React.memo(function ProductRow({
 }: ProductRowProps) {
   const [localName, setLocalName] = useState(product.customName || product.name);
   const [localBadge, setLocalBadge] = useState(product.badge || "");
-  const [localOrder, setLocalOrder] = useState(product.displayOrder?.toString() || "");
 
   useEffect(() => { setLocalName(product.customName || product.name); }, [product.customName, product.name]);
   useEffect(() => { setLocalBadge(product.badge || ""); }, [product.badge]);
-  useEffect(() => { setLocalOrder(product.displayOrder?.toString() || ""); }, [product.displayOrder]);
 
   return (
     <TableRow className="border-gray-700 h-12">
@@ -2448,9 +2446,13 @@ const ProductRow = React.memo(function ProductRow({
       </TableCell>
       <TableCell className="py-1 px-1">
         {product.stockQuantity !== null ? (
-          <Badge variant={parseInt(product.stockQuantity) === 0 ? "destructive" : parseInt(product.stockQuantity) < 10 ? "secondary" : "default"} className="text-[10px] px-1">
-            {product.stockQuantity}
-          </Badge>
+          parseInt(product.stockQuantity) <= 0 ? (
+            <Badge variant="destructive" className="text-[10px] px-1">Out of Stock</Badge>
+          ) : (
+            <Badge variant={parseInt(product.stockQuantity) < 10 ? "secondary" : "default"} className="text-[10px] px-1">
+              {product.stockQuantity}
+            </Badge>
+          )
         ) : <span className="text-gray-500 text-[10px]">—</span>}
       </TableCell>
       <TableCell className="py-1 px-1">
@@ -2460,17 +2462,23 @@ const ProductRow = React.memo(function ProductRow({
         <input id={`img-${product.id}`} type="file" accept="image/*" className="hidden" onChange={(e) => onImageUpload(product.id, e)} />
       </TableCell>
       <TableCell className="py-1 px-1">
-        <Select value={product.brandId?.toString() || "none"} onValueChange={(v) => onUpdate(product.id, { brandId: v === "none" ? null : parseInt(v) })}>
-          <SelectTrigger className="w-24 h-7 bg-gray-700 border-gray-600 text-[11px]">
-            <SelectValue placeholder="—" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            {deliveryBrands.filter(b => b.isActive).sort((a, b) => a.name.localeCompare(b.name)).map(brand => (
-              <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {(() => {
+          const matchedCategory = product.category ? deliveryCategories.find(c => c.name === product.category) : null;
+          const filteredBrands = deliveryBrands.filter(b => b.isActive && (!matchedCategory || b.categoryId === matchedCategory.id)).sort((a, b) => a.name.localeCompare(b.name));
+          return (
+            <Select value={product.brandId?.toString() || "none"} onValueChange={(v) => onUpdate(product.id, { brandId: v === "none" ? null : parseInt(v), productLineId: null })}>
+              <SelectTrigger className="w-24 h-7 bg-gray-700 border-gray-600 text-[11px]">
+                <SelectValue placeholder="—" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {filteredBrands.map(brand => (
+                  <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+        })()}
       </TableCell>
       <TableCell className="py-1 px-1">
         <Select value={product.productLineId?.toString() || "none"} onValueChange={(v) => onUpdate(product.id, { productLineId: v === "none" ? null : parseInt(v) })}>
@@ -2479,7 +2487,7 @@ const ProductRow = React.memo(function ProductRow({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">None</SelectItem>
-            {deliveryProductLines.filter(pl => pl.isActive && (!product.brandId || pl.brandId === product.brandId)).map(pl => (
+            {deliveryProductLines.filter(pl => pl.isActive && product.brandId && pl.brandId === product.brandId).map(pl => (
               <SelectItem key={pl.id} value={pl.id.toString()}>{pl.name}</SelectItem>
             ))}
           </SelectContent>
@@ -2513,17 +2521,6 @@ const ProductRow = React.memo(function ProductRow({
         />
       </TableCell>
       <TableCell className="py-1 px-1">
-        <input
-          type="number"
-          value={localOrder}
-          onChange={(e) => setLocalOrder(e.target.value)}
-          onBlur={() => onUpdate(product.id, { displayOrder: localOrder ? parseInt(localOrder) : null })}
-          onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-          placeholder="—"
-          className="w-12 bg-transparent border border-gray-600 rounded px-1 py-0.5 text-[11px] text-white text-center focus:border-primary focus:outline-none"
-        />
-      </TableCell>
-      <TableCell className="py-1 px-1">
         <div className="flex gap-0.5">
           <button onClick={() => onEdit(product)} className="p-1 text-blue-400 hover:text-blue-300 rounded hover:bg-blue-900/20" title="Edit">
             <Edit className="h-3.5 w-3.5" />
@@ -2549,7 +2546,7 @@ export function DeliveryProductsTab() {
   const [search, setSearch] = useState(""); // Debounced search for query
   const [category, setCategory] = useState<string>("all");
   const [enabledFilter, setEnabledFilter] = useState<string>("all");
-  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<string | null>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   
   // Debounce search input
@@ -2581,11 +2578,15 @@ export function DeliveryProductsTab() {
   const [bulkEditDialogOpen, setBulkEditDialogOpen] = useState(false);
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [bulkEditForm, setBulkEditForm] = useState({
+    name: "",
+    description: "",
     price: "",
     salePrice: "",
+    category: "",
     stockQuantity: "",
     enabled: null as boolean | null,
     isFeaturedSlideshow: null as boolean | null,
+    isHeroSlideshow: null as boolean | null,
     showOnHomePage: null as boolean | null,
     badge: "",
     imageUrl: "",
@@ -2908,7 +2909,7 @@ export function DeliveryProductsTab() {
       toast({ title: "Bulk Update Complete", description: data.message });
       setBulkEditDialogOpen(false);
       setSelectedProducts(new Set());
-      setBulkEditForm({ price: "", salePrice: "", stockQuantity: "", enabled: null, isFeaturedSlideshow: null, showOnHomePage: null, badge: "", imageUrl: "", brandId: null, productLineId: null });
+      setBulkEditForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: null, isFeaturedSlideshow: null, isHeroSlideshow: null, showOnHomePage: null, badge: "", imageUrl: "", brandId: null, productLineId: null });
       setBulkImageFile(null);
     },
     onError: () => {
@@ -3076,15 +3077,20 @@ export function DeliveryProductsTab() {
     
     const updates: any = {};
     
+    if (bulkEditForm.name) updates.name = bulkEditForm.name;
+    if (bulkEditForm.name) updates.customName = bulkEditForm.name;
+    if (bulkEditForm.description) updates.description = bulkEditForm.description;
     if (bulkEditForm.price) updates.price = bulkEditForm.price;
     if (bulkEditForm.salePrice && bulkEditForm.salePrice.trim() !== "" && bulkEditForm.salePrice !== "0") {
       updates.salePrice = bulkEditForm.salePrice;
     } else if (bulkEditForm.salePrice === "0" || bulkEditForm.salePrice === "") {
-      updates.salePrice = null; // Clear sale price when 0 or empty
+      updates.salePrice = null;
     }
+    if (bulkEditForm.category) updates.category = bulkEditForm.category;
     if (bulkEditForm.stockQuantity) updates.stockQuantity = bulkEditForm.stockQuantity;
     if (bulkEditForm.enabled !== null) updates.enabled = bulkEditForm.enabled;
     if (bulkEditForm.isFeaturedSlideshow !== null) updates.isFeaturedSlideshow = bulkEditForm.isFeaturedSlideshow;
+    if (bulkEditForm.isHeroSlideshow !== null) updates.isHeroSlideshow = bulkEditForm.isHeroSlideshow;
     if (bulkEditForm.showOnHomePage !== null) updates.showOnHomePage = bulkEditForm.showOnHomePage;
     if (bulkEditForm.badge !== undefined) updates.badge = bulkEditForm.badge || null;
 
@@ -3358,9 +3364,8 @@ export function DeliveryProductsTab() {
                       <TableHead className="px-1 text-[11px]">Img</TableHead>
                       <TableHead className="px-1 text-[11px]">Brand</TableHead>
                       <TableHead className="px-1 text-[11px]">Sub-brand</TableHead>
-                      <TableHead className="px-1 text-[11px]">F / H / E</TableHead>
+                      <TableHead className="px-1 text-[11px]"><div>Featured / Hero / Enabled</div></TableHead>
                       <TableHead className="px-1 text-[11px]">Badge</TableHead>
-                      <TableHead className="px-1 text-[11px]">Ord</TableHead>
                       <TableHead className="px-1 text-[11px]">Act</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -3594,7 +3599,46 @@ export function DeliveryProductsTab() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+            <div>
+              <Label className="text-gray-300">Product Name</Label>
+              <Input
+                placeholder="Leave empty to keep current"
+                value={bulkEditForm.name}
+                onChange={(e) => setBulkEditForm({ ...bulkEditForm, name: e.target.value })}
+                className="bg-gray-700 border-gray-600 text-white"
+              />
+            </div>
+
+            <div>
+              <Label className="text-gray-300">Description</Label>
+              <Textarea
+                placeholder="Leave empty to keep current"
+                value={bulkEditForm.description}
+                onChange={(e) => setBulkEditForm({ ...bulkEditForm, description: e.target.value })}
+                className="bg-gray-700 border-gray-600 text-white"
+                rows={2}
+              />
+            </div>
+
+            <div>
+              <Label className="text-gray-300">Category</Label>
+              <Select
+                value={bulkEditForm.category || "keep"}
+                onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, category: value === "keep" ? "" : value, brandId: null, productLineId: null })}
+              >
+                <SelectTrigger className="bg-gray-700 border-gray-600">
+                  <SelectValue placeholder="Keep Current" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="keep">Keep Current</SelectItem>
+                  {deliveryCategories.filter(c => c.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)).map(cat => (
+                    <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-gray-300">Price ($)</Label>
@@ -3712,6 +3756,22 @@ export function DeliveryProductsTab() {
                 </Select>
               </div>
               <div>
+                <Label className="text-gray-300">Hero Slideshow</Label>
+                <Select 
+                  value={bulkEditForm.isHeroSlideshow === null ? "keep" : bulkEditForm.isHeroSlideshow ? "true" : "false"}
+                  onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, isHeroSlideshow: value === "keep" ? null : value === "true" })}
+                >
+                  <SelectTrigger className="bg-gray-700 border-gray-600">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="keep">Keep Current</SelectItem>
+                    <SelectItem value="true">Show in Hero</SelectItem>
+                    <SelectItem value="false">Hide from Hero</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label className="text-gray-300">Show on Home Page</Label>
                 <Select 
                   value={bulkEditForm.showOnHomePage === null ? "keep" : bulkEditForm.showOnHomePage ? "true" : "false"}
@@ -3726,9 +3786,6 @@ export function DeliveryProductsTab() {
                     <SelectItem value="false">Hide from Home</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Products shown in category carousels on the home page
-                </p>
               </div>
             </div>
 
@@ -3744,14 +3801,17 @@ export function DeliveryProductsTab() {
                 <SelectContent>
                   <SelectItem value="keep">Keep Current</SelectItem>
                   <SelectItem value="none">Remove Brand</SelectItem>
-                  {deliveryBrands.filter(b => b.isActive).sort((a, b) => a.name.localeCompare(b.name)).map(brand => (
-                    <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
-                  ))}
+                  {(() => {
+                    const selectedCat = bulkEditForm.category ? deliveryCategories.find(c => c.name === bulkEditForm.category) : null;
+                    return deliveryBrands
+                      .filter(b => b.isActive && (!selectedCat || b.categoryId === selectedCat.id))
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map(brand => (
+                        <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
+                      ));
+                  })()}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500 mt-1">
-                Assign selected products to a delivery brand for category organization
-              </p>
             </div>
 
             <div>
@@ -3779,9 +3839,6 @@ export function DeliveryProductsTab() {
                     })}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500 mt-1">
-                Assign products to a product line (subcategory within a brand)
-              </p>
             </div>
           </div>
           
@@ -3792,7 +3849,7 @@ export function DeliveryProductsTab() {
               className="border-gray-600 hover:bg-gray-700 text-gray-300"
               onClick={() => {
                 setBulkEditDialogOpen(false);
-                setBulkEditForm({ price: "", salePrice: "", stockQuantity: "", enabled: null, isFeaturedSlideshow: null, showOnHomePage: null, badge: "", imageUrl: "", brandId: null, productLineId: null });
+                setBulkEditForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: null, isFeaturedSlideshow: null, isHeroSlideshow: null, showOnHomePage: null, badge: "", imageUrl: "", brandId: null, productLineId: null });
                 setBulkImageFile(null);
               }}
               data-testid="button-cancel-bulk-edit"

@@ -276,7 +276,7 @@ function SaleProductCard({
   brandMap: Record<number, DeliveryBrand>;
 }) {
   const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
-  const isOutOfStock = stock === 0;
+  const isOutOfStock = stock <= 0;
   const isLowStock = stock > 0 && stock <= 2;
   const isInStock = stock >= 3;
 
