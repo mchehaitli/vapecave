@@ -2037,7 +2037,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all delivery products (customer - only enabled)
   app.get('/api/delivery/products', async (req, res) => {
     try {
-      const products = await storage.getEnabledDeliveryProducts();
+      const products = await storage.getShopDisplayDeliveryProducts();
       const mapped = products.map(p => ({
         ...p,
         name: p.customName || p.name,

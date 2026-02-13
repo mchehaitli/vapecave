@@ -144,6 +144,7 @@ export interface IStorage {
   }): Promise<{products: DeliveryProduct[]; totalCount: number}>;
   getDeliveryProduct(id: number): Promise<DeliveryProduct | undefined>;
   getEnabledDeliveryProducts(): Promise<DeliveryProduct[]>;
+  getShopDisplayDeliveryProducts(): Promise<DeliveryProduct[]>;
   getDeliveryProductByCloverItemId(cloverItemId: string): Promise<DeliveryProduct | undefined>;
   createDeliveryProduct(product: InsertDeliveryProduct): Promise<DeliveryProduct>;
   updateDeliveryProduct(id: number, product: Partial<InsertDeliveryProduct>): Promise<DeliveryProduct | undefined>;
@@ -1177,6 +1178,10 @@ export class DbStorage implements IStorage {
 
   async getEnabledDeliveryProducts(): Promise<DeliveryProduct[]> {
     return db.select().from(deliveryProducts).where(eq(deliveryProducts.enabled, true)).orderBy(asc(deliveryProducts.displayOrder));
+  }
+
+  async getShopDisplayDeliveryProducts(): Promise<DeliveryProduct[]> {
+    return db.select().from(deliveryProducts).where(or(eq(deliveryProducts.enabled, true), eq(deliveryProducts.isFeaturedSlideshow, true))).orderBy(asc(deliveryProducts.displayOrder));
   }
 
   async getDeliveryProductByCloverItemId(cloverItemId: string): Promise<DeliveryProduct | undefined> {
@@ -3052,6 +3057,12 @@ export class MemStorage implements IStorage {
   async getEnabledDeliveryProducts(): Promise<DeliveryProduct[]> {
     return Array.from(this.deliveryProductsMap.values())
       .filter(product => product.enabled)
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  }
+
+  async getShopDisplayDeliveryProducts(): Promise<DeliveryProduct[]> {
+    return Array.from(this.deliveryProductsMap.values())
+      .filter(product => product.enabled || product.isFeaturedSlideshow)
       .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
   }
 
