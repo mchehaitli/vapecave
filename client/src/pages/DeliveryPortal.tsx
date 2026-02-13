@@ -721,24 +721,21 @@ export default function DeliveryPortal() {
     const featuredIds = (category?.featuredProductIds as number[]) || [];
     
     // First filter products that belong to this category (flexible matching)
-    const categoryProducts = enabledProducts.filter(p => {
+    const categoryProducts = products.filter(p => {
       if (!p.category || !category) return false;
       
-      // Normalize both product category and category name/slug for flexible matching
       const productCat = p.category.toLowerCase().trim();
       const catName = category.name.toLowerCase().trim();
       const catSlug = category.slug.toLowerCase().trim();
       
-      // Remove trailing 's' for singular/plural matching
       const productCatNormalized = productCat.replace(/s$/, '');
       const catNameNormalized = catName.replace(/s$/, '');
       
-      // Check multiple matching conditions
       const matches = 
-        productCat === catName ||                    // exact match
-        productCat === catSlug ||                    // matches slug
-        productCatNormalized === catNameNormalized || // singular/plural normalized match
-        productCat.replace(/-/g, '') === catSlug.replace(/-/g, ''); // hyphen-normalized match
+        productCat === catName ||
+        productCat === catSlug ||
+        productCatNormalized === catNameNormalized ||
+        productCat.replace(/-/g, '') === catSlug.replace(/-/g, '');
       
       return matches;
     });
@@ -1224,8 +1221,12 @@ export default function DeliveryPortal() {
               {viewMode === 'featured' ? (
                 <>
                   {(() => {
-                    const featuredEnabledProducts = products.filter(p => p.isFeaturedSlideshow);
-                    if (featuredEnabledProducts.length === 0) {
+                    const hasFeatured = activeCategories.some(cat => {
+                      const ids = (cat.featuredProductIds as number[]) || [];
+                      return ids.length > 0;
+                    });
+
+                    if (!hasFeatured) {
                       return (
                         <div className="text-center py-20">
                           <Sparkles className="w-20 h-20 mx-auto text-muted-foreground/50 mb-6" />
@@ -1235,31 +1236,10 @@ export default function DeliveryPortal() {
                       );
                     }
 
-                    const featuredByCategory: Record<number, DeliveryProduct[]> = {};
-                    const uncategorized: DeliveryProduct[] = [];
-                    
-                    featuredEnabledProducts.forEach(p => {
-                      const catId = activeCategories.find(cat => {
-                        if (!p.category) return false;
-                        const productCat = p.category.toLowerCase().trim().replace(/s$/, '');
-                        const catName = cat.name.toLowerCase().trim().replace(/s$/, '');
-                        const catSlug = cat.slug.toLowerCase().trim().replace(/s$/, '');
-                        return productCat === catName || productCat === catSlug || 
-                               catName.includes(productCat) || productCat.includes(catName);
-                      })?.id;
-                      
-                      if (catId) {
-                        if (!featuredByCategory[catId]) featuredByCategory[catId] = [];
-                        featuredByCategory[catId].push(p);
-                      } else {
-                        uncategorized.push(p);
-                      }
-                    });
-
                     return (
                       <>
                         {activeCategories.map(cat => {
-                          const catProducts = featuredByCategory[cat.id];
+                          const catProducts = getProductsByCategory(cat.id);
                           if (!catProducts || catProducts.length === 0) return null;
                           return (
                             <div key={cat.id} className="py-2">
@@ -1276,17 +1256,6 @@ export default function DeliveryPortal() {
                             </div>
                           );
                         })}
-                        {uncategorized.length > 0 && (
-                          <ProductCarousel
-                            title="Featured Products"
-                            products={uncategorized}
-                            onAddToCart={addToCart}
-                            onQuickView={setQuickViewProduct}
-                            cartItems={cartItems}
-                            onUpdateQuantity={updateCartQuantity}
-                            brandMap={brandMap}
-                          />
-                        )}
                       </>
                     );
                   })()}

@@ -39,7 +39,7 @@ export function FeaturedProductsManagement() {
     const category = categories.find(c => c.id === selectedCategory);
     if (!category) return false;
     return p.category === category.slug || p.category === category.name;
-  }).filter(p => p.enabled);
+  });
 
   // Load featured products when category changes
   const handleCategorySelect = (categoryId: number) => {
