@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -2372,6 +2372,171 @@ interface SyncStatus {
   syncIntervalMinutes: number;
 }
 
+interface ProductRowProps {
+  product: DeliveryProduct;
+  isSelected: boolean;
+  onToggleSelect: (id: number) => void;
+  onUpdate: (productId: number, data: Partial<DeliveryProduct>) => void;
+  onImageUpload: (productId: number, e: React.ChangeEvent<HTMLInputElement>) => void;
+  onEdit: (product: DeliveryProduct) => void;
+  onDelete: (id: number) => void;
+  deliveryCategories: DeliveryCategory[];
+  deliveryBrands: DeliveryBrand[];
+  deliveryProductLines: { id: number; name: string; brandId: number; isActive: boolean }[];
+}
+
+const ProductRow = React.memo(function ProductRow({
+  product, isSelected, onToggleSelect, onUpdate, onImageUpload, onEdit, onDelete,
+  deliveryCategories, deliveryBrands, deliveryProductLines
+}: ProductRowProps) {
+  const [localName, setLocalName] = useState(product.customName || product.name);
+  const [localBadge, setLocalBadge] = useState(product.badge || "");
+  const [localOrder, setLocalOrder] = useState(product.displayOrder?.toString() || "");
+
+  useEffect(() => { setLocalName(product.customName || product.name); }, [product.customName, product.name]);
+  useEffect(() => { setLocalBadge(product.badge || ""); }, [product.badge]);
+  useEffect(() => { setLocalOrder(product.displayOrder?.toString() || ""); }, [product.displayOrder]);
+
+  return (
+    <TableRow className="border-gray-700 h-12">
+      <TableCell className="py-1 px-1">
+        <Checkbox checked={isSelected} onCheckedChange={() => onToggleSelect(product.id)} />
+      </TableCell>
+      <TableCell className="py-1 px-1">
+        <div className="flex items-center gap-1.5">
+          {product.image && (
+            <img src={product.image} alt={product.name} loading="lazy" className="w-8 h-8 object-cover rounded flex-shrink-0" />
+          )}
+          <div className="min-w-0">
+            <input
+              type="text"
+              value={localName}
+              onChange={(e) => setLocalName(e.target.value)}
+              onBlur={() => {
+                const trimmed = localName.trim();
+                if (trimmed && trimmed !== product.name) {
+                  onUpdate(product.id, { customName: trimmed, name: trimmed });
+                } else if (!trimmed || trimmed === product.name) {
+                  onUpdate(product.id, { customName: null });
+                  setLocalName(product.name);
+                }
+              }}
+              onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+              className="w-40 bg-transparent border border-gray-600 rounded px-1.5 py-0.5 text-[11px] font-medium text-white focus:border-primary focus:outline-none"
+              title="Edit name (survives Clover sync)"
+            />
+            <div className="text-[10px] text-gray-500 truncate">{product.cloverItemId || product.id}</div>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell className="py-1 px-1">
+        <Select value={product.category || ""} onValueChange={(v) => onUpdate(product.id, { category: v || null })}>
+          <SelectTrigger className="w-24 h-7 bg-gray-700 border-gray-600 text-[11px]">
+            <SelectValue placeholder="—" />
+          </SelectTrigger>
+          <SelectContent>
+            {deliveryCategories.filter(c => c.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)).map(cat => (
+              <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </TableCell>
+      <TableCell className="py-1 px-1 text-[11px] font-medium">
+        {product.salePrice ? (
+          <div><span className="text-red-400">${product.salePrice}</span><br/><span className="text-gray-500 line-through">${product.price}</span></div>
+        ) : <span>${product.price}</span>}
+      </TableCell>
+      <TableCell className="py-1 px-1">
+        {product.stockQuantity !== null ? (
+          <Badge variant={parseInt(product.stockQuantity) === 0 ? "destructive" : parseInt(product.stockQuantity) < 10 ? "secondary" : "default"} className="text-[10px] px-1">
+            {product.stockQuantity}
+          </Badge>
+        ) : <span className="text-gray-500 text-[10px]">—</span>}
+      </TableCell>
+      <TableCell className="py-1 px-1">
+        <label htmlFor={`img-${product.id}`} className="cursor-pointer text-blue-400 hover:text-blue-300" title="Upload image (800x800px, max 5MB)">
+          <Upload className="h-3.5 w-3.5" />
+        </label>
+        <input id={`img-${product.id}`} type="file" accept="image/*" className="hidden" onChange={(e) => onImageUpload(product.id, e)} />
+      </TableCell>
+      <TableCell className="py-1 px-1">
+        <Select value={product.brandId?.toString() || "none"} onValueChange={(v) => onUpdate(product.id, { brandId: v === "none" ? null : parseInt(v) })}>
+          <SelectTrigger className="w-24 h-7 bg-gray-700 border-gray-600 text-[11px]">
+            <SelectValue placeholder="—" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            {deliveryBrands.filter(b => b.isActive).sort((a, b) => a.name.localeCompare(b.name)).map(brand => (
+              <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </TableCell>
+      <TableCell className="py-1 px-1">
+        <Select value={product.productLineId?.toString() || "none"} onValueChange={(v) => onUpdate(product.id, { productLineId: v === "none" ? null : parseInt(v) })}>
+          <SelectTrigger className="w-24 h-7 bg-gray-700 border-gray-600 text-[11px]">
+            <SelectValue placeholder="—" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            {deliveryProductLines.filter(pl => pl.isActive && (!product.brandId || pl.brandId === product.brandId)).map(pl => (
+              <SelectItem key={pl.id} value={pl.id.toString()}>{pl.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </TableCell>
+      <TableCell className="py-1 px-1">
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-0.5 cursor-pointer" title="Featured">
+            <input type="checkbox" checked={product.isFeaturedSlideshow || false} onChange={(e) => onUpdate(product.id, { isFeaturedSlideshow: e.target.checked })} className="h-3.5 w-3.5" />
+            <span className="text-[9px] text-gray-400">F</span>
+          </label>
+          <label className="flex items-center gap-0.5 cursor-pointer" title="Hero">
+            <input type="checkbox" checked={product.isHeroSlideshow || false} onChange={(e) => onUpdate(product.id, { isHeroSlideshow: e.target.checked })} className="h-3.5 w-3.5" />
+            <span className="text-[9px] text-gray-400">H</span>
+          </label>
+          <label className="flex items-center gap-0.5 cursor-pointer" title="Enabled">
+            <input type="checkbox" checked={product.enabled || false} onChange={(e) => onUpdate(product.id, { enabled: e.target.checked })} className="h-3.5 w-3.5" />
+            <span className="text-[9px] text-gray-400">E</span>
+          </label>
+        </div>
+      </TableCell>
+      <TableCell className="py-1 px-1">
+        <input
+          type="text"
+          value={localBadge}
+          onChange={(e) => setLocalBadge(e.target.value)}
+          onBlur={() => onUpdate(product.id, { badge: localBadge || null })}
+          onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+          placeholder="—"
+          className="w-16 bg-transparent border border-gray-600 rounded px-1 py-0.5 text-[11px] text-white focus:border-primary focus:outline-none"
+        />
+      </TableCell>
+      <TableCell className="py-1 px-1">
+        <input
+          type="number"
+          value={localOrder}
+          onChange={(e) => setLocalOrder(e.target.value)}
+          onBlur={() => onUpdate(product.id, { displayOrder: localOrder ? parseInt(localOrder) : null })}
+          onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+          placeholder="—"
+          className="w-12 bg-transparent border border-gray-600 rounded px-1 py-0.5 text-[11px] text-white text-center focus:border-primary focus:outline-none"
+        />
+      </TableCell>
+      <TableCell className="py-1 px-1">
+        <div className="flex gap-0.5">
+          <button onClick={() => onEdit(product)} className="p-1 text-blue-400 hover:text-blue-300 rounded hover:bg-blue-900/20" title="Edit">
+            <Edit className="h-3.5 w-3.5" />
+          </button>
+          <button onClick={() => onDelete(product.id)} className="p-1 text-red-400 hover:text-red-300 rounded hover:bg-red-900/20" title="Delete">
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+});
+
 export function DeliveryProductsTab() {
   const { toast } = useToast();
   const [syncResult, setSyncResult] = useState<CloverSyncResult | null>(null);
@@ -2579,12 +2744,33 @@ export function DeliveryProductsTab() {
       const res = await apiRequest("PATCH", `/api/admin/delivery/products/${productId}`, data);
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/delivery/products"] });
-      toast({ title: "Product Updated", description: "Product settings updated successfully." });
+    onMutate: async ({ productId, data: updateData }) => {
+      await queryClient.cancelQueries({ queryKey: ["/api/admin/delivery/products"] });
+      const previousData = queryClient.getQueryData(["/api/admin/delivery/products", page, limit, search, category, enabledFilter]);
+      queryClient.setQueryData(
+        ["/api/admin/delivery/products", page, limit, search, category, enabledFilter],
+        (old: any) => {
+          if (!old?.products) return old;
+          return {
+            ...old,
+            products: old.products.map((p: any) =>
+              p.id === productId ? { ...p, ...updateData } : p
+            ),
+          };
+        }
+      );
+      return { previousData };
     },
-    onError: () => {
+    onError: (err, variables, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          ["/api/admin/delivery/products", page, limit, search, category, enabledFilter],
+          context.previousData
+        );
+      }
       toast({ title: "Error", description: "Failed to update product.", variant: "destructive" });
+    },
+    onSettled: () => {
     },
   });
 
@@ -2634,7 +2820,7 @@ export function DeliveryProductsTab() {
     },
   });
 
-  const handleImageUpload = (productId: number, event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = useCallback((productId: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -2643,7 +2829,7 @@ export function DeliveryProductsTab() {
       }
       uploadImageMutation.mutate({ productId, file });
     }
-  };
+  }, [uploadImageMutation, toast]);
 
   const createProductMutation = useMutation({
     mutationFn: async (data: typeof productForm) => {
@@ -2752,7 +2938,7 @@ export function DeliveryProductsTab() {
     setProductDialogOpen(true);
   };
 
-  const handleEditProduct = (product: DeliveryProduct) => {
+  const handleEditProduct = useCallback((product: DeliveryProduct) => {
     setEditingProduct(product);
     setProductForm({
       name: product.name,
@@ -2764,12 +2950,16 @@ export function DeliveryProductsTab() {
       enabled: product.enabled || false,
     });
     setProductDialogOpen(true);
-  };
+  }, []);
 
-  const handleDeleteProduct = (productId: number) => {
+  const handleDeleteProduct = useCallback((productId: number) => {
     setDeletingProductId(productId);
     setDeleteDialogOpen(true);
-  };
+  }, []);
+
+  const handleProductUpdate = useCallback((productId: number, data: Partial<DeliveryProduct>) => {
+    updateProductMutation.mutate({ productId, data });
+  }, [updateProductMutation]);
 
   const handleSaveProduct = () => {
     if (!productForm.name || !productForm.price) {
@@ -2846,15 +3036,17 @@ export function DeliveryProductsTab() {
     }
   };
 
-  const handleToggleProduct = (productId: number) => {
-    const newSelection = new Set(selectedProducts);
-    if (newSelection.has(productId)) {
-      newSelection.delete(productId);
-    } else {
-      newSelection.add(productId);
-    }
-    setSelectedProducts(newSelection);
-  };
+  const handleToggleProduct = useCallback((productId: number) => {
+    setSelectedProducts(prev => {
+      const newSelection = new Set(prev);
+      if (newSelection.has(productId)) {
+        newSelection.delete(productId);
+      } else {
+        newSelection.add(productId);
+      }
+      return newSelection;
+    });
+  }, []);
 
   const handleBulkEnable = () => {
     if (selectedProducts.size === 0) return;
@@ -3152,286 +3344,41 @@ export function DeliveryProductsTab() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-gray-700">
-                      <TableHead className="w-12">
-                        <Checkbox
-                          checked={selectedProducts.size === data?.products.length && data?.products.length > 0}
-                          onCheckedChange={handleSelectAll}
-                          data-testid="checkbox-select-all"
-                        />
+                      <TableHead className="w-8 px-1"><Checkbox checked={selectedProducts.size === data?.products.length && data?.products.length > 0} onCheckedChange={handleSelectAll} /></TableHead>
+                      <TableHead className="px-1 cursor-pointer hover:bg-gray-700/50 select-none" onClick={() => handleSort("name")}>
+                        <div className="flex items-center gap-1 text-[11px]">Product {sortField === "name" && <span>{sortDirection === "asc" ? "↑" : "↓"}</span>}</div>
                       </TableHead>
-                      <TableHead 
-                        className="cursor-pointer hover:bg-gray-700/50 select-none"
-                        onClick={() => handleSort("name")}
-                      >
-                        <div className="flex items-center gap-1">
-                          Product
-                          {sortField === "name" && (
-                            <span className="text-xs">{sortDirection === "asc" ? "↑" : "↓"}</span>
-                          )}
-                        </div>
+                      <TableHead className="px-1 text-[11px]">Category</TableHead>
+                      <TableHead className="px-1 cursor-pointer hover:bg-gray-700/50 select-none text-[11px]" onClick={() => handleSort("price")}>
+                        <div className="flex items-center gap-1">Price {sortField === "price" && <span>{sortDirection === "asc" ? "↑" : "↓"}</span>}</div>
                       </TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead 
-                        className="cursor-pointer hover:bg-gray-700/50 select-none"
-                        onClick={() => handleSort("price")}
-                      >
-                        <div className="flex items-center gap-1">
-                          Price
-                          {sortField === "price" && (
-                            <span className="text-xs">{sortDirection === "asc" ? "↑" : "↓"}</span>
-                          )}
-                        </div>
+                      <TableHead className="px-1 cursor-pointer hover:bg-gray-700/50 select-none text-[11px]" onClick={() => handleSort("stock")}>
+                        <div className="flex items-center gap-1">Stock {sortField === "stock" && <span>{sortDirection === "asc" ? "↑" : "↓"}</span>}</div>
                       </TableHead>
-                      <TableHead 
-                        className="cursor-pointer hover:bg-gray-700/50 select-none"
-                        onClick={() => handleSort("stock")}
-                      >
-                        <div className="flex items-center gap-1">
-                          Stock
-                          {sortField === "stock" && (
-                            <span className="text-xs">{sortDirection === "asc" ? "↑" : "↓"}</span>
-                          )}
-                        </div>
-                      </TableHead>
-                      <TableHead>Image</TableHead>
-                      <TableHead>Brand</TableHead>
-                      <TableHead>Sub-brand</TableHead>
-                      <TableHead>Featured</TableHead>
-                      <TableHead>Hero</TableHead>
-                      <TableHead>Badge</TableHead>
-                      <TableHead>Enabled</TableHead>
-                      <TableHead>Display Order</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="px-1 text-[11px]">Img</TableHead>
+                      <TableHead className="px-1 text-[11px]">Brand</TableHead>
+                      <TableHead className="px-1 text-[11px]">Sub-brand</TableHead>
+                      <TableHead className="px-1 text-[11px]">F / H / E</TableHead>
+                      <TableHead className="px-1 text-[11px]">Badge</TableHead>
+                      <TableHead className="px-1 text-[11px]">Ord</TableHead>
+                      <TableHead className="px-1 text-[11px]">Act</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {sortedProducts.map((product) => (
-                      <TableRow key={product.id} className="border-gray-700">
-                        <TableCell>
-                          <Checkbox
-                            checked={selectedProducts.has(product.id)}
-                            onCheckedChange={() => handleToggleProduct(product.id)}
-                            data-testid={`checkbox-product-${product.id}`}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {product.image && (
-                              <img src={product.image} alt={`Vape Cave Frisco - ${product.name}`} loading="lazy" className="w-10 h-10 object-cover rounded" />
-                            )}
-                            <div>
-                              <Input
-                                defaultValue={product.customName || product.name}
-                                onBlur={(e) => {
-                                  const newName = e.target.value.trim();
-                                  if (newName && newName !== product.name) {
-                                    updateProductMutation.mutate({
-                                      productId: product.id,
-                                      data: { customName: newName, name: newName }
-                                    });
-                                  } else if (newName === product.name || !newName) {
-                                    updateProductMutation.mutate({
-                                      productId: product.id,
-                                      data: { customName: null, name: product.name }
-                                    });
-                                  }
-                                }}
-                                className="w-48 bg-gray-700 border-gray-600 text-xs font-medium"
-                                title="Edit product display name (survives Clover sync)"
-                              />
-                              {product.customName && (
-                                <div className="text-xs text-orange-400 mt-0.5">Custom name (Clover: {product.name})</div>
-                              )}
-                              {product.description && (
-                                <div className="text-xs text-gray-400 max-w-xs truncate">{product.description}</div>
-                              )}
-                              <div className="text-xs text-gray-500">ID: {product.cloverItemId || product.id}</div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={product.category || ""}
-                            onValueChange={(value) => updateProductMutation.mutate({
-                              productId: product.id,
-                              data: { category: value || null }
-                            })}
-                          >
-                            <SelectTrigger className="w-32 bg-gray-700 border-gray-600 text-xs">
-                              <SelectValue placeholder="Category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {deliveryCategories.filter(c => c.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)).map(cat => (
-                                <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell className="text-sm font-medium">
-                          {product.salePrice ? (
-                            <div className="flex flex-col">
-                              <span className="text-red-400">${product.salePrice}</span>
-                              <span className="text-gray-500 text-xs line-through">${product.price}</span>
-                            </div>
-                          ) : (
-                            <span>${product.price}</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {product.stockQuantity !== null ? (
-                            <Badge variant={parseInt(product.stockQuantity) === 0 ? "destructive" : parseInt(product.stockQuantity) < 10 ? "secondary" : "default"}>
-                              {product.stockQuantity}
-                            </Badge>
-                          ) : (
-                            <span className="text-gray-500">N/A</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <label 
-                            htmlFor={`image-upload-${product.id}`} 
-                            className="cursor-pointer flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300"
-                            title="Recommended: 800 x 800px (square). Max 5MB."
-                          >
-                            <Upload className="h-4 w-4" />
-                            Upload
-                          </label>
-                          <input
-                            id={`image-upload-${product.id}`}
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => handleImageUpload(product.id, e)}
-                            data-testid={`input-upload-image-${product.id}`}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={product.brandId?.toString() || "none"}
-                            onValueChange={(value) => updateProductMutation.mutate({
-                              productId: product.id,
-                              data: { brandId: value === "none" ? null : parseInt(value) }
-                            })}
-                          >
-                            <SelectTrigger className="w-28 bg-gray-700 border-gray-600 text-xs">
-                              <SelectValue placeholder="Brand" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">None</SelectItem>
-                              {deliveryBrands.filter(b => b.isActive).sort((a, b) => a.name.localeCompare(b.name)).map(brand => (
-                                <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={product.productLineId?.toString() || "none"}
-                            onValueChange={(value) => updateProductMutation.mutate({
-                              productId: product.id,
-                              data: { productLineId: value === "none" ? null : parseInt(value) }
-                            })}
-                          >
-                            <SelectTrigger className="w-28 bg-gray-700 border-gray-600 text-xs">
-                              <SelectValue placeholder="Sub-brand" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">None</SelectItem>
-                              {deliveryProductLines.filter(pl => pl.isActive && (!product.brandId || pl.brandId === product.brandId)).map(pl => (
-                                <SelectItem key={pl.id} value={pl.id.toString()}>{pl.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          <input
-                            type="checkbox"
-                            checked={product.isFeaturedSlideshow || false}
-                            onChange={(e) => updateProductMutation.mutate({ 
-                              productId: product.id, 
-                              data: { isFeaturedSlideshow: e.target.checked } 
-                            })}
-                            className="h-4 w-4"
-                            data-testid={`checkbox-featured-${product.id}`}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <input
-                            type="checkbox"
-                            checked={product.isHeroSlideshow || false}
-                            onChange={(e) => updateProductMutation.mutate({ 
-                              productId: product.id, 
-                              data: { isHeroSlideshow: e.target.checked } 
-                            })}
-                            className="h-4 w-4"
-                            data-testid={`checkbox-hero-${product.id}`}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            value={product.badge || ""}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              updateProductMutation.mutate({ 
-                                productId: product.id, 
-                                data: { badge: value || null } 
-                              });
-                            }}
-                            placeholder="e.g. NEW, SALE"
-                            className="w-24 bg-gray-700 border-gray-600 text-xs"
-                            data-testid={`input-badge-${product.id}`}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <input
-                            type="checkbox"
-                            checked={product.enabled || false}
-                            onChange={(e) => toggleEnabledMutation.mutate({ 
-                              productId: product.id, 
-                              enabled: e.target.checked 
-                            })}
-                            className="h-4 w-4"
-                            data-testid={`checkbox-enabled-${product.id}`}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            value={product.displayOrder || ""}
-                            onChange={(e) => {
-                              const value = e.target.value ? parseInt(e.target.value) : null;
-                              updateProductMutation.mutate({ 
-                                productId: product.id, 
-                                data: { displayOrder: value } 
-                              });
-                            }}
-                            placeholder="Order"
-                            className="w-20 bg-gray-700 border-gray-600 text-xs"
-                            data-testid={`input-order-${product.id}`}
-                          />
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEditProduct(product)}
-                              className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
-                              data-testid={`button-edit-${product.id}`}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteProduct(product.id)}
-                              className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
-                              data-testid={`button-delete-${product.id}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                      <ProductRow
+                        key={product.id}
+                        product={product}
+                        isSelected={selectedProducts.has(product.id)}
+                        onToggleSelect={handleToggleProduct}
+                        onUpdate={handleProductUpdate}
+                        onImageUpload={handleImageUpload}
+                        onEdit={handleEditProduct}
+                        onDelete={handleDeleteProduct}
+                        deliveryCategories={deliveryCategories}
+                        deliveryBrands={deliveryBrands}
+                        deliveryProductLines={deliveryProductLines}
+                      />
                     ))}
                   </TableBody>
                 </Table>
