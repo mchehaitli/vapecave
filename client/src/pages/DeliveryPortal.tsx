@@ -417,13 +417,13 @@ function ProductCarousel({
               <Card className="group h-full overflow-hidden bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
                 <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
                   <img
-                    src={product.image || (brandMap && product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.png'}
+                    src={product.image || (brandMap && product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
                     alt={product.name}
                     className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       if (target.dataset.fallbackAttempted) {
-                        target.src = '/placeholder-product.png';
+                        target.src = '/placeholder-product.svg';
                         return;
                       }
                       target.dataset.fallbackAttempted = '1';
@@ -431,7 +431,7 @@ function ProductCarousel({
                       if (brandLogo) {
                         target.src = brandLogo;
                       } else {
-                        target.src = '/placeholder-product.png';
+                        target.src = '/placeholder-product.svg';
                       }
                     }}
                   />
@@ -1099,13 +1099,13 @@ export default function DeliveryPortal() {
                         transition={{ duration: 3, repeat: Infinity }}
                       />
                       <img
-                        src={heroProducts[featuredIndex].image || (heroProducts[featuredIndex].brandId ? brandMap[heroProducts[featuredIndex].brandId!]?.logo : null) || '/placeholder-product.png'}
+                        src={heroProducts[featuredIndex].image || (heroProducts[featuredIndex].brandId ? brandMap[heroProducts[featuredIndex].brandId!]?.logo : null) || '/placeholder-product.svg'}
                         alt={heroProducts[featuredIndex].name}
                         className="max-w-[150px] max-h-[160px] md:max-w-[200px] md:max-h-[220px] object-contain relative z-10 drop-shadow-2xl"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           if (target.dataset.fallbackAttempted) {
-                            target.src = '/placeholder-product.png';
+                            target.src = '/placeholder-product.svg';
                             return;
                           }
                           target.dataset.fallbackAttempted = '1';
@@ -1114,7 +1114,7 @@ export default function DeliveryPortal() {
                           if (brandLogo) {
                             target.src = brandLogo;
                           } else {
-                            target.src = '/placeholder-product.png';
+                            target.src = '/placeholder-product.svg';
                           }
                         }}
                       />

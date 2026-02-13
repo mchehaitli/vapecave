@@ -340,13 +340,13 @@ function ProductCard({
         <Card className="group h-full overflow-hidden bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
           <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
             <img
-              src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.png'}
+              src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
               alt={product.name}
               className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 if (target.dataset.fallbackAttempted) {
-                  target.src = '/placeholder-product.png';
+                  target.src = '/placeholder-product.svg';
                   return;
                 }
                 target.dataset.fallbackAttempted = '1';
@@ -354,7 +354,7 @@ function ProductCard({
                 if (brandLogo) {
                   target.src = brandLogo;
                 } else {
-                  target.src = '/placeholder-product.png';
+                  target.src = '/placeholder-product.svg';
                 }
               }}
             />
