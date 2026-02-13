@@ -186,12 +186,10 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1, duration: 0.4 }}
           >
-            <Link href="/delivery/shop">
-              <Button variant="ghost" className="mb-4 gap-2 hover:translate-x-[-4px] transition-transform">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Shop
-              </Button>
-            </Link>
+            <Button variant="ghost" className="mb-4 gap-2 hover:translate-x-[-4px] transition-transform" onClick={() => window.history.back()}>
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
           </motion.div>
           
           <div className="flex items-center gap-6">
