@@ -402,7 +402,7 @@ export default function DeliveryCart() {
                   </div>
                 )}
 
-                <div className="space-y-4 pt-4">
+                <div className="flex flex-col gap-3 pt-4">
                   <Link href="/delivery/checkout">
                     <Button className="w-full" size="lg" data-testid="button-checkout">
                       Proceed to Checkout
@@ -410,7 +410,7 @@ export default function DeliveryCart() {
                     </Button>
                   </Link>
                   <Link href="/delivery/shop">
-                    <Button variant="outline" className="w-full" size="lg" data-testid="button-continue-shopping-bottom">
+                    <Button variant="outline" className="w-full mt-2" size="lg" data-testid="button-continue-shopping-bottom">
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Continue Shopping
                     </Button>

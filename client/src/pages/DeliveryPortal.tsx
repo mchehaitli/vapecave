@@ -1224,7 +1224,7 @@ export default function DeliveryPortal() {
               {viewMode === 'featured' ? (
                 <>
                   {(() => {
-                    const featuredEnabledProducts = enabledProducts.filter(p => p.isFeaturedSlideshow);
+                    const featuredEnabledProducts = products.filter(p => p.isFeaturedSlideshow);
                     if (featuredEnabledProducts.length === 0) {
                       return (
                         <div className="text-center py-20">

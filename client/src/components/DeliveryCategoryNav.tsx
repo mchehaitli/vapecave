@@ -49,8 +49,8 @@ export function DeliveryCategoryNav({
 
   return (
     <section className="bg-card border-b border-border/30 relative z-50">
-      <div className="container mx-auto px-4">
-        <nav className="flex items-center justify-center gap-1 py-2 flex-wrap">
+      <div className="container mx-auto px-2">
+        <nav className="flex items-center justify-center gap-0 py-1.5 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <Link href="/delivery/shop">
             <button
               onClick={() => {
@@ -59,13 +59,13 @@ export function DeliveryCategoryNav({
                 setExpandedCategories(new Set());
                 setExpandedBrands(new Set());
               }}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all ${
                 location === '/delivery/shop' && viewMode === 'featured'
                   ? "bg-primary text-primary-foreground"
                   : "text-foreground/80 hover:text-primary hover:bg-muted/50"
               }`}
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-3.5 h-3.5" />
               Featured
             </button>
           </Link>
@@ -76,14 +76,14 @@ export function DeliveryCategoryNav({
                 setExpandedCategories(new Set());
                 setExpandedBrands(new Set());
               }}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all ${
                 location === '/delivery/brands'
                   ? "bg-primary text-primary-foreground"
                   : "text-foreground/80 hover:text-primary hover:bg-muted/50"
               }`}
             >
-              <Store className="w-4 h-4" />
-              Shop by Brand
+              <Store className="w-3.5 h-3.5" />
+              Brands
             </button>
           </Link>
           
@@ -93,14 +93,14 @@ export function DeliveryCategoryNav({
                 setExpandedCategories(new Set());
                 setExpandedBrands(new Set());
               }}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all ${
                 location === '/delivery/sale'
                   ? "bg-red-500 text-white"
                   : "text-red-500 hover:text-red-400 hover:bg-red-500/10"
               }`}
             >
-              <Tag className="w-4 h-4" />
-              On Sale
+              <Tag className="w-3.5 h-3.5" />
+              Sale
             </button>
           </Link>
           
@@ -128,7 +128,7 @@ export function DeliveryCategoryNav({
                       setExpandedBrands(new Set());
                     }
                   }}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all cursor-pointer ${
+                  className={`flex items-center gap-1 px-2.5 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
                     isOpen || location === `/delivery/category/${category.slug}`
                       ? "bg-primary text-primary-foreground"
                       : "text-foreground/80 hover:text-primary hover:bg-muted/50"
@@ -136,7 +136,7 @@ export function DeliveryCategoryNav({
                 >
                   {category.name}
                   {categoryBrands.length > 0 && (
-                    <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                   )}
                 </button>
                 
