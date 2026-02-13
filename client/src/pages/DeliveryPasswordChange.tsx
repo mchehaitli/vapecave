@@ -96,7 +96,7 @@ export default function DeliveryPasswordChange() {
 
       // Redirect to delivery home
       setTimeout(() => {
-        setLocation("/delivery/home");
+        setLocation("/delivery/shop");
       }, 1000);
     } catch (error: any) {
       console.error("Password change error:", error);

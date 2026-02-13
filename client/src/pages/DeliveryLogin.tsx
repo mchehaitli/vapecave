@@ -74,7 +74,7 @@ export default function DeliveryLogin() {
         title: "Welcome back!",
         description: "You've successfully logged in.",
       });
-      setLocation("/delivery/home");
+      setLocation("/delivery/shop");
     } catch (error: any) {
       console.error("Login error:", error);
       

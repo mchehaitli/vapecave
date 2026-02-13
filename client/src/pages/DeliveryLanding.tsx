@@ -19,7 +19,7 @@ export default function DeliveryLanding() {
           credentials: "include",
         });
         if (response.ok) {
-          setLocation("/delivery/home");
+          setLocation("/delivery/shop");
         }
       } catch (error) {
         // Not authenticated, stay on landing page

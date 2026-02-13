@@ -17,7 +17,6 @@ import AdminBrandImagesPage from "@/pages/AdminBrandImagesPage";
 import NotFound from "@/pages/not-found";
 import SeoLandingPage from "@/pages/SeoLandingPage";
 import DeliveryLanding from "@/pages/DeliveryLanding";
-import DeliveryHome from "@/pages/DeliveryHome";
 import DeliveryPortal from "@/pages/DeliveryPortal";
 import DeliverySignup from "@/pages/DeliverySignup";
 import DeliveryLogin from "@/pages/DeliveryLogin";
@@ -93,7 +92,7 @@ function Router() {
           <Route path="/admin/brand-images" component={AdminBrandImagesPage} />
           <Route path="/admin" component={AdminPage} />
           <Route path="/delivery" component={DeliveryLanding} />
-          <Route path="/delivery/home" component={DeliveryHome} />
+          
           <Route path="/delivery/shop" component={DeliveryPortal} />
           <Route path="/delivery/account" component={DeliveryAccount} />
           <Route path="/register" component={DeliverySignup} />

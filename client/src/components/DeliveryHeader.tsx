@@ -145,7 +145,7 @@ export function DeliveryHeader({
                   if (window.history.length > 1) {
                     window.history.back();
                   } else {
-                    setLocation("/delivery/home");
+                    setLocation("/delivery/shop");
                   }
                 }}
                 data-testid="back-button"
@@ -153,7 +153,7 @@ export function DeliveryHeader({
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             )}
-            <Link href="/delivery/home" className="flex items-center gap-4 font-bold text-xl hover:opacity-80 transition-opacity">
+            <Link href="/delivery/shop" className="flex items-center gap-4 font-bold text-xl hover:opacity-80 transition-opacity">
               <img 
                 src="/logo-orange.png" 
                 alt="Vape Cave Frisco - Logo" 
@@ -165,46 +165,7 @@ export function DeliveryHeader({
               </Badge>
             </Link>
             
-            <nav className="hidden md:flex items-center gap-1 ml-6">
-              <Link href="/delivery/home">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className={`font-semibold transition-all ${
-                      location === '/delivery/home' || location === '/delivery'
-                        ? 'text-primary bg-primary/15 shadow-[0_0_12px_rgba(255,113,0,0.4)] border border-primary/40'
-                        : 'hover:text-primary hover:bg-primary/10'
-                    }`}
-                  >
-                    Home
-                  </Button>
-                </motion.div>
-              </Link>
-              <Link href="/delivery/shop">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className={`font-semibold transition-all ${
-                      location === '/delivery/shop'
-                        ? 'text-primary bg-primary/15 shadow-[0_0_12px_rgba(255,113,0,0.4)] border border-primary/40'
-                        : 'hover:text-primary hover:bg-primary/10'
-                    }`}
-                  >
-                    Shop
-                  </Button>
-                </motion.div>
-              </Link>
-            </nav>
+            
           </div>
 
           {showSearch && (
@@ -411,39 +372,7 @@ export function DeliveryHeader({
             className="sm:hidden border-t bg-card overflow-hidden"
           >
             <nav className="container mx-auto px-4 py-3 space-y-1">
-              <motion.button
-                variants={menuItemVariants}
-                onClick={() => {
-                  setLocation("/delivery/home");
-                  setMobileMenuOpen(false);
-                }}
-                className={`flex items-center gap-3 w-full px-3 py-2 rounded-md transition-all duration-200 font-semibold ${
-                  location === '/delivery/home' || location === '/delivery'
-                    ? 'text-primary bg-primary/15 shadow-[0_0_12px_rgba(255,113,0,0.4)] border border-primary/40'
-                    : 'hover:bg-primary/10 hover:text-primary'
-                }`}
-                whileTap={{ scale: 0.98 }}
-                data-testid="mobile-menu-home"
-              >
-                <span>Home</span>
-              </motion.button>
-              <motion.button
-                variants={menuItemVariants}
-                onClick={() => {
-                  setLocation("/delivery/shop");
-                  setMobileMenuOpen(false);
-                }}
-                className={`flex items-center gap-3 w-full px-3 py-2 rounded-md transition-all duration-200 font-semibold ${
-                  location === '/delivery/shop'
-                    ? 'text-primary bg-primary/15 shadow-[0_0_12px_rgba(255,113,0,0.4)] border border-primary/40'
-                    : 'hover:bg-primary/10 hover:text-primary'
-                }`}
-                whileTap={{ scale: 0.98 }}
-                data-testid="mobile-menu-shop"
-              >
-                <span>Shop</span>
-              </motion.button>
-              <motion.div variants={menuItemVariants} className="border-t my-2" />
+              
               <motion.button
                 variants={menuItemVariants}
                 onClick={() => {
