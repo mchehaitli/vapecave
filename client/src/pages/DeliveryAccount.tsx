@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { User, Package, Lock, MapPin, Phone, Mail, ChevronRight, Edit2, Save, X, RefreshCw, ShoppingCart, Download } from "lucide-react";
+import { User, Package, Lock, MapPin, Phone, Mail, ChevronRight, RefreshCw, ShoppingCart, Download, AlertCircle } from "lucide-react";
 import { DeliveryHeader } from "@/components/DeliveryHeader";
 import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
@@ -24,15 +22,6 @@ interface OrderWithItems extends DeliveryOrder {
 export default function DeliveryAccount() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<"profile" | "orders">("profile");
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [editForm, setEditForm] = useState({
-    fullName: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: ""
-  });
   const { toast } = useToast();
 
   useInactivityTimeout({
@@ -68,44 +57,6 @@ export default function DeliveryAccount() {
       return response.json();
     },
   });
-
-  // Profile update mutation
-  const updateProfileMutation = useMutation({
-    mutationFn: async (data: typeof editForm) => {
-      const res = await apiRequest("PATCH", "/api/delivery/customers/me", data);
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/delivery/customers/me'] });
-      toast({ title: "Profile Updated", description: "Your profile has been updated successfully." });
-      setIsEditingProfile(false);
-    },
-    onError: (error: any) => {
-      toast({ title: "Update Failed", description: error.message || "Failed to update profile.", variant: "destructive" });
-    },
-  });
-
-  const startEditingProfile = () => {
-    if (customer) {
-      setEditForm({
-        fullName: customer.fullName || "",
-        phone: customer.phone || "",
-        address: customer.address || "",
-        city: customer.city || "",
-        state: customer.state || "",
-        zipCode: customer.zipCode || ""
-      });
-      setIsEditingProfile(true);
-    }
-  };
-
-  const cancelEditing = () => {
-    setIsEditingProfile(false);
-  };
-
-  const saveProfile = () => {
-    updateProfileMutation.mutate(editForm);
-  };
 
   // Reorder mutation
   const reorderMutation = useMutation({
@@ -284,190 +235,96 @@ export default function DeliveryAccount() {
                 transition={{ duration: 0.2 }}
               >
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <User className="h-5 w-5" />
-                        Profile Information
-                      </CardTitle>
-                      <CardDescription>
-                        Your personal information for delivery service
-                      </CardDescription>
-                    </div>
-                    {!isEditingProfile && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={startEditingProfile}
-                        className="gap-2"
-                        data-testid="button-edit-profile"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                        Edit Profile
-                      </Button>
-                    )}
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Profile Information
+                    </CardTitle>
+                    <CardDescription>
+                      Your personal information for delivery service
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {isEditingProfile ? (
-                      <>
-                        {/* Edit Form */}
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="fullName">Full Name</Label>
-                            <Input
-                              id="fullName"
-                              value={editForm.fullName}
-                              onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
-                              placeholder="Enter your full name"
-                              data-testid="input-edit-fullname"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="phone">Phone Number</Label>
-                            <Input
-                              id="phone"
-                              value={editForm.phone}
-                              onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                              placeholder="(123) 456-7890"
-                              data-testid="input-edit-phone"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="address">Street Address</Label>
-                            <Input
-                              id="address"
-                              value={editForm.address}
-                              onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                              placeholder="123 Main St"
-                              data-testid="input-edit-address"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="city">City</Label>
-                              <Input
-                                id="city"
-                                value={editForm.city}
-                                onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
-                                placeholder="City"
-                                data-testid="input-edit-city"
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="state">State</Label>
-                              <Input
-                                id="state"
-                                value={editForm.state}
-                                onChange={(e) => setEditForm({ ...editForm, state: e.target.value })}
-                                placeholder="TX"
-                                maxLength={2}
-                                data-testid="input-edit-state"
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="zipCode">ZIP Code</Label>
-                              <Input
-                                id="zipCode"
-                                value={editForm.zipCode}
-                                onChange={(e) => setEditForm({ ...editForm, zipCode: e.target.value })}
-                                placeholder="75034"
-                                maxLength={10}
-                                data-testid="input-edit-zipcode"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-3 justify-end mt-6">
-                          <Button
-                            variant="outline"
-                            onClick={cancelEditing}
-                            disabled={updateProfileMutation.isPending}
-                            data-testid="button-cancel-edit"
-                          >
-                            <X className="h-4 w-4 mr-2" />
-                            Cancel
-                          </Button>
-                          <Button
-                            onClick={saveProfile}
-                            disabled={updateProfileMutation.isPending}
-                            data-testid="button-save-profile"
-                          >
-                            <Save className="h-4 w-4 mr-2" />
-                            {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
-                          </Button>
-                        </div>
+                    {/* Full Name */}
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <User className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Full Name</p>
+                        <p className="text-lg font-semibold" data-testid="text-customer-name">
+                          {customer.fullName}
+                        </p>
+                      </div>
+                    </div>
 
-                        <div className="p-4 bg-muted/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">
-                            Note: Email address cannot be changed. Contact support if you need to update your email.
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        {/* Full Name */}
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <User className="h-6 w-6 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Full Name</p>
-                            <p className="text-lg font-semibold" data-testid="text-customer-name">
-                              {customer.fullName}
-                            </p>
-                          </div>
-                        </div>
+                    <Separator />
 
-                        <Separator />
+                    {/* Email */}
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Mail className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Email Address</p>
+                        <p className="text-lg font-semibold" data-testid="text-customer-email">
+                          {customer.email}
+                        </p>
+                      </div>
+                    </div>
 
-                        {/* Email */}
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <Mail className="h-6 w-6 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Email Address</p>
-                            <p className="text-lg font-semibold" data-testid="text-customer-email">
-                              {customer.email}
-                            </p>
-                          </div>
-                        </div>
+                    <Separator />
 
-                        <Separator />
+                    {/* Phone */}
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Phone className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Phone Number</p>
+                        <p className="text-lg font-semibold" data-testid="text-customer-phone">
+                          {customer.phone}
+                        </p>
+                      </div>
+                    </div>
 
-                        {/* Phone */}
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <Phone className="h-6 w-6 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Phone Number</p>
-                            <p className="text-lg font-semibold" data-testid="text-customer-phone">
-                              {customer.phone}
-                            </p>
-                          </div>
-                        </div>
+                    <Separator />
 
-                        <Separator />
+                    {/* Delivery Address */}
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Delivery Address</p>
+                        <p className="text-lg font-semibold" data-testid="text-customer-address">
+                          {customer.address}
+                        </p>
+                        <p className="text-muted-foreground">
+                          {customer.city}, {customer.state} {customer.zipCode}
+                        </p>
+                      </div>
+                    </div>
 
-                        {/* Delivery Address */}
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <MapPin className="h-6 w-6 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Delivery Address</p>
-                            <p className="text-lg font-semibold" data-testid="text-customer-address">
-                              {customer.address}
-                            </p>
-                            <p className="text-muted-foreground">
-                              {customer.city}, {customer.state} {customer.zipCode}
-                            </p>
-                          </div>
-                        </div>
-                      </>
-                    )}
+                    <Separator />
+
+                    {/* Contact notice for profile changes */}
+                    <div className="p-4 bg-muted/50 rounded-lg flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">Need to update your information?</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          For any changes to your profile, please contact us for authorization.
+                        </p>
+                        <a 
+                          href="tel:4692940061" 
+                          className="inline-flex items-center gap-2 mt-2 text-sm font-semibold text-primary hover:underline"
+                        >
+                          <Phone className="h-4 w-4" />
+                          (469) 294-0061
+                        </a>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>

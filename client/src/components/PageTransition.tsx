@@ -6,53 +6,21 @@ interface PageTransitionProps {
 }
 
 export default function PageTransition({ children }: PageTransitionProps) {
-  // Page transition variants
   const pageVariants = {
     initial: {
       opacity: 0,
-      y: 20,
     },
     animate: {
       opacity: 1,
-      y: 0,
       transition: {
-        duration: 0.5,
-        ease: "easeInOut",
-        when: "beforeChildren",
-        staggerChildren: 0.1,
-      }
-    },
-    exit: {
-      opacity: 0,
-      y: -20,
-      transition: {
-        duration: 0.3,
-        when: "afterChildren",
-        staggerChildren: 0.05,
-        staggerDirection: -1,
-      }
-    }
-  };
-
-  // Child elements animation variants
-  const childVariants = {
-    initial: {
-      opacity: 0,
-      y: 20,
-    },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.3,
+        duration: 0.15,
         ease: "easeOut",
       }
     },
     exit: {
       opacity: 0,
-      y: 10,
       transition: {
-        duration: 0.2,
+        duration: 0.1,
       }
     }
   };
@@ -65,12 +33,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
       exit="exit"
       variants={pageVariants}
     >
-      <motion.div 
-        className="page-content-wrapper"
-        variants={childVariants}
-      >
-        {children}
-      </motion.div>
+      {children}
     </motion.div>
   );
 }

@@ -14,7 +14,6 @@ import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
 import { DeliveryHeader } from "@/components/DeliveryHeader";
 import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
 import { Calendar, Clock, MapPin, ShoppingBag, CreditCard, Loader2, CheckCircle, Banknote, Home, Tag, X, AlertTriangle, MessageSquare, DollarSign } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DeliveryFooter } from "@/components/DeliveryFooter";
@@ -91,8 +90,6 @@ export default function DeliveryCheckout() {
   } | null>(null);
   const [isValidatingPromo, setIsValidatingPromo] = useState(false);
   
-  // Pre-checkout popup state
-  const [showPreCheckoutDialog, setShowPreCheckoutDialog] = useState(false);
   const [deliveryNotes, setDeliveryNotes] = useState("");
   const [cashPaymentType, setCashPaymentType] = useState<"exact" | "specify">("exact");
   const [cashPaymentAmount, setCashPaymentAmount] = useState("");
@@ -302,7 +299,6 @@ export default function DeliveryCheckout() {
     setPromoValidation(null);
   };
 
-  // Show pre-checkout dialog for notes and cash payment details
   const handlePlaceOrder = async () => {
     if (!selectedWindowId) {
       toast({
@@ -332,11 +328,7 @@ export default function DeliveryCheckout() {
       return;
     }
 
-    // Reset popup state and show dialog
-    setDeliveryNotes("");
-    setCashPaymentType("exact");
-    setCashPaymentAmount("");
-    setShowPreCheckoutDialog(true);
+    processOrder();
   };
 
   // Build notes string including cash payment info
@@ -354,9 +346,7 @@ export default function DeliveryCheckout() {
     return notes;
   };
 
-  // Process order after popup confirmation
   const processOrder = async () => {
-    // Validate cash payment amount if specified
     if (selectedPaymentMethod === "cash" && cashPaymentType === "specify") {
       const amount = parseFloat(cashPaymentAmount);
       if (isNaN(amount) || amount < total) {
@@ -369,7 +359,6 @@ export default function DeliveryCheckout() {
       }
     }
 
-    setShowPreCheckoutDialog(false);
     setIsProcessingPayment(true);
 
     const orderNotes = buildOrderNotes();
@@ -683,9 +672,61 @@ export default function DeliveryCheckout() {
                 </RadioGroup>
 
                 {selectedPaymentMethod === "cash" && (
-                  <p className="text-sm text-muted-foreground">
-                    Please have exact change ready for the delivery driver.
-                  </p>
+                  <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-5 w-5 text-green-600" />
+                      <span className="text-sm font-semibold">Cash Payment Details</span>
+                    </div>
+                    <RadioGroup
+                      value={cashPaymentType}
+                      onValueChange={(value) => setCashPaymentType(value as "exact" | "specify")}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2 p-3 border rounded-lg bg-background">
+                          <RadioGroupItem value="exact" id="cash-exact-inline" data-testid="radio-cash-exact" />
+                          <Label htmlFor="cash-exact-inline" className="flex-1 cursor-pointer">
+                            I'll pay exact change
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2 p-3 border rounded-lg bg-background">
+                          <RadioGroupItem value="specify" id="cash-specify-inline" data-testid="radio-cash-specify" />
+                          <Label htmlFor="cash-specify-inline" className="flex-1 cursor-pointer">
+                            I'll pay with a different amount
+                          </Label>
+                        </div>
+                      </div>
+                    </RadioGroup>
+
+                    {cashPaymentType === "specify" && (
+                      <div className="space-y-2">
+                        <Label htmlFor="cash-amount-inline">Amount you'll pay with</Label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="cash-amount-inline"
+                            type="number"
+                            min={total}
+                            step="0.01"
+                            placeholder={total.toFixed(2)}
+                            value={cashPaymentAmount}
+                            onChange={(e) => setCashPaymentAmount(e.target.value)}
+                            className="pl-8"
+                            data-testid="input-cash-amount"
+                          />
+                        </div>
+                        {cashPaymentAmount && parseFloat(cashPaymentAmount) >= total && (
+                          <p className="text-sm text-green-600">
+                            Driver will bring ${(parseFloat(cashPaymentAmount) - total).toFixed(2)} change
+                          </p>
+                        )}
+                        {cashPaymentAmount && parseFloat(cashPaymentAmount) < total && (
+                          <p className="text-sm text-destructive">
+                            Amount must be at least ${total.toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 {selectedPaymentMethod === "credit_card" && cloverConfig?.hostedCheckoutConfigured && (
@@ -703,6 +744,26 @@ export default function DeliveryCheckout() {
                     </p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Delivery Instructions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Delivery Instructions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  placeholder="Gate code, leave at door, call when arriving, apartment number..."
+                  value={deliveryNotes}
+                  onChange={(e) => setDeliveryNotes(e.target.value)}
+                  className="min-h-[80px]"
+                  data-testid="input-delivery-notes"
+                />
+                <p className="text-xs text-muted-foreground mt-2">Optional - Add any special instructions for your delivery driver</p>
               </CardContent>
             </Card>
 
@@ -936,7 +997,7 @@ export default function DeliveryCheckout() {
                   className="w-full"
                   size="lg"
                   onClick={handlePlaceOrder}
-                  disabled={!selectedWindowId || isProcessingPayment || placeOrderMutation.isPending}
+                  disabled={!selectedWindowId || isProcessingPayment || placeOrderMutation.isPending || (selectedPaymentMethod === "cash" && cashPaymentType === "specify" && (!cashPaymentAmount || parseFloat(cashPaymentAmount) < total))}
                   data-testid="button-place-order"
                 >
                   {isProcessingPayment || placeOrderMutation.isPending ? (
@@ -967,120 +1028,6 @@ export default function DeliveryCheckout() {
         </div>
       </div>
 
-      {/* Pre-Checkout Dialog for Delivery Notes and Cash Payment */}
-      <Dialog open={showPreCheckoutDialog} onOpenChange={setShowPreCheckoutDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Before You Order
-            </DialogTitle>
-            <DialogDescription>
-              Add any special instructions for your delivery
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-6 py-4">
-            {/* Delivery Notes */}
-            <div className="space-y-2">
-              <Label htmlFor="delivery-notes">Delivery Notes (Optional)</Label>
-              <Textarea
-                id="delivery-notes"
-                placeholder="Gate code, leave at door, call when arriving..."
-                value={deliveryNotes}
-                onChange={(e) => setDeliveryNotes(e.target.value)}
-                className="min-h-[80px]"
-                data-testid="input-delivery-notes"
-              />
-            </div>
-
-            {/* Cash Payment Options */}
-            {selectedPaymentMethod === "cash" && (
-              <div className="space-y-4 p-4 bg-muted rounded-lg">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                  <Label className="text-base font-semibold">Cash Payment</Label>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Order Total: <span className="font-bold text-foreground">${total.toFixed(2)}</span>
-                </p>
-                
-                <RadioGroup
-                  value={cashPaymentType}
-                  onValueChange={(value) => setCashPaymentType(value as "exact" | "specify")}
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg bg-background">
-                      <RadioGroupItem value="exact" id="cash-exact" data-testid="radio-cash-exact" />
-                      <Label htmlFor="cash-exact" className="flex-1 cursor-pointer">
-                        I'll pay exact change
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg bg-background">
-                      <RadioGroupItem value="specify" id="cash-specify" data-testid="radio-cash-specify" />
-                      <Label htmlFor="cash-specify" className="flex-1 cursor-pointer">
-                        I'll pay with a different amount
-                      </Label>
-                    </div>
-                  </div>
-                </RadioGroup>
-
-                {cashPaymentType === "specify" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="cash-amount">Amount you'll pay with</Label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="cash-amount"
-                        type="number"
-                        min={total}
-                        step="0.01"
-                        placeholder={total.toFixed(2)}
-                        value={cashPaymentAmount}
-                        onChange={(e) => setCashPaymentAmount(e.target.value)}
-                        className="pl-8"
-                        data-testid="input-cash-amount"
-                      />
-                    </div>
-                    {cashPaymentAmount && parseFloat(cashPaymentAmount) >= total && (
-                      <p className="text-sm text-green-600">
-                        Driver will bring ${(parseFloat(cashPaymentAmount) - total).toFixed(2)} change
-                      </p>
-                    )}
-                    {cashPaymentAmount && parseFloat(cashPaymentAmount) < total && (
-                      <p className="text-sm text-destructive">
-                        Amount must be at least ${total.toFixed(2)}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setShowPreCheckoutDialog(false)}
-              data-testid="button-cancel-checkout"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={processOrder}
-              disabled={
-                selectedPaymentMethod === "cash" && 
-                cashPaymentType === "specify" && 
-                (!cashPaymentAmount || parseFloat(cashPaymentAmount) < total)
-              }
-              data-testid="button-confirm-order"
-            >
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Confirm Order
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       
       <DeliveryFooter />
     </div>
