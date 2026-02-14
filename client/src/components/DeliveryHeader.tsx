@@ -134,13 +134,14 @@ export function DeliveryHeader({
       WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.
     </div>
     <header className="bg-card border-b sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto pl-2 pr-4">
-        <div className="h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
             {showBackButton && (
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0"
                 onClick={() => {
                   if (window.history.length > 1) {
                     window.history.back();
@@ -150,15 +151,15 @@ export function DeliveryHeader({
                 }}
                 data-testid="back-button"
               >
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             )}
-            <Link href="/delivery/shop" className="flex items-center gap-4 font-bold text-xl hover:opacity-80 transition-opacity">
+            <Link href="/delivery/shop" className="flex items-center gap-2 sm:gap-4 font-bold text-xl hover:opacity-80 transition-opacity min-w-0">
               <img 
                 src="/logo-orange.png" 
                 alt="Vape Cave Frisco - Logo" 
                 loading="lazy"
-                className="h-12 w-auto scale-x-[1.15]"
+                className="h-9 sm:h-12 w-auto scale-x-[1.15] flex-shrink-0"
               />
               <Badge variant="secondary" className="hidden sm:inline-flex text-xs">
                 Delivery
@@ -223,38 +224,39 @@ export function DeliveryHeader({
             </div>
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-0.5 sm:gap-2">
             {showSearch && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden h-8 w-8 sm:h-10 sm:w-10"
                 onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
                 data-testid="mobile-search-toggle"
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             )}
 
             <Button
               variant="ghost"
               size="icon"
+              className="h-8 w-8 sm:h-10 sm:w-10"
               onClick={toggleTheme}
               data-testid="theme-toggle"
             >
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              {theme === "dark" ? <Sun className="h-4 w-4 sm:h-5 sm:w-5" /> : <Moon className="h-4 w-4 sm:h-5 sm:w-5" />}
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
-              className="relative"
+              className="relative h-8 w-8 sm:h-10 sm:w-10"
               onClick={() => setLocation("/delivery/cart")}
               data-testid="header-cart-button"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] sm:text-xs font-bold rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
                   {cartItemCount > 99 ? "99+" : cartItemCount}
                 </span>
               )}
@@ -385,36 +387,6 @@ export function DeliveryHeader({
               >
                 <User className="h-5 w-5" />
                 <span>My Account</span>
-              </motion.button>
-              <motion.button
-                variants={menuItemVariants}
-                onClick={() => {
-                  setLocation("/delivery/cart");
-                  setMobileMenuOpen(false);
-                }}
-                className="flex items-center gap-3 w-full px-3 py-2 rounded-md hover:bg-primary/10 hover:text-primary transition-all duration-200"
-                whileTap={{ scale: 0.98 }}
-                data-testid="mobile-menu-cart"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                <span>Cart</span>
-                {cartItemCount > 0 && (
-                  <Badge variant="secondary" className="ml-auto bg-primary/20 text-primary">
-                    {cartItemCount}
-                  </Badge>
-                )}
-              </motion.button>
-              <motion.button
-                variants={menuItemVariants}
-                onClick={() => {
-                  toggleTheme();
-                }}
-                className="flex items-center gap-3 w-full px-3 py-2 rounded-md hover:bg-primary/10 hover:text-primary transition-all duration-200"
-                whileTap={{ scale: 0.98 }}
-                data-testid="mobile-menu-theme"
-              >
-                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
               </motion.button>
               <motion.button
                 variants={menuItemVariants}

@@ -37,7 +37,7 @@ export default function DeliveryCategoryPage() {
   const searchString = useSearch();
   const urlViewParam = new URLSearchParams(searchString).get("view");
   const [activeTab, setActiveTab] = useState<"featured" | "all">(urlViewParam === "featured" ? "featured" : "all");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">(window.innerWidth < 640 ? "list" : "grid");
   const [quickViewProduct, setQuickViewProduct] = useState<DeliveryProduct | null>(null);
   const { toast } = useToast();
 

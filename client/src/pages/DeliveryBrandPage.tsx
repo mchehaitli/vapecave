@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Eye, Plus, Minus, ShoppingCart, TrendingUp, Sparkles } from "lucide-react";
+import { ArrowLeft, Eye, Plus, Minus, ShoppingCart, TrendingUp, Sparkles, Grid3X3, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [selectedProductLineId, setSelectedProductLineId] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list">(window.innerWidth < 640 ? "list" : "grid");
   const [quickViewProduct, setQuickViewProduct] = useState<DeliveryProduct | null>(null);
 
   const { data: brand, isLoading: brandLoading } = useQuery<DeliveryBrand>({
@@ -192,28 +193,49 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
             </Button>
           </motion.div>
           
-          <div className="flex items-center gap-6">
-            {brand.logo && (
-              <motion.div 
-                className="w-24 h-24 bg-white rounded-xl p-3 flex items-center justify-center shadow-lg"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2, duration: 0.5, type: 'spring' }}
-                whileHover={{ scale: 1.05, rotate: 2 }}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+              {brand.logo && (
+                <motion.div 
+                  className="w-16 h-16 sm:w-24 sm:h-24 bg-white rounded-xl p-2 sm:p-3 flex items-center justify-center shadow-lg flex-shrink-0"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.5, type: 'spring' }}
+                  whileHover={{ scale: 1.05, rotate: 2 }}
+                >
+                  <img src={brand.logo} alt={`${brand.name} - Vape Cave Frisco`} loading="lazy" className="w-full h-full object-contain" />
+                </motion.div>
+              )}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="min-w-0"
               >
-                <img src={brand.logo} alt={`${brand.name} - Vape Cave Frisco`} loading="lazy" className="w-full h-full object-contain" />
+                <h1 className="text-2xl sm:text-4xl font-bold text-foreground">{brand.name}</h1>
+                <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+                  {brandProducts.length} {brandProducts.length === 1 ? 'product' : 'products'} available
+                </p>
               </motion.div>
-            )}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-            >
-              <h1 className="text-4xl font-bold text-foreground">{brand.name}</h1>
-              <p className="text-muted-foreground mt-1">
-                {brandProducts.length} {brandProducts.length === 1 ? 'product' : 'products'} available
-              </p>
-            </motion.div>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="icon"
+                onClick={() => setViewMode("grid")}
+                className="h-8 w-8 sm:h-10 sm:w-10"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="icon"
+                onClick={() => setViewMode("list")}
+                className="h-8 w-8 sm:h-10 sm:w-10"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </motion.div>
 
@@ -254,22 +276,122 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
         )}
 
         {brandProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-            <AnimatePresence mode="popLayout">
-              {brandProducts.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  index={index}
-                  inCart={cartItems[product.id]}
-                  onAddToCart={handleAddToCart}
-                  onUpdateQuantity={handleUpdateQuantity}
-                  onQuickView={setQuickViewProduct}
-                  brandMap={brandMap}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
+          viewMode === "grid" ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+              <AnimatePresence mode="popLayout">
+                {brandProducts.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                    inCart={cartItems[product.id]}
+                    onAddToCart={handleAddToCart}
+                    onUpdateQuantity={handleUpdateQuantity}
+                    onQuickView={setQuickViewProduct}
+                    brandMap={brandMap}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {brandProducts.map((product, index) => {
+                const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
+                const isOutOfStock = stock <= 0;
+                const isLowStock = stock > 0 && stock <= 2;
+                const isInStock = stock >= 3;
+                const quantity = cartItems[product.id] || 0;
+
+                return (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                  >
+                    <Card className={`flex items-center gap-3 p-3 hover:shadow-lg transition-all duration-300 hover:border-primary/50 ${isOutOfStock ? 'opacity-60' : ''}`}>
+                      <div className="relative w-20 h-20 bg-muted/50 rounded-lg flex-shrink-0 overflow-hidden">
+                        <img
+                          src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
+                          alt={product.name}
+                          loading="lazy"
+                          className={`w-full h-full object-contain p-1 ${isOutOfStock ? 'blur-sm opacity-70' : ''}`}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.dataset.fallbackAttempted) {
+                              target.src = '/placeholder-product.svg';
+                              return;
+                            }
+                            target.dataset.fallbackAttempted = '1';
+                            const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
+                            if (brandLogo) {
+                              target.src = brandLogo;
+                            } else {
+                              target.src = '/placeholder-product.svg';
+                            }
+                          }}
+                        />
+                        {isOutOfStock && (
+                          <div className="absolute inset-0 bg-background/60 flex items-center justify-center rounded-lg">
+                            <Badge variant="destructive" className="text-[10px]">Out</Badge>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start gap-1 flex-wrap">
+                          <h3 className="font-medium text-sm line-clamp-2">{product.name}</h3>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          {isOutOfStock ? (
+                            <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Out of Stock</Badge>
+                          ) : isLowStock ? (
+                            <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0">Low Stock</Badge>
+                          ) : (
+                            <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0">In Stock</Badge>
+                          )}
+                          {product.badge && (
+                            <Badge variant={product.badge === 'sale' ? 'destructive' : 'secondary'} className="text-[10px] px-1.5 py-0">
+                              {product.badge}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="text-right">
+                          {product.salePrice ? (
+                            <>
+                              <p className="text-base font-bold text-primary">${product.salePrice}</p>
+                              <p className="text-[10px] text-muted-foreground line-through">${product.price}</p>
+                            </>
+                          ) : (
+                            <p className="text-base font-bold text-primary">${product.price}</p>
+                          )}
+                        </div>
+                        {!isOutOfStock && (
+                          quantity > 0 ? (
+                            <div className="flex items-center gap-1">
+                              <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => handleUpdateQuantity(product.id, quantity - 1)}>
+                                <Minus className="w-3 h-3" />
+                              </Button>
+                              <span className="text-sm font-medium w-5 text-center">{quantity}</span>
+                              <Button size="icon" className="h-7 w-7" onClick={() => handleUpdateQuantity(product.id, quantity + 1)}>
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button size="sm" className="h-8" onClick={() => handleAddToCart(product.id)}>
+                              <Plus className="w-3 h-3 mr-1" />
+                              Add
+                            </Button>
+                          )
+                        )}
+                      </div>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )
         ) : (
           <div className="text-center py-16 bg-card/50 rounded-2xl border border-border/30">
             <p className="text-muted-foreground text-lg">

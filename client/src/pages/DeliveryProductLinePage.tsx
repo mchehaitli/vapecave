@@ -35,7 +35,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [quickViewProduct, setQuickViewProduct] = useState<DeliveryProduct | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(window.innerWidth < 640 ? 'list' : 'grid');
   // Track user's manual selection - persists until user clicks a different tab
   const [userSelection, setUserSelection] = useState<{ slug: string; lineId: number | 'all' } | null>(null);
 
