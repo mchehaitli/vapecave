@@ -72,7 +72,12 @@ export function DeliveryCategoryNav({
     const el = brandItemRefs.current[brandId];
     if (el) {
       const rect = el.getBoundingClientRect();
-      setBrandDropdownPos({ top: rect.top, left: rect.right + 4 });
+      const isMobile = window.innerWidth < 640;
+      if (isMobile) {
+        setBrandDropdownPos({ top: rect.bottom + 4, left: Math.max(8, rect.left) });
+      } else {
+        setBrandDropdownPos({ top: rect.top, left: rect.right + 4 });
+      }
     }
     setExpandedBrandId(brandId);
   }, []);
@@ -251,7 +256,7 @@ export function DeliveryCategoryNav({
 
           {expandedBrandId !== null && brandDropdownPos && (
             <div
-              className="fixed bg-card rounded-xl border border-border/50 shadow-xl min-w-[180px] z-[9999]"
+              className="fixed bg-card rounded-xl border border-border/50 shadow-xl min-w-[180px] max-w-[calc(100vw-16px)] z-[9999]"
               style={{ top: brandDropdownPos.top, left: brandDropdownPos.left }}
             >
               <div className="py-2">

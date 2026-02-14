@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, CheckCircle, XCircle, Clock, AlertCircle, Package, Edit, Mail, Trash2, Upload, ChevronLeft, ChevronRight, RefreshCw, Download, DollarSign } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Clock, AlertCircle, Package, Edit, Mail, Trash2, Upload, ChevronLeft, ChevronRight, RefreshCw, Download, DollarSign, Save, Loader2 } from "lucide-react";
 import type { DeliveryBrand, DeliveryCategory } from "@shared/schema";
 
 interface DeliveryCustomer {
@@ -2570,6 +2570,10 @@ export function DeliveryProductsTab() {
     enabled: true,
   });
 
+  // Batch save states
+  const [pendingChanges, setPendingChanges] = useState<Record<number, Partial<DeliveryProduct>>>({});
+  const [savingBatch, setSavingBatch] = useState(false);
+
   // Bulk selection states
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [bulkEditDialogOpen, setBulkEditDialogOpen] = useState(false);
@@ -2720,20 +2724,6 @@ export function DeliveryProductsTab() {
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message || "Failed to refresh inventory from Clover.", variant: "destructive" });
-    },
-  });
-
-  const toggleEnabledMutation = useMutation({
-    mutationFn: async ({ productId, enabled }: { productId: number; enabled: boolean }) => {
-      const res = await apiRequest("PATCH", `/api/admin/delivery/products/${productId}`, { enabled });
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/delivery/products"] });
-      toast({ title: "Product Updated", description: "Product visibility updated successfully." });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update product.", variant: "destructive" });
     },
   });
 
@@ -2956,8 +2946,43 @@ export function DeliveryProductsTab() {
   }, []);
 
   const handleProductUpdate = useCallback((productId: number, data: Partial<DeliveryProduct>) => {
-    updateProductMutation.mutate({ productId, data });
-  }, [updateProductMutation]);
+    setPendingChanges(prev => ({
+      ...prev,
+      [productId]: { ...prev[productId], ...data }
+    }));
+  }, []);
+
+  const handleBatchSave = useCallback(async () => {
+    const snapshot = { ...pendingChanges };
+    const entries = Object.entries(snapshot);
+    if (entries.length === 0) return;
+    
+    setSavingBatch(true);
+    try {
+      await Promise.all(
+        entries.map(([productId, data]) =>
+          apiRequest("PATCH", `/api/admin/delivery/products/${productId}`, data).then(r => r.json())
+        )
+      );
+      setPendingChanges(prev => {
+        const remaining: Record<number, Partial<DeliveryProduct>> = {};
+        for (const [id, changes] of Object.entries(prev)) {
+          if (!(id in snapshot)) remaining[Number(id)] = changes;
+        }
+        return remaining;
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/delivery/products"] });
+      toast({ title: "Saved", description: `${entries.length} product${entries.length > 1 ? 's' : ''} updated successfully.` });
+    } catch (err) {
+      toast({ title: "Error", description: "Some products failed to save. Please try again.", variant: "destructive" });
+    } finally {
+      setSavingBatch(false);
+    }
+  }, [pendingChanges, toast]);
+
+  const handleDiscardChanges = useCallback(() => {
+    setPendingChanges({});
+  }, []);
 
   const handleSaveProduct = () => {
     if (!productForm.name || !productForm.price) {
@@ -3003,7 +3028,12 @@ export function DeliveryProductsTab() {
   };
 
   // Sort products
-  const sortedProducts = data?.products ? [...data.products].sort((a, b) => {
+  const productsWithPending = data?.products?.map(p => {
+    const pending = pendingChanges[p.id];
+    return pending ? { ...p, ...pending } : p;
+  }) || [];
+
+  const sortedProducts = productsWithPending.length > 0 ? [...productsWithPending].sort((a, b) => {
     if (!sortField) return 0;
     
     let aVal: number | string = 0;
@@ -3232,6 +3262,46 @@ export function DeliveryProductsTab() {
                 <strong>Inventory Refresh:</strong> {new Date(inventoryRefreshResult.timestamp).toLocaleString()}<br />
                 {inventoryRefreshResult.refreshed} products updated
               </p>
+            </div>
+          )}
+
+          {/* Unsaved Changes Bar */}
+          {Object.keys(pendingChanges).length > 0 && (
+            <div className="mt-4 flex items-center justify-between p-3 bg-amber-900/30 border border-amber-600 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Save className="w-4 h-4 text-amber-400" />
+                <span className="text-sm text-amber-200">
+                  {Object.keys(pendingChanges).length} unsaved change{Object.keys(pendingChanges).length > 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDiscardChanges}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  Discard
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleBatchSave}
+                  disabled={savingBatch}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {savingBatch ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-3 h-3 mr-1" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           )}
 
