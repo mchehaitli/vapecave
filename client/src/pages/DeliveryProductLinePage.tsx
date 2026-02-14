@@ -381,7 +381,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                         src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
                         alt={`${product.name} - Vape Cave Frisco`}
                         loading="lazy"
-                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${isOutOfStock ? 'opacity-50 grayscale' : ''}`}
+                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${isOutOfStock ? 'blur-sm opacity-70' : ''}`}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           if (target.dataset.fallbackAttempted) {
@@ -488,7 +488,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                         src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
                         alt={`${product.name} - Vape Cave Frisco`}
                         loading="lazy"
-                        className={`w-full h-full object-cover ${isOutOfStock ? 'opacity-50 grayscale' : ''}`}
+                        className={`w-full h-full object-cover ${isOutOfStock ? 'blur-sm opacity-70' : ''}`}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           if (target.dataset.fallbackAttempted) {
