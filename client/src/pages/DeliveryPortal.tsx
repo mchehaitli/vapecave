@@ -453,7 +453,7 @@ function ProductCarousel({
 
                   {isOutOfStock && (
                     <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
-                      <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
+                      <Badge variant="destructive" className="text-[10px] sm:text-sm">Out of Stock</Badge>
                     </div>
                   )}
                   
@@ -1082,7 +1082,7 @@ export default function DeliveryPortal() {
                       
                       {heroProducts[featuredIndex].description && 
                        heroProducts[featuredIndex].description !== heroProducts[featuredIndex].name && (
-                        <p className="text-base mb-4 text-foreground/70 line-clamp-2">
+                        <p className="text-xs sm:text-base mb-2 sm:mb-4 text-foreground/70 line-clamp-2">
                           {heroProducts[featuredIndex].description}
                         </p>
                       )}
@@ -1103,7 +1103,7 @@ export default function DeliveryPortal() {
                           
                           if (isFeaturedOutOfStock) {
                             return (
-                              <Badge variant="destructive" className="text-xs sm:text-sm">
+                              <Badge variant="destructive" className="text-[10px] sm:text-xs">
                                 Out of Stock
                               </Badge>
                             );
@@ -1112,7 +1112,7 @@ export default function DeliveryPortal() {
                           return (
                             <>
                               {isFeaturedLowStock && (
-                                <Badge className="bg-amber-500 text-white text-xs">
+                                <Badge className="bg-amber-500 text-white text-[10px] sm:text-xs px-1.5 py-0">
                                   Low Stock
                                 </Badge>
                               )}
