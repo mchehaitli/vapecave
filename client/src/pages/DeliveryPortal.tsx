@@ -438,7 +438,7 @@ function ProductCarousel({
                   
                   {product.badge && (
                     <Badge
-                      className={`absolute top-1 left-1 sm:top-3 sm:left-3 text-[8px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5 leading-tight ${
+                      className={`absolute top-2 left-2 sm:top-3 sm:left-3 text-[8px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5 leading-tight ${
                         product.badge === 'popular' ? 'bg-primary text-primary-foreground' :
                         product.badge === 'new' ? 'bg-green-500 text-white' :
                         product.badge === 'sale' ? 'bg-red-500 text-white' :
@@ -459,7 +459,7 @@ function ProductCarousel({
                   
                   {isLowStock && !isOutOfStock && (
                     <Badge 
-                      className="absolute top-1 right-1 sm:top-3 sm:right-3 text-[8px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5 leading-tight bg-amber-500 text-white"
+                      className="absolute top-2 right-2 sm:top-3 sm:right-3 text-[8px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5 leading-tight bg-amber-500 text-white"
                     >
                       Low Stock
                     </Badge>
