@@ -175,7 +175,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
       <DeliveryHeader />
       <DeliveryCategoryNav />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

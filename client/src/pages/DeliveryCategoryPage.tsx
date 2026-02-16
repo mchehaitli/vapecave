@@ -159,7 +159,7 @@ export default function DeliveryCategoryPage() {
       />
       <DeliveryCategoryNav />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <motion.div 
           className="flex items-center gap-2 text-sm text-muted-foreground mb-6"
           initial={{ opacity: 0, x: -10 }}
@@ -174,7 +174,7 @@ export default function DeliveryCategoryPage() {
         </motion.div>
 
         <motion.div 
-          className="flex items-center justify-between mb-8"
+          className="flex items-center justify-between mb-4 sm:mb-8"
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -195,7 +195,7 @@ export default function DeliveryCategoryPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15, duration: 0.4 }}
             >
-              <h1 className="text-3xl font-bold">{category.name}</h1>
+              <h1 className="text-xl sm:text-3xl font-bold">{category.name}</h1>
               <p className="text-muted-foreground">
                 {displayProducts.length} product{displayProducts.length !== 1 ? 's' : ''}
               </p>
@@ -384,8 +384,8 @@ export default function DeliveryCategoryPage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.03 }}
                 >
-                  <Card className={`flex items-center gap-4 p-4 hover:shadow-lg transition-all duration-300 hover:border-primary/50 ${isOutOfStock ? 'opacity-60' : ''}`}>
-                    <div className="relative w-20 h-20 bg-muted/50 rounded-lg flex-shrink-0">
+                  <Card className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:shadow-lg transition-all duration-300 hover:border-primary/50 ${isOutOfStock ? 'opacity-60' : ''}`}>
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-muted/50 rounded-lg flex-shrink-0">
                       <img
                         src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || "/placeholder-product.svg"}
                         alt={`${product.name} - Vape Cave Frisco`}
@@ -413,53 +413,55 @@ export default function DeliveryCategoryPage() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium truncate">{product.name}</h3>
+                      <h3 className="font-medium text-sm sm:text-base line-clamp-2">{product.name}</h3>
+                      <div className="flex items-center gap-1 mt-1 flex-wrap">
                         {isFeatured && (
-                          <Badge className="bg-primary/90 flex-shrink-0">
-                            <Star className="w-3 h-3 mr-1" />
+                          <Badge className="bg-primary/90 flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">
+                            <Star className="w-2.5 h-2.5 mr-0.5" />
                             Featured
                           </Badge>
                         )}
                         {isOutOfStock && (
-                          <Badge variant="destructive" className="flex-shrink-0">Out of Stock</Badge>
+                          <Badge variant="destructive" className="flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">Out of Stock</Badge>
                         )}
                         {isLowStock && !isOutOfStock && (
-                          <Badge className="bg-amber-500 text-white flex-shrink-0">Low Stock</Badge>
+                          <Badge className="bg-amber-500 text-white flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">Low Stock</Badge>
                         )}
                         {isInStock && !isFeatured && (
-                          <Badge className="bg-green-500 text-white flex-shrink-0">In Stock</Badge>
+                          <Badge className="bg-green-500 text-white flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">In Stock</Badge>
                         )}
                       </div>
                       {product.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1 hidden sm:block">
                           {product.description}
                         </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                       {product.salePrice ? (
                         <div className="text-right">
-                          <p className="text-xl font-bold text-primary">${product.salePrice}</p>
-                          <p className="text-xs text-muted-foreground line-through">${product.price}</p>
+                          <p className="text-base sm:text-xl font-bold text-primary">${product.salePrice}</p>
+                          <p className="text-[10px] sm:text-xs text-muted-foreground line-through">${product.price}</p>
                         </div>
                       ) : (
-                        <p className="text-xl font-bold text-primary">${product.price}</p>
+                        <p className="text-base sm:text-xl font-bold text-primary">${product.price}</p>
                       )}
                       <Button
                         size="sm"
                         variant="ghost"
+                        className="h-8 w-8 p-0"
                         onClick={() => setQuickViewProduct(product)}
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
                       <Button
                         size="sm"
+                        className="h-8 px-2 sm:px-3"
                         onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })}
                         disabled={addToCartMutation.isPending || isOutOfStock}
                       >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add
+                        <Plus className="w-4 h-4 sm:mr-1" />
+                        <span className="hidden sm:inline">Add</span>
                       </Button>
                     </div>
                   </Card>

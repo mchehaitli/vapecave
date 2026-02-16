@@ -247,8 +247,8 @@ export default function DeliveryCart() {
         </div>
       )}
 
-      <div className="flex-1 py-6">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <div className="flex-1 py-4 sm:py-6">
+        <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
           <div className="mb-6">
             <h1 className="text-2xl font-bold" data-testid="text-page-title">Shopping Cart</h1>
             <p className="text-sm text-muted-foreground">
@@ -256,63 +256,61 @@ export default function DeliveryCart() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {cartItems.map((item) => (
               <Card key={item.id} className="overflow-hidden" data-testid={`card-cart-item-${item.id}`}>
-                <CardContent className="p-6">
-                  <div className="flex gap-4">
-                    {/* Product Image */}
+                <CardContent className="p-3 sm:p-6">
+                  <div className="flex gap-3 sm:gap-4">
                     <img
                       src={item.product.image}
                       alt={item.product.name}
-                      className="w-24 h-24 object-contain bg-muted rounded-lg p-1"
+                      className="w-16 h-16 sm:w-24 sm:h-24 object-contain bg-muted rounded-lg p-1 flex-shrink-0"
                       data-testid={`img-product-${item.product.id}`}
                     />
 
-                    {/* Product Details */}
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-semibold text-lg" data-testid={`text-product-name-${item.product.id}`}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-1 sm:mb-2 gap-1">
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-sm sm:text-lg line-clamp-2" data-testid={`text-product-name-${item.product.id}`}>
                             {item.product.name}
                           </h3>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             {item.product.category}
                           </p>
                         </div>
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="h-7 w-7 sm:h-9 sm:w-9 flex-shrink-0"
                           onClick={() => handleRemoveItem(item.id)}
                           disabled={removeItemMutation.isPending}
                           data-testid={`button-remove-${item.id}`}
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive" />
                         </Button>
                       </div>
 
-                      <div className="flex justify-between items-center mt-4">
-                        {/* Quantity Controls */}
-                        <div className="flex items-center gap-2">
+                      <div className="flex justify-between items-center mt-2 sm:mt-4">
+                        <div className="flex items-center gap-1.5 sm:gap-2">
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-7 w-7 sm:h-8 sm:w-8"
                             onClick={() => handleUpdateQuantity(item.id, item.quantity, -1)}
                             disabled={item.quantity <= 1 || updatingItems.has(item.id)}
                             data-testid={`button-decrease-${item.id}`}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
-                          <span className="w-12 text-center font-medium" data-testid={`text-quantity-${item.id}`}>
+                          <span className="w-8 sm:w-12 text-center font-medium text-sm sm:text-base" data-testid={`text-quantity-${item.id}`}>
                             {item.quantity}
                           </span>
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-7 w-7 sm:h-8 sm:w-8"
                             onClick={() => handleUpdateQuantity(item.id, item.quantity, 1)}
                             disabled={item.quantity >= (item.product.stockQuantity ? parseInt(item.product.stockQuantity) : 99) || updatingItems.has(item.id)}
                             data-testid={`button-increase-${item.id}`}
@@ -321,12 +319,11 @@ export default function DeliveryCart() {
                           </Button>
                         </div>
 
-                        {/* Price */}
-                        <div className="text-right">
-                          <p className="text-sm text-muted-foreground">
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             ${item.product.price} each
                           </p>
-                          <p className="text-lg font-bold" data-testid={`text-item-total-${item.id}`}>
+                          <p className="text-sm sm:text-lg font-bold" data-testid={`text-item-total-${item.id}`}>
                             ${(parseFloat(item.product.price) * item.quantity).toFixed(2)}
                           </p>
                         </div>

@@ -159,7 +159,7 @@ export function DeliveryHeader({
                 src="/logo-orange.png" 
                 alt="Vape Cave Frisco - Logo" 
                 loading="lazy"
-                className="h-9 sm:h-12 w-auto scale-x-[1.15] flex-shrink-0"
+                className="h-7 sm:h-12 w-auto flex-shrink-0"
               />
               <Badge variant="secondary" className="hidden sm:inline-flex text-xs">
                 Delivery

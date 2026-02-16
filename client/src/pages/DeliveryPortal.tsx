@@ -983,9 +983,9 @@ export default function DeliveryPortal() {
       {cartTotal < freeDeliveryThreshold ? (
         <div className="bg-muted/50 border-b border-border/50 py-3">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-center gap-3">
-              <Truck className="w-5 h-5 text-primary" />
-              <span className="text-sm font-medium">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+              <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+              <span className="text-xs sm:text-sm font-medium">
                 {cartItemCount === 0 
                   ? `Spend over $${freeDeliveryThreshold} for FREE delivery!`
                   : `Add $${(freeDeliveryThreshold - cartTotal).toFixed(2)} more for FREE delivery!`
@@ -993,7 +993,7 @@ export default function DeliveryPortal() {
               </span>
               <Progress 
                 value={(cartTotal / freeDeliveryThreshold) * 100} 
-                className="h-2 w-32 md:w-48"
+                className="h-2 w-24 sm:w-32 md:w-48"
               />
             </div>
           </div>
@@ -1050,7 +1050,7 @@ export default function DeliveryPortal() {
               }}
               transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
             />
-            <div className="container mx-auto px-6 relative z-10">
+            <div className="container mx-auto px-3 sm:px-6 relative z-10">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={featuredIndex}
@@ -1215,7 +1215,7 @@ export default function DeliveryPortal() {
           </section>
         )}
 
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-2 sm:px-4 py-4">
           {/* Main Content Area */}
           <div className="flex-1 min-w-0">
               {viewMode === 'featured' ? (

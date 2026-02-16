@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, X, ChevronUp, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,13 @@ export function FloatingCartButton({
   const [isExpanded, setIsExpanded] = useState(false);
   const [, setLocation] = useLocation();
 
+  useEffect(() => {
+    if (isExpanded) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [isExpanded]);
+
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const cartTotal = cartItems.reduce((sum, item) => {
@@ -62,7 +69,7 @@ export function FloatingCartButton({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="bg-card border rounded-lg shadow-2xl p-4 w-80"
+            className="bg-card border rounded-lg shadow-2xl p-4 w-80 max-h-[80vh] overflow-y-auto overscroll-contain"
             data-testid="cart-summary-expanded"
           >
             <div className="flex items-center justify-between mb-3">

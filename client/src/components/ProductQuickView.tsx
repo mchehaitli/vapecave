@@ -86,12 +86,12 @@ export function ProductQuickView({ product, open, onClose, onAddToCart }: Produc
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 text-foreground">
         <VisuallyHidden>
           <DialogTitle>Quick View: {product.name}</DialogTitle>
         </VisuallyHidden>
         
-        <div className="grid md:grid-cols-2 gap-6 p-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6">
           {/* Left: Product Images */}
           <div className="space-y-4">
             {/* Main Image */}
@@ -163,29 +163,29 @@ export function ProductQuickView({ product, open, onClose, onAddToCart }: Produc
           {/* Right: Product Details */}
           <div className="flex flex-col">
             <div className="flex-1">
-              <h2 className="text-3xl font-bold mb-3" data-testid={`text-product-name-${product.id}`}>
+              <h2 className="text-xl sm:text-3xl font-bold mb-3 text-foreground" data-testid={`text-product-name-${product.id}`}>
                 {product.name}
               </h2>
 
               {product.brand && (
-                <p className="text-muted-foreground mb-3">
-                  Brand: <span className="font-medium">{product.brand}</span>
+                <p className="text-muted-foreground mb-3 text-sm sm:text-base">
+                  Brand: <span className="font-medium text-foreground">{product.brand}</span>
                 </p>
               )}
 
               {product.category && (
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-4">
                   Category: {product.category}
                 </p>
               )}
 
-              <div className="mb-6">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-4xl font-bold text-primary" data-testid={`text-price-${product.id}`}>
+              <div className="mb-4 sm:mb-6">
+                <div className="flex items-baseline gap-2 sm:gap-3">
+                  <span className="text-2xl sm:text-4xl font-bold text-primary" data-testid={`text-price-${product.id}`}>
                     ${displayPrice.toFixed(2)}
                   </span>
                   {originalPrice && (
-                    <span className="text-xl text-muted-foreground line-through" data-testid={`text-original-price-${product.id}`}>
+                    <span className="text-base sm:text-xl text-muted-foreground line-through" data-testid={`text-original-price-${product.id}`}>
                       ${originalPrice.toFixed(2)}
                     </span>
                   )}
@@ -199,14 +199,14 @@ export function ProductQuickView({ product, open, onClose, onAddToCart }: Produc
               </div>
 
               {product.description && (
-                <div className="mb-6">
-                  <h3 className="font-semibold mb-2">Description</h3>
-                  <p className="text-muted-foreground">{product.description}</p>
+                <div className="mb-4 sm:mb-6">
+                  <h3 className="font-semibold mb-2 text-foreground text-sm sm:text-base">Description</h3>
+                  <p className="text-muted-foreground text-sm sm:text-base">{product.description}</p>
                 </div>
               )}
 
               {inStock && (
-                <div className="mb-6">
+                <div className="mb-4 sm:mb-6">
                   <p className={`text-sm font-medium ${isLowStock ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>
                     {isLowStock ? 'Low Stock' : 'In Stock'}
                   </p>
@@ -218,7 +218,7 @@ export function ProductQuickView({ product, open, onClose, onAddToCart }: Produc
             <div className="space-y-4 pt-4 border-t">
               {inStock && (
                 <div className="flex items-center gap-4">
-                  <label className="font-semibold">Quantity:</label>
+                  <label className="font-semibold text-foreground">Quantity:</label>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -229,7 +229,7 @@ export function ProductQuickView({ product, open, onClose, onAddToCart }: Produc
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="w-12 text-center font-semibold text-lg" data-testid="text-quantity">
+                    <span className="w-12 text-center font-semibold text-lg text-foreground" data-testid="text-quantity">
                       {quantity}
                     </span>
                     <Button

@@ -103,7 +103,7 @@ export function DeliveryCategoryNav({
     <>
       <section className="bg-card border-b border-border/30 relative z-50">
         <div className="container mx-auto px-2">
-          <nav className="flex items-center justify-center gap-0 py-1.5 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <nav className="flex items-center gap-0 py-1.5 overflow-x-auto scrollbar-hide sm:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <Link href="/delivery/shop">
               <button
                 onClick={() => {
@@ -196,8 +196,8 @@ export function DeliveryCategoryNav({
           />
           {dropdownPos && categoryBrandsForDropdown.length > 0 && (
             <div
-              className="fixed bg-card rounded-xl border border-border/50 shadow-xl min-w-[200px] z-[9999]"
-              style={{ top: dropdownPos.top, left: dropdownPos.left }}
+              className="fixed bg-card rounded-xl border border-border/50 shadow-xl min-w-[200px] max-w-[calc(100vw-16px)] z-[9999]"
+              style={{ top: dropdownPos.top, left: Math.max(8, Math.min(dropdownPos.left, window.innerWidth - 216)) }}
             >
               <div className="py-2">
                 {categoryBrandsForDropdown.map((brand) => {
