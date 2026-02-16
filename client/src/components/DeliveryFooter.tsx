@@ -1,7 +1,6 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Phone, Mail, Instagram, Facebook } from "lucide-react";
-import { SiTiktok } from "react-icons/si";
+import { MapPin, Phone, Mail, Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 
 const footerVariants = {
   hidden: { opacity: 0 },
@@ -39,47 +38,50 @@ export function DeliveryFooter() {
       <div className="container mx-auto px-4 py-5">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <motion.div variants={sectionVariants}>
-            <img 
-              src="/logo-orange.png" 
-              alt="Vape Cave Frisco - Logo" 
-              loading="lazy"
-              className="h-4 w-auto mb-3"
-            />
-            <div className="flex items-center gap-2">
-              <motion.a 
-                href="https://www.instagram.com/vapecavetx" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,113,0,0.3)]"
-                whileHover={{ scale: 1.15, rotate: 5 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Instagram className="w-4 h-4" />
-              </motion.a>
+            <h3 className="font-semibold mb-2 text-sm">Connect With Us</h3>
+            <div className="flex items-center gap-3 mb-2">
               <motion.a 
                 href="https://www.facebook.com/vapecavetx" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,113,0,0.3)]"
-                whileHover={{ scale: 1.15, rotate: -5 }}
+                className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.2 }}
               >
-                <Facebook className="w-4 h-4" />
+                <Facebook className="w-5 h-5" />
               </motion.a>
               <motion.a 
-                href="https://www.tiktok.com/@vapecavetx" 
+                href="https://www.instagram.com/vapecavetx" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,113,0,0.3)]"
-                whileHover={{ scale: 1.15, rotate: 5 }}
+                className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.2 }}
               >
-                <SiTiktok className="w-4 h-4" />
+                <Instagram className="w-5 h-5" />
+              </motion.a>
+              <motion.a 
+                href="https://twitter.com/vapecavetx" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Twitter className="w-5 h-5" />
+              </motion.a>
+              <motion.a 
+                href="https://www.youtube.com/@vapecavetx" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Youtube className="w-5 h-5" />
               </motion.a>
             </div>
+            <p className="text-xs text-muted-foreground">Follow us for updates & promotions</p>
           </motion.div>
 
           <motion.div variants={sectionVariants}>
