@@ -241,7 +241,7 @@ export function DeliveryCategoryNav({
                 {expandedCategory && (
                   <div className="border-t border-border/30 mt-2 pt-2">
                     <Link
-                      href={`/delivery/category/${expandedCategory.slug}?view=featured`}
+                      href={`/delivery/category/${expandedCategory.slug}`}
                       onClick={closeAll}
                       className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 transition-all rounded-lg mx-2 cursor-pointer"
                     >
