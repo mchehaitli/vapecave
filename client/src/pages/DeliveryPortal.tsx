@@ -438,28 +438,28 @@ function ProductCarousel({
                   
                   {product.badge && (
                     <Badge
-                      className={`absolute top-2 left-2 sm:top-3 sm:left-3 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 ${
+                      className={`absolute top-1 left-1 sm:top-3 sm:left-3 text-[8px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5 leading-tight ${
                         product.badge === 'popular' ? 'bg-primary text-primary-foreground' :
                         product.badge === 'new' ? 'bg-green-500 text-white' :
                         product.badge === 'sale' ? 'bg-red-500 text-white' :
                         'bg-secondary text-secondary-foreground'
                       }`}
                     >
-                      {product.badge === 'popular' && <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />}
-                      {product.badge === 'new' && <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />}
+                      {product.badge === 'popular' && <TrendingUp className="w-2 h-2 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />}
+                      {product.badge === 'new' && <Sparkles className="w-2 h-2 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />}
                       {product.badge.toUpperCase()}
                     </Badge>
                   )}
 
                   {isOutOfStock && (
                     <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
-                      <Badge variant="destructive" className="text-[10px] sm:text-sm">Out of Stock</Badge>
+                      <Badge variant="destructive" className="text-[8px] sm:text-sm px-1 sm:px-2 py-0 sm:py-0.5">Out of Stock</Badge>
                     </div>
                   )}
                   
                   {isLowStock && !isOutOfStock && (
                     <Badge 
-                      className="absolute top-2 right-2 sm:top-3 sm:right-3 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-amber-500 text-white"
+                      className="absolute top-1 right-1 sm:top-3 sm:right-3 text-[8px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5 leading-tight bg-amber-500 text-white"
                     >
                       Low Stock
                     </Badge>
