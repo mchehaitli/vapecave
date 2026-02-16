@@ -1070,29 +1070,29 @@ export default function DeliveryPortal() {
                         animate={{ scale: [1, 1.05, 1] }}
                         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                       >
-                        <Badge className="mb-1 sm:mb-2 bg-primary/20 text-primary border-primary/30 text-xs shadow-lg shadow-primary/20">
-                          <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
+                        <Badge className="mb-2 sm:mb-3 bg-primary/20 text-primary border-primary/30 text-[10px] sm:text-xs shadow-lg shadow-primary/20 px-1.5 sm:px-2 py-0 sm:py-0.5">
+                          <Sparkles className="w-2 h-2 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                           Featured
                         </Badge>
                       </motion.div>
                       
-                      <h1 className="text-lg sm:text-2xl md:text-3xl font-black mb-2 text-foreground leading-tight">
+                      <h1 className="text-base sm:text-2xl md:text-3xl font-black mb-1.5 sm:mb-2 text-foreground leading-tight">
                         {heroProducts[featuredIndex].name}
                       </h1>
                       
                       {heroProducts[featuredIndex].description && 
                        heroProducts[featuredIndex].description !== heroProducts[featuredIndex].name && (
-                        <p className="text-xs sm:text-base mb-2 sm:mb-4 text-foreground/70 line-clamp-2">
+                        <p className="text-[11px] sm:text-base mb-2 sm:mb-4 text-foreground/70 line-clamp-2">
                           {heroProducts[featuredIndex].description}
                         </p>
                       )}
                       
-                      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                        <span className="text-lg sm:text-xl md:text-2xl font-bold text-primary">
+                      <div className="flex items-center gap-1.5 sm:gap-3 flex-wrap">
+                        <span className="text-base sm:text-xl md:text-2xl font-bold text-primary">
                           ${heroProducts[featuredIndex].salePrice || heroProducts[featuredIndex].price}
                         </span>
                         {heroProducts[featuredIndex].salePrice && (
-                          <span className="text-sm sm:text-base text-muted-foreground line-through">
+                          <span className="text-xs sm:text-base text-muted-foreground line-through">
                             ${heroProducts[featuredIndex].price}
                           </span>
                         )}
@@ -1103,7 +1103,7 @@ export default function DeliveryPortal() {
                           
                           if (isFeaturedOutOfStock) {
                             return (
-                              <Badge variant="destructive" className="text-[10px] sm:text-xs">
+                              <Badge variant="destructive" className="text-[9px] sm:text-xs px-1.5 py-0">
                                 Out of Stock
                               </Badge>
                             );
@@ -1112,16 +1112,16 @@ export default function DeliveryPortal() {
                           return (
                             <>
                               {isFeaturedLowStock && (
-                                <Badge className="bg-amber-500 text-white text-[10px] sm:text-xs px-1.5 py-0">
+                                <Badge className="bg-amber-500 text-white text-[9px] sm:text-xs px-1 sm:px-1.5 py-0">
                                   Low Stock
                                 </Badge>
                               )}
                               <Button
                                 size="sm"
-                                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/30 text-xs sm:text-sm h-8 sm:h-9"
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/30 text-[10px] sm:text-sm h-6 sm:h-9 px-2 sm:px-3"
                                 onClick={() => addToCart(heroProducts[featuredIndex].id)}
                               >
-                                <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                                <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-2" />
                                 Add to Cart
                               </Button>
                             </>
