@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Image as ImageIcon, Search, Check, X, Link2, Loader2, ChevronLeft, ChevronRight, Upload, Save, RotateCcw, Database } from "lucide-react";
+import { ArrowLeft, Image as ImageIcon, Search, Check, X, Link2, Loader2, ChevronLeft, ChevronRight, Upload, Save, RotateCcw, Database, Download } from "lucide-react";
 
 interface StoredImage {
   objectPath: string;
@@ -33,6 +33,7 @@ export default function AdminImageRecoveryPage() {
   const [productSearch, setProductSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [imageFilter, setImageFilter] = useState<"all" | "unassigned" | "assigned">("unassigned");
+  const [isDownloading, setIsDownloading] = useState(false);
   const [imagePage, setImagePage] = useState(0);
   const IMAGES_PER_PAGE = 24;
 
@@ -161,21 +162,52 @@ export default function AdminImageRecoveryPage() {
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => setLocation('/admin')}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Image Recovery Tool</h1>
-            <p className="text-sm text-muted-foreground">
-              {storedImagesData ? (
-                <>
-                  {storedImagesData.totalStored} images in storage | {storedImagesData.totalAssigned} assigned | {storedImagesData.totalStored - storedImagesData.totalAssigned} unassigned
-                </>
-              ) : "Loading..."}
-              {productsData && ` | ${productsData.total} products need images`}
-            </p>
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => setLocation('/admin')}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">Image Recovery Tool</h1>
+              <p className="text-sm text-muted-foreground">
+                {storedImagesData ? (
+                  <>
+                    {storedImagesData.totalStored} images in storage | {storedImagesData.totalAssigned} assigned | {storedImagesData.totalStored - storedImagesData.totalAssigned} unassigned
+                  </>
+                ) : "Loading..."}
+                {productsData && ` | ${productsData.total} products need images`}
+              </p>
+            </div>
           </div>
+          <Button
+            onClick={async () => {
+              setIsDownloading(true);
+              toast({ title: "Preparing ZIP file... This may take a minute for 400+ images." });
+              try {
+                const response = await fetch('/api/admin/delivery/download-all-images', { credentials: 'include' });
+                if (!response.ok) throw new Error('Download failed');
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'vape-cave-product-images.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast({ title: "Download started!" });
+              } catch {
+                toast({ title: "Failed to download images", variant: "destructive" });
+              } finally {
+                setIsDownloading(false);
+              }
+            }}
+            disabled={isDownloading || !storedImagesData?.totalStored}
+            className="bg-orange-600 hover:bg-orange-700 text-white"
+          >
+            {isDownloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+            {isDownloading ? "Preparing ZIP..." : "Download All Images"}
+          </Button>
         </div>
 
         <Card className="p-4 mb-6 border-blue-500/30 bg-blue-500/5">

@@ -2223,6 +2223,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Download all stored images as a ZIP file (admin)
+  app.get('/api/admin/delivery/download-all-images', isAdmin, async (req, res) => {
+    try {
+      const privateDir = process.env.PRIVATE_OBJECT_DIR || '';
+      if (!privateDir) {
+        return res.status(500).json({ error: "Object storage not configured" });
+      }
+      const bucketName = privateDir.startsWith('/') ? privateDir.split('/')[1] : privateDir.split('/')[0];
+
+      const { objectStorageClient } = await import("./replit_integrations/object_storage/objectStorage");
+      const storageBucket = objectStorageClient.bucket(bucketName);
+      const [files] = await storageBucket.getFiles({ prefix: '.private/uploads/' });
+
+      if (!files.length) {
+        return res.status(404).json({ error: "No images found in storage" });
+      }
+
+      const JSZip = (await import("jszip")).default;
+      const zip = new JSZip();
+
+      const { products: allProducts } = await storage.getAllDeliveryProducts();
+      const imageToProduct = new Map<string, string>();
+      allProducts.forEach((p: any) => {
+        if (p.image && p.image.startsWith('/objects/uploads/')) {
+          const filename = p.image.split('/').pop();
+          if (filename) {
+            const safeName = p.name.replace(/[^a-zA-Z0-9_\- ]/g, '').trim().replace(/\s+/g, '_');
+            imageToProduct.set(filename, safeName);
+          }
+        }
+      });
+
+      const usedNames = new Set<string>();
+      let count = 0;
+      for (const file of files) {
+        try {
+          const [content] = await file.download();
+          const originalName = file.name.split('/').pop() || `image_${count}`;
+          const ext = originalName.includes('.') ? '.' + originalName.split('.').pop() : '.jpg';
+          const productName = imageToProduct.get(originalName);
+          let zipFilename = productName ? `${productName}${ext}` : originalName;
+          if (usedNames.has(zipFilename)) {
+            const base = zipFilename.replace(/\.[^.]+$/, '');
+            zipFilename = `${base}_${count}${ext}`;
+          }
+          usedNames.add(zipFilename);
+          zip.file(zipFilename, content);
+          count++;
+        } catch (fileErr) {
+          console.error(`Failed to download file ${file.name}:`, fileErr);
+        }
+      }
+
+      const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+
+      res.set({
+        'Content-Type': 'application/zip',
+        'Content-Disposition': 'attachment; filename="vape-cave-product-images.zip"',
+        'Content-Length': zipBuffer.length.toString(),
+      });
+      res.send(zipBuffer);
+    } catch (error) {
+      console.error("Error creating image ZIP:", error);
+      res.status(500).json({ error: "Failed to create ZIP file" });
+    }
+  });
+
   // Assign a stored image to a product (admin) - for image recovery
   app.post('/api/admin/delivery/assign-image', isAdmin, async (req, res) => {
     try {
