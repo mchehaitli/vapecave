@@ -242,9 +242,9 @@ const Footer = () => {
         <div className="border-t border-white/10 mt-8 pt-4 text-center md:flex md:justify-between md:text-left text-sm">
           <p className="text-muted-foreground mb-2 md:mb-0">&copy; {new Date().getFullYear()} Vape Cave Smoke &amp; Stuff. All rights reserved.</p>
           <div className="space-x-4">
-            <span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Privacy Policy</span>
-            <span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Terms of Service</span>
-            <span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Age Verification</span>
+            <Link href="/privacy"><span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Privacy Policy</span></Link>
+            <Link href="/terms"><span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Terms of Service</span></Link>
+            <Link href="/refund-policy"><span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Refund Policy</span></Link>
           </div>
         </div>
         <div className="mt-4 pt-3 text-center">

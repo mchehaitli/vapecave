@@ -114,8 +114,8 @@ export default function RefundPolicyPage() {
               <p>Vape Cave Smoke & Stuff</p>
               <p>6958 Main St #200</p>
               <p>Frisco, TX 75033</p>
-              <p>Email: vapecavetex@gmail.com</p>
-              <p>Phone: (469) 294-0061</p>
+              <p>Email: <a href="mailto:vapecavetx@gmail.com" className="hover:text-primary transition-colors">vapecavetx@gmail.com</a></p>
+              <p>Phone: <a href="tel:+14692940061" className="hover:text-primary transition-colors" onClick={() => (window as any).gtag?.('event', 'click_phone')}>(469) 294-0061</a></p>
             </div>
           </section>
 

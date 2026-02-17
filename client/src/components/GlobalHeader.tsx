@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, Menu, X, Moon, Sun } from "lucide-react";
+import { ShoppingCart, Menu, X, Moon, Sun, Phone } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -191,7 +191,7 @@ export function GlobalHeader({ cartItemCount = 0, onCartClick }: GlobalHeaderPro
                       <Link
                         href={link.href}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={`block px-6 py-3 text-base font-medium transition-colors duration-200 ${
+                        className={`block px-6 py-4 text-base font-medium transition-colors duration-200 min-h-[48px] flex items-center ${
                           isActive(link.href)
                             ? "text-primary bg-primary/10"
                             : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
@@ -204,11 +204,20 @@ export function GlobalHeader({ cartItemCount = 0, onCartClick }: GlobalHeaderPro
                 </nav>
 
                 {/* Menu Footer */}
-                <div className="p-4 border-t border-border/50">
+                <div className="p-4 border-t border-border/50 space-y-3">
+                  <a
+                    href="tel:+14692940061"
+                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-foreground/5 text-foreground font-medium transition-all duration-200 hover:bg-foreground/10 min-h-[48px]"
+                    onClick={() => (window as any).gtag?.('event', 'click_phone')}
+                    aria-label="Call Vape Cave at (469) 294-0061"
+                  >
+                    <Phone className="w-4 h-4" />
+                    Call (469) 294-0061
+                  </a>
                   <Link
                     href="/delivery/account"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block w-full text-center py-2.5 px-4 rounded-lg bg-primary text-primary-foreground font-medium transition-all duration-200 hover:bg-primary/90"
+                    className="block w-full text-center py-3 px-4 rounded-lg bg-primary text-primary-foreground font-medium transition-all duration-200 hover:bg-primary/90 min-h-[48px] flex items-center justify-center"
                   >
                     My Account
                   </Link>

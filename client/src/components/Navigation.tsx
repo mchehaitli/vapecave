@@ -197,14 +197,14 @@ const Navigation = () => {
               <li 
                 key={item.path} 
                 role="none"
-                className={index < navItems.length - 1 ? "py-2 border-b border-black/10" : "py-2"}
+                className={index < navItems.length - 1 ? "border-b border-black/10" : ""}
               >
                 <Link href={item.path}>
                   <span
                     role="menuitem"
                     aria-label={item.ariaLabel}
                     aria-current={location === item.path ? "page" : undefined}
-                    className="block text-black cursor-pointer hover:text-white/90 transition-colors font-medium"
+                    className="block text-black cursor-pointer hover:text-white/90 hover:bg-black/5 transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.label}
@@ -213,6 +213,18 @@ const Navigation = () => {
               </li>
             ))}
           </ul>
+          
+          <a 
+            href="tel:+14692940061" 
+            className="flex items-center justify-center gap-2 w-full py-3 px-4 mb-3 bg-black/10 text-black rounded-md hover:bg-black/20 transition-colors font-medium min-h-[44px]"
+            onClick={() => (window as any).gtag?.('event', 'click_phone')}
+            aria-label="Call Vape Cave at (469) 294-0061"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            Call (469) 294-0061
+          </a>
           
           <div className="pt-3 border-t border-black/10 flex items-center gap-3">
             <Link href="/signup" className="flex-1">

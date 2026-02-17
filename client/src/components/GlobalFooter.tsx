@@ -111,8 +111,8 @@ export function GlobalFooter() {
               </li>
               <li className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground text-sm">
                 <Phone className="w-4 h-4 text-primary flex-shrink-0" />
-                <a href="tel:+14697148888" className="hover:text-primary transition-colors duration-200">
-                  (469) 714-8888
+                <a href="tel:+14692940061" className="hover:text-primary transition-colors duration-200" onClick={() => (window as any).gtag?.('event', 'click_phone')}>
+                  (469) 294-0061
                 </a>
               </li>
               <li className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground text-sm">

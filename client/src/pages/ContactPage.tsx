@@ -77,6 +77,55 @@ const ContactPage = () => {
         </div>
       </section>
       
+      {/* Quick Contact Info */}
+      <section className="bg-card border-b border-border">
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            <a 
+              href="tel:+14692940061" 
+              className="flex items-center gap-3 p-4 rounded-lg bg-background hover:bg-primary/5 transition-colors min-h-[60px]"
+              onClick={() => (window as any).gtag?.('event', 'click_phone')}
+              aria-label="Call Vape Cave at (469) 294-0061"
+            >
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <i className="fas fa-phone text-primary"></i>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Call Us</p>
+                <p className="font-semibold text-foreground">(469) 294-0061</p>
+              </div>
+            </a>
+            <a 
+              href="mailto:vapecavetx@gmail.com" 
+              className="flex items-center gap-3 p-4 rounded-lg bg-background hover:bg-primary/5 transition-colors min-h-[60px]"
+            >
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <i className="fas fa-envelope text-primary"></i>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Email Us</p>
+                <p className="font-semibold text-foreground text-sm">vapecavetx@gmail.com</p>
+              </div>
+            </a>
+            <a 
+              href="https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="flex items-center gap-3 p-4 rounded-lg bg-background hover:bg-primary/5 transition-colors min-h-[60px]"
+              onClick={() => (window as any).gtag?.('event', 'get_directions', { event_category: 'lead', event_label: 'contact_page' })}
+            >
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <i className="fas fa-map-marker-alt text-primary"></i>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Visit Us</p>
+                <p className="font-semibold text-foreground text-sm">6958 Main St, Frisco TX</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+      
       {/* Contact Form */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">

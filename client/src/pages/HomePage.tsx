@@ -558,8 +558,8 @@ const HomePage = () => {
                     whileHover={{ y: -5, transition: { duration: 0.2 } }}
                   >
                     <h4 className="text-primary font-semibold mb-2">Contact</h4>
-                    <p className="text-muted-foreground text-sm">(469) 294-0061</p>
-                    <p className="text-primary/80 text-xs mt-1">vapecavetx@gmail.com</p>
+                    <a href="tel:+14692940061" className="text-muted-foreground hover:text-primary text-sm block" onClick={() => (window as any).gtag?.('event', 'click_phone')}>(469) 294-0061</a>
+                    <a href="mailto:vapecavetx@gmail.com" className="text-primary/80 hover:text-primary text-xs mt-1 block">vapecavetx@gmail.com</a>
                   </motion.div>
                   
                   <motion.div 

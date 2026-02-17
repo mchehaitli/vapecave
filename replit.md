@@ -91,6 +91,19 @@ Tasks completed:
 17. Updated phone click tracking to use gtag event 'click_phone'
 18. Added loading="lazy" and Frisco-branded alt text to all img tags across codebase
 
+## Mobile SEO Optimization (February 2026)
+
+### Changes Made:
+1. **Enhanced JSON-LD Schema**: Separated LocalBusiness and FAQPage into distinct schema blocks for proper Google rich results. Added `alternateName`, `email`, `logo`, `description`, `sameAs` (social profiles), `areaServed` (6 nearby cities), `paymentAccepted`, `currenciesAccepted`, `potentialAction` (SearchAction). Expanded `openingHoursSpecification` to individual days per Google's recommendation. Changed `makesOffer` items from `Service` to `Product` type.
+2. **Click-to-Call Everywhere**: Converted all plain-text phone numbers to `<a href="tel:+14692940061">` links with gtag click tracking on TermsPage, RefundPolicyPage, PrivacyPage, HomePage contact section, and GlobalFooter.
+3. **Fixed Wrong Phone Number**: GlobalFooter had incorrect phone (469) 714-8888, corrected to (469) 294-0061.
+4. **Mobile Tap Targets**: Increased mobile menu item height to min 44px (Navigation) and 48px (GlobalHeader) per Google's mobile-friendly guidelines. Added hover states and padding for easier tapping.
+5. **Mobile Click-to-Call Buttons**: Added prominent "Call (469) 294-0061" buttons in both Navigation mobile menu and GlobalHeader mobile slide-out menu.
+6. **Contact Page Quick Actions**: Added clickable phone, email, and directions cards above the contact form for instant mobile engagement.
+7. **Mobile Meta Tags**: Added `geo.region`, `geo.placename`, `geo.position`, `ICBM` geo-targeting meta tags. Added `format-detection` for phone number detection. Added `mobile-web-app-capable`. Changed `theme-color` from green to brand orange (#FF7100).
+8. **Footer Links Fixed**: Privacy Policy, Terms of Service, and Refund Policy links in Footer now route to actual pages instead of being non-functional spans.
+9. **Email Typo Fixed**: Corrected "vapecavetex@gmail.com" to "vapecavetx@gmail.com" on Terms, Refund, and Privacy pages.
+
 ## Recent Updates (January 2026)
 
 ### Delivery Portal Enhancements
