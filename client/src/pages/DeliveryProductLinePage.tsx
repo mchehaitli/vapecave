@@ -57,25 +57,23 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
     enabled: !!productLine?.brandId
   });
 
-  // Fetch all product lines for this brand to show tabs
-  const { data: brandProductLines = [] } = useQuery<DeliveryProductLine[]>({
-    queryKey: ['/api/delivery/product-lines/brand', productLine?.brandId],
-    queryFn: async () => {
-      if (!productLine?.brandId) return [];
-      const lines = await fetch('/api/delivery/product-lines').then(r => r.json());
-      return lines.filter((pl: DeliveryProductLine) => pl.brandId === productLine.brandId && pl.isActive);
-    },
-    enabled: !!productLine?.brandId
+  const { data: allProductLines = [] } = useQuery<DeliveryProductLine[]>({
+    queryKey: ['/api/delivery/product-lines'],
   });
 
-  // Determine effective selected product line (no useEffect needed)
-  // If user made a selection for current slug, use it; otherwise default to URL's product line
+  const childProductLines = useMemo(() => {
+    if (!productLine) return [];
+    return allProductLines
+      .filter(pl => pl.parentId === productLine.id && pl.isActive)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [allProductLines, productLine]);
+
   const selectedProductLineId = 
     userSelection?.slug === params.slug && userSelection.lineId === 'all' 
       ? null 
       : userSelection?.slug === params.slug && userSelection.lineId !== 'all'
         ? userSelection.lineId
-        : productLine?.id ?? null;
+        : null;
   
   // Handler for tab clicks
   const handleSelectLine = (lineId: number | 'all') => {
@@ -96,12 +94,12 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
     queryKey: ['/api/delivery/products'],
   });
 
-  // Filter products based on selected product line (or all if null)
   const products = allProducts.filter(p => {
     if (!p.enabled) return false;
     if (selectedProductLineId === null) {
-      // Show all products from this brand's product lines
-      return brandProductLines.some(pl => pl.id === p.productLineId);
+      if (!productLine) return false;
+      const validIds = [productLine.id, ...childProductLines.map(c => c.id)];
+      return validIds.includes(p.productLineId!);
     }
     return p.productLineId === selectedProductLineId;
   });
@@ -288,8 +286,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
           </div>
         </motion.div>
 
-        {/* Product Line Tabs */}
-        {brandProductLines.length > 1 && (
+        {childProductLines.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -308,7 +305,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
               >
                 All Products
               </Button>
-              {brandProductLines.map((pl) => (
+              {childProductLines.map((pl) => (
                 <Button
                   key={pl.id}
                   variant={selectedProductLineId === pl.id ? "default" : "outline"}
