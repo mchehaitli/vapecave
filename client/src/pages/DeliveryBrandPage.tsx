@@ -36,6 +36,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
   const { toast } = useToast();
   const [selectedRootLineId, setSelectedRootLineId] = useState<number | null>(null);
   const [selectedChildLineId, setSelectedChildLineId] = useState<number | null>(null);
+  const [selectedNicotine, setSelectedNicotine] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">(window.innerWidth < 640 ? "list" : "grid");
   const [quickViewProduct, setQuickViewProduct] = useState<DeliveryProduct | null>(null);
 
@@ -60,11 +61,23 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
     queryKey: ['/api/delivery/brands'],
   });
 
+  const { data: categories = [] } = useQuery<{ id: number; name: string; slug: string }[]>({
+    queryKey: ['/api/delivery/categories'],
+  });
+
   const brandMap = useMemo(() => {
     const map: Record<number, DeliveryBrand> = {};
     brands.forEach(b => { map[b.id] = b; });
     return map;
   }, [brands]);
+
+  const isNicotineCategory = useMemo(() => {
+    if (!brand?.categoryId) return false;
+    const cat = categories.find(c => c.id === brand.categoryId);
+    if (!cat) return false;
+    const slug = cat.slug.toLowerCase();
+    return slug === 'e-liquids' || slug === 'salts';
+  }, [brand?.categoryId, categories]);
 
   const { data: allProducts = [] } = useQuery<DeliveryProduct[]>({
     queryKey: ['/api/delivery/products'],
@@ -159,6 +172,15 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
     return ids;
   };
 
+  const parseNicotine = (name: string): string | null => {
+    const match = name.match(/(\d+)\s*mg/i);
+    if (match) return `${match[1]}mg`;
+    const pctMatch = name.match(/(\d+)\s*%/);
+    if (pctMatch) return `${pctMatch[1]}%`;
+    if (/0°/.test(name)) return '0mg';
+    return null;
+  };
+
   const brandProducts = useMemo(() => {
     if (!brand?.id) return [];
     
@@ -176,9 +198,28 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
       if (allowedLineIds !== null) {
         if (!p.productLineId || !allowedLineIds.includes(p.productLineId)) return false;
       }
+      if (selectedNicotine !== null && isNicotineCategory) {
+        const nic = parseNicotine(p.name);
+        if (nic !== selectedNicotine) return false;
+      }
       return true;
     }).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-  }, [allProducts, brand?.id, selectedRootLineId, selectedChildLineId, activeProductLines]);
+  }, [allProducts, brand?.id, selectedRootLineId, selectedChildLineId, activeProductLines, selectedNicotine, isNicotineCategory]);
+
+  const availableNicotineStrengths = useMemo(() => {
+    if (!isNicotineCategory || !brand?.id) return [];
+    const strengths = new Set<string>();
+    allProducts.forEach(p => {
+      if (!p.enabled || p.brandId !== brand.id) return;
+      const nic = parseNicotine(p.name);
+      if (nic) strengths.add(nic);
+    });
+    return Array.from(strengths).sort((a, b) => {
+      const numA = parseInt(a);
+      const numB = parseInt(b);
+      return numA - numB;
+    });
+  }, [allProducts, brand?.id, isNicotineCategory]);
 
   if (brandLoading) {
     return (
@@ -349,6 +390,45 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                   </Button>
                 );
               })}
+            </div>
+          </motion.div>
+        )}
+
+        {isNicotineCategory && availableNicotineStrengths.length > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-medium text-muted-foreground mr-1">Nicotine:</span>
+              <Button
+                size="sm"
+                variant={selectedNicotine === null ? "default" : "outline"}
+                onClick={() => setSelectedNicotine(null)}
+                className={`rounded-full text-xs h-7 px-3 ${
+                  selectedNicotine === null 
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-700' 
+                    : 'border-border/50 hover:border-emerald-500/50'
+                }`}
+              >
+                All
+              </Button>
+              {availableNicotineStrengths.map((strength) => (
+                <Button
+                  key={strength}
+                  size="sm"
+                  variant={selectedNicotine === strength ? "default" : "outline"}
+                  onClick={() => setSelectedNicotine(strength)}
+                  className={`rounded-full text-xs h-7 px-3 ${
+                    selectedNicotine === strength 
+                      ? 'bg-emerald-600 text-white hover:bg-emerald-700' 
+                      : 'border-border/50 hover:border-emerald-500/50'
+                  }`}
+                >
+                  {strength}
+                </Button>
+              ))}
             </div>
           </motion.div>
         )}
