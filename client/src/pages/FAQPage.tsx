@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import { Helmet } from "react-helmet";
 import MainLayout from "@/layouts/MainLayout";
 
 interface FAQ {
@@ -228,6 +229,11 @@ export default function FAQPage() {
       description="Get 38 clear facts on Texas's SB 2024 vape ban, legal disposables, compliant brands (RAZ, Geek Bar), e-liquids, and purchasing rules."
       canonical="/faq"
     >
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(faqSchema)}
+        </script>
+      </Helmet>
       <div className="bg-background text-foreground min-h-screen">
         <div className="container mx-auto px-4 py-12 max-w-4xl">
           <div className="text-center mb-12">
