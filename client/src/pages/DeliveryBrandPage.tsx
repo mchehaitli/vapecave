@@ -164,20 +164,22 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
   );
 
   const getDescendantIds = (parentId: number): number[] => {
-    const children = activeProductLines.filter(pl => pl.parentId === parentId);
-    const ids: number[] = [parentId];
-    children.forEach(child => {
-      ids.push(...getDescendantIds(child.id));
-    });
-    return ids;
+    const visited = new Set<number>();
+    const collect = (id: number) => {
+      if (visited.has(id)) return;
+      visited.add(id);
+      activeProductLines.filter(pl => pl.parentId === id).forEach(child => collect(child.id));
+    };
+    collect(parentId);
+    return Array.from(visited);
   };
 
   const parseNicotine = (name: string): string | null => {
     const match = name.match(/(\d+)\s*mg/i);
     if (match) return `${match[1]}mg`;
-    const pctMatch = name.match(/(\d+)\s*%/);
+    const pctMatch = name.match(/(\d+)\s*%/i);
     if (pctMatch) return `${pctMatch[1]}%`;
-    if (/0°/.test(name)) return '0mg';
+    if (/0[°˚]/.test(name)) return '0mg';
     return null;
   };
 
@@ -323,7 +325,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
             <div className="flex flex-wrap gap-2">
               <Button
                 variant={selectedRootLineId === null ? "default" : "outline"}
-                onClick={() => { setSelectedRootLineId(null); setSelectedChildLineId(null); }}
+                onClick={() => { setSelectedRootLineId(null); setSelectedChildLineId(null); setSelectedNicotine(null); }}
                 className={`rounded-full ${
                   selectedRootLineId === null 
                     ? 'bg-primary text-primary-foreground' 
@@ -336,7 +338,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                 <Button
                   key={pl.id}
                   variant={selectedRootLineId === pl.id ? "default" : "outline"}
-                  onClick={() => { setSelectedRootLineId(pl.id); setSelectedChildLineId(null); }}
+                  onClick={() => { setSelectedRootLineId(pl.id); setSelectedChildLineId(null); setSelectedNicotine(null); }}
                   className={`rounded-full ${
                     selectedRootLineId === pl.id 
                       ? 'bg-primary text-primary-foreground' 
@@ -360,7 +362,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
               <Button
                 size="sm"
                 variant={selectedChildLineId === null ? "default" : "outline"}
-                onClick={() => setSelectedChildLineId(null)}
+                onClick={() => { setSelectedChildLineId(null); setSelectedNicotine(null); }}
                 className={`rounded-full text-sm ${
                   selectedChildLineId === null 
                     ? 'bg-primary/80 text-primary-foreground' 
@@ -376,7 +378,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                     key={pl.id}
                     size="sm"
                     variant={selectedChildLineId === pl.id ? "default" : "outline"}
-                    onClick={() => setSelectedChildLineId(pl.id)}
+                    onClick={() => { setSelectedChildLineId(pl.id); setSelectedNicotine(null); }}
                     className={`rounded-full text-sm ${
                       selectedChildLineId === pl.id 
                         ? 'bg-primary/80 text-primary-foreground' 
