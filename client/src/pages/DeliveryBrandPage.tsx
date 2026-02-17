@@ -34,7 +34,8 @@ interface CartItem {
 export default function DeliveryBrandPage({ params }: { params: { slug: string } }) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [selectedProductLineId, setSelectedProductLineId] = useState<number | null>(null);
+  const [selectedRootLineId, setSelectedRootLineId] = useState<number | null>(null);
+  const [selectedChildLineId, setSelectedChildLineId] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">(window.innerWidth < 640 ? "list" : "grid");
   const [quickViewProduct, setQuickViewProduct] = useState<DeliveryProduct | null>(null);
 
@@ -131,20 +132,53 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
     }
   };
 
-  const sortedProductLines = [...productLines]
-    .filter(pl => pl.isActive)
-    .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  const activeProductLines = useMemo(() => 
+    [...productLines].filter(pl => pl.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)),
+    [productLines]
+  );
+
+  const rootProductLines = useMemo(() => 
+    activeProductLines.filter(pl => !pl.parentId),
+    [activeProductLines]
+  );
+
+  const getChildLines = (parentId: number) => 
+    activeProductLines.filter(pl => pl.parentId === parentId);
+
+  const childProductLines = useMemo(() => 
+    selectedRootLineId ? getChildLines(selectedRootLineId) : [],
+    [selectedRootLineId, activeProductLines]
+  );
+
+  const getDescendantIds = (parentId: number): number[] => {
+    const children = activeProductLines.filter(pl => pl.parentId === parentId);
+    const ids: number[] = [parentId];
+    children.forEach(child => {
+      ids.push(...getDescendantIds(child.id));
+    });
+    return ids;
+  };
 
   const brandProducts = useMemo(() => {
     if (!brand?.id) return [];
     
+    let allowedLineIds: number[] | null = null;
+    
+    if (selectedChildLineId !== null) {
+      allowedLineIds = getDescendantIds(selectedChildLineId);
+    } else if (selectedRootLineId !== null) {
+      allowedLineIds = getDescendantIds(selectedRootLineId);
+    }
+    
     return allProducts.filter(p => {
       if (!p.enabled) return false;
       if (p.brandId !== brand.id) return false;
-      if (selectedProductLineId !== null && p.productLineId !== selectedProductLineId) return false;
+      if (allowedLineIds !== null) {
+        if (!p.productLineId || !allowedLineIds.includes(p.productLineId)) return false;
+      }
       return true;
     }).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-  }, [allProducts, brand?.id, selectedProductLineId]);
+  }, [allProducts, brand?.id, selectedRootLineId, selectedChildLineId, activeProductLines]);
 
   if (brandLoading) {
     return (
@@ -239,31 +273,31 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
           </div>
         </motion.div>
 
-        {sortedProductLines.length > 0 && (
+        {rootProductLines.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6"
           >
             <div className="flex flex-wrap gap-2">
               <Button
-                variant={selectedProductLineId === null ? "default" : "outline"}
-                onClick={() => setSelectedProductLineId(null)}
+                variant={selectedRootLineId === null ? "default" : "outline"}
+                onClick={() => { setSelectedRootLineId(null); setSelectedChildLineId(null); }}
                 className={`rounded-full ${
-                  selectedProductLineId === null 
+                  selectedRootLineId === null 
                     ? 'bg-primary text-primary-foreground' 
                     : 'border-border/50 hover:border-primary/50'
                 }`}
               >
                 All Products
               </Button>
-              {sortedProductLines.map((pl) => (
+              {rootProductLines.map((pl) => (
                 <Button
                   key={pl.id}
-                  variant={selectedProductLineId === pl.id ? "default" : "outline"}
-                  onClick={() => setSelectedProductLineId(pl.id)}
+                  variant={selectedRootLineId === pl.id ? "default" : "outline"}
+                  onClick={() => { setSelectedRootLineId(pl.id); setSelectedChildLineId(null); }}
                   className={`rounded-full ${
-                    selectedProductLineId === pl.id 
+                    selectedRootLineId === pl.id 
                       ? 'bg-primary text-primary-foreground' 
                       : 'border-border/50 hover:border-primary/50'
                   }`}
@@ -271,6 +305,50 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                   {pl.name}
                 </Button>
               ))}
+            </div>
+          </motion.div>
+        )}
+
+        {childProductLines.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="flex flex-wrap gap-2 pl-2 border-l-2 border-primary/30">
+              <Button
+                size="sm"
+                variant={selectedChildLineId === null ? "default" : "outline"}
+                onClick={() => setSelectedChildLineId(null)}
+                className={`rounded-full text-sm ${
+                  selectedChildLineId === null 
+                    ? 'bg-primary/80 text-primary-foreground' 
+                    : 'border-border/50 hover:border-primary/50'
+                }`}
+              >
+                All {rootProductLines.find(pl => pl.id === selectedRootLineId)?.name}
+              </Button>
+              {childProductLines.map((pl) => {
+                const grandChildren = getChildLines(pl.id);
+                return (
+                  <Button
+                    key={pl.id}
+                    size="sm"
+                    variant={selectedChildLineId === pl.id ? "default" : "outline"}
+                    onClick={() => setSelectedChildLineId(pl.id)}
+                    className={`rounded-full text-sm ${
+                      selectedChildLineId === pl.id 
+                        ? 'bg-primary/80 text-primary-foreground' 
+                        : 'border-border/50 hover:border-primary/50'
+                    }`}
+                  >
+                    {pl.name}
+                    {grandChildren.length > 0 && (
+                      <span className="ml-1 text-xs opacity-70">({grandChildren.length})</span>
+                    )}
+                  </Button>
+                );
+              })}
             </div>
           </motion.div>
         )}
@@ -395,7 +473,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
         ) : (
           <div className="text-center py-16 bg-card/50 rounded-2xl border border-border/30">
             <p className="text-muted-foreground text-lg">
-              {selectedProductLineId !== null 
+              {(selectedRootLineId !== null || selectedChildLineId !== null)
                 ? "No products in this product line" 
                 : "Products coming soon"}
             </p>
