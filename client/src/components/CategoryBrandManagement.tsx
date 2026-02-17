@@ -81,6 +81,7 @@ interface DeliveryProductLine {
   name: string;
   slug: string;
   brandId: number;
+  parentId: number | null;
   logo: string | null;
   displayOrder: number;
   isActive: boolean;
@@ -102,11 +103,33 @@ function SortableProductLine({
   onEdit,
   onDelete,
   onFeatured,
+  children,
+  isExpanded,
+  onToggle,
+  onAddChild,
+  onEditChild,
+  onDeleteChild,
+  onFeaturedChild,
+  allProductLines,
+  expandedProductLines,
+  onToggleProductLine,
+  isChild = false,
 }: {
   productLine: DeliveryProductLine;
   onEdit: () => void;
   onDelete: () => void;
   onFeatured: () => void;
+  children: DeliveryProductLine[];
+  isExpanded: boolean;
+  onToggle: () => void;
+  onAddChild: () => void;
+  onEditChild: (productLine: DeliveryProductLine) => void;
+  onDeleteChild: (productLineId: number) => void;
+  onFeaturedChild: (productLine: DeliveryProductLine) => void;
+  allProductLines: DeliveryProductLine[];
+  expandedProductLines: Set<number>;
+  onToggleProductLine: (id: number) => void;
+  isChild?: boolean;
 }) {
   const {
     attributes,
@@ -123,29 +146,71 @@ function SortableProductLine({
 
   const hasFeatured = (productLine.featuredProductIds?.length || 0) > 0;
 
+  const getChildProductLines = (parentId: number) => {
+    return allProductLines.filter(pl => pl.parentId === parentId).sort((a, b) => a.displayOrder - b.displayOrder);
+  };
+
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex items-center gap-2 p-2 bg-gray-600/50 rounded-lg border border-gray-500 hover:border-orange-500/30"
-    >
-      <button {...attributes} {...listeners} className="cursor-grab hover:text-orange-400">
-        <GripVertical size={14} />
-      </button>
-      <Layers size={14} className="text-purple-400" />
-      <span className="flex-1 text-sm">{productLine.name}</span>
-      <span className={`text-xs px-2 py-0.5 rounded ${productLine.isActive ? 'bg-green-900/50 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
-        {productLine.isActive ? 'Active' : 'Inactive'}
-      </span>
-      <Button variant="ghost" size="sm" onClick={onFeatured} className={`h-6 px-2 ${hasFeatured ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} title="Manage Featured Products">
-        <Star size={10} fill={hasFeatured ? 'currentColor' : 'none'} />
-      </Button>
-      <Button variant="ghost" size="sm" onClick={onEdit} className="h-6 px-2">
-        <Edit2 size={10} />
-      </Button>
-      <Button variant="ghost" size="sm" onClick={onDelete} className="h-6 px-2 text-red-400 hover:text-red-300">
-        <Trash2 size={10} />
-      </Button>
+    <div ref={setNodeRef} style={style}>
+      <div
+        className="flex items-center gap-2 p-2 bg-gray-600/50 rounded-lg border border-gray-500 hover:border-orange-500/30"
+      >
+        <button {...attributes} {...listeners} className="cursor-grab hover:text-orange-400">
+          <GripVertical size={14} />
+        </button>
+        {children.length > 0 && (
+          <button onClick={onToggle} className="hover:text-orange-400">
+            {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+        )}
+        <Layers size={14} className={isChild ? "text-indigo-400" : "text-purple-400"} />
+        <span className="flex-1 text-sm">{productLine.name}</span>
+        {children.length > 0 && (
+          <span className="text-xs text-gray-500">{children.length} sub</span>
+        )}
+        <span className={`text-xs px-2 py-0.5 rounded ${productLine.isActive ? 'bg-green-900/50 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
+          {productLine.isActive ? 'Active' : 'Inactive'}
+        </span>
+        <Button variant="ghost" size="sm" onClick={onFeatured} className={`h-6 px-2 ${hasFeatured ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} title="Manage Featured Products">
+          <Star size={10} fill={hasFeatured ? 'currentColor' : 'none'} />
+        </Button>
+        <Button variant="ghost" size="sm" onClick={onAddChild} className="h-6 px-2" title="Add Sub-Line">
+          <Plus size={10} className="text-indigo-400" />
+        </Button>
+        <Button variant="ghost" size="sm" onClick={onEdit} className="h-6 px-2">
+          <Edit2 size={10} />
+        </Button>
+        <Button variant="ghost" size="sm" onClick={onDelete} className="h-6 px-2 text-red-400 hover:text-red-300">
+          <Trash2 size={10} />
+        </Button>
+      </div>
+      {isExpanded && children.length > 0 && (
+        <div className="ml-4 mt-1 space-y-1 border-l-2 border-gray-600 pl-2">
+          {children.map((child) => {
+            const grandChildren = getChildProductLines(child.id);
+            return (
+              <SortableProductLine
+                key={child.id}
+                productLine={child}
+                onEdit={() => onEditChild(child)}
+                onDelete={() => onDeleteChild(child.id)}
+                onFeatured={() => onFeaturedChild(child)}
+                children={grandChildren}
+                isExpanded={expandedProductLines.has(child.id)}
+                onToggle={() => onToggleProductLine(child.id)}
+                onAddChild={() => onAddChild()}
+                onEditChild={onEditChild}
+                onDeleteChild={onDeleteChild}
+                onFeaturedChild={onFeaturedChild}
+                allProductLines={allProductLines}
+                expandedProductLines={expandedProductLines}
+                onToggleProductLine={onToggleProductLine}
+                isChild={true}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -163,6 +228,8 @@ function SortableBrand({
   onAddProductLine,
   onReorderProductLines,
   onFeaturedProductLine,
+  expandedProductLines,
+  onToggleProductLine,
 }: {
   brand: DeliveryBrand;
   isExpanded: boolean;
@@ -173,9 +240,11 @@ function SortableBrand({
   productLines: DeliveryProductLine[];
   onEditProductLine: (productLine: DeliveryProductLine) => void;
   onDeleteProductLine: (productLineId: number) => void;
-  onAddProductLine: () => void;
+  onAddProductLine: (parentId?: number) => void;
   onReorderProductLines: (orderedIds: number[]) => void;
   onFeaturedProductLine: (productLine: DeliveryProductLine) => void;
+  expandedProductLines: Set<number>;
+  onToggleProductLine: (id: number) => void;
 }) {
   const {
     attributes,
@@ -211,6 +280,12 @@ function SortableBrand({
 
   const hasFeatured = (brand.featuredProductIds?.length || 0) > 0;
 
+  const rootProductLines = productLines.filter(pl => pl.parentId === null || pl.parentId === undefined);
+
+  const getChildProductLines = (parentId: number) => {
+    return productLines.filter(pl => pl.parentId === parentId).sort((a, b) => a.displayOrder - b.displayOrder);
+  };
+
   return (
     <div ref={setNodeRef} style={style} className="mb-2">
       <div className="flex items-center gap-2 p-2 bg-gray-700/50 rounded-lg border border-gray-600 hover:border-orange-500/30">
@@ -233,7 +308,7 @@ function SortableBrand({
         <Button variant="ghost" size="sm" onClick={onFeatured} className={`h-7 px-2 ${hasFeatured ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} title="Manage Featured Products">
           <Star size={12} fill={hasFeatured ? 'currentColor' : 'none'} />
         </Button>
-        <Button variant="ghost" size="sm" onClick={onAddProductLine} className="h-7 px-2" title="Add Product Line">
+        <Button variant="ghost" size="sm" onClick={() => onAddProductLine()} className="h-7 px-2" title="Add Product Line">
           <Plus size={12} className="text-purple-400" />
         </Button>
         <Button variant="ghost" size="sm" onClick={onEdit} className="h-7 px-2">
@@ -244,19 +319,32 @@ function SortableBrand({
         </Button>
       </div>
 
-      {isExpanded && productLines.length > 0 && (
+      {isExpanded && rootProductLines.length > 0 && (
         <div className="ml-8 mt-2 space-y-1">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleProductLineDragEnd}>
-            <SortableContext items={productLines.map(pl => `pl-${pl.id}`)} strategy={verticalListSortingStrategy}>
-              {productLines.map((productLine) => (
-                <SortableProductLine
-                  key={productLine.id}
-                  productLine={productLine}
-                  onEdit={() => onEditProductLine(productLine)}
-                  onDelete={() => onDeleteProductLine(productLine.id)}
-                  onFeatured={() => onFeaturedProductLine(productLine)}
-                />
-              ))}
+            <SortableContext items={rootProductLines.map(pl => `pl-${pl.id}`)} strategy={verticalListSortingStrategy}>
+              {rootProductLines.map((productLine) => {
+                const childLines = getChildProductLines(productLine.id);
+                return (
+                  <SortableProductLine
+                    key={productLine.id}
+                    productLine={productLine}
+                    onEdit={() => onEditProductLine(productLine)}
+                    onDelete={() => onDeleteProductLine(productLine.id)}
+                    onFeatured={() => onFeaturedProductLine(productLine)}
+                    children={childLines}
+                    isExpanded={expandedProductLines.has(productLine.id)}
+                    onToggle={() => onToggleProductLine(productLine.id)}
+                    onAddChild={() => onAddProductLine(productLine.id)}
+                    onEditChild={onEditProductLine}
+                    onDeleteChild={onDeleteProductLine}
+                    onFeaturedChild={onFeaturedProductLine}
+                    allProductLines={productLines}
+                    expandedProductLines={expandedProductLines}
+                    onToggleProductLine={onToggleProductLine}
+                  />
+                );
+              })}
             </SortableContext>
           </DndContext>
         </div>
@@ -284,6 +372,8 @@ function SortableCategory({
   onDeleteProductLine,
   onAddProductLine,
   onReorderProductLines,
+  expandedProductLines,
+  onToggleProductLine,
   onFeaturedBrand,
   onFeaturedProductLine,
 }: {
@@ -303,10 +393,12 @@ function SortableCategory({
   onReorderBrands: (orderedIds: number[]) => void;
   onEditProductLine: (productLine: DeliveryProductLine) => void;
   onDeleteProductLine: (productLineId: number) => void;
-  onAddProductLine: (brandId: number) => void;
+  onAddProductLine: (brandId: number, parentId?: number) => void;
   onReorderProductLines: (brandId: number, orderedIds: number[]) => void;
   onFeaturedBrand: (brand: DeliveryBrand) => void;
   onFeaturedProductLine: (productLine: DeliveryProductLine) => void;
+  expandedProductLines: Set<number>;
+  onToggleProductLine: (id: number) => void;
 }) {
   const {
     attributes,
@@ -386,9 +478,11 @@ function SortableCategory({
                   productLines={getProductLinesForBrand(brand.id)}
                   onEditProductLine={onEditProductLine}
                   onDeleteProductLine={onDeleteProductLine}
-                  onAddProductLine={() => onAddProductLine(brand.id)}
+                  onAddProductLine={(parentId?: number) => onAddProductLine(brand.id, parentId)}
                   onReorderProductLines={(orderedIds) => onReorderProductLines(brand.id, orderedIds)}
                   onFeaturedProductLine={onFeaturedProductLine}
+                  expandedProductLines={expandedProductLines}
+                  onToggleProductLine={onToggleProductLine}
                 />
               ))}
             </SortableContext>
@@ -411,6 +505,8 @@ export function CategoryBrandManagement() {
   const { toast } = useToast();
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const [expandedBrands, setExpandedBrands] = useState<Set<number>>(new Set());
+  const [expandedProductLines, setExpandedProductLines] = useState<Set<number>>(new Set());
+  const [productLineParentId, setProductLineParentId] = useState<number | null>(null);
   
   const [categoryDialog, setCategoryDialog] = useState(false);
   const [editingCategory, setEditingCategory] = useState<DeliveryCategory | null>(null);
@@ -724,7 +820,7 @@ export function CategoryBrandManagement() {
   });
 
   const createProductLineMutation = useMutation({
-    mutationFn: async (data: { name: string; brandId: number; logo: string | null; isActive: boolean }) => {
+    mutationFn: async (data: { name: string; brandId: number; logo: string | null; isActive: boolean; parentId: number | null }) => {
       return apiRequest('POST', '/api/admin/delivery/product-lines', data);
     },
     onSuccess: () => {
@@ -856,6 +952,7 @@ export function CategoryBrandManagement() {
     setProductLineName("");
     setProductLineLogo("");
     setProductLineActive(true);
+    setProductLineParentId(null);
     setProductLineLogoUploading(false);
     if (productLineLogoInputRef.current) {
       productLineLogoInputRef.current.value = '';
@@ -884,8 +981,9 @@ export function CategoryBrandManagement() {
     setBrandDialog(true);
   };
 
-  const openAddProductLine = (brandId: number) => {
+  const openAddProductLine = (brandId: number, parentId?: number) => {
     setProductLineBrandId(brandId);
+    setProductLineParentId(parentId || null);
     setProductLineDialog(true);
   };
 
@@ -895,6 +993,7 @@ export function CategoryBrandManagement() {
     setProductLineName(productLine.name);
     setProductLineLogo(productLine.logo || "");
     setProductLineActive(productLine.isActive);
+    setProductLineParentId(productLine.parentId || null);
     setProductLineDialog(true);
   };
 
@@ -966,14 +1065,15 @@ export function CategoryBrandManagement() {
     if (editingProductLine) {
       updateProductLineMutation.mutate({
         id: editingProductLine.id,
-        data: { name: productLineName, brandId: productLineBrandId, logo: productLineLogo || null, isActive: productLineActive }
+        data: { name: productLineName, brandId: productLineBrandId, logo: productLineLogo || null, isActive: productLineActive, parentId: productLineParentId || null }
       });
     } else {
       createProductLineMutation.mutate({
         name: productLineName,
         brandId: productLineBrandId,
         logo: productLineLogo || null,
-        isActive: productLineActive
+        isActive: productLineActive,
+        parentId: productLineParentId || null
       });
     }
   };
@@ -1007,6 +1107,16 @@ export function CategoryBrandManagement() {
       newExpanded.add(brandId);
     }
     setExpandedBrands(newExpanded);
+  };
+
+  const toggleProductLineExpanded = (productLineId: number) => {
+    const newExpanded = new Set(expandedProductLines);
+    if (newExpanded.has(productLineId)) {
+      newExpanded.delete(productLineId);
+    } else {
+      newExpanded.add(productLineId);
+    }
+    setExpandedProductLines(newExpanded);
   };
 
   const getBrandsForCategory = (categoryId: number) => {
@@ -1079,10 +1189,12 @@ export function CategoryBrandManagement() {
                     setDeleteDialog(true);
                   }
                 }}
-                onAddProductLine={openAddProductLine}
+                onAddProductLine={(brandId: number, parentId?: number) => openAddProductLine(brandId, parentId)}
                 onReorderProductLines={(brandId, orderedIds) => reorderProductLinesMutation.mutate({ brandId, orderedIds })}
                 onFeaturedBrand={(brand) => openFeaturedDialog('brand', brand.id, brand.name, brand.featuredProductIds || [])}
                 onFeaturedProductLine={(productLine) => openFeaturedDialog('productLine', productLine.id, productLine.name, productLine.featuredProductIds || [])}
+                expandedProductLines={expandedProductLines}
+                onToggleProductLine={toggleProductLineExpanded}
               />
             ))}
           </SortableContext>
@@ -1276,7 +1388,7 @@ export function CategoryBrandManagement() {
           <div className="space-y-4 mt-4">
             <div>
               <Label>Brand</Label>
-              <Select value={productLineBrandId?.toString() || ""} onValueChange={(v) => setProductLineBrandId(parseInt(v))}>
+              <Select value={productLineBrandId?.toString() || ""} onValueChange={(v) => { setProductLineBrandId(parseInt(v)); setProductLineParentId(null); }}>
                 <SelectTrigger className="mt-2 bg-gray-700 border-gray-600">
                   <SelectValue placeholder="Select a brand" />
                 </SelectTrigger>
@@ -1286,6 +1398,24 @@ export function CategoryBrandManagement() {
                       {brand.name}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Parent Product Line (Optional)</Label>
+              <Select value={productLineParentId?.toString() || "none"} onValueChange={(v) => setProductLineParentId(v === "none" ? null : parseInt(v))}>
+                <SelectTrigger className="mt-2 bg-gray-700 border-gray-600">
+                  <SelectValue placeholder="None (top-level)" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-700 border-gray-600">
+                  <SelectItem value="none">None (top-level)</SelectItem>
+                  {productLineBrandId && productLines
+                    .filter(pl => pl.brandId === productLineBrandId && (!editingProductLine || pl.id !== editingProductLine.id))
+                    .map((pl) => (
+                      <SelectItem key={pl.id} value={pl.id.toString()}>
+                        {pl.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
