@@ -31,6 +31,7 @@ function BrandCarousel({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
   const isPausedRef = useRef(false);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -70,14 +71,11 @@ function BrandCarousel({
   }, [brands]);
 
   useEffect(() => {
-    if (isHovered || brands.length === 0) return;
+    if (isHovered || isTouching || brands.length === 0) return;
     
     let animationFrameId: number;
     let lastTime = 0;
     const scrollSpeed = 0.8;
-    let isResetting = false;
-    let resetProgress = 0;
-    let resetStartPosition = 0;
     
     const smoothScroll = (currentTime: number) => {
       if (!scrollRef.current) {
@@ -105,19 +103,8 @@ function BrandCarousel({
       
       const isAtEnd = scrollLeft >= scrollWidth - clientWidth - 5;
       
-      if (isResetting) {
-        resetProgress += deltaTime / 800;
-        const easeOut = 1 - Math.pow(1 - Math.min(resetProgress, 1), 3);
-        scrollRef.current.scrollLeft = resetStartPosition * (1 - easeOut);
-        if (resetProgress >= 1) {
-          isResetting = false;
-          resetProgress = 0;
-          scrollRef.current.scrollLeft = 0;
-        }
-      } else if (isAtEnd) {
-        isResetting = true;
-        resetProgress = 0;
-        resetStartPosition = scrollLeft;
+      if (isAtEnd) {
+        scrollRef.current.scrollLeft = 0;
       } else {
         scrollRef.current.scrollLeft += scrollSpeed * (deltaTime / 16);
       }
@@ -128,7 +115,7 @@ function BrandCarousel({
     animationFrameId = requestAnimationFrame(smoothScroll);
     
     return () => cancelAnimationFrame(animationFrameId);
-  }, [brands.length, isHovered]);
+  }, [brands.length, isHovered, isTouching]);
 
   if (brands.length === 0) return null;
 
@@ -179,6 +166,8 @@ function BrandCarousel({
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onTouchStart={() => setIsTouching(true)}
+        onTouchEnd={() => setIsTouching(false)}
       >
         {brands.map((brand) => (
           <Link key={brand.id} href={`/delivery/brand/${brand.slug}`}>
@@ -237,7 +226,9 @@ function ProductCarousel({
   cartItems,
   seeAllLink,
   onUpdateQuantity,
-  brandMap
+  brandMap,
+  featuredMode,
+  productLineMap,
 }: { 
   title: string;
   products: DeliveryProduct[];
@@ -247,11 +238,14 @@ function ProductCarousel({
   seeAllLink?: string;
   brandMap?: Record<number, DeliveryBrand>;
   onUpdateQuantity?: (productId: number, quantity: number) => void;
+  featuredMode?: boolean;
+  productLineMap?: Record<number, { slug: string; name: string }>;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
   const isPausedRef = useRef(false);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -291,14 +285,11 @@ function ProductCarousel({
   }, [products]);
 
   useEffect(() => {
-    if (isHovered || products.length === 0) return;
+    if (isHovered || isTouching || products.length === 0) return;
     
     let animationFrameId: number;
     let lastTime = 0;
     const scrollSpeed = 0.8;
-    let isResetting = false;
-    let resetProgress = 0;
-    let resetStartPosition = 0;
     
     const smoothScroll = (currentTime: number) => {
       if (!scrollRef.current) {
@@ -326,19 +317,8 @@ function ProductCarousel({
       
       const isAtEnd = scrollLeft >= scrollWidth - clientWidth - 5;
       
-      if (isResetting) {
-        resetProgress += deltaTime / 800;
-        const easeOut = 1 - Math.pow(1 - Math.min(resetProgress, 1), 3);
-        scrollRef.current.scrollLeft = resetStartPosition * (1 - easeOut);
-        if (resetProgress >= 1) {
-          isResetting = false;
-          resetProgress = 0;
-          scrollRef.current.scrollLeft = 0;
-        }
-      } else if (isAtEnd) {
-        isResetting = true;
-        resetProgress = 0;
-        resetStartPosition = scrollLeft;
+      if (isAtEnd) {
+        scrollRef.current.scrollLeft = 0;
       } else {
         scrollRef.current.scrollLeft += scrollSpeed * (deltaTime / 16);
       }
@@ -349,7 +329,7 @@ function ProductCarousel({
     animationFrameId = requestAnimationFrame(smoothScroll);
     
     return () => cancelAnimationFrame(animationFrameId);
-  }, [products.length, isHovered]);
+  }, [products.length, isHovered, isTouching]);
 
   if (products.length === 0) return null;
 
@@ -400,6 +380,8 @@ function ProductCarousel({
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onTouchStart={() => setIsTouching(true)}
+        onTouchEnd={() => setIsTouching(false)}
       >
         {products.map((product) => {
           const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
@@ -407,14 +389,14 @@ function ProductCarousel({
           const isLowStock = stock > 0 && stock <= 2;
           const inCart = cartItems[product.id];
 
-          return (
-            <motion.div
-              key={product.id}
-              className="flex-shrink-0 w-[145px] sm:w-[180px] md:w-[240px] lg:w-[280px]"
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Card className="group h-full overflow-hidden bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
+          const featuredLink = featuredMode && product.productLineId && productLineMap?.[product.productLineId]
+            ? `/delivery/product-line/${productLineMap[product.productLineId].slug}`
+            : featuredMode && product.brandId && brandMap?.[product.brandId]
+            ? `/delivery/brand/${brandMap[product.brandId].slug}`
+            : null;
+
+          const cardContent = (
+            <Card className="group h-full overflow-hidden bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
                 <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
                   <img
                     src={product.image || (brandMap && product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
@@ -465,49 +447,52 @@ function ProductCarousel({
                     </Badge>
                   )}
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 sm:pb-4 gap-1 sm:gap-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="bg-card/90 backdrop-blur-sm hover:bg-card text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
-                      onClick={() => onQuickView(product)}
-                    >
-                      <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      <span className="hidden sm:inline">Quick View</span>
-                      <span className="sm:hidden">View</span>
-                    </Button>
-                    {!isOutOfStock && !inCart && (
+                  {!featuredMode && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 sm:pb-4 gap-1 sm:gap-2">
                       <Button
                         size="sm"
-                        className="bg-primary hover:bg-primary/90 text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
-                        onClick={() => onAddToCart(product.id)}
+                        variant="secondary"
+                        className="bg-card/90 backdrop-blur-sm hover:bg-card text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onQuickView(product); }}
                       >
-                        <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        Add
+                        <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Quick View</span>
+                        <span className="sm:hidden">View</span>
                       </Button>
-                    )}
-                    {!isOutOfStock && inCart && onUpdateQuantity && (
-                      <div className="flex items-center gap-0.5 sm:gap-1 bg-card/90 backdrop-blur-sm rounded-lg p-0.5 sm:p-1">
+                      {!isOutOfStock && !inCart && (
                         <Button
                           size="sm"
-                          variant="ghost"
-                          className="h-6 w-6 sm:h-8 sm:w-8 p-0"
-                          onClick={() => onUpdateQuantity(product.id, inCart - 1)}
+                          className="bg-primary hover:bg-primary/90 text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product.id); }}
                         >
-                          <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                          Add
                         </Button>
-                        <span className="w-6 sm:w-8 text-center font-bold text-xs sm:text-sm">{inCart}</span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-6 w-6 sm:h-8 sm:w-8 p-0"
-                          onClick={() => onUpdateQuantity(product.id, inCart + 1)}
-                        >
-                          <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                      {!isOutOfStock && inCart && onUpdateQuantity && (
+                        <div className="flex items-center gap-0.5 sm:gap-1 bg-card/90 backdrop-blur-sm rounded-lg p-0.5 sm:p-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 sm:h-8 sm:w-8 p-0"
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQuantity(product.id, inCart - 1); }}
+                          >
+                            <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+                          </Button>
+                          <span className="w-6 sm:w-8 text-center font-bold text-xs sm:text-sm">{inCart}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 sm:h-8 sm:w-8 p-0"
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQuantity(product.id, inCart + 1); }}
+                            disabled={inCart >= stock}
+                          >
+                            <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-2 sm:p-3 md:p-4">
@@ -542,6 +527,20 @@ function ProductCarousel({
                   </div>
                 </div>
               </Card>
+          );
+
+          return (
+            <motion.div
+              key={product.id}
+              className="flex-shrink-0 w-[145px] sm:w-[180px] md:w-[240px] lg:w-[280px]"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
+              {featuredLink ? (
+                <Link href={featuredLink}>{cardContent}</Link>
+              ) : (
+                cardContent
+              )}
             </motion.div>
           );
         })}
@@ -678,6 +677,12 @@ export default function DeliveryPortal() {
   const activeProductLines = deliveryProductLines
     .filter(pl => pl.isActive)
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  const productLineMap = useMemo(() => {
+    const map: Record<number, { slug: string; name: string }> = {};
+    deliveryProductLines.forEach(pl => { map[pl.id] = { slug: pl.slug, name: pl.name }; });
+    return map;
+  }, [deliveryProductLines]);
   
   const heroProducts = products.filter(p => p.isHeroSlideshow && p.enabled)
     .sort((a, b) => (a.slideshowPosition ?? 0) - (b.slideshowPosition ?? 0));
@@ -1109,6 +1114,11 @@ export default function DeliveryPortal() {
                             );
                           }
                           
+                          const fp = heroProducts[featuredIndex];
+                          const fpProductLine = fp.productLineId ? deliveryProductLines.find(pl => pl.id === fp.productLineId) : null;
+                          const fpBrand = fp.brandId ? brandMap[fp.brandId] : null;
+                          const fpLink = fpProductLine ? `/delivery/product-line/${fpProductLine.slug}` : fpBrand ? `/delivery/brand/${fpBrand.slug}` : `/delivery/shop`;
+                          
                           return (
                             <>
                               {isFeaturedLowStock && (
@@ -1116,14 +1126,15 @@ export default function DeliveryPortal() {
                                   Low Stock
                                 </Badge>
                               )}
-                              <Button
-                                size="sm"
-                                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/30 text-[10px] sm:text-sm h-6 sm:h-9 px-2 sm:px-3"
-                                onClick={() => addToCart(heroProducts[featuredIndex].id)}
-                              >
-                                <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-2" />
-                                Add to Cart
-                              </Button>
+                              <Link href={fpLink}>
+                                <Button
+                                  size="sm"
+                                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/30 text-[10px] sm:text-sm h-6 sm:h-9 px-2 sm:px-3"
+                                >
+                                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-2" />
+                                  View Products
+                                </Button>
+                              </Link>
                             </>
                           );
                         })()}
@@ -1252,6 +1263,8 @@ export default function DeliveryPortal() {
                                 seeAllLink={`/delivery/category/${cat.slug}`}
                                 onUpdateQuantity={updateCartQuantity}
                                 brandMap={brandMap}
+                                featuredMode={true}
+                                productLineMap={productLineMap}
                               />
                             </div>
                           );

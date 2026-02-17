@@ -553,6 +553,7 @@ function ProductCard({
                     variant="ghost"
                     className="h-6 w-6 sm:h-8 sm:w-8 p-0"
                     onClick={() => onUpdateQuantity(product.id, inCart + 1)}
+                    disabled={inCart >= stock}
                   >
                     <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>

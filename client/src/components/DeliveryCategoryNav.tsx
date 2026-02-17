@@ -86,6 +86,8 @@ export function DeliveryCategoryNav({
 
   useEffect(() => {
     if (expandedCategoryId === null && !mobileCategoriesOpen) return;
+    const isMobile = window.innerWidth < 640;
+    if (isMobile) return;
     const handleScroll = () => closeAll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -269,8 +271,9 @@ export function DeliveryCategoryNav({
           />
           {dropdownPos && categoryBrandsForDropdown.length > 0 && (
             <div
-              className="fixed bg-card rounded-xl border border-border/50 shadow-xl min-w-[200px] max-w-[calc(100vw-16px)] z-[9999]"
+              className="fixed bg-card rounded-xl border border-border/50 shadow-xl min-w-[200px] max-w-[calc(100vw-16px)] z-[9999] max-h-[60vh] overflow-y-auto overscroll-contain"
               style={{ top: dropdownPos.top, left: Math.max(8, Math.min(dropdownPos.left, window.innerWidth - 216)) }}
+              onTouchMove={(e) => e.stopPropagation()}
             >
               <div className="py-2">
                 {categoryBrandsForDropdown.map((brand) => {
@@ -329,8 +332,9 @@ export function DeliveryCategoryNav({
 
           {expandedBrandId !== null && brandDropdownPos && (
             <div
-              className="fixed bg-card rounded-xl border border-border/50 shadow-xl min-w-[180px] max-w-[calc(100vw-16px)] z-[9999]"
+              className="fixed bg-card rounded-xl border border-border/50 shadow-xl min-w-[180px] max-w-[calc(100vw-16px)] z-[9999] max-h-[50vh] overflow-y-auto overscroll-contain"
               style={{ top: brandDropdownPos.top, left: brandDropdownPos.left }}
+              onTouchMove={(e) => e.stopPropagation()}
             >
               <div className="py-2">
                 {activeProductLines

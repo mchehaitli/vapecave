@@ -156,7 +156,7 @@ export function DeliveryHeader({
             )}
             <Link href="/delivery/shop" className="flex items-center gap-2 sm:gap-4 font-bold text-xl hover:opacity-80 transition-opacity min-w-0">
               <img 
-                src="/logo-orange.png" 
+                src={theme === "dark" ? "/logo-orange.png" : "/logo-orange-color.png"} 
                 alt="Vape Cave Frisco - Logo" 
                 loading="lazy"
                 className="h-7 sm:h-12 w-auto flex-shrink-0"
