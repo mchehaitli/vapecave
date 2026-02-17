@@ -330,28 +330,50 @@ export function DeliveryCategoryNav({
             </div>
           )}
 
-          {expandedBrandId !== null && brandDropdownPos && (
-            <div
-              className="fixed bg-card rounded-xl border border-border/50 shadow-xl min-w-[180px] max-w-[calc(100vw-16px)] z-[9999] max-h-[50vh] overflow-y-auto overscroll-contain"
-              style={{ top: brandDropdownPos.top, left: brandDropdownPos.left }}
-              onTouchMove={(e) => e.stopPropagation()}
-            >
-              <div className="py-2">
-                {activeProductLines
-                  .filter(pl => pl.brandId === expandedBrandId)
-                  .map((productLine) => (
-                    <Link
-                      key={productLine.id}
-                      href={`/delivery/product-line/${productLine.slug}`}
-                      className="block px-4 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-muted/50 transition-all"
-                      onClick={closeAll}
-                    >
-                      {productLine.name}
-                    </Link>
-                  ))}
+          {expandedBrandId !== null && brandDropdownPos && (() => {
+            const brandLines = activeProductLines.filter(pl => pl.brandId === expandedBrandId);
+            const rootLines = brandLines.filter(pl => !pl.parentId);
+            const getChildren = (parentId: number) => brandLines.filter(pl => pl.parentId === parentId);
+            
+            return (
+              <div
+                className="fixed bg-card rounded-xl border border-border/50 shadow-xl min-w-[180px] max-w-[calc(100vw-16px)] z-[9999] max-h-[50vh] overflow-y-auto overscroll-contain"
+                style={{ top: brandDropdownPos.top, left: brandDropdownPos.left }}
+                onTouchMove={(e) => e.stopPropagation()}
+              >
+                <div className="py-2">
+                  {rootLines.map((productLine) => {
+                    const children = getChildren(productLine.id);
+                    return (
+                      <div key={productLine.id}>
+                        <Link
+                          href={`/delivery/product-line/${productLine.slug}`}
+                          className="block px-4 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-muted/50 transition-all"
+                          onClick={closeAll}
+                        >
+                          {productLine.name}
+                        </Link>
+                        {children.length > 0 && (
+                          <div className="pl-3 border-l-2 border-primary/20 ml-4">
+                            {children.map((child) => (
+                              <Link
+                                key={child.id}
+                                href={`/delivery/product-line/${child.slug}`}
+                                className="block px-3 py-2 text-xs text-muted-foreground hover:text-primary hover:bg-muted/50 transition-all"
+                                onClick={closeAll}
+                              >
+                                {child.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </>,
         document.body
       )}
