@@ -108,7 +108,7 @@ const ContactPage = () => {
               </div>
             </a>
             <a 
-              href="https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7" 
+              href="https://www.google.com/maps/search/?api=1&query=Vape+Cave+Smoke+and+Stuff+Frisco&query_place_id=ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="flex items-center gap-3 p-4 rounded-lg bg-background hover:bg-primary/5 transition-colors min-h-[60px]"

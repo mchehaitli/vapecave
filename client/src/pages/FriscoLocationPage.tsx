@@ -223,7 +223,7 @@ const FriscoLocationPage: React.FC = () => {
           </h2>
           <div className="mt-6 flex flex-wrap gap-3">
             <a 
-              href="https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7" 
+              href="https://www.google.com/maps/search/?api=1&query=Vape+Cave+Smoke+and+Stuff+Frisco&query_place_id=ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center border-2 border-primary text-foreground px-6 py-3 rounded-lg font-bold transition-all hover:shadow-[0_0_20px_rgba(255,113,0,0.6)] hover:bg-primary/10"
@@ -429,7 +429,7 @@ const FriscoLocationPage: React.FC = () => {
                 
                 <div className="space-y-4">
                   <a 
-                    href="https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7" 
+                    href="https://www.google.com/maps/search/?api=1&query=Vape+Cave+Smoke+and+Stuff+Frisco&query_place_id=ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center w-full bg-primary hover:bg-primary/90 text-foreground px-4 py-2 rounded-md transition-colors mb-2"
@@ -610,7 +610,7 @@ const FriscoLocationPage: React.FC = () => {
             <div className="flex flex-wrap justify-center gap-4">
               <Button asChild size="lg">
                 <a 
-                  href="https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7" 
+                  href="https://www.google.com/maps/search/?api=1&query=Vape+Cave+Smoke+and+Stuff+Frisco&query_place_id=ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >

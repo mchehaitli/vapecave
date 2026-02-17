@@ -61,6 +61,59 @@
       /* Critical loading animation */
       @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
       .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+      
+      /* SEO: Force all content visible for search engine crawlers and reduced-motion users.
+         Framer Motion sets initial opacity:0 on animated elements via inline styles,
+         making them invisible to Googlebot which doesn't scroll or wait for animations. */
+      @media print, (prefers-reduced-motion: reduce) {
+        [style*="opacity: 0"], [style*="opacity:0"] {
+          opacity: 1 !important;
+          transform: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+    <!-- SEO: Ensure all content is visible when JavaScript is disabled -->
+    <noscript>
+      <style>
+        [style*="opacity: 0"], [style*="opacity:0"] {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+        .loading-skeleton { display: none !important; }
+      </style>
+    </noscript>
+    <!-- SEO: Detect search engine bots and force all content visible immediately.
+         Googlebot runs headless Chrome but doesn't scroll, so whileInView animations never fire. -->
+    <script>
+      (function() {
+        var ua = navigator.userAgent || '';
+        if (/googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp|facebookexternalhit|twitterbot|linkedinbot|semrushbot|ahrefsbot|mj12bot|applebot|petalbot/i.test(ua)) {
+          document.documentElement.setAttribute('data-bot', 'true');
+        }
+        setTimeout(function() {
+          document.documentElement.setAttribute('data-visible', 'true');
+        }, 3500);
+      })();
+    </script>
+    <style>
+      /* When a bot is detected, force all animated content visible immediately */
+      html[data-bot] [style*="opacity: 0"],
+      html[data-bot] [style*="opacity:0"],
+      html[data-bot] [style*="opacity: 0."] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      /* Timeout fallback: after 3.5s, force any still-hidden content visible.
+         This catches elements that never scrolled into view for any user/bot. */
+      html[data-visible] [style*="opacity: 0"],
+      html[data-visible] [style*="opacity:0"],
+      html[data-visible] [style*="opacity: 0."] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: opacity 0.3s ease, transform 0.3s ease !important;
+      }
     </style>
     
     <title>Vape Cave | #1 Vape Shop in Frisco, TX (Open Late)</title>

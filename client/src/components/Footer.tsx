@@ -198,7 +198,7 @@ const Footer = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <div>
-                  <a href="https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7" target="_blank" rel="noopener noreferrer" onClick={() => (window as any).gtag?.('event', 'get_directions', { event_category: 'lead', event_label: 'footer_address' })}>
+                  <a href="https://www.google.com/maps/search/?api=1&query=Vape+Cave+Smoke+and+Stuff+Frisco&query_place_id=ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" target="_blank" rel="noopener noreferrer" onClick={() => (window as any).gtag?.('event', 'get_directions', { event_category: 'lead', event_label: 'footer_address' })}>
                     <span className="text-muted-foreground hover:text-primary/80 block">6958 Main St, Suite 200, Frisco, TX 75033</span>
                     <span className="text-primary/80 hover:text-primary text-xs">Google Maps</span>
                   </a>

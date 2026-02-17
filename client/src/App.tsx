@@ -171,6 +171,8 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const isBot = document.documentElement.hasAttribute('data-bot');
+    if (isBot) return;
     const ageVerified = localStorage.getItem("ageVerified");
     if (!ageVerified) {
       setShowAgeVerification(true);

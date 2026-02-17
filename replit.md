@@ -104,6 +104,17 @@ Tasks completed:
 8. **Footer Links Fixed**: Privacy Policy, Terms of Service, and Refund Policy links in Footer now route to actual pages instead of being non-functional spans.
 9. **Email Typo Fixed**: Corrected "vapecavetex@gmail.com" to "vapecavetx@gmail.com" on Terms, Refund, and Privacy pages.
 
+## Googlebot Visibility Fix (February 2026)
+
+### Critical SEO Fixes:
+1. **Invisible Content Fix**: Framer Motion animations use `initial={{ opacity: 0 }}` with `whileInView` which means Googlebot (which doesn't scroll) sees blank content. Added three layers of protection:
+   - `<noscript>` CSS override for non-JS bots
+   - `prefers-reduced-motion` CSS override for accessibility
+   - Inline bot detection script that sets `data-bot` attribute on `<html>`, with CSS forcing `opacity: 1 !important` and `transform: none !important` on all animated elements
+2. **Age Gate Bot Bypass**: Age verification modal is now skipped for detected search engine bots so they can see the actual page content without the overlay.
+3. **Google Maps Links Fixed**: Replaced all `maps.app.goo.gl` shortened links with proper direct Google Maps URLs using Place ID (`ChIJZ2EXpXw9TIYRjUEpqkkI6Lg`).
+4. **Bot Detection Covers**: Googlebot, Bingbot, Yandex, Baidu, DuckDuckBot, Slurp, Facebook, Twitter, LinkedIn, Semrush, Ahrefs, Mj12bot.
+
 ## Recent Updates (January 2026)
 
 ### Delivery Portal Enhancements

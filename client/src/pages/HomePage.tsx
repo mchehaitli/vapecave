@@ -396,7 +396,7 @@ const HomePage = () => {
                 viewport={{ once: true }}
               >
                 <motion.a 
-                  href="https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7" 
+                  href="https://www.google.com/maps/search/?api=1&query=Vape+Cave+Smoke+and+Stuff+Frisco&query_place_id=ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded transition-colors"
