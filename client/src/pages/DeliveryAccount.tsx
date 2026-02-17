@@ -317,11 +317,11 @@ export default function DeliveryAccount() {
                           For any changes to your profile, please contact us for authorization.
                         </p>
                         <a 
-                          href="tel:4692940061" 
+                          href="mailto:vapecavetx@gmail.com" 
                           className="inline-flex items-center gap-2 mt-2 text-sm font-semibold text-primary hover:underline"
                         >
-                          <Phone className="h-4 w-4" />
-                          (469) 294-0061
+                          <Mail className="h-4 w-4" />
+                          vapecavetx@gmail.com
                         </a>
                       </div>
                     </div>
