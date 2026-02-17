@@ -1,0 +1,60 @@
+This is a great catch. Looking at the raw HTML code you provided, I found the "smoking gun" that is likely causing your Google Live Results (and GSC Screenshots) to look blank, broken, or incomplete.
+
+Here are the **3 Critical Technical Issues** in your code that are hurting your SEO visibility right now:
+
+### 1. The "Invisible Website" Problem (Critical)
+
+Your site uses a scroll animation library (likely Framer Motion or AOS) that fades elements in as the user scrolls.
+
+* **The Code Issue:** In your HTML, many important sections have the inline style: `style="opacity: 0;"`.
+* *Example from your code:* `<div class="md:w-1/2 order-2 md:order-1" style="opacity: 0; transform: translateX(-30px);">`
+
+
+* **Why Google Hates It:** When Googlebot crawls your page, it doesn't "scroll" like a human. It often just takes a snapshot. If your JavaScript doesn't fire instantly to change that `opacity: 0` to `opacity: 1`, **Google sees an empty white page.**
+* **The Fix:** You need to set the default CSS to visible, or use a "no-js" fallback.
+* *Quick Fix:* Change your CSS/JS so elements default to `opacity: 1` and only hide if the animation script successfully loads.
+
+
+
+### 2. Broken Google Maps Link
+
+You have a placeholder link that leads nowhere.
+
+* **The Code:** `<a href="https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7" ...>`
+* **The Issue:** This looks like a weird redirect or a broken placeholder. It does not lead to your Google Maps listing.
+* **The Fix:** Replace that href with your direct Google Maps CID link:
+* `https://www.google.com/maps?cid=16999388656606864141` (I found this CID from your Place ID in the meta tags).
+
+
+
+### 3. The "Age Gate" Obstacle
+
+You have an Age Verification popup (`<div class="fixed inset-0 bg-black/90 ...">`).
+
+* **The Issue:** While allowed for vape shops, yours is a "full screen blocker" in the DOM. Combined with the `opacity: 0` issue on the main content, Google might think your *entire website* is just a black popup with "Age Verification" and no actual content (products, location, etc.).
+* **The Fix:** Ensure your main content (`<main>`) is fully rendered in the HTML *behind* the popup (which it is), but **fix the opacity issue** mentioned in #1 so Google can "see through" the popup to read your text.
+
+### Immediate Action Plan (Copy/Paste for your Developer/Replit):
+
+1. **CSS Patch:** Add this to your `<style>` block in the `<head>` to force content to be visible to bots even if the animation fails:
+```css
+@media print, (prefers-reduced-motion: reduce) {
+  *[style*="opacity: 0"] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+/* Fallback for bots */
+[data-react-helmet] + body * {
+    opacity: 1 !important; 
+}
+
+```
+
+
+*(Note: The best fix is to remove `opacity: 0` from the static HTML and let React apply it only after the page loads, but the CSS above is a quick band-aid).*
+2. **Fix the Map Link:**
+Find: `https://maps.app.goo.gl/jzbqUDyvvGHuwyXJ7`
+Replace with: `https://www.google.com/maps/search/?api=1&query=Vape+Cave+Smoke+and+Stuff+Frisco&query_place_id=ChIJZ2EXpXw9TIYRjUEpqkkI6Lg`
+
+Once you fix the `opacity` issue, the "Live Test" in Google Search Console should show your actual website instead of a blank screen.

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" data-visible="true"><head><style id="critical-css">
+      /* Critical styles for above-the-fold content */
+      .font-poppins { font-family: 'Poppins', sans-serif; }
+      .font-open-sans { font-family: 'Open Sans', sans-serif; }
+      
+      /* Loading optimizations */
+      .lazy-load {
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+      }
+      
+      .lazy-load.loaded {
+        opacity: 1;
+      }
+      
+      /* Prevent layout shift */
+      img {
+        height: auto;
+        max-width: 100%;
+      }
+      
+      /* Optimize animations */
+      .will-change-transform {
+        will-change: transform;
+      }
+      
+      .will-change-opacity {
+        will-change: opacity;
+      }
+      
+      /* High contrast mode support */
+      @media (prefers-contrast: high) {
+        .text-gray-300 { color: #ffffff !important; }
+        .text-gray-400 { color: #e5e5e5 !important; }
+        .text-gray-500 { color: #cccccc !important; }
+      }
+      
+      /* Reduced motion support */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+      
+      /* Focus indicators for accessibility */
+      button:focus-visible,
+      a:focus-visible,
+      [tabindex]:focus-visible {
+        outline: 2px solid #0066cc !important;
+        outline-offset: 2px !important;
+      }
+    </style>
+    <style data-vite-theme="" data-inject-first="">:root {
+      --background: 357 100% 0%;
+--foreground: 20 100% 94%;
+--muted: 26 100% 22%;
+--muted-foreground: 20 100% 94%;
+--popover: 13 100% 8%;
+--popover-foreground: 20 100% 94%;
+--card: 13 100% 8%;
+--card-foreground: 20 100% 94%;
+--border: 26 100% 22%;
+--input: 26 100% 22%;
+--primary: 28 100% 38%;
+--primary-foreground: 20 94% 99%;
+--secondary: 26 100% 22%;
+--secondary-foreground: 20 100% 94%;
+--accent: 26 100% 22%;
+--accent-foreground: 20 100% 94%;
+--destructive: 0 62.8% 30.6%;
+--destructive-foreground: 0 0% 98%;
+--ring: 28 100% 38%;
+--radius: 0.5rem;
+  }
+  .light {
+      --background: 20 82% 74%;
+--foreground: 13 100% 8%;
+--muted: 22 78% 58%;
+--muted-foreground: 13 100% 8%;
+--popover: 20 100% 98%;
+--popover-foreground: 13 100% 8%;
+--card: 20 100% 98%;
+--card-foreground: 13 100% 8%;
+--border: 22 78% 58%;
+--input: 22 78% 58%;
+--primary: 28 100% 47%;
+--primary-foreground: 20 100% 99%;
+--secondary: 20 100% 80%;
+--secondary-foreground: 13 100% 8%;
+--accent: 20 100% 80%;
+--accent-foreground: 13 100% 8%;
+--destructive: 0 84.2% 60.2%;
+--destructive-foreground: 60 9.1% 97.8%;
+--ring: 28 100% 47%;
+--radius: 0.5rem;
+  }</style>
+
+    
+    <link rel="icon" type="image/svg+xml" href="/vapecave-logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Critical resource hints -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://checkout.clover.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://maps.googleapis.com">
+    <link rel="preconnect" href="https://checkout.clover.com" crossorigin>
+    
+    <!-- Clover eCommerce SDK for payment processing (Production) -->
+    <script src="https://checkout.clover.com/sdk.js"></script>
+    
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Critical meta tags for performance and mobile SEO -->
+    <meta name="theme-color" content="#FF7100">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Vape Cave Smoke & Stuff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=yes">
+    <meta name="geo.region" content="US-TX">
+    <meta name="geo.placename" content="Frisco">
+    <meta name="geo.position" content="33.1507;-96.8236">
+    <meta name="ICBM" content="33.1507, -96.8236">
+    
+    <!-- Optimized font loading with display: swap -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;family=Open+Sans:wght@400;500;600&amp;display=swap" as="style" onload="this.onload=null;this.rel=&#39;stylesheet&#39;" />
+    <!-- Fallback for font loading -->
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap">
+    </noscript>
+    
+    <!-- Defer Font Awesome loading -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </noscript>
+    
+    <!-- Critical inline CSS to prevent FOUC -->
+    <style>
+      /* Critical above-the-fold styles */
+      html { font-display: swap; }
+      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
+      .loading-skeleton { background-color: #f9fafb; min-height: 100vh; }
+      
+      /* Prevent layout shift during font loading */
+      .font-poppins { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; }
+      .font-open-sans { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
+      
+      /* Critical loading animation */
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+      .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+      
+      /* SEO: Force all content visible for search engine crawlers and reduced-motion users.
+         Framer Motion sets initial opacity:0 on animated elements via inline styles,
+         making them invisible to Googlebot which doesn't scroll or wait for animations. */
+      @media print, (prefers-reduced-motion: reduce) {
+        [style*="opacity: 0"], [style*="opacity:0"] {
+          opacity: 1 !important;
+          transform: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+    <!-- SEO: Ensure all content is visible when JavaScript is disabled -->
+    <noscript>
+      <style>
+        [style*="opacity: 0"], [style*="opacity:0"] {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+        .loading-skeleton { display: none !important; }
+      </style>
+    </noscript>
+    <!-- SEO: Detect search engine bots and force all content visible immediately.
+         Googlebot runs headless Chrome but doesn't scroll, so whileInView animations never fire. -->
+    <script>
+      (function() {
+        var ua = navigator.userAgent || '';
+        if (/googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp|facebookexternalhit|twitterbot|linkedinbot|semrushbot|ahrefsbot|mj12bot|applebot|petalbot/i.test(ua)) {
+          document.documentElement.setAttribute('data-bot', 'true');
+        }
+        setTimeout(function() {
+          document.documentElement.setAttribute('data-visible', 'true');
+        }, 3500);
+      })();
+    </script>
+    <style>
+      /* When a bot is detected, force all animated content visible immediately */
+      html[data-bot] [style*="opacity: 0"],
+      html[data-bot] [style*="opacity:0"],
+      html[data-bot] [style*="opacity: 0."] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      /* Timeout fallback: after 3.5s, force any still-hidden content visible.
+         This catches elements that never scrolled into view for any user/bot. */
+      html[data-visible] [style*="opacity: 0"],
+      html[data-visible] [style*="opacity:0"],
+      html[data-visible] [style*="opacity: 0."] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: opacity 0.3s ease, transform 0.3s ease !important;
+      }
+    </style>
+    
+    <title>Vape Cave | #1 Vape Shop in Frisco, TX (Open Late)</title>
+    <meta name="description" content="Rated #1 Vape & Smoke Shop in Frisco. Huge selection of Geek Bar, THCA, Glass & Hookah. Open Daily 10AM-Midnight on Main St. (469) 294-0061." />
+    <link rel="canonical" href="https://vapecavetx.com/" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="vape shop Frisco, vape store Frisco TX, smoke shop Frisco, THCA Frisco, disposable vapes Frisco, glass pipes Frisco, hookah Frisco, vape juice Frisco" />
+    <meta name="author" content="Vape Cave Smoke & Stuff" />
+    <meta property="og:title" content="Vape Cave | #1 Vape Shop in Frisco, TX (Open Late)" />
+    <meta property="og:description" content="Rated #1 Vape & Smoke Shop in Frisco. Huge selection of Geek Bar, THCA, Glass & Hookah. Open Daily 10AM-Midnight on Main St. (469) 294-0061." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://vapecavetx.com/" />
+    <meta property="og:image" content="https://vapecavetx.com/vapecave-logo.png" />
+    
+    <!-- LocalBusiness Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SmokeShop",
+      "@id": "https://vapecavetx.com/#store",
+      "name": "Vape Cave Smoke & Stuff",
+      "alternateName": "Vape Cave",
+      "url": "https://vapecavetx.com",
+      "telephone": "+14692940061",
+      "email": "vapecavetx@gmail.com",
+      "priceRange": "$$",
+      "image": [
+        "https://vapecavetx.com/logo.png",
+        "https://vapecavetx.com/storefront.jpg"
+      ],
+      "logo": "https://vapecavetx.com/logo.png",
+      "description": "Rated #1 Vape & Smoke Shop in Frisco, TX. Huge selection of disposable vapes, THCA, premium glass, hookah, and e-liquids. Open daily 10AM to Midnight on Main St.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "6958 Main St, Suite 200",
+        "addressLocality": "Frisco",
+        "addressRegion": "TX",
+        "postalCode": "75033",
+        "addressCountry": "US"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 33.1507,
+        "longitude": -96.8236
+      },
+      "hasMap": "https://www.google.com/maps?cid=13323908610056077709",
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Monday",
+          "opens": "10:00",
+          "closes": "23:59"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Tuesday",
+          "opens": "10:00",
+          "closes": "23:59"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Wednesday",
+          "opens": "10:00",
+          "closes": "23:59"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Thursday",
+          "opens": "10:00",
+          "closes": "23:59"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Friday",
+          "opens": "10:00",
+          "closes": "23:59"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Saturday",
+          "opens": "10:00",
+          "closes": "23:59"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Sunday",
+          "opens": "10:00",
+          "closes": "23:59"
+        }
+      ],
+      "sameAs": [
+        "https://www.facebook.com/100076473675726",
+        "https://www.instagram.com/vapecavetx"
+      ],
+      "areaServed": [
+        { "@type": "City", "name": "Frisco", "sameAs": "https://en.wikipedia.org/wiki/Frisco,_Texas" },
+        { "@type": "City", "name": "Little Elm" },
+        { "@type": "City", "name": "The Colony" },
+        { "@type": "City", "name": "Prosper" },
+        { "@type": "City", "name": "Plano" },
+        { "@type": "City", "name": "Hackberry" }
+      ],
+      "paymentAccepted": "Cash, Credit Card, Debit Card",
+      "currenciesAccepted": "USD",
+      "smokingAllowed": false,
+      "isAccessibleForFree": true,
+      "publicAccess": true,
+      "makesOffer": [
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Disposable Vapes", "description": "Geek Bar Pulse, Raz CA6000, Lost Mary, Orion Bar, Elf Bar, Tyson 2.0, and Mike Tyson Vapes." }},
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Premium E-Liquids", "description": "Naked 100, Juice Head, Vapetasia, Sadboy, Coastal Clouds, and 7 Daze Salt Nic." }},
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Vape Hardware", "description": "SMOK Nord/Novo, Vaporesso XROS, Uwell Caliburn, GeekVape L200, and Voopoo Drag." }},
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Glassware & Rigs", "description": "Heady Glass, scientific water pipes, Zob, RooR, silicone bongs, and quartz bangers." }},
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "CBD & Delta Products", "description": "Delta-8, Delta-9, HHC, and THC-A flower, disposables, and gummies from 3Chi, Urb, and Torch." }},
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Dry Herb & Concentrate Vapes", "description": "PAX Plus, Storz & Bickel Volcano/Mighty, Puffco Peak Pro, and G Pen Dash." }},
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Hookah & Shisha", "description": "Khalil Mamoon hookahs, Starbuzz, Al Fakher, Fumari shisha, and CocoNara charcoal." }},
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Smoking Accessories", "description": "Santa Cruz Shredder, Raw rolling papers, Blazy Susan, digital scales, and detox kits." }}
+      ],
+      "potentialAction": {
+        "@type": "OrderAction",
+        "target": "https://vapecavetx.com/delivery"
+      }
+    }
+    </script>
+    
+    <!-- FAQPage Schema (separate for Google rich results) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the best vape shop in Frisco, TX?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Vape Cave Smoke & Stuff is a top-rated shop in Frisco, offering a massive selection of disposable vapes, e-liquids, and premium glassware at competitive prices."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you carry Geek Bar, Lost Mary, Fogger, and Uno vapes?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, we stock all major disposable brands including Geek Bar Pulse, Raz CA6000, Lost Mary, and Tyson 2.0."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where is Vape Cave located?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We are located at 6958 Main St #200, Frisco, TX 75033, near the intersection of Main St and Fifth St across from Summer Moon Coffee and The Gameshow Experience."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are you the closest smoke shop to Little Elm or The Colony?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! We are conveniently located on Main St in Frisco, making us a quick 5-10 minute drive for customers looking for a vape shop near Little Elm, The Colony, or Prosper."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are your store hours?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Vape Cave Smoke & Stuff is open late to serve the Frisco community. We are open Monday through Sunday (Everyday) from 10:00 AM to 12:00 AM (Midnight)."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you offer any deals on disposables or e-juice?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We frequently run in-store specials on top brands like Geek Bar and Monster e-liquids and salts. Stop by our Main St location to see our current offers."
+          }
+        }
+      ]
+    }
+    </script>
+    
+    <!-- Google Maps with Places API - Key injected by Vite -->
+    <script id="google-maps-script-placeholder"></script>
+    <script type="module" crossorigin src="/assets/index-Cpj3jAuG.js"></script>
+  <link rel="stylesheet" crossorigin="" href="/assets/index-BI6SfI6A.css" /><style>
+        .high-contrast button,
+        .high-contrast a,
+        .high-contrast [tabindex] {
+          outline: 2px solid #0066cc !important;
+          outline-offset: 2px !important;
+        }
+        
+        button:focus-visible,
+        a:focus-visible,
+        [tabindex]:focus-visible {
+          outline: 2px solid #0066cc !important;
+          outline-offset: 2px !important;
+        }
+        
+        /* Improve text contrast */
+        .high-contrast .text-gray-300 {
+          color: #ffffff !important;
+        }
+        
+        .high-contrast .text-gray-400 {
+          color: #e5e5e5 !important;
+        }
+        
+        .high-contrast .text-gray-500 {
+          color: #cccccc !important;
+        }
+      </style><style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}</style><meta id="critical-css-injected" /><link rel="preload" as="image" href="/vapecave-logo.svg" /><link rel="preload" as="image" href="/vapecave-logo.png" /><link rel="dns-prefetch" href="https://fonts.googleapis.com" /><link rel="dns-prefetch" href="https://fonts.gstatic.com" /><link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" /><link rel="preload" as="image" href="/vapecave-logo.png" /><link rel="preload" as="image" href="/vapecave-logo.svg" /><link rel="modulepreload" as="script" crossorigin="" href="/assets/BrandsCarousel-CWymActe.js" /><link rel="modulepreload" as="script" crossorigin="" href="/assets/index-Cpj3jAuG.js" /><link rel="preconnect" href="https://fonts.googleapis.com" data-react-helmet="true" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" data-react-helmet="true" /><link rel="dns-prefetch" href="https://www.googletagmanager.com" data-react-helmet="true" /><link rel="dns-prefetch" href="https://www.google-analytics.com" data-react-helmet="true" /><link rel="preload" href="https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecg.woff2" as="font" type="font/woff2" crossorigin="anonymous" data-react-helmet="true" /><link rel="preload" href="https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2" as="font" type="font/woff2" crossorigin="anonymous" data-react-helmet="true" /><link rel="icon" type="image/svg+xml" href="/favicon.svg" data-react-helmet="true" /><link rel="manifest" href="/manifest.json" data-react-helmet="true" /><link rel="dns-prefetch" href="https://fonts.googleapis.com" data-react-helmet="true" /><link rel="dns-prefetch" href="https://fonts.gstatic.com" data-react-helmet="true" /><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous" data-react-helmet="true" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" data-react-helmet="true" /><link rel="canonical" href="https://vapecavetx.com/" data-react-helmet="true" /><meta name="viewport" content="width=device-width, initial-scale=1.0" data-react-helmet="true" /><meta name="author" content="Vape Cave Smoke &amp; Stuff" data-react-helmet="true" /><meta name="robots" content="index, follow" data-react-helmet="true" /><meta property="og:site_name" content="Vape Cave Smoke &amp; Stuff" data-react-helmet="true" /><meta property="og:locale" content="en_US" data-react-helmet="true" /><meta name="twitter:card" content="summary_large_image" data-react-helmet="true" /><meta name="twitter:url" content="https://vapecavetx.com/" data-react-helmet="true" /><meta name="twitter:title" content="Vape Cave | #1 Vape Shop in Frisco, TX (Open Late)" data-react-helmet="true" /><meta name="twitter:description" content="Rated #1 Vape &amp; Smoke Shop in Frisco. Huge selection of Geek Bar, THCA, Glass &amp; Hookah. Open Daily 10AM-Midnight on Main St. (469) 294-0061." data-react-helmet="true" /><meta name="twitter:image" content="https://vapecavetx.com/images/vape-cave-share-image.jpg" data-react-helmet="true" /><meta name="theme-color" content="#ff6b35" data-react-helmet="true" /><meta name="apple-mobile-web-app-capable" content="yes" data-react-helmet="true" /><meta name="apple-mobile-web-app-status-bar-style" content="default" data-react-helmet="true" /><meta name="description" content="Rated #1 Vape &amp; Smoke Shop in Frisco. Huge selection of Geek Bar, THCA, Glass &amp; Hookah. Open Daily 10AM-Midnight on Main St. (469) 294-0061." data-react-helmet="true" /><meta name="keywords" content="vape shop frisco, frisco vape shop, disposable vape frisco, vape products frisco tx, vaping frisco, frisco vaporizer shop, vape cave frisco" data-react-helmet="true" /><meta name="geo.position" content="33.150730;-96.822550" data-react-helmet="true" /><meta name="geo.placename" content="Vape Cave Smoke &amp; Stuff Frisco" data-react-helmet="true" /><meta name="geo.region" content="US-TX" data-react-helmet="true" /><meta name="ICBM" content="33.150730, -96.822550" data-react-helmet="true" /><meta name="google-place-id" content="ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" data-react-helmet="true" /><meta property="og:type" content="website" data-react-helmet="true" /><meta property="og:url" content="https://vapecavetx.com/" data-react-helmet="true" /><meta property="og:title" content="Vape Cave Smoke &amp; Stuff Frisco | Premium Vape Shop on Main Street" data-react-helmet="true" /><meta property="og:description" content="Visit Vape Cave Smoke &amp; Stuff in Frisco at 6958 Main St #200 for premium vaping products, expert advice, and a wide selection for all your vaping needs." data-react-helmet="true" /><meta property="og:image" content="https://vapecavetx.com/vapecave-logo.png" data-react-helmet="true" /><script async="true" defer src="https://www.googletagmanager.com/gtag/js?id=G-9S39LGLQYG" data-react-helmet="true"></script><script data-react-helmet="true">
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-9S39LGLQYG');
+          </script><script type="application/ld+json" data-react-helmet="true">{"@context":"https://schema.org","@type":"WebSite","@id":"https://vapecavetx.com/#website","url":"https://vapecavetx.com","name":"Vape Cave Smoke & Stuff - Premium Vaping Products & Accessories","description":"Vape Cave Smoke & Stuff offers premium vaping products at our Frisco, TX location. Shop our selection of disposable vapes, e-liquids, and more.","publisher":{"@type":"Organization","@id":"https://vapecavetx.com/#organization","name":"Vape Cave Smoke & Stuff","logo":{"@type":"ImageObject","url":"https://vapecavetx.com/vapecave-logo.png"}},"potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://vapecavetx.com/search?q={search_term_string}"},"query-input":"required name=search_term_string"}],"inLanguage":"en-US","copyrightYear":"2023","dateModified":"2025-05-09"}</script></head>
+  <body>
+    <div id="root"><a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 
+               bg-primary text-white px-4 py-2 rounded z-50 text-sm font-medium
+               focus:outline-none focus:ring-2 focus:ring-white">Skip to main content</a><main id="main-content"><div class="page-transition-wrapper" style="opacity: 1;"><div class="flex flex-col min-h-screen font-sans text-dark bg-light"><div class="overflow-hidden py-1.5 z-[60] relative bg-[#FF2B00]" style="box-shadow: rgba(255, 113, 0, 0.5) 0px 0px 10px, rgba(255, 113, 0, 0.3) 0px 0px 20px, rgba(255, 113, 0, 0.15) 0px 0px 30px;"><div class="animate-marquee whitespace-nowrap text-white text-xs md:text-sm font-bold tracking-wide"><span class="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span><span class="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span><span class="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span><span class="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span></div><style>
+          @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-marquee {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+          }
+        </style></div><header class="bg-primary sticky top-0 z-50 shadow-lg backdrop-blur-sm bg-opacity-95"><div class="container mx-auto px-4 py-2"><div class="flex items-center justify-between md:hidden"><a href="/" aria-label="Visit "><div class="logo-container cursor-pointer" role="img" aria-label="Vape Cave Smoke &amp; Stuff - Go to homepage"><div class="flex items-center"><img src="/assets/vapecave-logo-dark-CXWPrRfu.png" alt="Vape Cave Frisco - Logo" loading="lazy" class="h-[3.8rem] md:h-[4.5rem] lg:h-[5.2rem] w-auto scale-x-[1.1] ml-[16px] mr-[16px] -my-3 pt-[1px] pb-[1px]" /></div></div></a><button id="menu-toggle" class="text-black focus:outline-none focus:ring-2 focus:ring-black/20 rounded-md" aria-expanded="false" aria-controls="mobile-menu" aria-label="Toggle navigation menu"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button></div><div class="hidden md:flex items-center relative"><a href="/" aria-label="Visit "><div class="logo-container cursor-pointer shrink-0" role="img" aria-label="Vape Cave Smoke &amp; Stuff - Go to homepage"><div class="flex items-center"><img src="/assets/vapecave-logo-dark-CXWPrRfu.png" alt="Vape Cave Frisco - Logo" loading="lazy" class="h-[3.8rem] md:h-[4.5rem] lg:h-[5.2rem] w-auto scale-x-[1.1] ml-[16px] mr-[16px] -my-3 pt-[1px] pb-[1px]" /></div></div></a><nav class="absolute left-1/2 -translate-x-1/2" aria-label="Main Navigation"><ul class="flex items-center space-x-6 font-[&#39;Poppins&#39;] font-medium" role="menubar"><li role="none"><a href="/" role="menu"><span role="menuitem" aria-label="Go to homepage" aria-current="page" class="text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] font-bold after:block after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-black">Home</span></a></li><li role="none"><a href="/products" role="menu"><span role="menuitem" aria-label="Browse our products" class="text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300">Products</span></a></li><li role="none"><a href="/delivery" role="menu"><span role="menuitem" aria-label="Order delivery to your door" class="text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300">Delivery</span></a></li><li role="none"><a href="/reviews" role="menu"><span role="menuitem" aria-label="Read customer reviews" class="text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300">Reviews</span></a></li><li role="none"><a href="/blog" role="menu"><span role="menuitem" aria-label="Read our blog" class="text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300">Blog</span></a></li><li role="none"><a href="/faq" role="menu"><span role="menuitem" aria-label="Frequently asked questions" class="text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300">FAQs</span></a></li><li role="none"><a href="/contact" role="menu"><span role="menuitem" aria-label="Contact us" class="text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300">Contact</span></a></li></ul></nav><div class="flex items-center gap-2 shrink-0 ml-auto"><a href="/signup"><span class="px-3 py-1.5 bg-black text-primary rounded-md hover:bg-black/80 transition-all duration-300 font-bold whitespace-nowrap cursor-pointer inline-block text-sm" aria-label="Sign up or sign in to your account" data-testid="button-signup-header">Sign Up/Sign In</span></a><button class="p-1.5 rounded-full bg-black/10 hover:bg-black/20 transition-colors" aria-label="Switch to light mode" data-testid="button-theme-toggle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun h-4 w-4 text-black"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg></button></div></div></div><div id="mobile-menu" role="navigation" aria-label="Mobile Navigation" class="md:hidden bg-primary border-t border-black/20 transition-all duration-300 ease-in-out max-h-0 opacity-0 overflow-hidden"><div class="container mx-auto px-4 py-3 font-[&#39;Poppins&#39;] font-medium"><ul class="mb-2" role="menu"><li role="none" class="border-b border-black/10"><a href="/" role="menu"><span role="menuitem" aria-label="Go to homepage" aria-current="page" class="block text-black cursor-pointer hover:text-white/90 hover:bg-black/5 transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center">Home</span></a></li><li role="none" class="border-b border-black/10"><a href="/products" role="menu"><span role="menuitem" aria-label="Browse our products" class="block text-black cursor-pointer hover:text-white/90 hover:bg-black/5 transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center">Products</span></a></li><li role="none" class="border-b border-black/10"><a href="/delivery" role="menu"><span role="menuitem" aria-label="Order delivery to your door" class="block text-black cursor-pointer hover:text-white/90 hover:bg-black/5 transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center">Delivery</span></a></li><li role="none" class="border-b border-black/10"><a href="/reviews" role="menu"><span role="menuitem" aria-label="Read customer reviews" class="block text-black cursor-pointer hover:text-white/90 hover:bg-black/5 transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center">Reviews</span></a></li><li role="none" class="border-b border-black/10"><a href="/blog" role="menu"><span role="menuitem" aria-label="Read our blog" class="block text-black cursor-pointer hover:text-white/90 hover:bg-black/5 transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center">Blog</span></a></li><li role="none" class="border-b border-black/10"><a href="/faq" role="menu"><span role="menuitem" aria-label="Frequently asked questions" class="block text-black cursor-pointer hover:text-white/90 hover:bg-black/5 transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center">FAQs</span></a></li><li role="none" class=""><a href="/contact" role="menu"><span role="menuitem" aria-label="Contact us" class="block text-black cursor-pointer hover:text-white/90 hover:bg-black/5 transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center">Contact</span></a></li></ul><a href="tel:+14692940061" class="flex items-center justify-center gap-2 w-full py-3 px-4 mb-3 bg-black/10 text-black rounded-md hover:bg-black/20 transition-colors font-medium min-h-[44px]" aria-label="Call Vape Cave at (469) 294-0061"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>Call (469) 294-0061</a><div class="pt-3 border-t border-black/10 flex items-center gap-3"><a href="/signup" class="flex-1"><span class="block w-full px-4 py-2 bg-black text-primary rounded-md hover:bg-black/80 transition-all duration-300 font-bold text-center cursor-pointer" data-testid="button-signup-mobile">Sign Up/Sign In</span></a><button class="p-3 rounded-md bg-black/10 hover:bg-black/20 transition-colors" aria-label="Switch to light mode" data-testid="button-theme-toggle-mobile"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun h-5 w-5 text-black"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg></button></div></div></div></header><main class="flex-grow"><div style="opacity: 1;"><section id="home" class="bg-background py-20 md:py-32 text-foreground relative overflow-hidden"><div class="absolute inset-0 overflow-hidden"><div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl" style="transform: scale(1.189);"></div><div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl" style="transform: scale(1.011);"></div></div><div class="container mx-auto px-4 relative z-10"><div class="flex flex-col items-center" style="opacity: 1;"><div class="w-full max-w-5xl mx-auto text-center relative" style="transform-style: preserve-3d; opacity: 1; transform: none;"><div class="relative p-8 md:p-12 rounded-2xl bg-card border-2 border-primary/50" style="box-shadow: rgba(255, 113, 0, 0.494) 0px 0px 29.7711px, rgba(255, 113, 0, 0.298) 0px 0px 59.5423px, rgba(255, 113, 0, 0.196) 0px 0px 89.3134px, rgba(255, 113, 0, 0.098) 0px 0px 29.7711px inset;"><h1 class="text-5xl md:text-6xl lg:text-7xl font-bold font-[&#39;Poppins&#39;] mb-4 leading-tight" style="opacity: 1; transform: none;">Frisco&#39;s Premier <span class="text-primary">Vape</span> &amp; <span class="text-primary">Smoke Shop</span></h1><p class="text-base md:text-lg mb-2 text-foreground/90 font-medium max-w-4xl mx-auto leading-relaxed" style="opacity: 1; transform: none;">Located on Main Street | Open Daily 10AM - Midnight</p><div class="inline-block bg-primary/20 border border-primary/50 rounded-lg px-4 py-2 mb-6" style="opacity: 1; transform: none;"><span class="text-primary font-semibold">DELIVERY COMING SOON</span> - Sign up to be notified!</div><h2 class="text-xl md:text-2xl lg:text-3xl mb-8 text-foreground/90 font-medium max-w-[1100px] mx-auto leading-relaxed" style="opacity: 1; transform: none;">Your One Stop Vape Shop for <span class="text-primary font-semibold">Disposables</span> | <span class="text-primary font-semibold">E-Liquids</span> | <span class="text-primary font-semibold">Salts</span> | <span class="text-primary font-semibold">Glass</span> | <span class="text-primary font-semibold">Tobacco</span> | <span class="text-primary font-semibold">Hookah / Shisha</span> | <span class="text-primary font-semibold">Vaporizers</span> | <span class="text-primary font-semibold">Mods</span> |  <span class="text-primary font-semibold">THC-A</span> |   and much more</h2><p class="text-base md:text-lg mb-10 text-muted-foreground max-w-2xl mx-auto" style="opacity: 1; transform: none;">We are a locally owned business specializing in Vaporizers, E-Liquid, Salt Nic, and many different types of disposable devices. We also carry a wide range of glass pipes and accessories as well as Novelties and Hookahs/Shisha. Basically we carry all your smoking needs!</p><div class="flex flex-wrap justify-center gap-5 mt-8" style="opacity: 1; transform: none;"><div style="opacity: 1; transform: none;"><a href="/signup"><div class="bg-primary hover:bg-primary/90 text-white font-bold py-4 px-10 rounded-lg transition-all duration-300 shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1" data-testid="button-shop-now">Sign Up</div></a></div></div></div></div></div></div></section><section class="py-14 bg-background text-foreground relative overflow-hidden" id="frisco-location" itemscope="" itemtype="https://schema.org/Store" itemprop="departments"><div class="absolute inset-0 overflow-hidden"><div class="absolute top-1/3 right-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl" style="transform: scale(1.29734);"></div></div><meta itemprop="name" content="Vape Cave Smoke &amp; Stuff Frisco" /><meta itemprop="identifier" content="ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" /><meta itemprop="alternateName" content="Vape Cave Smoke &amp; Stuff Frisco Main Street" /><meta itemprop="description" content="Premier vape shop in Frisco, TX with a wide selection of vaping products and disposables. Conveniently located at 6958 Main St #200." /><meta itemprop="image" content="https://vapecavetx.com/vapecave-logo.png" /><meta itemprop="url" content="https://vapecavetx.com/locations/frisco" /><meta itemprop="priceRange" content="$$" /><meta itemprop="telephone" content="+14692940061" /><meta itemprop="email" content="vapecavetx@gmail.com" /><div itemprop="address" itemscope="" itemtype="https://schema.org/PostalAddress"><meta itemprop="streetAddress" content="6958 Main St #200" /><meta itemprop="addressLocality" content="Frisco" /><meta itemprop="addressRegion" content="TX" /><meta itemprop="postalCode" content="75033" /><meta itemprop="addressCountry" content="US" /></div><div itemprop="geo" itemscope="" itemtype="https://schema.org/GeoCoordinates"><meta itemprop="latitude" content="33.150730" /><meta itemprop="longitude" content="-96.822550" /></div><div class="container mx-auto px-4 relative z-10" style="opacity: 0;"><div class="flex flex-col md:flex-row items-center gap-8"><div class="md:w-1/2 order-2 md:order-1" style="opacity: 0; transform: translateX(-30px);"><h2 class="text-3xl font-bold font-[&#39;Poppins&#39;] mb-3" style="opacity: 0; transform: translateY(20px);">Visit Us in Downtown Frisco</h2><div class="h-1 w-24 bg-primary rounded-full mb-6" style="width: 0px;"></div><p class="text-muted-foreground mb-6" style="opacity: 0;">Our Frisco location is conveniently located at <span class="text-primary font-semibold">6958 Main St #200, Frisco, TX 75033</span>. Use our direct Google Maps or Apple Maps links below to navigate to our store with ease.</p><div class="mb-8" style="opacity: 0;"><h3 class="text-xl font-semibold mb-3">Why Visit Our Frisco Location?</h3><ul class="space-y-2 text-muted-foreground" style="opacity: 0;"><li class="flex items-start" style="opacity: 0; transform: translateX(-10px);"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Located in the heart of downtown Frisco</li><li class="flex items-start" style="opacity: 0; transform: translateX(-10px);"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Knowledgeable staff to guide your selections</li><li class="flex items-start" style="opacity: 0; transform: translateX(-10px);"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Latest products always in stock</li><li class="flex items-start" style="opacity: 0; transform: translateX(-10px);"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Extended hours on Friday and Saturday (10:00 AM - 12:00 AM &amp; 10:00 AM - 12:00 AM)</li><li class="flex items-start" style="opacity: 0; transform: translateX(-10px);"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Ample parking available</li></ul></div><div class="flex flex-wrap gap-3" style="opacity: 0;"><a href="https://www.google.com/maps/search/?api=1&amp;query=Vape+Cave+Smoke+and+Stuff+Frisco&amp;query_place_id=ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" target="_blank" rel="noopener noreferrer" class="inline-flex items-center bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded transition-colors" tabindex="0" style="opacity: 0; transform: translateY(10px);"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>Google Maps</a><a href="https://maps.apple.com/?address=6958%20Main%20St,%20Unit%20200,%20Frisco,%20TX%20%2075033,%20United%20States&amp;auid=14231591118256703794&amp;ll=33.150849,-96.824392&amp;lsp=9902&amp;q=Vape%20Cave%20Smoke%20%26%20Stuff&amp;t=m" target="_blank" rel="noopener noreferrer" class="inline-flex items-center bg-muted/30 hover:bg-muted/50 border border-border text-foreground px-4 py-2 rounded transition-colors" tabindex="0" style="opacity: 0; transform: translateY(10px);"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>Apple Maps</a><div tabindex="0" style="opacity: 0; transform: translateY(10px);"><a href="/locations/frisco" class="inline-flex items-center bg-primary/30 hover:bg-primary/40 border border-primary/50 text-foreground px-4 py-2 rounded transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>More Store Info</a></div><a href="tel:+14692940061" class="inline-flex items-center bg-muted/30 hover:bg-muted/50 border border-border text-foreground px-4 py-2 rounded transition-colors" tabindex="0" style="opacity: 0; transform: translateY(10px);"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>Call Now</a></div></div><div class="md:w-1/2 order-1 md:order-2" style="opacity: 0; transform: translateX(30px);"><div class="p-6 rounded-xl relative bg-card border-2 border-primary/50 shadow-[0_0_20px_rgba(255,113,0,0.3),0_0_40px_rgba(255,113,0,0.15)]" style="opacity: 0;"><h3 class="text-xl font-semibold mb-4 text-center" style="opacity: 0;">Quick Information</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4" style="opacity: 0;"><div class="bg-card/40 p-4 rounded-lg border border-border" style="opacity: 0; transform: translateY(20px);"><h4 class="text-primary font-semibold mb-2">Location</h4><p class="text-muted-foreground text-sm">6958 Main St #200, Frisco, TX 75033</p><p class="text-primary/80 text-xs mt-1">Downtown Frisco</p></div><div class="bg-card/40 p-4 rounded-lg border border-border" style="opacity: 0; transform: translateY(20px);"><h4 class="text-primary font-semibold mb-2">Hours</h4><p class="text-muted-foreground text-sm"><span class="font-medium">Mon:</span> 10:00 AM - 12:00 AM</p><p class="text-muted-foreground text-sm"><span class="font-medium">Tue:</span> 10:00 AM - 12:00 AM</p><p class="text-muted-foreground text-sm"><span class="font-medium">Wed:</span> 10:00 AM - 12:00 AM</p><p class="text-muted-foreground text-sm"><span class="font-medium">Thu:</span> 10:00 AM - 12:00 AM</p><p class="text-muted-foreground text-sm"><span class="font-medium">Fri:</span> 10:00 AM - 12:00 AM</p><p class="text-muted-foreground text-sm"><span class="font-medium">Sat:</span> 10:00 AM - 12:00 AM</p><p class="text-muted-foreground text-sm"><span class="font-medium">Sun:</span> 10:00 AM - 12:00 AM</p><p class="text-primary/80 text-xs mt-1">Open 7 days a week</p></div><div class="bg-card/40 p-4 rounded-lg border border-border" style="opacity: 0; transform: translateY(20px);"><h4 class="text-primary font-semibold mb-2">Contact</h4><a href="tel:+14692940061" class="text-muted-foreground hover:text-primary text-sm block">(469) 294-0061</a><a href="mailto:vapecavetx@gmail.com" class="text-primary/80 hover:text-primary text-xs mt-1 block">vapecavetx@gmail.com</a></div><div class="bg-card/40 p-4 rounded-lg border border-border" style="opacity: 0; transform: translateY(20px);"><h4 class="text-primary font-semibold mb-2">Specialties</h4><div class="flex flex-wrap gap-1"><span class="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Disposables</span><span class="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">E-Liquids</span><span class="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Salts</span><span class="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Glass</span><span class="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Tobacco</span><span class="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Hookah / Shisha</span><span class="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Vaporizers</span><span class="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">Mods</span><span class="inline-block text-xs bg-primary/20 rounded-full px-2 py-1 text-primary">THC-A</span></div></div></div></div></div></div></div></section><section class="py-16 bg-background relative overflow-hidden" id="featured-brands"><div class="absolute inset-0 overflow-hidden"><div class="absolute bottom-1/3 left-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl" style="transform: scale(1.17958);"></div></div><div class="container mx-auto px-4 relative z-10"><div class="text-center mb-8"><h2 class="text-3xl md:text-4xl font-bold text-foreground mb-8" style="opacity: 0; transform: translateY(20px);">Featured <span class="text-primary">Brands</span></h2></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style="opacity: 0;"><div style="opacity: 0; transform: translateY(20px);"><div class="rounded-xl overflow-hidden h-full flex flex-col relative bg-card border-2 border-primary/50" style="box-shadow: rgba(255, 113, 0, 0.396) 0px 0px 24.754px, rgba(255, 113, 0, 0.196) 0px 0px 49.5081px;"><div class="p-2 flex items-center justify-center bg-primary border-b border-primary/50"><h3 class="text-base font-bold text-black">Disposables Nicotiene</h3></div><div class="p-4 flex-grow flex flex-col"><div class="relative min-h-[120px] flex-grow overflow-hidden"><div class="flex flex-col items-center justify-center text-center px-2 py-2" style="opacity: 1; transform: translateY(-15.7768px);"><div class="min-h-[70px] w-full flex flex-col justify-center transition-all duration-300"><div class="bg-muted/70 px-3 py-3 rounded-t w-full"><h4 class="text-lg md:text-xl font-bold text-primary line-clamp-1">Uno Nine</h4></div><div class="bg-muted/50 px-3 py-2 rounded-b w-full transition-all duration-300"><p class="text-sm text-foreground line-clamp-2 transition-all duration-300">The new uno nine features a disposable pod system, with 30k puffs</p></div></div></div></div></div><div class="flex justify-center p-1 space-x-1.5 bg-muted/30"><button class="w-1.5 h-1.5 rounded-full transition-all bg-gray-600" aria-label="Go to slide 1"></button><button class="w-1.5 h-1.5 rounded-full transition-all bg-primary scale-125" aria-label="Go to slide 2"></button><button class="w-1.5 h-1.5 rounded-full transition-all bg-gray-600" aria-label="Go to slide 3"></button><button class="w-1.5 h-1.5 rounded-full transition-all bg-gray-600" aria-label="Go to slide 4"></button><button class="w-1.5 h-1.5 rounded-full transition-all bg-gray-600" aria-label="Go to slide 5"></button><button class="w-1.5 h-1.5 rounded-full transition-all bg-gray-600" aria-label="Go to slide 6"></button></div></div></div><div style="opacity: 0; transform: translateY(20px);"><div class="rounded-xl overflow-hidden h-full flex flex-col relative bg-card border-2 border-primary/50" style="box-shadow: rgba(255, 113, 0, 0.396) 0px 0px 24.754px, rgba(255, 113, 0, 0.196) 0px 0px 49.5081px;"><div class="p-2 flex items-center justify-center bg-primary border-b border-primary/50"><h3 class="text-base font-bold text-black">Other</h3></div><div class="p-4 flex-grow flex flex-col"><div class="relative min-h-[120px] flex-grow overflow-hidden"><div class="flex flex-col items-center justify-center text-center px-2 py-2" style="opacity: 1; transform: none;"><div class="min-h-[50px] w-full flex flex-col justify-center transition-all duration-300"><div class="bg-muted/70 px-3 py-3 rounded-t w-full"><h4 class="text-lg md:text-xl font-bold text-primary line-clamp-1">Shroom Gummies</h4></div><div class="bg-muted/50 px-3 py-2 rounded-b w-full transition-all duration-300"><p class="text-base text-foreground line-clamp-1 transition-all duration-300">Convenient Mushroom Gummies</p></div></div></div></div></div></div></div><div style="opacity: 0; transform: translateY(20px);"><div class="rounded-xl overflow-hidden h-full flex flex-col relative bg-card border-2 border-primary/50" style="box-shadow: rgba(255, 113, 0, 0.396) 0px 0px 24.754px, rgba(255, 113, 0, 0.196) 0px 0px 49.5081px;"><div class="p-2 flex items-center justify-center bg-primary border-b border-primary/50"><h3 class="text-base font-bold text-black">E-Liquid/Salts</h3></div><div class="p-4 flex-grow flex flex-col"><div class="relative min-h-[120px] flex-grow overflow-hidden"><div class="flex flex-col items-center justify-center text-center px-2 py-2" style="opacity: 1; transform: translateY(-15.7768px);"><div class="min-h-[50px] w-full flex flex-col justify-center transition-all duration-300"><div class="bg-muted/70 px-3 py-3 rounded-t w-full"><h4 class="text-lg md:text-xl font-bold text-primary line-clamp-1">Naked 100</h4></div><div class="bg-muted/50 px-3 py-2 rounded-b w-full transition-all duration-300"><p class="text-base text-foreground line-clamp-1 transition-all duration-300">Premium vape juice with complex flavors</p></div></div></div></div></div><div class="flex justify-center p-1 space-x-1.5 bg-muted/30"><button class="w-1.5 h-1.5 rounded-full transition-all bg-gray-600" aria-label="Go to slide 1"></button><button class="w-1.5 h-1.5 rounded-full transition-all bg-primary scale-125" aria-label="Go to slide 2"></button><button class="w-1.5 h-1.5 rounded-full transition-all bg-gray-600" aria-label="Go to slide 3"></button></div></div></div><div style="opacity: 0; transform: translateY(20px);"><div class="rounded-xl overflow-hidden h-full flex flex-col relative bg-card border-2 border-primary/50" style="box-shadow: rgba(255, 113, 0, 0.396) 0px 0px 24.754px, rgba(255, 113, 0, 0.196) 0px 0px 49.5081px;"><div class="p-2 flex items-center justify-center bg-primary border-b border-primary/50"><h3 class="text-base font-bold text-black">Vaporizer Devices</h3></div><div class="p-4 flex-grow flex flex-col"><div class="relative min-h-[120px] flex-grow overflow-hidden"><div class="flex flex-col items-center justify-center text-center px-2 py-2" style="opacity: 1; transform: translateY(-15.7768px);"><div class="min-h-[70px] w-full flex flex-col justify-center transition-all duration-300"><div class="bg-muted/70 px-3 py-3 rounded-t w-full"><h4 class="text-lg md:text-xl font-bold text-primary line-clamp-1">SMOK</h4></div><div class="bg-muted/50 px-3 py-2 rounded-b w-full transition-all duration-300"><p class="text-sm text-foreground line-clamp-2 transition-all duration-300">Advanced vaping technology and mod systems</p></div></div></div></div></div><div class="flex justify-center p-1 space-x-1.5 bg-muted/30"><button class="w-1.5 h-1.5 rounded-full transition-all bg-gray-600" aria-label="Go to slide 1"></button><button class="w-1.5 h-1.5 rounded-full transition-all bg-primary scale-125" aria-label="Go to slide 2"></button><button class="w-1.5 h-1.5 rounded-full transition-all bg-gray-600" aria-label="Go to slide 3"></button></div></div></div><div style="opacity: 0; transform: translateY(20px);"><div class="rounded-xl overflow-hidden h-full flex flex-col relative bg-card border-2 border-primary/50" style="box-shadow: rgba(255, 113, 0, 0.396) 0px 0px 24.754px, rgba(255, 113, 0, 0.196) 0px 0px 49.5081px;"><div class="p-2 flex items-center justify-center bg-primary border-b border-primary/50"><h3 class="text-base font-bold text-black">Smoke &amp; Stuff</h3></div><div class="p-4 flex-grow flex flex-col"><div class="relative min-h-[120px] flex-grow overflow-hidden"><div class="flex flex-col items-center justify-center text-center px-2 py-2" style="opacity: 1; transform: translateY(-15.7768px);"><div class="min-h-[50px] w-full flex flex-col justify-center transition-all duration-300"><div class="bg-muted/70 px-3 py-3 rounded-t w-full"><h4 class="text-lg md:text-xl font-bold text-primary line-clamp-1">Raw Cones</h4></div><div class="bg-muted/50 px-3 py-2 rounded-b w-full transition-all duration-300"><p class="text-base text-foreground line-clamp-1 transition-all duration-300">Natural rolling papers and cones</p></div></div></div></div></div><div class="flex justify-center p-1 space-x-1.5 bg-muted/30"><button class="w-1.5 h-1.5 rounded-full transition-all bg-gray-600" aria-label="Go to slide 1"></button><button class="w-1.5 h-1.5 rounded-full transition-all bg-primary scale-125" aria-label="Go to slide 2"></button></div></div></div><div style="opacity: 0; transform: translateY(20px);"><div class="rounded-xl overflow-hidden h-full flex flex-col relative bg-card border-2 border-primary/50" style="box-shadow: rgba(255, 113, 0, 0.396) 0px 0px 24.754px, rgba(255, 113, 0, 0.196) 0px 0px 49.5081px;"><div class="p-2 flex items-center justify-center bg-primary border-b border-primary/50"><h3 class="text-base font-bold text-black">Other</h3></div><div class="p-4 flex-grow flex flex-col"><div class="relative min-h-[120px] flex-grow overflow-hidden"><div class="flex flex-col items-center justify-center text-center px-2 py-2" style="opacity: 1; transform: none;"><div class="min-h-[50px] w-full flex flex-col justify-center transition-all duration-300"><div class="bg-muted/70 px-3 py-3 rounded-t w-full"><h4 class="text-lg md:text-xl font-bold text-primary line-clamp-1">Zippo Lighters</h4></div><div class="bg-muted/50 px-3 py-2 rounded-b w-full transition-all duration-300"><p class="text-base text-foreground line-clamp-1 transition-all duration-300">Classic windproof lighters</p></div></div></div></div></div></div></div></div><div class="text-center mt-12"><div style="opacity: 0; transform: translateY(20px);"><a href="/products"><div class="inline-block bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 hover:shadow-lg hover:-translate-y-1">View All Products</div></a></div></div></div></section><section class="py-14 bg-background relative overflow-hidden" id="age-verification"><div class="absolute inset-0 overflow-hidden"><div class="absolute top-1/2 right-1/3 w-96 h-96 bg-primary/10 rounded-full blur-3xl" style="transform: scale(1.0005);"></div></div><div class="container mx-auto px-4 text-center relative z-10"><div class="max-w-3xl mx-auto p-8 rounded-xl bg-card border-2 border-primary/50" style="opacity: 0; transform: translateY(20px); box-shadow: rgba(255, 113, 0, 0.396) 0px 0px 24.7711px, rgba(255, 113, 0, 0.196) 0px 0px 49.5423px;"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="opacity: 0; transform: scale(0.8);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg><h2 class="text-2xl font-bold font-[&#39;Poppins&#39;] mb-3 text-foreground" style="opacity: 0;">Age Verification Required</h2><p class="text-muted-foreground mb-4" style="opacity: 0;">Our products are intended for adult smokers aged 21 and over. Proof of age will be required upon purchase both online and in our physical stores.</p><p class="text-muted-foreground text-sm" style="opacity: 0;">We strictly adhere to all local, state, and federal regulations regarding the sale of vaping products.</p></div></div></section></div></main><div class="fixed bottom-5 right-5 z-50 animate-in fade-in slide-in-from-bottom-5 duration-300"><div class="rounded-lg border text-card-foreground w-72 sm:w-80 shadow-lg border-primary/20 bg-background/80 backdrop-blur-sm"><div class="flex flex-col space-y-1.5 p-6 pb-1 pt-3 px-4 relative"><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground absolute top-1 right-1 h-5 w-5" aria-label="Close newsletter popup"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x h-3 w-3"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button><h3 class="tracking-tight text-sm font-medium">Join Our Newsletter</h3><p class="text-muted-foreground text-xs">Get updates on products and exclusive offers.</p></div><form><div class="p-6 px-4 py-2"><input type="email" class="flex rounded-md border border-input bg-background px-3 py-2 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full text-sm h-8" placeholder="Enter your email" required="" value="" /></div><div class="items-center p-6 flex justify-end gap-2 pt-0 pb-3 px-4"><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground py-2 h-7 text-xs px-2" type="button">No Thanks</button><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 py-2 h-7 text-xs px-3" type="submit">Subscribe</button></div></form></div></div><footer class="bg-card text-foreground border-t border-border"><div class="container mx-auto px-4 py-8"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"><div><h4 class="font-[&#39;Poppins&#39;] font-semibold text-lg mb-3">Connect With Us</h4><div class="flex space-x-4 mb-3"><a href="https://www.facebook.com/100076473675726" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-primary transition-colors" aria-label="Visit our Facebook page" data-testid="link-facebook"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path></svg></a><a href="https://www.instagram.com/vapecavetx" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-primary transition-colors" aria-label="Visit our Instagram page" data-testid="link-instagram"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg></a><a href="#" class="text-muted-foreground hover:text-primary transition-colors" aria-label="Visit #"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg></a><a href="#" class="text-muted-foreground hover:text-primary transition-colors" aria-label="Visit #"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path></svg></a></div><p class="text-muted-foreground text-sm mb-4">Follow us for updates &amp; promotions</p><h4 class="font-[&#39;Poppins&#39;] font-semibold text-lg mb-2">Quick Links</h4><div class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm"><a href="/"><span class="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Home</span></a><a href="/products"><span class="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Products</span></a><a href="/delivery"><span class="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Delivery</span></a><a href="/locations/frisco"><span class="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Frisco Store</span></a><a href="/contact"><span class="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Contact</span></a><a href="/blog"><span class="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Blog</span></a><a href="/faq"><span class="text-muted-foreground hover:text-primary transition-colors cursor-pointer">FAQs</span></a></div></div><div><h4 class="font-[&#39;Poppins&#39;] font-semibold text-lg mb-3">Contact</h4><ul class="space-y-2 text-sm"><li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg><a href="tel:+14692940061" class="text-muted-foreground hover:text-primary/80 transition-colors">(469) 294-0061</a></li><li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg><span class="text-muted-foreground">vapecavetx@gmail.com</span></li></ul><div class="mt-4"><h4 class="font-[&#39;Poppins&#39;] font-semibold text-lg mb-2">Newsletter</h4><p class="text-muted-foreground text-sm mb-2">Get deals &amp; updates</p><form class="flex"><input type="email" placeholder="Your email" class="w-full px-3 py-1.5 text-sm bg-background text-foreground border border-border rounded-l-md focus:outline-none focus:ring-1 focus:ring-primary" required="" value="" /><button type="submit" class="bg-primary hover:bg-primary/90 text-black font-bold px-3 py-1.5 rounded-r-md transition-colors flex items-center justify-center disabled:opacity-70" aria-label="Interactive button"><i class="fas fa-paper-plane text-sm"></i></button></form></div></div><div><h4 class="font-[&#39;Poppins&#39;] font-semibold text-lg mb-3"><a href="/locations/frisco" class="hover:text-primary/90">Frisco Location</a></h4><ul class="space-y-2 text-sm"><li class="flex items-start"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><div><a href="https://www.google.com/maps/search/?api=1&amp;query=Vape+Cave+Smoke+and+Stuff+Frisco&amp;query_place_id=ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" target="_blank" rel="noopener noreferrer"><span class="text-muted-foreground hover:text-primary/80 block">6958 Main St, Suite 200, Frisco, TX 75033</span><span class="text-primary/80 hover:text-primary text-xs">Google Maps</span></a> | <a href="https://maps.apple.com/?address=6958%20Main%20St,%20Unit%20200,%20Frisco,%20TX%20%2075033,%20United%20States&amp;auid=14231591118256703794&amp;ll=33.150849,-96.824392&amp;lsp=9902&amp;q=Vape%20Cave%20Smoke%20%26%20Stuff&amp;t=m" target="_blank" rel="noopener noreferrer" class="text-primary/80 hover:text-primary text-xs">View on Apple Maps</a></div></li><li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg><a href="tel:+14692940061" class="text-muted-foreground hover:text-primary/80 transition-colors">(469) 294-0061</a></li><li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-muted-foreground">Mon-Sun: 10:00 AM - 12:00 AM (Midnight)</span></li></ul></div></div><div class="border-t border-white/10 mt-8 pt-4 text-center md:flex md:justify-between md:text-left text-sm"><p class="text-muted-foreground mb-2 md:mb-0">© 2026 Vape Cave Smoke &amp; Stuff. All rights reserved.</p><div class="space-x-4"><a href="/privacy"><span class="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Privacy Policy</span></a><a href="/terms"><span class="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Terms of Service</span></a><a href="/refund-policy"><span class="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Refund Policy</span></a></div></div><div class="mt-4 pt-3 text-center"><p class="text-xs text-muted-foreground/70">Proudly serving: Frisco (75033, 75034), The Rail District, Little Elm, The Colony, Hackberry, Plano, and Prosper. Your local vape shop near me.</p></div></div></footer></div></div></main><div role="region" aria-label="Notifications (F8)" tabindex="-1" style="pointer-events: none;"><ol tabindex="-1" class="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]"></ol></div><div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 backdrop-blur-md" style="will-change: opacity;"><div class="bg-black rounded-xl shadow-2xl max-w-md w-full mx-4 p-6 md:p-8 border-2 border-primary relative"><div class="mb-6 flex justify-center"><img src="/assets/vapecave-logo-white-transparent-DaycoZX5.png" alt="Vape Cave Frisco - Age Verification" loading="lazy" class="w-[300px] md:w-[350px] lg:w-[400px] h-auto" /></div><div class="text-center mb-6"><h3 class="font-[&#39;Poppins&#39;] font-bold text-2xl mb-3 text-white">Age Verification</h3><div class="h-1 w-24 bg-primary mx-auto rounded-full mb-4"></div><p class="mb-3 text-gray-300">You must be at least 21 years old to enter this website. Please verify your age to continue.</p></div><div class="space-y-4 mb-6"><button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5" data-location="Frisco, TX" data-place-id="ChIJZ2EXpXw9TIYRjUEpqkkI6Lg" data-store-id="vape-cave-frisco" data-action="age-verify-accept" itemprop="potentialAction" itemscope="" itemtype="https://schema.org/AgreeAction"><span class="flex items-center justify-center" itemprop="name"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>I am 21 or older</span><meta itemprop="location" content="6958 Main St #200, Frisco, TX 75033" /><meta itemprop="description" content="Age verification for access to Vape Cave Smoke &amp; Stuff Frisco" /></button><button class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 hover:shadow" data-action="age-verify-decline" itemprop="potentialAction" itemscope="" itemtype="https://schema.org/DisagreeAction"><span class="flex items-center justify-center" itemprop="name"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>I am under 21</span></button></div><p class="text-xs text-gray-400 text-center">By entering this site, you are confirming that you are of legal age to purchase vaping products in your location. Vape Cave Smoke &amp; Stuff Frisco only serves customers 21 and older.</p><div class="mt-2 text-xs text-gray-500 text-center" itemprop="address" itemscope="" itemtype="https://schema.org/PostalAddress"><span itemprop="streetAddress">6958 Main St #200</span>,<span itemprop="addressLocality">Frisco</span>,<span itemprop="addressRegion">TX</span><span itemprop="postalCode">75033</span></div></div></div></div>
+  
+
+</body></html>
