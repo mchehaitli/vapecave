@@ -4839,27 +4839,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create product line
   app.post('/api/admin/delivery/product-lines', isAdmin, async (req, res) => {
     try {
-      const { name, brandId, logo, isActive } = req.body;
+      const { name, brandId, parentId, logo, isActive } = req.body;
       
       if (!name || !brandId) {
         return res.status(400).json({ error: "Name and brandId are required" });
       }
       
-      // Auto-generate slug
-      const slug = name.toLowerCase()
+      // Auto-generate slug - include parent context for uniqueness
+      let slug = name.toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
       
-      // Check for duplicate slug
+      // Check for duplicate slug, append brandId if needed
       const existing = await storage.getDeliveryProductLineBySlug(slug);
       if (existing) {
-        return res.status(400).json({ error: "A product line with this name already exists" });
+        slug = `${slug}-${brandId}`;
+        const existing2 = await storage.getDeliveryProductLineBySlug(slug);
+        if (existing2) {
+          slug = `${slug}-${Date.now()}`;
+        }
       }
       
       const productLine = await storage.createDeliveryProductLine({
         name,
         slug,
         brandId,
+        parentId: parentId || null,
         logo: logo || null,
         isActive: isActive ?? true,
         displayOrder: 0
@@ -4876,17 +4881,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/admin/delivery/product-lines/:id', isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const { name, brandId, logo, isActive } = req.body;
+      const { name, brandId, parentId, logo, isActive } = req.body;
       
       const updateData: any = {};
       if (name !== undefined) {
         updateData.name = name;
-        // Also update slug if name changes
         updateData.slug = name.toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-+|-+$/g, '');
       }
       if (brandId !== undefined) updateData.brandId = brandId;
+      if (parentId !== undefined) updateData.parentId = parentId || null;
       if (logo !== undefined) updateData.logo = logo;
       if (isActive !== undefined) updateData.isActive = isActive;
       
