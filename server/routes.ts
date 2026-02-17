@@ -2343,10 +2343,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       noImageProducts.sort((a: any, b: any) => a.name.localeCompare(b.name));
 
-      const brands = [...new Set(allProducts.map((p: any) => p.brand).filter(Boolean))].sort();
-      const categories = [...new Set(allProducts.map((p: any) => p.category).filter(Boolean))].sort();
+      const allCategories = await storage.getActiveDeliveryCategories();
+      const categories = allCategories.map((c: any) => c.name).sort();
 
-      const allBrands = await storage.getAllDeliveryBrands();
+      const allBrands = await storage.getActiveDeliveryBrands();
+      const brands = allBrands.map((b: any) => b.name).sort();
+
       const allProductLines = await storage.getAllDeliveryProductLines();
       const productLineMap = new Map<number, string>();
       const subBrands: string[] = [];
