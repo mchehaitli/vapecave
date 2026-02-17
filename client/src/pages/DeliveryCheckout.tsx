@@ -514,7 +514,7 @@ export default function DeliveryCheckout() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <DeliveryHeader cartItemCount={cartItems.length} showSearch={false} showBackButton={true} />
+      <DeliveryHeader cartItemCount={cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0)} showSearch={false} showBackButton={true} />
       <DeliveryCategoryNav />
 
       <div className="flex-1 py-6">

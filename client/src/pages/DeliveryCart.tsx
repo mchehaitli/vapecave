@@ -10,8 +10,38 @@ import { useToast } from "@/hooks/use-toast";
 import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
 import { DeliveryHeader } from "@/components/DeliveryHeader";
 import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
-import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Truck, ArrowLeft } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Truck, ArrowLeft, AlertTriangle } from "lucide-react";
 import { DeliveryFooter } from "@/components/DeliveryFooter";
+
+function ConfirmDialog({ open, onConfirm, onCancel, title, message }: {
+  open: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  title: string;
+  message: string;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/50" onClick={onCancel} />
+      <div className="relative bg-card rounded-xl border border-border shadow-2xl p-6 max-w-sm w-full mx-4">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="p-2 rounded-full bg-destructive/10">
+            <AlertTriangle className="w-5 h-5 text-destructive" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-lg text-foreground">{title}</h3>
+            <p className="text-sm text-muted-foreground mt-1">{message}</p>
+          </div>
+        </div>
+        <div className="flex gap-3 justify-end">
+          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+          <Button variant="destructive" onClick={onConfirm}>Remove</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface CartItem {
   id: number;
@@ -34,6 +64,7 @@ export default function DeliveryCart() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
+  const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null);
 
   useInactivityTimeout({
     timeoutMinutes: 30,
@@ -179,8 +210,13 @@ export default function DeliveryCart() {
   };
 
   const handleRemoveItem = (id: number) => {
-    if (confirm("Are you sure you want to remove this item from your cart?")) {
-      removeItemMutation.mutate(id);
+    setConfirmRemoveId(id);
+  };
+
+  const confirmRemove = () => {
+    if (confirmRemoveId !== null) {
+      removeItemMutation.mutate(confirmRemoveId);
+      setConfirmRemoveId(null);
     }
   };
 
@@ -225,7 +261,7 @@ export default function DeliveryCart() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <DeliveryHeader cartItemCount={cartItems.length} showSearch={false} showBackButton={true} />
+      <DeliveryHeader cartItemCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} showSearch={false} showBackButton={true} />
       <DeliveryCategoryNav />
       
       {/* Free Delivery Progress */}
@@ -421,6 +457,13 @@ export default function DeliveryCart() {
       </div>
       
       <DeliveryFooter />
+      <ConfirmDialog
+        open={confirmRemoveId !== null}
+        onConfirm={confirmRemove}
+        onCancel={() => setConfirmRemoveId(null)}
+        title="Remove Item"
+        message="Are you sure you want to remove this item from your cart?"
+      />
     </div>
   );
 }
