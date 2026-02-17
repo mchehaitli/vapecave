@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
-import { ChevronDown, ChevronRight, ArrowRight, Sparkles, Store, Tag } from "lucide-react";
+import { ChevronDown, ChevronRight, ArrowRight, Sparkles, Store, Tag, LayoutGrid } from "lucide-react";
 import type { DeliveryCategory, DeliveryBrand, DeliveryProductLine } from "@shared/schema";
 
 interface DeliveryCategoryNavProps {
@@ -23,6 +23,7 @@ export function DeliveryCategoryNav({
   const [expandedBrandId, setExpandedBrandId] = useState<number | null>(null);
   const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number } | null>(null);
   const [brandDropdownPos, setBrandDropdownPos] = useState<{ top: number; left: number } | null>(null);
+  const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
   const categoryButtonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
   const brandItemRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
@@ -55,6 +56,7 @@ export function DeliveryCategoryNav({
     setExpandedBrandId(null);
     setDropdownPos(null);
     setBrandDropdownPos(null);
+    setMobileCategoriesOpen(false);
   }, []);
 
   const openCategoryDropdown = useCallback((categoryId: number) => {
@@ -83,11 +85,11 @@ export function DeliveryCategoryNav({
   }, []);
 
   useEffect(() => {
-    if (expandedCategoryId === null) return;
+    if (expandedCategoryId === null && !mobileCategoriesOpen) return;
     const handleScroll = () => closeAll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [expandedCategoryId, closeAll]);
+  }, [expandedCategoryId, mobileCategoriesOpen, closeAll]);
 
   if (activeCategories.length === 0) return null;
 
@@ -99,11 +101,25 @@ export function DeliveryCategoryNav({
     ? activeBrands.filter(b => b.categoryId === expandedCategory.id)
     : [];
 
+  const isOnCategoryPage = activeCategories.some(c => location === `/delivery/category/${c.slug}`);
+  const activeCategoryForPage = activeCategories.find(c => location === `/delivery/category/${c.slug}`);
+
+  const tabClass = (active: boolean, variant?: 'sale') => {
+    if (variant === 'sale') {
+      return `flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-medium whitespace-nowrap transition-all ${
+        active ? "bg-red-500 text-white" : "text-red-500 hover:text-red-400 hover:bg-red-500/10"
+      }`;
+    }
+    return `flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-medium whitespace-nowrap transition-all ${
+      active ? "bg-primary text-primary-foreground" : "text-foreground/80 hover:text-primary hover:bg-muted/50"
+    }`;
+  };
+
   return (
     <>
       <section className="bg-card border-b border-border/30 relative z-50">
-        <div className="container mx-auto px-2">
-          <nav className="flex items-center gap-0 py-1.5 overflow-x-auto scrollbar-hide sm:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="container mx-auto px-2 sm:px-4">
+          <nav className="flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 flex-wrap">
             <Link href="/delivery/shop">
               <button
                 onClick={() => {
@@ -111,13 +127,9 @@ export function DeliveryCategoryNav({
                   onViewModeChange?.('featured');
                   closeAll();
                 }}
-                className={`flex items-center gap-1 px-2.5 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all ${
-                  location === '/delivery/shop' && viewMode === 'featured'
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground/80 hover:text-primary hover:bg-muted/50"
-                }`}
+                className={tabClass(location === '/delivery/shop' && viewMode === 'featured')}
               >
-                <Sparkles className="w-3.5 h-3.5" />
+                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 Featured
               </button>
             </Link>
@@ -125,13 +137,9 @@ export function DeliveryCategoryNav({
             <Link href="/delivery/brands">
               <button
                 onClick={() => closeAll()}
-                className={`flex items-center gap-1 px-2.5 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all ${
-                  location === '/delivery/brands'
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground/80 hover:text-primary hover:bg-muted/50"
-                }`}
+                className={tabClass(location === '/delivery/brands')}
               >
-                <Store className="w-3.5 h-3.5" />
+                <Store className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 Brands
               </button>
             </Link>
@@ -139,54 +147,119 @@ export function DeliveryCategoryNav({
             <Link href="/delivery/sale">
               <button
                 onClick={() => closeAll()}
-                className={`flex items-center gap-1 px-2.5 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all ${
-                  location === '/delivery/sale'
-                    ? "bg-red-500 text-white"
-                    : "text-red-500 hover:text-red-400 hover:bg-red-500/10"
-                }`}
+                className={tabClass(location === '/delivery/sale', 'sale')}
               >
-                <Tag className="w-3.5 h-3.5" />
+                <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 Sale
               </button>
             </Link>
-            
-            {activeCategories.map((category) => {
-              const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
-              const isOpen = expandedCategoryId === category.id;
-              
-              return (
-                <button
-                  key={category.id}
-                  ref={(el) => { categoryButtonRefs.current[category.id] = el; }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (categoryBrands.length === 0) {
-                      setLocation(`/delivery/category/${category.slug}`);
-                      closeAll();
-                    } else {
-                      if (isOpen) {
+
+            <div className="hidden sm:contents">
+              {activeCategories.map((category) => {
+                const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
+                const isOpen = expandedCategoryId === category.id;
+                const isActive = isOpen || location === `/delivery/category/${category.slug}`;
+                
+                return (
+                  <button
+                    key={category.id}
+                    ref={(el) => { categoryButtonRefs.current[category.id] = el; }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (categoryBrands.length === 0) {
+                        setLocation(`/delivery/category/${category.slug}`);
                         closeAll();
                       } else {
-                        openCategoryDropdown(category.id);
+                        if (isOpen) {
+                          closeAll();
+                        } else {
+                          openCategoryDropdown(category.id);
+                        }
                       }
-                    }
-                  }}
-                  className={`flex items-center gap-1 px-2.5 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
-                    isOpen || location === `/delivery/category/${category.slug}`
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground/80 hover:text-primary hover:bg-muted/50"
-                  }`}
-                >
-                  {category.name}
-                  {categoryBrands.length > 0 && (
-                    <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                  )}
-                </button>
-              );
-            })}
+                    }}
+                    className={`flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
+                      isActive
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground/80 hover:text-primary hover:bg-muted/50"
+                    }`}
+                  >
+                    {category.name}
+                    {categoryBrands.length > 0 && (
+                      <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="sm:hidden">
+              <button
+                onClick={() => {
+                  setMobileCategoriesOpen(!mobileCategoriesOpen);
+                  setExpandedCategoryId(null);
+                  setExpandedBrandId(null);
+                  setDropdownPos(null);
+                  setBrandDropdownPos(null);
+                }}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${
+                  mobileCategoriesOpen || isOnCategoryPage
+                    ? "bg-primary text-primary-foreground"
+                    : "text-foreground/80 hover:text-primary hover:bg-muted/50"
+                }`}
+              >
+                <LayoutGrid className="w-3 h-3" />
+                {activeCategoryForPage ? activeCategoryForPage.name : "Categories"}
+                <ChevronDown className={`w-3 h-3 transition-transform ${mobileCategoriesOpen ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
           </nav>
         </div>
+
+        {mobileCategoriesOpen && (
+          <div className="sm:hidden border-t border-border/30 bg-card/95 backdrop-blur-sm relative z-50">
+            <div className="container mx-auto px-3 py-2">
+              <div className="grid grid-cols-2 gap-1.5">
+                {activeCategories.map((category) => {
+                  const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
+                  const isActive = location === `/delivery/category/${category.slug}`;
+                  
+                  return (
+                    <button
+                      key={category.id}
+                      ref={(el) => { categoryButtonRefs.current[category.id] = el; }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (categoryBrands.length === 0) {
+                          setLocation(`/delivery/category/${category.slug}`);
+                          closeAll();
+                        } else {
+                          setMobileCategoriesOpen(false);
+                          openCategoryDropdown(category.id);
+                        }
+                      }}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                        isActive
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground/80 hover:text-primary bg-muted/30 hover:bg-muted/60"
+                      }`}
+                    >
+                      <span className="truncate">{category.name}</span>
+                      {categoryBrands.length > 0 && (
+                        <ChevronRight className="w-3 h-3 flex-shrink-0 ml-1" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </section>
+
+      {mobileCategoriesOpen && createPortal(
+        <div className="fixed inset-0 z-40 sm:hidden" onClick={() => setMobileCategoriesOpen(false)} />,
+        document.body
+      )}
 
       {expandedCategoryId !== null && createPortal(
         <>
