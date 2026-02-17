@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Image as ImageIcon, Search, Check, X, Link2, Loader2, ChevronLeft, ChevronRight, Upload, Save, RotateCcw, Database, Download } from "lucide-react";
+import { ArrowLeft, Image as ImageIcon, Search, Check, X, Link2, Loader2, ChevronLeft, ChevronRight, Save, RotateCcw, Database, Download, ArrowUpDown } from "lucide-react";
 
 interface StoredImage {
   objectPath: string;
@@ -23,6 +23,10 @@ interface ProductWithoutImage {
   name: string;
   category: string | null;
   brand: string | null;
+  brandId: number | null;
+  productLineId: number | null;
+  productLineName: string | null;
+  enabled: boolean;
   image: string | null;
 }
 
@@ -32,9 +36,13 @@ export default function AdminImageRecoveryPage() {
   const [selectedImage, setSelectedImage] = useState<StoredImage | null>(null);
   const [productSearch, setProductSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [brandFilter, setBrandFilter] = useState("");
+  const [subBrandFilter, setSubBrandFilter] = useState("");
+  const [enabledFilter, setEnabledFilter] = useState<"all" | "enabled" | "disabled">("all");
   const [imageFilter, setImageFilter] = useState<"all" | "unassigned" | "assigned">("unassigned");
   const [isDownloading, setIsDownloading] = useState(false);
   const [imagePage, setImagePage] = useState(0);
+  const [imageSortOrder, setImageSortOrder] = useState<"newest" | "oldest">("newest");
   const IMAGES_PER_PAGE = 24;
 
   useEffect(() => {
@@ -60,6 +68,9 @@ export default function AdminImageRecoveryPage() {
   const { data: productsData, isLoading: loadingProducts } = useQuery<{
     products: ProductWithoutImage[];
     total: number;
+    brands: string[];
+    categories: string[];
+    subBrands: string[];
   }>({
     queryKey: ['/api/admin/delivery/products-without-images'],
   });
@@ -69,7 +80,7 @@ export default function AdminImageRecoveryPage() {
       const res = await apiRequest('POST', '/api/admin/delivery/assign-image', { productId, objectPath });
       return res.json();
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       toast({ title: "Image assigned successfully!" });
       setSelectedImage(null);
       queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/stored-images'] });
@@ -121,11 +132,16 @@ export default function AdminImageRecoveryPage() {
 
   const filteredImages = useMemo(() => {
     if (!storedImagesData?.images) return [];
-    let imgs = storedImagesData.images;
+    let imgs = [...storedImagesData.images];
     if (imageFilter === "unassigned") imgs = imgs.filter(i => !i.isAssigned);
     else if (imageFilter === "assigned") imgs = imgs.filter(i => i.isAssigned);
+    imgs.sort((a, b) => {
+      const dateA = a.created ? new Date(a.created).getTime() : 0;
+      const dateB = b.created ? new Date(b.created).getTime() : 0;
+      return imageSortOrder === "newest" ? dateB - dateA : dateA - dateB;
+    });
     return imgs;
-  }, [storedImagesData, imageFilter]);
+  }, [storedImagesData, imageFilter, imageSortOrder]);
 
   const pagedImages = useMemo(() => {
     const start = imagePage * IMAGES_PER_PAGE;
@@ -137,21 +153,26 @@ export default function AdminImageRecoveryPage() {
   const filteredProducts = useMemo(() => {
     if (!productsData?.products) return [];
     let prods = productsData.products;
+    if (enabledFilter === "enabled") {
+      prods = prods.filter(p => p.enabled === true);
+    } else if (enabledFilter === "disabled") {
+      prods = prods.filter(p => p.enabled === false);
+    }
     if (categoryFilter) {
       prods = prods.filter(p => p.category === categoryFilter);
+    }
+    if (brandFilter) {
+      prods = prods.filter(p => p.brand === brandFilter);
+    }
+    if (subBrandFilter) {
+      prods = prods.filter(p => p.productLineName === subBrandFilter);
     }
     if (productSearch) {
       const s = productSearch.toLowerCase();
       prods = prods.filter(p => p.name.toLowerCase().includes(s));
     }
     return prods;
-  }, [productsData, categoryFilter, productSearch]);
-
-  const categories = useMemo(() => {
-    if (!productsData?.products) return [];
-    const cats = new Set(productsData.products.map(p => p.category).filter(Boolean));
-    return Array.from(cats).sort() as string[];
-  }, [productsData]);
+  }, [productsData, categoryFilter, brandFilter, subBrandFilter, enabledFilter, productSearch]);
 
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -253,25 +274,37 @@ export default function AdminImageRecoveryPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
             <Card className="p-4">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
                   <ImageIcon className="w-5 h-5" />
                   Stored Images
                 </h2>
-                <div className="flex gap-1">
-                  {(["all", "unassigned", "assigned"] as const).map(f => (
-                    <Button
-                      key={f}
-                      size="sm"
-                      variant={imageFilter === f ? "default" : "outline"}
-                      onClick={() => { setImageFilter(f); setImagePage(0); }}
-                      className="text-xs capitalize"
-                    >
-                      {f} {f === "all" ? `(${storedImagesData?.totalStored || 0})` : 
-                           f === "assigned" ? `(${storedImagesData?.totalAssigned || 0})` :
-                           `(${(storedImagesData?.totalStored || 0) - (storedImagesData?.totalAssigned || 0)})`}
-                    </Button>
-                  ))}
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => { setImageSortOrder(s => s === "newest" ? "oldest" : "newest"); setImagePage(0); }}
+                    className="text-xs gap-1"
+                    title={`Sort by ${imageSortOrder === "newest" ? "oldest" : "newest"} first`}
+                  >
+                    <ArrowUpDown className="w-3.5 h-3.5" />
+                    {imageSortOrder === "newest" ? "Newest" : "Oldest"}
+                  </Button>
+                  <div className="flex gap-1">
+                    {(["all", "unassigned", "assigned"] as const).map(f => (
+                      <Button
+                        key={f}
+                        size="sm"
+                        variant={imageFilter === f ? "default" : "outline"}
+                        onClick={() => { setImageFilter(f); setImagePage(0); }}
+                        className="text-xs capitalize"
+                      >
+                        {f} {f === "all" ? `(${storedImagesData?.totalStored || 0})` : 
+                             f === "assigned" ? `(${storedImagesData?.totalAssigned || 0})` :
+                             `(${(storedImagesData?.totalStored || 0) - (storedImagesData?.totalAssigned || 0)})`}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -306,7 +339,7 @@ export default function AdminImageRecoveryPage() {
                           </div>
                         )}
                         <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[10px] text-white px-1 py-0.5 truncate">
-                          {formatSize(img.size)}
+                          {img.created ? new Date(img.created).toLocaleDateString() : ''} · {formatSize(img.size)}
                         </div>
                       </button>
                     ))}
@@ -357,6 +390,9 @@ export default function AdminImageRecoveryPage() {
                   <div className="text-sm space-y-1">
                     <p><span className="text-muted-foreground">Size:</span> {formatSize(selectedImage.size)}</p>
                     <p><span className="text-muted-foreground">Type:</span> {selectedImage.contentType}</p>
+                    {selectedImage.created && (
+                      <p><span className="text-muted-foreground">Uploaded:</span> {new Date(selectedImage.created).toLocaleString()}</p>
+                    )}
                     {selectedImage.isAssigned && selectedImage.assignedTo && (
                       <p className="text-green-600">
                         <Check className="w-3 h-3 inline mr-1" />
@@ -385,12 +421,15 @@ export default function AdminImageRecoveryPage() {
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
                   <Link2 className="w-5 h-5" />
-                  Products Without Images ({productsData?.total || 0})
+                  Products Without Images
+                  <span className="text-sm font-normal text-muted-foreground">
+                    ({filteredProducts.length}{productsData ? ` of ${productsData.total}` : ''})
+                  </span>
                 </h2>
               </div>
 
-              <div className="flex gap-2 mb-3">
-                <div className="relative flex-1">
+              <div className="space-y-2 mb-3">
+                <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 w-4 h-4 text-muted-foreground" />
                   <Input
                     placeholder="Search products..."
@@ -399,16 +438,62 @@ export default function AdminImageRecoveryPage() {
                     className="pl-8"
                   />
                 </div>
-                <select
-                  value={categoryFilter}
-                  onChange={e => setCategoryFilter(e.target.value)}
-                  className="px-3 py-2 border rounded-md bg-background text-sm"
-                >
-                  <option value="">All Categories</option>
-                  {categories.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+
+                <div className="flex flex-wrap gap-2">
+                  <select
+                    value={enabledFilter}
+                    onChange={e => setEnabledFilter(e.target.value as any)}
+                    className="px-3 py-1.5 border rounded-md bg-background text-sm flex-1 min-w-[120px]"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="enabled">Enabled Only</option>
+                    <option value="disabled">Disabled Only</option>
+                  </select>
+
+                  <select
+                    value={categoryFilter}
+                    onChange={e => setCategoryFilter(e.target.value)}
+                    className="px-3 py-1.5 border rounded-md bg-background text-sm flex-1 min-w-[120px]"
+                  >
+                    <option value="">All Categories</option>
+                    {(productsData?.categories || []).map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={brandFilter}
+                    onChange={e => { setBrandFilter(e.target.value); setSubBrandFilter(""); }}
+                    className="px-3 py-1.5 border rounded-md bg-background text-sm flex-1 min-w-[120px]"
+                  >
+                    <option value="">All Brands</option>
+                    {(productsData?.brands || []).map(b => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={subBrandFilter}
+                    onChange={e => setSubBrandFilter(e.target.value)}
+                    className="px-3 py-1.5 border rounded-md bg-background text-sm flex-1 min-w-[120px]"
+                  >
+                    <option value="">All Sub-Brands</option>
+                    {(productsData?.subBrands || []).map(sb => (
+                      <option key={sb} value={sb}>{sb}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {(enabledFilter !== "all" || categoryFilter || brandFilter || subBrandFilter) && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => { setEnabledFilter("all"); setCategoryFilter(""); setBrandFilter(""); setSubBrandFilter(""); }}
+                    className="text-xs text-muted-foreground"
+                  >
+                    <X className="w-3 h-3 mr-1" /> Clear filters
+                  </Button>
+                )}
               </div>
 
               {!selectedImage && (
@@ -456,7 +541,10 @@ export default function AdminImageRecoveryPage() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{product.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {product.category}{product.brand ? ` · ${product.brand}` : ''}
+                          {product.category}{product.brand ? ` · ${product.brand}` : ''}{product.productLineName ? ` · ${product.productLineName}` : ''}
+                          {product.enabled === false && (
+                            <span className="ml-1 text-red-400">(disabled)</span>
+                          )}
                         </p>
                       </div>
                       {selectedImage && (
@@ -469,7 +557,7 @@ export default function AdminImageRecoveryPage() {
 
                   {filteredProducts.length === 0 && (
                     <div className="text-center py-10 text-muted-foreground text-sm">
-                      {productSearch || categoryFilter
+                      {productSearch || categoryFilter || brandFilter || subBrandFilter || enabledFilter !== "all"
                         ? "No matching products found"
                         : "All products have images!"}
                     </div>

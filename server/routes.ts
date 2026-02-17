@@ -2337,24 +2337,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get products without images (admin) - for image recovery
   app.get('/api/admin/delivery/products-without-images', isAdmin, async (req, res) => {
     try {
-      const { category, search } = req.query;
       const { products: allProducts } = await storage.getAllDeliveryProducts();
       
-      let filtered = allProducts.filter((p: any) => !p.image || p.image === '/placeholder-product.png' || p.image === '/placeholder-product.jpg');
-      
-      if (category && typeof category === 'string') {
-        filtered = filtered.filter((p: any) => p.category === category);
+      const noImageProducts = allProducts.filter((p: any) => !p.image || p.image === '/placeholder-product.png' || p.image === '/placeholder-product.jpg');
+
+      noImageProducts.sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+      const brands = [...new Set(allProducts.map((p: any) => p.brand).filter(Boolean))].sort();
+      const categories = [...new Set(allProducts.map((p: any) => p.category).filter(Boolean))].sort();
+
+      const allBrands = await storage.getAllDeliveryBrands();
+      const allProductLines = await storage.getAllDeliveryProductLines();
+      const productLineMap = new Map<number, string>();
+      const subBrands: string[] = [];
+      for (const pl of allProductLines) {
+        productLineMap.set(pl.id, pl.name);
+        if (!subBrands.includes(pl.name)) subBrands.push(pl.name);
       }
-      if (search && typeof search === 'string') {
-        const s = search.toLowerCase();
-        filtered = filtered.filter((p: any) => p.name.toLowerCase().includes(s));
-      }
+      subBrands.sort();
 
-      filtered.sort((a: any, b: any) => a.name.localeCompare(b.name));
+      const products = noImageProducts.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        category: p.category,
+        brand: p.brand,
+        brandId: p.brandId,
+        productLineId: p.productLineId,
+        productLineName: p.productLineId ? (productLineMap.get(p.productLineId) || null) : null,
+        enabled: p.enabled,
+        image: p.image,
+      }));
 
-      const products = filtered.map((p: any) => ({ id: p.id, name: p.name, category: p.category, brand: p.brand, image: p.image }));
-
-      res.json({ products, total: products.length });
+      res.json({ products, total: products.length, brands, categories, subBrands });
     } catch (error) {
       console.error("Error listing products without images:", error);
       res.status(500).json({ error: "Failed to list products" });
