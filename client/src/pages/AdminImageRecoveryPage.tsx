@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Image as ImageIcon, Search, Check, X, Link2, Loader2, ChevronLeft, ChevronRight, Save, RotateCcw, Database, Download, ArrowUpDown } from "lucide-react";
+import { ArrowLeft, Image as ImageIcon, Search, Check, X, Link2, Loader2, ChevronLeft, ChevronRight, Save, RotateCcw, Database, Download, ArrowUpDown, GripVertical } from "lucide-react";
 
 interface StoredImage {
   objectPath: string;
@@ -43,6 +43,8 @@ export default function AdminImageRecoveryPage() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [imagePage, setImagePage] = useState(0);
   const [imageSortOrder, setImageSortOrder] = useState<"newest" | "oldest">("newest");
+  const [draggedImage, setDraggedImage] = useState<StoredImage | null>(null);
+  const [dragOverProductId, setDragOverProductId] = useState<number | null>(null);
   const IMAGES_PER_PAGE = 24;
 
   useEffect(() => {
@@ -318,8 +320,19 @@ export default function AdminImageRecoveryPage() {
                     {pagedImages.map(img => (
                       <button
                         key={img.objectPath}
+                        draggable
+                        onDragStart={(e) => {
+                          setDraggedImage(img);
+                          setSelectedImage(img);
+                          e.dataTransfer.setData('text/plain', img.objectPath);
+                          e.dataTransfer.effectAllowed = 'copy';
+                        }}
+                        onDragEnd={() => {
+                          setDraggedImage(null);
+                          setDragOverProductId(null);
+                        }}
                         onClick={() => setSelectedImage(selectedImage?.objectPath === img.objectPath ? null : img)}
-                        className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                        className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all cursor-grab active:cursor-grabbing ${
                           selectedImage?.objectPath === img.objectPath
                             ? "border-primary ring-2 ring-primary/30 scale-[0.95]"
                             : img.isAssigned
@@ -330,7 +343,7 @@ export default function AdminImageRecoveryPage() {
                         <img
                           src={img.objectPath}
                           alt={img.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover pointer-events-none"
                           loading="lazy"
                         />
                         {img.isAssigned && (
@@ -338,6 +351,9 @@ export default function AdminImageRecoveryPage() {
                             <Check className="w-3 h-3 text-white" />
                           </div>
                         )}
+                        <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100">
+                          <GripVertical className="w-3.5 h-3.5 text-white drop-shadow" />
+                        </div>
                         <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[10px] text-white px-1 py-0.5 truncate">
                           {img.created ? new Date(img.created).toLocaleDateString() : ''} · {formatSize(img.size)}
                         </div>
@@ -496,18 +512,18 @@ export default function AdminImageRecoveryPage() {
                 )}
               </div>
 
-              {!selectedImage && (
+              {!selectedImage && !draggedImage && (
                 <div className="bg-muted/50 rounded-lg p-4 text-center text-sm text-muted-foreground mb-3">
                   <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  Click an image on the left to select it, then click a product here to assign it.
+                  Drag an image and drop it on a product, or click to select then click a product.
                 </div>
               )}
 
-              {selectedImage && (
+              {(selectedImage || draggedImage) && (
                 <div className="bg-primary/10 rounded-lg p-3 text-center text-sm mb-3 border border-primary/30">
                   <div className="flex items-center justify-center gap-2">
-                    <img src={selectedImage.objectPath} alt="" className="w-8 h-8 object-cover rounded" />
-                    <span>Click a product below to assign this image</span>
+                    <img src={(draggedImage || selectedImage)!.objectPath} alt="" className="w-8 h-8 object-cover rounded" />
+                    <span>{draggedImage ? "Drop on a product below to assign" : "Click a product below to assign this image"}</span>
                   </div>
                 </div>
               )}
@@ -523,20 +539,45 @@ export default function AdminImageRecoveryPage() {
                       key={product.id}
                       onClick={() => {
                         if (!selectedImage) {
-                          toast({ title: "Select an image first", description: "Click an image on the left panel to select it", variant: "destructive" });
+                          toast({ title: "Select an image first", description: "Click an image or drag it onto a product", variant: "destructive" });
                           return;
                         }
                         assignMutation.mutate({ productId: product.id, objectPath: selectedImage.objectPath });
                       }}
-                      disabled={!selectedImage || assignMutation.isPending}
-                      className={`w-full flex items-center gap-3 p-2.5 rounded-lg text-left transition-all ${
-                        selectedImage
-                          ? "hover:bg-primary/10 hover:border-primary/30 cursor-pointer border border-transparent"
-                          : "opacity-60 cursor-not-allowed border border-transparent"
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'copy';
+                        setDragOverProductId(product.id);
+                      }}
+                      onDragLeave={() => {
+                        setDragOverProductId(prev => prev === product.id ? null : prev);
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setDragOverProductId(null);
+                        const objectPath = e.dataTransfer.getData('text/plain');
+                        if (objectPath) {
+                          assignMutation.mutate({ productId: product.id, objectPath });
+                        }
+                        setDraggedImage(null);
+                      }}
+                      disabled={assignMutation.isPending}
+                      className={`w-full flex items-center gap-3 p-2.5 rounded-lg text-left transition-all border ${
+                        dragOverProductId === product.id
+                          ? "bg-primary/20 border-primary ring-2 ring-primary/30 scale-[1.02]"
+                          : selectedImage
+                          ? "hover:bg-primary/10 hover:border-primary/30 cursor-pointer border-transparent"
+                          : "border-transparent"
                       }`}
                     >
-                      <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center flex-shrink-0">
-                        <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                      <div className={`w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0 transition-colors ${
+                        dragOverProductId === product.id ? "bg-primary/30" : "bg-muted"
+                      }`}>
+                        {dragOverProductId === product.id ? (
+                          <Download className="w-5 h-5 text-primary" />
+                        ) : (
+                          <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{product.name}</p>
@@ -547,7 +588,7 @@ export default function AdminImageRecoveryPage() {
                           )}
                         </p>
                       </div>
-                      {selectedImage && (
+                      {(selectedImage || dragOverProductId === product.id) && (
                         <div className="flex-shrink-0 text-primary">
                           <Link2 className="w-4 h-4" />
                         </div>
