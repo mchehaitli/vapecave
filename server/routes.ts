@@ -2182,6 +2182,232 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // List all stored images in object storage (admin) - for image recovery
+  app.get('/api/admin/delivery/stored-images', isAdmin, async (req, res) => {
+    try {
+      const privateDir = process.env.PRIVATE_OBJECT_DIR || '';
+      if (!privateDir) {
+        return res.status(500).json({ error: "Object storage not configured" });
+      }
+      const bucketName = privateDir.startsWith('/') ? privateDir.split('/')[1] : privateDir.split('/')[0];
+      
+      const { objectStorageClient } = await import("./replit_integrations/object_storage/objectStorage");
+      const storageBucket = objectStorageClient.bucket(bucketName);
+      const [files] = await storageBucket.getFiles({ prefix: '.private/uploads/' });
+      
+      const images = files.map(f => ({
+        objectPath: `/objects/uploads/${f.name.split('/').pop()}`,
+        name: f.name.split('/').pop() || '',
+        size: parseInt(f.metadata.size as string || '0'),
+        contentType: f.metadata.contentType || 'image/jpeg',
+        created: f.metadata.timeCreated || null,
+      }));
+
+      const { products: allProducts } = await storage.getAllDeliveryProducts();
+      const productsWithObjImages = allProducts.filter((p: any) => p.image && p.image.startsWith('/objects/'));
+      const assignedPaths = new Set(productsWithObjImages.map((p: any) => p.image));
+
+      const result = images.map(img => {
+        const matchedProduct = productsWithObjImages.find((p: any) => p.image === img.objectPath);
+        return {
+          ...img,
+          isAssigned: assignedPaths.has(img.objectPath),
+          assignedTo: matchedProduct ? { id: matchedProduct.id, name: matchedProduct.name } : null,
+        };
+      });
+
+      res.json({ images: result, totalStored: images.length, totalAssigned: productsWithObjImages.length });
+    } catch (error) {
+      console.error("Error listing stored images:", error);
+      res.status(500).json({ error: "Failed to list stored images" });
+    }
+  });
+
+  // Assign a stored image to a product (admin) - for image recovery
+  app.post('/api/admin/delivery/assign-image', isAdmin, async (req, res) => {
+    try {
+      const { productId, objectPath } = req.body;
+      if (!productId || !objectPath) {
+        return res.status(400).json({ error: "productId and objectPath are required" });
+      }
+
+      const product = await storage.updateDeliveryProduct(productId, { image: objectPath });
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      // Auto-save mapping backup after each assignment
+      try {
+        const privateDir = process.env.PRIVATE_OBJECT_DIR || '';
+        if (privateDir) {
+          const bucketName = privateDir.startsWith('/') ? privateDir.split('/')[1] : privateDir.split('/')[0];
+          const { objectStorageClient: osc } = await import("./replit_integrations/object_storage/objectStorage");
+          const bkt = osc.bucket(bucketName);
+          const mappingFile = bkt.file('.private/image-mapping.json');
+          
+          const { products: allProds } = await storage.getAllDeliveryProducts();
+          const mapping = allProds
+            .filter((p: any) => p.image && p.image.startsWith('/objects/'))
+            .map((p: any) => ({ productId: p.id, productName: p.name, category: p.category, brand: p.brand, imagePath: p.image }));
+          
+          await mappingFile.save(JSON.stringify({
+            savedAt: new Date().toISOString(),
+            totalMappings: mapping.length,
+            mappings: mapping,
+          }, null, 2), { contentType: 'application/json' });
+        }
+      } catch (backupErr) {
+        console.error("Warning: Auto-backup of image mapping failed:", backupErr);
+      }
+
+      res.json({ success: true, product });
+    } catch (error) {
+      console.error("Error assigning image:", error);
+      res.status(500).json({ error: "Failed to assign image" });
+    }
+  });
+
+  // Get products without images (admin) - for image recovery
+  app.get('/api/admin/delivery/products-without-images', isAdmin, async (req, res) => {
+    try {
+      const { category, search } = req.query;
+      const { products: allProducts } = await storage.getAllDeliveryProducts();
+      
+      let filtered = allProducts.filter((p: any) => !p.image || p.image === '/placeholder-product.png' || p.image === '/placeholder-product.jpg');
+      
+      if (category && typeof category === 'string') {
+        filtered = filtered.filter((p: any) => p.category === category);
+      }
+      if (search && typeof search === 'string') {
+        const s = search.toLowerCase();
+        filtered = filtered.filter((p: any) => p.name.toLowerCase().includes(s));
+      }
+
+      filtered.sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+      const products = filtered.map((p: any) => ({ id: p.id, name: p.name, category: p.category, brand: p.brand, image: p.image }));
+
+      res.json({ products, total: products.length });
+    } catch (error) {
+      console.error("Error listing products without images:", error);
+      res.status(500).json({ error: "Failed to list products" });
+    }
+  });
+
+  // Save image-product mapping to object storage (admin) - backup for rollback recovery
+  app.post('/api/admin/delivery/save-image-mapping', isAdmin, async (req, res) => {
+    try {
+      const { products: allProducts } = await storage.getAllDeliveryProducts();
+      const mapping = allProducts
+        .filter((p: any) => p.image && p.image.startsWith('/objects/'))
+        .map((p: any) => ({ productId: p.id, productName: p.name, category: p.category, brand: p.brand, imagePath: p.image }));
+
+      const privateDir = process.env.PRIVATE_OBJECT_DIR || '';
+      if (!privateDir) {
+        return res.status(500).json({ error: "Object storage not configured" });
+      }
+      const bucketName = privateDir.startsWith('/') ? privateDir.split('/')[1] : privateDir.split('/')[0];
+      const { objectStorageClient } = await import("./replit_integrations/object_storage/objectStorage");
+      const bucket = objectStorageClient.bucket(bucketName);
+      const file = bucket.file('.private/image-mapping.json');
+      
+      const mappingData = {
+        savedAt: new Date().toISOString(),
+        totalMappings: mapping.length,
+        mappings: mapping,
+      };
+      
+      await file.save(JSON.stringify(mappingData, null, 2), { contentType: 'application/json' });
+      
+      res.json({ success: true, totalSaved: mapping.length, savedAt: mappingData.savedAt });
+    } catch (error) {
+      console.error("Error saving image mapping:", error);
+      res.status(500).json({ error: "Failed to save image mapping" });
+    }
+  });
+
+  // Load and restore image-product mapping from object storage (admin) 
+  app.post('/api/admin/delivery/restore-image-mapping', isAdmin, async (req, res) => {
+    try {
+      const privateDir = process.env.PRIVATE_OBJECT_DIR || '';
+      if (!privateDir) {
+        return res.status(500).json({ error: "Object storage not configured" });
+      }
+      const bucketName = privateDir.startsWith('/') ? privateDir.split('/')[1] : privateDir.split('/')[0];
+      const { objectStorageClient } = await import("./replit_integrations/object_storage/objectStorage");
+      const bucket = objectStorageClient.bucket(bucketName);
+      const file = bucket.file('.private/image-mapping.json');
+      
+      const [exists] = await file.exists();
+      if (!exists) {
+        return res.status(404).json({ error: "No saved mapping found. Save a mapping first after assigning images." });
+      }
+      
+      const [contents] = await file.download();
+      const mappingData = JSON.parse(contents.toString());
+      
+      let restored = 0;
+      let skipped = 0;
+      const errors: string[] = [];
+      
+      for (const mapping of mappingData.mappings) {
+        try {
+          const product = await storage.getDeliveryProduct(mapping.productId);
+          if (product && (!product.image || product.image === '/placeholder-product.png' || product.image === '/placeholder-product.jpg')) {
+            await storage.updateDeliveryProduct(mapping.productId, { image: mapping.imagePath });
+            restored++;
+          } else {
+            skipped++;
+          }
+        } catch (e) {
+          errors.push(`Failed to restore product ${mapping.productId}: ${(e as Error).message}`);
+        }
+      }
+      
+      res.json({ 
+        success: true, 
+        restored, 
+        skipped,
+        totalInMapping: mappingData.mappings.length,
+        savedAt: mappingData.savedAt,
+        errors: errors.length > 0 ? errors : undefined,
+      });
+    } catch (error) {
+      console.error("Error restoring image mapping:", error);
+      res.status(500).json({ error: "Failed to restore image mapping" });
+    }
+  });
+
+  // Get saved mapping info (admin)
+  app.get('/api/admin/delivery/image-mapping-info', isAdmin, async (req, res) => {
+    try {
+      const privateDir = process.env.PRIVATE_OBJECT_DIR || '';
+      if (!privateDir) {
+        return res.json({ exists: false });
+      }
+      const bucketName = privateDir.startsWith('/') ? privateDir.split('/')[1] : privateDir.split('/')[0];
+      const { objectStorageClient } = await import("./replit_integrations/object_storage/objectStorage");
+      const bucket = objectStorageClient.bucket(bucketName);
+      const file = bucket.file('.private/image-mapping.json');
+      
+      const [exists] = await file.exists();
+      if (!exists) {
+        return res.json({ exists: false });
+      }
+      
+      const [contents] = await file.download();
+      const mappingData = JSON.parse(contents.toString());
+      
+      res.json({ 
+        exists: true, 
+        savedAt: mappingData.savedAt, 
+        totalMappings: mappingData.totalMappings 
+      });
+    } catch (error) {
+      res.json({ exists: false });
+    }
+  });
+
   // Create delivery product (admin)
   app.post('/api/admin/delivery/products', isAdmin, async (req, res) => {
     try {

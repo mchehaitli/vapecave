@@ -3226,6 +3226,14 @@ export function DeliveryProductsTab() {
               >
                 {syncMutation.isPending ? "Syncing..." : "Sync from Clover"}
               </Button>
+              <a href="/admin/image-recovery">
+                <Button
+                  variant="outline"
+                  className="border-amber-600 text-amber-500 hover:bg-amber-500/10"
+                >
+                  Image Recovery Tool
+                </Button>
+              </a>
             </div>
           </div>
           

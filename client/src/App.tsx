@@ -14,6 +14,7 @@ import ReviewsPage from "@/pages/ReviewsPage";
 import AdminLoginPage from "@/pages/AdminLoginPage";
 import AdminCategoriesBrandsPage from "@/pages/AdminCategoriesBrandsPage";
 import AdminBrandImagesPage from "@/pages/AdminBrandImagesPage";
+import AdminImageRecoveryPage from "@/pages/AdminImageRecoveryPage";
 import NotFound from "@/pages/not-found";
 import SeoLandingPage from "@/pages/SeoLandingPage";
 import DeliveryLanding from "@/pages/DeliveryLanding";
@@ -90,6 +91,7 @@ function Router() {
           <Route path="/admin/login" component={AdminLoginPage} />
           <Route path="/admin/categories-brands" component={AdminCategoriesBrandsPage} />
           <Route path="/admin/brand-images" component={AdminBrandImagesPage} />
+          <Route path="/admin/image-recovery" component={AdminImageRecoveryPage} />
           <Route path="/admin" component={AdminPage} />
           <Route path="/delivery" component={DeliveryLanding} />
           
