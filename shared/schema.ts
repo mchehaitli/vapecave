@@ -513,6 +513,7 @@ export const deliveryProductLines = pgTable("delivery_product_lines", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   brandId: integer("brand_id").notNull(), // Links to deliveryBrands
+  parentId: integer("parent_id"), // Self-referencing for nested hierarchy (sub-brand → series → etc.)
   logo: text("logo"), // Product line logo/image
   displayOrder: integer("display_order").default(0),
   isActive: boolean("is_active").default(true),
@@ -525,11 +526,13 @@ export const insertDeliveryProductLineSchema = createInsertSchema(deliveryProduc
   name: true,
   slug: true,
   brandId: true,
+  parentId: true,
   logo: true,
   displayOrder: true,
   isActive: true,
   featuredProductIds: true,
 }).extend({
+  parentId: z.number().optional().nullable(),
   logo: z.string().optional().nullable(),
   featuredProductIds: z.array(z.number()).optional().nullable(),
 });
