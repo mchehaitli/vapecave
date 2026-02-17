@@ -113,7 +113,20 @@ Tasks completed:
    - Inline bot detection script that sets `data-bot` attribute on `<html>`, with CSS forcing `opacity: 1 !important` and `transform: none !important` on all animated elements
 2. **Age Gate Bot Bypass**: Age verification modal is now skipped for detected search engine bots so they can see the actual page content without the overlay.
 3. **Google Maps Links Fixed**: Replaced all `maps.app.goo.gl` shortened links with proper direct Google Maps URLs using Place ID (`ChIJZ2EXpXw9TIYRjUEpqkkI6Lg`).
-4. **Bot Detection Covers**: Googlebot, Bingbot, Yandex, Baidu, DuckDuckBot, Slurp, Facebook, Twitter, LinkedIn, Semrush, Ahrefs, Mj12bot.
+4. **Bot Detection Covers**: Googlebot, Bingbot, Yandex, Baidu, DuckDuckBot, Slurp, Facebook, Twitter, LinkedIn, Semrush, Ahrefs, Mj12bot, Applebot, Petalbot.
+5. **Timeout Fallback**: After 3.5 seconds, `data-visible` attribute set on `<html>` forces any still-hidden elements visible regardless of UA detection.
+
+## Rich Results / Structured Data Fix (February 2026)
+
+### Changes Made:
+1. **Schema Type Fixed**: Changed `SmokeShop` (not a valid schema.org type) to `TobaccoStore` (official schema.org type recognized by Google).
+2. **Product Schema Fixed**: Replaced `makesOffer` with `Offer`/`Product` items (which triggered incomplete Product validation errors in Rich Results test) with `hasOfferCatalog` using `OfferCatalog` type (doesn't require price/availability fields).
+3. **Removed CBD & Delta Products**: Removed "CBD & Delta Products" entry from structured data per December 2025 temporary content removal.
+4. **Removed OrderAction**: Removed unsupported `potentialAction: OrderAction` from LocalBusiness schema. `SearchAction` remains on the separate WebSite schema.
+5. **Opening Hours Consolidated**: Consolidated 7 individual day entries into one using `dayOfWeek` array. Kept `23:59` closing time (safest representation for midnight that avoids ambiguity).
+6. **Image URLs Fixed**: Updated `image` and `logo` fields to use actual file names (`vapecave-logo.png`, `vapecave-logo.svg`) instead of non-existent `logo.png` and `storefront.jpg`.
+7. **hasMap URL Updated**: Changed from CID-based URL to proper Google Maps search URL with Place ID.
+8. **WebSite Schema dateModified Updated**: Changed from `2025-05-09` to `2026-02-17`.
 
 ## Recent Updates (January 2026)
 
