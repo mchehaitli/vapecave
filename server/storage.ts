@@ -1331,10 +1331,7 @@ export class DbStorage implements IStorage {
             description: product.description,
             stockQuantity: product.stockQuantity,
           };
-          const existingIsWebsiteCat = websiteCategories.some(wc => wc.name === existing.category);
           if (!existing.category || existing.category === 'Uncategorized') {
-            updateData.category = resolvedCategory;
-          } else if (!existingIsWebsiteCat) {
             updateData.category = resolvedCategory;
           }
           if (!existing.customName) {
