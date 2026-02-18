@@ -1276,17 +1276,19 @@ export class DbStorage implements IStorage {
         const existing = await this.getDeliveryProductByCloverItemId(product.cloverItemId);
         
         if (existing) {
-          // Update existing product but preserve admin settings
-          // If customName is set, don't overwrite name from Clover
           const updateData: any = {
             price: product.price,
-            image: product.image,
             description: product.description,
             category: product.category,
             stockQuantity: product.stockQuantity,
           };
           if (!existing.customName) {
             updateData.name = product.name;
+          }
+          const hasCustomImage = existing.image && existing.image !== '/placeholder-product.png' && existing.image !== '';
+          const cloverHasRealImage = product.image && product.image !== '/placeholder-product.png' && product.image !== '';
+          if (!hasCustomImage && cloverHasRealImage) {
+            updateData.image = product.image;
           }
           await this.updateDeliveryProduct(existing.id, updateData);
           updated++;
@@ -3132,15 +3134,19 @@ export class MemStorage implements IStorage {
       const existing = await this.getDeliveryProductByCloverItemId(product.cloverItemId);
       
       if (existing) {
-        // Update existing product but preserve admin settings
-        await this.updateDeliveryProduct(existing.id, {
+        const memUpdateData: Partial<InsertDeliveryProduct> = {
           name: product.name,
           price: product.price,
-          image: product.image,
           description: product.description,
           category: product.category,
           stockQuantity: product.stockQuantity,
-        });
+        };
+        const hasCustomImage = existing.image && existing.image !== '/placeholder-product.png' && existing.image !== '';
+        const cloverHasRealImage = product.image && product.image !== '/placeholder-product.png' && product.image !== '';
+        if (!hasCustomImage && cloverHasRealImage) {
+          memUpdateData.image = product.image;
+        }
+        await this.updateDeliveryProduct(existing.id, memUpdateData);
         updated++;
       } else {
         // Create new product
