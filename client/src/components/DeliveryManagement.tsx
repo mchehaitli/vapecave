@@ -2430,16 +2430,28 @@ const ProductRow = React.memo(function ProductRow({
         </div>
       </TableCell>
       <TableCell className="py-1 px-0.5">
-        <Select value={product.category || ""} onValueChange={(v) => onUpdate(product.id, { category: v || null })}>
-          <SelectTrigger className="w-20 h-7 bg-gray-700 border-gray-600 text-[11px] px-1.5">
-            <SelectValue placeholder="—" />
-          </SelectTrigger>
-          <SelectContent>
-            {deliveryCategories.filter(c => c.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)).map(cat => (
-              <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {(() => {
+          const activeCats = deliveryCategories.filter(c => c.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+          const currentCat = product.category || "";
+          const matchedWebCat = currentCat ? activeCats.find(c => {
+            if (c.name === currentCat) return true;
+            const mapped = (c.mappedCategories as string[] | null) || [];
+            return mapped.some(m => m.toLowerCase().trim() === currentCat.toLowerCase().trim());
+          }) : null;
+          const displayValue = matchedWebCat ? matchedWebCat.name : currentCat;
+          return (
+            <Select value={displayValue} onValueChange={(v) => onUpdate(product.id, { category: v || null })}>
+              <SelectTrigger className="w-20 h-7 bg-gray-700 border-gray-600 text-[11px] px-1.5">
+                <SelectValue placeholder="—" />
+              </SelectTrigger>
+              <SelectContent>
+                {activeCats.map(cat => (
+                  <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+        })()}
       </TableCell>
       <TableCell className="py-1 px-0.5 text-[11px] font-medium whitespace-nowrap">
         {product.salePrice ? (
@@ -2465,7 +2477,11 @@ const ProductRow = React.memo(function ProductRow({
       </TableCell>
       <TableCell className="py-1 px-0.5">
         {(() => {
-          const matchedCategory = product.category ? deliveryCategories.find(c => c.name === product.category) : null;
+          const matchedCategory = product.category ? deliveryCategories.find(c => {
+            if (c.name === product.category) return true;
+            const mapped = (c.mappedCategories as string[] | null) || [];
+            return mapped.some(m => m.toLowerCase().trim() === (product.category || "").toLowerCase().trim());
+          }) : null;
           const filteredBrands = deliveryBrands.filter(b => b.isActive && (!matchedCategory || b.categoryId === matchedCategory.id)).sort((a, b) => a.name.localeCompare(b.name));
           return (
             <Select value={product.brandId?.toString() || "none"} onValueChange={(v) => onUpdate(product.id, { brandId: v === "none" ? null : parseInt(v), productLineId: null })}>

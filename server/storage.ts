@@ -1296,10 +1296,19 @@ export class DbStorage implements IStorage {
     
     const cloverCategoriesSeen = new Set<string>();
 
+    const websiteCategories = await db.select().from(deliveryCategories);
+    const cloverToWebsiteMap = new Map<string, string>();
+    for (const wc of websiteCategories) {
+      const mapped = (wc.mappedCategories as string[] | null) || [];
+      for (const m of mapped) {
+        cloverToWebsiteMap.set(m.toLowerCase().trim(), wc.name);
+      }
+      cloverToWebsiteMap.set(wc.name.toLowerCase().trim(), wc.name);
+    }
+
     for (const product of products) {
       if (!product.cloverItemId) continue;
       
-      // Skip duplicates in the Clover response
       if (processedIds.has(product.cloverItemId)) {
         continue;
       }
@@ -1309,6 +1318,10 @@ export class DbStorage implements IStorage {
         cloverCategoriesSeen.add(product.category);
       }
       
+      const resolvedCategory = product.category 
+        ? (cloverToWebsiteMap.get(product.category.toLowerCase().trim()) || product.category)
+        : product.category;
+      
       try {
         const existing = await this.getDeliveryProductByCloverItemId(product.cloverItemId);
         
@@ -1316,9 +1329,14 @@ export class DbStorage implements IStorage {
           const updateData: any = {
             price: product.price,
             description: product.description,
-            category: product.category,
             stockQuantity: product.stockQuantity,
           };
+          const existingIsWebsiteCat = websiteCategories.some(wc => wc.name === existing.category);
+          if (!existing.category || existing.category === 'Uncategorized') {
+            updateData.category = resolvedCategory;
+          } else if (!existingIsWebsiteCat) {
+            updateData.category = resolvedCategory;
+          }
           if (!existing.customName) {
             updateData.name = product.name;
           }
@@ -1330,6 +1348,7 @@ export class DbStorage implements IStorage {
           await this.updateDeliveryProduct(existing.id, updateData);
           updated++;
         } else {
+          product.category = resolvedCategory;
           await this.createDeliveryProduct(product as InsertDeliveryProduct);
           created++;
         }
