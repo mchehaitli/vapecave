@@ -132,7 +132,7 @@ export default function DeliveryCategoryPage() {
       const bFeatured = featuredIds.includes(b.id);
       if (aFeatured && !bFeatured) return -1;
       if (!aFeatured && bFeatured) return 1;
-      return (a.displayOrder || 0) - (b.displayOrder || 0);
+      return (a.name || '').localeCompare(b.name || '');
     });
 
   const featuredProducts = categoryProducts.filter(p => featuredIds.includes(p.id));
