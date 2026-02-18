@@ -63,6 +63,7 @@ interface DeliveryCategory {
   displayOrder: number;
   isActive: boolean;
   featuredProductIds?: number[];
+  mappedCategories?: string[];
 }
 
 interface DeliveryBrand {
@@ -513,6 +514,7 @@ export function CategoryBrandManagement() {
   const [categoryName, setCategoryName] = useState("");
   const [categoryImage, setCategoryImage] = useState("");
   const [categoryActive, setCategoryActive] = useState(true);
+  const [categoryMappedCategories, setCategoryMappedCategories] = useState<string[]>([]);
   const [categoryImageUploading, setCategoryImageUploading] = useState(false);
   const categoryImageInputRef = useRef<HTMLInputElement>(null);
   
@@ -924,12 +926,17 @@ export function CategoryBrandManagement() {
     );
   };
 
+  const { data: cloverCategories = [] } = useQuery<string[]>({
+    queryKey: ['/api/admin/delivery/clover-categories'],
+  });
+
   const resetCategoryForm = () => {
     setCategoryDialog(false);
     setEditingCategory(null);
     setCategoryName("");
     setCategoryImage("");
     setCategoryActive(true);
+    setCategoryMappedCategories([]);
     setCategoryImageUploading(false);
     if (categoryImageInputRef.current) {
       categoryImageInputRef.current.value = '';
@@ -964,6 +971,7 @@ export function CategoryBrandManagement() {
     setCategoryName(category.name);
     setCategoryImage(category.image || "");
     setCategoryActive(category.isActive);
+    setCategoryMappedCategories(category.mappedCategories || []);
     setCategoryDialog(true);
   };
 
@@ -1016,14 +1024,15 @@ export function CategoryBrandManagement() {
     if (editingCategory) {
       updateCategoryMutation.mutate({
         id: editingCategory.id,
-        data: { name: categoryName, image: categoryImage || null, isActive: categoryActive }
+        data: { name: categoryName, image: categoryImage || null, isActive: categoryActive, mappedCategories: categoryMappedCategories }
       });
     } else {
       createCategoryMutation.mutate({
         name: categoryName,
         image: categoryImage || null,
-        isActive: categoryActive
-      });
+        isActive: categoryActive,
+        mappedCategories: categoryMappedCategories
+      } as any);
     }
   };
 
@@ -1264,6 +1273,36 @@ export function CategoryBrandManagement() {
             <div className="flex items-center gap-2">
               <Switch checked={categoryActive} onCheckedChange={setCategoryActive} />
               <Label>Active</Label>
+            </div>
+            <div>
+              <Label>Clover Category Mapping</Label>
+              <p className="text-xs text-gray-400 mt-1 mb-2">
+                Select which Clover categories should show under this website category. Products from all selected Clover categories will appear on this page.
+              </p>
+              <ScrollArea className="h-40 border border-gray-600 rounded-md p-2">
+                {cloverCategories.length === 0 ? (
+                  <p className="text-xs text-gray-500 text-center py-4">No Clover categories found</p>
+                ) : (
+                  <div className="space-y-1">
+                    {cloverCategories.map((cc) => (
+                      <label key={cc} className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-700 cursor-pointer text-sm">
+                        <Checkbox
+                          checked={categoryMappedCategories.includes(cc)}
+                          onCheckedChange={(checked) => {
+                            setCategoryMappedCategories(prev =>
+                              checked ? [...prev, cc] : prev.filter(c => c !== cc)
+                            );
+                          }}
+                        />
+                        <span>{cc}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+              {categoryMappedCategories.length > 0 && (
+                <p className="text-xs text-green-400 mt-1">{categoryMappedCategories.length} Clover categories mapped</p>
+              )}
             </div>
           </div>
           <DialogFooter className="mt-6">

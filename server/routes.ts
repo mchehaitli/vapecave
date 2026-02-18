@@ -4625,10 +4625,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create delivery category
   app.post('/api/admin/delivery/categories', isAdmin, async (req, res) => {
     try {
-      const { name, image, isActive } = req.body;
+      const { name, image, isActive, mappedCategories } = req.body;
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       
-      // Check if slug already exists
       const existing = await storage.getDeliveryCategoryBySlug(slug);
       if (existing) {
         return res.status(400).json({ error: "A category with this name already exists" });
@@ -4639,7 +4638,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         slug,
         image: image || null,
         isActive: isActive ?? true,
-        displayOrder: 0
+        displayOrder: 0,
+        mappedCategories: mappedCategories || []
       });
       res.json(category);
     } catch (error) {
@@ -4678,6 +4678,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting delivery category:", error);
       res.status(500).json({ error: "Failed to delete category" });
+    }
+  });
+
+  app.get('/api/admin/delivery/clover-categories', isAdmin, async (req, res) => {
+    try {
+      const { products } = await storage.getAllDeliveryProducts();
+      const categorySet = new Set<string>();
+      products.forEach((p: any) => {
+        if (p.category) categorySet.add(p.category);
+      });
+      const categories = Array.from(categorySet).sort();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching Clover categories:", error);
+      res.status(500).json({ error: "Failed to fetch Clover categories" });
     }
   });
 

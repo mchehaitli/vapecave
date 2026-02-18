@@ -424,7 +424,8 @@ export const deliveryCategories = pgTable("delivery_categories", {
   image: text("image"), // Category image for display
   displayOrder: integer("display_order").default(0),
   isActive: boolean("is_active").default(true),
-  featuredProductIds: json("featured_product_ids").$type<number[]>().default([]), // Featured products for carousel
+  featuredProductIds: json("featured_product_ids").$type<number[]>().default([]),
+  mappedCategories: json("mapped_categories").$type<string[]>().default([]),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -436,9 +437,11 @@ export const insertDeliveryCategorySchema = createInsertSchema(deliveryCategorie
   displayOrder: true,
   isActive: true,
   featuredProductIds: true,
+  mappedCategories: true,
 }).extend({
   image: z.string().optional().nullable(),
   featuredProductIds: z.array(z.number()).optional().nullable(),
+  mappedCategories: z.array(z.string()).optional().nullable(),
 });
 
 export type InsertDeliveryCategory = z.infer<typeof insertDeliveryCategorySchema>;

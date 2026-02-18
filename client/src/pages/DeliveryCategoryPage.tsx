@@ -98,27 +98,34 @@ export default function DeliveryCategoryPage() {
   const category = categories.find((c) => c.slug === slug);
   const featuredIds = (category?.featuredProductIds as number[]) || [];
 
+  const mappedCategoryNames = useMemo(() => {
+    if (!category) return new Set<string>();
+    const mapped = category.mappedCategories as string[] | undefined;
+    const names = new Set<string>();
+    if (mapped && mapped.length > 0) {
+      mapped.forEach(m => names.add(m.toLowerCase().trim()));
+    }
+    names.add(category.name.toLowerCase().trim());
+    names.add(category.slug.toLowerCase().trim());
+    return names;
+  }, [category]);
+
   const categoryProducts = products
     .filter((p) => {
       if (!p.enabled || !p.category || !category) return false;
       
       const productCat = p.category.toLowerCase().trim();
-      const catName = category.name.toLowerCase().trim();
-      const catSlug = category.slug.toLowerCase().trim();
-      
-      // Normalize by removing trailing 's' for singular/plural matching
+
+      if (mappedCategoryNames.has(productCat)) return true;
+
       const productCatNormalized = productCat.replace(/s$/, '');
-      const catNameNormalized = catName.replace(/s$/, '');
-      const catSlugNormalized = catSlug.replace(/s$/, '');
+      for (const name of mappedCategoryNames) {
+        const nameNormalized = name.replace(/s$/, '');
+        if (productCatNormalized === nameNormalized) return true;
+        if (productCat.replace(/-/g, '') === name.replace(/-/g, '')) return true;
+      }
       
-      // Check multiple matching conditions
-      return (
-        productCat === catName ||                           // exact match with name
-        productCat === catSlug ||                           // exact match with slug
-        productCatNormalized === catNameNormalized ||       // singular/plural match
-        productCatNormalized === catSlugNormalized ||       // singular/plural match with slug
-        productCat.replace(/-/g, '') === catSlug.replace(/-/g, '') // hyphen-normalized match
-      );
+      return false;
     })
     .sort((a, b) => {
       const aFeatured = featuredIds.includes(a.id);
