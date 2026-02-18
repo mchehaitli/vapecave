@@ -2354,6 +2354,8 @@ interface CloverSyncResult {
   synced: number;
   updated: number;
   created: number;
+  deleted?: number;
+  unmappedCategories?: string[];
   timestamp: string;
 }
 
@@ -2695,10 +2697,20 @@ export function DeliveryProductsTab() {
     onSuccess: (data: CloverSyncResult) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/delivery/products"] });
       setSyncResult(data);
-      toast({ 
-        title: "Products Synced", 
-        description: `${data.created} new products, ${data.updated} updated` 
-      });
+      const desc = `${data.created} new, ${data.updated} updated, ${data.deleted || 0} removed`;
+      if (data.unmappedCategories && data.unmappedCategories.length > 0) {
+        toast({ 
+          title: "Synced - Some categories unmapped", 
+          description: `${desc}. Unmapped: ${data.unmappedCategories.join(', ')}. Go to Categories to map them.`,
+          variant: "destructive",
+          duration: 10000
+        });
+      } else {
+        toast({ 
+          title: "Products Synced", 
+          description: desc
+        });
+      }
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message || "Failed to sync products from Clover.", variant: "destructive" });

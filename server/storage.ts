@@ -151,7 +151,7 @@ export interface IStorage {
   deleteDeliveryProduct(id: number): Promise<boolean>;
   bulkUpdateDeliveryProducts(productIds: number[], updates: Partial<InsertDeliveryProduct>): Promise<{updated: number}>;
   bulkDeleteDeliveryProducts(productIds: number[]): Promise<{deleted: number}>;
-  syncProductsFromClover(products: Array<Partial<InsertDeliveryProduct>>): Promise<{synced: number, updated: number, created: number, deleted: number}>;
+  syncProductsFromClover(products: Array<Partial<InsertDeliveryProduct>>): Promise<{synced: number, updated: number, created: number, deleted: number, unmappedCategories?: string[]}>;
   refreshProductStockAndPrice(cloverItemId: string, stockQuantity: string, price: string): Promise<DeliveryProduct | undefined>;
 
   // Delivery window operations
@@ -1254,14 +1254,47 @@ export class DbStorage implements IStorage {
     return { deleted: result.length };
   }
 
-  async syncProductsFromClover(products: Array<Partial<InsertDeliveryProduct>>): Promise<{synced: number, updated: number, created: number, deleted: number}> {
+  async ensureDefaultCategoryMappings(): Promise<void> {
+    const defaultMappings: Record<string, string[]> = {
+      'disposables': ['Disposables'],
+      'e-liquids': ['E-Liquid', 'E-Liquids'],
+      'accessories': ['Accessories', 'E-Cig Accessories', 'Vaporizer Accessories', 'Tobacco Accessories', 'Smoke Accessories', 'Glass Accessories', 'Hookah Accessories', 'Lighters/Torches', 'Lighter Fluid/Butane', 'Grinders', 'Trays', 'Containers', 'Scales', 'Detox'],
+      'salts': ['Salt E-Liquid', 'Salts'],
+      'hardware': ['Hardware', 'E-Cigs', 'E-Cig Batteries', 'Cartridge Batteries', 'Vape', 'Vapes'],
+      'thc-a': ['THC-A', '\u22068', 'Alt', 'CBD'],
+      'glass': ['Glass/Silicone/One-Hitter'],
+      'papers-wraps-rillos-cones': ['Papers', 'Hemp Wraps', 'Rillos', 'RAW'],
+      'vaporizors': ['Vaporizer'],
+      'shisha-hookah': ['Shisha'],
+    };
+
+    try {
+      const categories = await db.select().from(deliveryCategories);
+      for (const cat of categories) {
+        const mapped = (cat.mappedCategories as string[] | null) || [];
+        if (mapped.length === 0 && defaultMappings[cat.slug]) {
+          await db.update(deliveryCategories)
+            .set({ mappedCategories: defaultMappings[cat.slug] })
+            .where(eq(deliveryCategories.id, cat.id));
+          console.log(`[Sync] Auto-populated category mapping for "${cat.name}": ${defaultMappings[cat.slug].join(', ')}`);
+        }
+      }
+    } catch (error: any) {
+      console.error(`[Sync] Error ensuring default category mappings:`, error?.message);
+    }
+  }
+
+  async syncProductsFromClover(products: Array<Partial<InsertDeliveryProduct>>): Promise<{synced: number, updated: number, created: number, deleted: number, unmappedCategories?: string[]}> {
+    await this.ensureDefaultCategoryMappings();
+    
     let synced = 0;
     let updated = 0;
     let created = 0;
     let deleted = 0;
     
-    // Track processed cloverItemIds to handle duplicates from Clover API
     const processedIds = new Set<string>();
+    
+    const cloverCategoriesSeen = new Set<string>();
 
     for (const product of products) {
       if (!product.cloverItemId) continue;
@@ -1272,6 +1305,10 @@ export class DbStorage implements IStorage {
       }
       processedIds.add(product.cloverItemId);
 
+      if (product.category) {
+        cloverCategoriesSeen.add(product.category);
+      }
+      
       try {
         const existing = await this.getDeliveryProductByCloverItemId(product.cloverItemId);
         
@@ -1293,14 +1330,12 @@ export class DbStorage implements IStorage {
           await this.updateDeliveryProduct(existing.id, updateData);
           updated++;
         } else {
-          // Create new product
           await this.createDeliveryProduct(product as InsertDeliveryProduct);
           created++;
         }
         synced++;
       } catch (error: any) {
         console.error(`[Sync] Error processing product ${product.cloverItemId}:`, error?.message);
-        // Continue with other products even if one fails
       }
     }
 
@@ -1320,7 +1355,31 @@ export class DbStorage implements IStorage {
       console.error(`[Sync] Error cleaning up deleted products:`, error?.message);
     }
 
-    return { synced, updated, created, deleted };
+    let unmappedCategories: string[] = [];
+    try {
+      const websiteCategories = await db.select().from(deliveryCategories);
+      const allMappedCloverNames = new Set<string>();
+      for (const wc of websiteCategories) {
+        const mapped = (wc.mappedCategories as string[] | null) || [];
+        mapped.forEach(m => allMappedCloverNames.add(m.toLowerCase().trim()));
+        allMappedCloverNames.add(wc.name.toLowerCase().trim());
+        allMappedCloverNames.add(wc.slug.toLowerCase().trim());
+      }
+      
+      unmappedCategories = Array.from(cloverCategoriesSeen).filter(cat => {
+        const catLower = cat.toLowerCase().trim();
+        if (catLower === 'uncategorized' || catLower === 'test' || catLower === 'just' || catLower === 'snacks' || catLower === 'drinks' || catLower === 'candles' || catLower === 'tobacco') return false;
+        return !allMappedCloverNames.has(catLower);
+      });
+      
+      if (unmappedCategories.length > 0) {
+        console.log(`[Sync] Unmapped Clover categories (not assigned to any website category): ${unmappedCategories.join(', ')}`);
+      }
+    } catch (error: any) {
+      console.error(`[Sync] Error checking unmapped categories:`, error?.message);
+    }
+
+    return { synced, updated, created, deleted, unmappedCategories };
   }
 
   async refreshProductStockAndPrice(cloverItemId: string, stockQuantity: string, price: string): Promise<DeliveryProduct | undefined> {
