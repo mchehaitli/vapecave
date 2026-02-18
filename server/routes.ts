@@ -2223,9 +2223,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Download all stored images as a ZIP file (admin)
+  // Download all stored images as a ZIP file (admin) - uses streaming archiver
   app.get('/api/admin/delivery/download-all-images', isAdmin, async (req, res) => {
     try {
+      req.setTimeout(600000);
+      res.setTimeout(600000);
+
       const privateDir = process.env.PRIVATE_OBJECT_DIR || '';
       if (!privateDir) {
         return res.status(500).json({ error: "Object storage not configured" });
@@ -2240,8 +2243,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "No images found in storage" });
       }
 
-      const JSZip = (await import("jszip")).default;
-      const zip = new JSZip();
+      console.log(`[Download ZIP] Starting streaming download of ${files.length} images...`);
 
       const { products: allProducts } = await storage.getAllDeliveryProducts();
       const imageToProduct = new Map<string, string>();
@@ -2255,38 +2257,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
+      const archiver = (await import("archiver")).default;
+      const archive = archiver('zip', { zlib: { level: 1 } });
+
+      res.set({
+        'Content-Type': 'application/zip',
+        'Content-Disposition': 'attachment; filename="vape-cave-product-images.zip"',
+      });
+
+      archive.pipe(res);
+
+      archive.on('error', (err: Error) => {
+        console.error('[Download ZIP] Archive error:', err);
+        if (!res.headersSent) {
+          res.status(500).json({ error: "Failed to create ZIP file" });
+        }
+      });
+
       const usedNames = new Set<string>();
-      let count = 0;
-      for (const file of files) {
+      let totalCount = 0;
+      let failedCount = 0;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         try {
-          const [content] = await file.download();
-          const originalName = file.name.split('/').pop() || `image_${count}`;
+          const originalName = file.name.split('/').pop() || `image_${totalCount}`;
           const ext = originalName.includes('.') ? '.' + originalName.split('.').pop() : '.jpg';
           const productName = imageToProduct.get(originalName);
           let zipFilename = productName ? `${productName}${ext}` : originalName;
           if (usedNames.has(zipFilename)) {
             const base = zipFilename.replace(/\.[^.]+$/, '');
-            zipFilename = `${base}_${count}${ext}`;
+            zipFilename = `${base}_${totalCount}${ext}`;
           }
           usedNames.add(zipFilename);
-          zip.file(zipFilename, content);
-          count++;
+
+          const readStream = file.createReadStream();
+          archive.append(readStream, { name: zipFilename });
+          totalCount++;
         } catch (fileErr) {
-          console.error(`Failed to download file ${file.name}:`, fileErr);
+          console.error(`[Download ZIP] Failed to stream ${file.name}:`, (fileErr as Error).message);
+          failedCount++;
+        }
+
+        if (i > 0 && i % 50 === 0) {
+          console.log(`[Download ZIP] Progress: ${totalCount}/${files.length} images queued (${failedCount} failed)`);
         }
       }
 
-      const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE', compressionOptions: { level: 6 } });
-
-      res.set({
-        'Content-Type': 'application/zip',
-        'Content-Disposition': 'attachment; filename="vape-cave-product-images.zip"',
-        'Content-Length': zipBuffer.length.toString(),
-      });
-      res.send(zipBuffer);
+      console.log(`[Download ZIP] Finalizing archive: ${totalCount} images queued (${failedCount} failed)`);
+      await archive.finalize();
+      console.log(`[Download ZIP] Complete: streamed ${totalCount} images`);
     } catch (error) {
       console.error("Error creating image ZIP:", error);
-      res.status(500).json({ error: "Failed to create ZIP file" });
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Failed to create ZIP file" });
+      } else {
+        res.end();
+      }
     }
   });
 

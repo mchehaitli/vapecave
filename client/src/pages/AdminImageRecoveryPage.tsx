@@ -205,9 +205,15 @@ export default function AdminImageRecoveryPage() {
           <Button
             onClick={async () => {
               setIsDownloading(true);
-              toast({ title: "Preparing ZIP file... This may take a minute for 400+ images." });
+              toast({ title: "Preparing ZIP file... This may take several minutes for 400+ images. Please wait." });
               try {
-                const response = await fetch('/api/admin/delivery/download-all-images', { credentials: 'include' });
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 600000);
+                const response = await fetch('/api/admin/delivery/download-all-images', { 
+                  credentials: 'include',
+                  signal: controller.signal,
+                });
+                clearTimeout(timeoutId);
                 if (!response.ok) throw new Error('Download failed');
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
@@ -219,8 +225,12 @@ export default function AdminImageRecoveryPage() {
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 toast({ title: "Download started!" });
-              } catch {
-                toast({ title: "Failed to download images", variant: "destructive" });
+              } catch (err: any) {
+                if (err?.name === 'AbortError') {
+                  toast({ title: "Download timed out. Try again or contact support.", variant: "destructive" });
+                } else {
+                  toast({ title: "Failed to download images. Try again in a moment.", variant: "destructive" });
+                }
               } finally {
                 setIsDownloading(false);
               }
