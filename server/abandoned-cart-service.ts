@@ -78,7 +78,7 @@ export async function processAbandonedCarts(): Promise<{ sent: number; errors: n
         </p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://vapecavefrisco.com/delivery/cart" 
+          <a href="https://vapecavetx.com/delivery/cart" 
              style="display: inline-block; background-color: #FF7100; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: bold;">
             Complete Your Order
           </a>
@@ -94,7 +94,7 @@ export async function processAbandonedCarts(): Promise<{ sent: number; errors: n
       <td style="background-color: #1A1A1A; padding: 25px 30px; text-align: center;">
         <p style="color: #999999; font-size: 12px; margin: 0;">
           Vape Cave Smoke & Stuff | Frisco, TX<br>
-          <a href="https://vapecavefrisco.com" style="color: #FF7100; text-decoration: none;">vapecavefrisco.com</a>
+          <a href="https://vapecavetx.com" style="color: #FF7100; text-decoration: none;">vapecavetx.com</a>
         </p>
         <p style="color: #666666; font-size: 11px; margin: 15px 0 0 0;">
           You're receiving this email because you have items in your cart.

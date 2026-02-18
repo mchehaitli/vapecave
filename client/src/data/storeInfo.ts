@@ -103,9 +103,9 @@ export const storeLocations: StoreLocation[] = [
     yearEstablished: 2019,
     priceRange: "$$",
     socialProfiles: {
-      facebook: "https://facebook.com/vapecavefrisco",
-      instagram: "https://instagram.com/vapecavefrisco",
-      twitter: "https://twitter.com/vapecavefrisco",
+      facebook: "https://facebook.com/vapecavetx",
+      instagram: "https://instagram.com/vapecavetx",
+      twitter: "https://twitter.com/vapecavetx",
       yelp: "https://yelp.com/biz/vape-cave-frisco"
     },
     description: "Our Frisco location offers a premium selection of vaping products, disposables, e-liquids, and more. Our expert staff provides personalized recommendations in a welcoming environment with competitive prices and weekly specials.",

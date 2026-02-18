@@ -40,13 +40,15 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
   const [viewMode, setViewMode] = useState<"grid" | "list">(window.innerWidth < 640 ? "list" : "grid");
   const [quickViewProduct, setQuickViewProduct] = useState<DeliveryProduct | null>(null);
 
-  const { data: brand, isLoading: brandLoading } = useQuery<DeliveryBrand>({
-    queryKey: ['/api/delivery/brands/slug', params.slug],
-    queryFn: async () => {
-      const brands = await fetch('/api/delivery/brands').then(r => r.json());
-      return brands.find((b: DeliveryBrand) => b.slug === params.slug);
-    }
+  const { data: allBrandsForLookup = [] } = useQuery<DeliveryBrand[]>({
+    queryKey: ['/api/delivery/brands'],
   });
+
+  const brand = useMemo(() => 
+    allBrandsForLookup.find((b: DeliveryBrand) => b.slug === params.slug),
+    [allBrandsForLookup, params.slug]
+  );
+  const brandLoading = !allBrandsForLookup.length;
 
   const { data: productLines = [] } = useQuery<DeliveryProductLine[]>({
     queryKey: ['/api/delivery/product-lines', brand?.id],
@@ -57,19 +59,15 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
     enabled: !!brand?.id
   });
 
-  const { data: brands = [] } = useQuery<DeliveryBrand[]>({
-    queryKey: ['/api/delivery/brands'],
-  });
-
   const { data: categories = [] } = useQuery<{ id: number; name: string; slug: string }[]>({
     queryKey: ['/api/delivery/categories'],
   });
 
   const brandMap = useMemo(() => {
     const map: Record<number, DeliveryBrand> = {};
-    brands.forEach(b => { map[b.id] = b; });
+    allBrandsForLookup.forEach(b => { map[b.id] = b; });
     return map;
-  }, [brands]);
+  }, [allBrandsForLookup]);
 
   const isNicotineCategory = useMemo(() => {
     if (!brand?.categoryId) return false;
@@ -130,10 +128,13 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
   });
 
   const handleAddToCart = (productId: number, quantity: number = 1) => {
-    addToCartMutation.mutate({ productId, quantity });
-    toast({
-      title: "Added to cart",
-      description: "Item has been added to your cart.",
+    addToCartMutation.mutate({ productId, quantity }, {
+      onSuccess: () => {
+        toast({
+          title: "Added to cart",
+          description: "Item has been added to your cart.",
+        });
+      }
     });
   };
 

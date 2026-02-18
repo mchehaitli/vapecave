@@ -708,12 +708,25 @@ export function CategoryBrandManagement() {
     })
   );
 
+  const invalidateAllCategoryKeys = () => {
+    queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/categories'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/delivery/categories'] });
+  };
+  const invalidateAllBrandKeys = () => {
+    queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/brands'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/delivery/brands'] });
+  };
+  const invalidateAllProductLineKeys = () => {
+    queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/product-lines'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/delivery/product-lines'] });
+  };
+
   const createCategoryMutation = useMutation({
     mutationFn: async (data: { name: string; image: string | null; isActive: boolean }) => {
       return apiRequest('POST', '/api/admin/delivery/categories', data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/categories'] });
+      invalidateAllCategoryKeys();
       toast({ title: "Category created successfully" });
       resetCategoryForm();
     },
@@ -727,7 +740,7 @@ export function CategoryBrandManagement() {
       return apiRequest('PATCH', `/api/admin/delivery/categories/${id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/categories'] });
+      invalidateAllCategoryKeys();
       toast({ title: "Category updated successfully" });
       resetCategoryForm();
     },
@@ -741,9 +754,9 @@ export function CategoryBrandManagement() {
       return apiRequest('DELETE', `/api/admin/delivery/categories/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/categories'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/brands'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/product-lines'] });
+      invalidateAllCategoryKeys();
+      invalidateAllBrandKeys();
+      invalidateAllProductLineKeys();
       toast({ title: "Category deleted successfully" });
       setDeleteDialog(false);
       setDeleteTarget(null);
@@ -758,7 +771,7 @@ export function CategoryBrandManagement() {
       return apiRequest('POST', '/api/admin/delivery/categories/reorder', { orderedIds });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/categories'] });
+      invalidateAllCategoryKeys();
     },
     onError: (error: Error) => {
       toast({ title: "Error reordering categories", description: error.message, variant: "destructive" });
@@ -770,7 +783,7 @@ export function CategoryBrandManagement() {
       return apiRequest('POST', '/api/admin/delivery/brands', data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/brands'] });
+      invalidateAllBrandKeys();
       toast({ title: "Brand created successfully" });
       resetBrandForm();
     },
@@ -784,7 +797,7 @@ export function CategoryBrandManagement() {
       return apiRequest('PATCH', `/api/admin/delivery/brands/${id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/brands'] });
+      invalidateAllBrandKeys();
       toast({ title: "Brand updated successfully" });
       resetBrandForm();
     },
@@ -798,8 +811,8 @@ export function CategoryBrandManagement() {
       return apiRequest('DELETE', `/api/admin/delivery/brands/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/brands'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/product-lines'] });
+      invalidateAllBrandKeys();
+      invalidateAllProductLineKeys();
       toast({ title: "Brand deleted successfully" });
       setDeleteDialog(false);
       setDeleteTarget(null);
@@ -814,7 +827,7 @@ export function CategoryBrandManagement() {
       return apiRequest('POST', '/api/admin/delivery/brands/reorder', { categoryId, orderedIds });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/brands'] });
+      invalidateAllBrandKeys();
     },
     onError: (error: Error) => {
       toast({ title: "Error reordering brands", description: error.message, variant: "destructive" });
@@ -826,7 +839,7 @@ export function CategoryBrandManagement() {
       return apiRequest('POST', '/api/admin/delivery/product-lines', data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/product-lines'] });
+      invalidateAllProductLineKeys();
       toast({ title: "Product line created successfully" });
       resetProductLineForm();
     },
@@ -840,7 +853,7 @@ export function CategoryBrandManagement() {
       return apiRequest('PATCH', `/api/admin/delivery/product-lines/${id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/product-lines'] });
+      invalidateAllProductLineKeys();
       toast({ title: "Product line updated successfully" });
       resetProductLineForm();
     },
@@ -854,7 +867,7 @@ export function CategoryBrandManagement() {
       return apiRequest('DELETE', `/api/admin/delivery/product-lines/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/product-lines'] });
+      invalidateAllProductLineKeys();
       toast({ title: "Product line deleted successfully" });
       setDeleteDialog(false);
       setDeleteTarget(null);
@@ -869,7 +882,7 @@ export function CategoryBrandManagement() {
       return apiRequest('POST', '/api/admin/delivery/product-lines/reorder', { brandId, orderedIds });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/product-lines'] });
+      invalidateAllProductLineKeys();
     },
     onError: (error: Error) => {
       toast({ title: "Error reordering product lines", description: error.message, variant: "destructive" });
@@ -886,9 +899,9 @@ export function CategoryBrandManagement() {
       return apiRequest('PATCH', endpoint, { featuredProductIds });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/categories'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/brands'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/delivery/product-lines'] });
+      invalidateAllCategoryKeys();
+      invalidateAllBrandKeys();
+      invalidateAllProductLineKeys();
       toast({ title: "Featured products updated successfully" });
       setFeaturedDialog(false);
       setFeaturedTarget(null);

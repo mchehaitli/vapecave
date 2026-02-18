@@ -33,12 +33,25 @@ export function FeaturedProductsManagement() {
     .filter(c => c.isActive)
     .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
-  // Get products for selected category
   const categoryProducts = products.filter(p => {
-    if (!selectedCategory) return false;
+    if (!selectedCategory || !p.enabled || !p.category) return false;
     const category = categories.find(c => c.id === selectedCategory);
     if (!category) return false;
-    return p.category === category.slug || p.category === category.name;
+    const productCat = p.category.toLowerCase().trim();
+    const matchNames = new Set<string>();
+    const mapped = category.mappedCategories as string[] | undefined;
+    if (mapped && mapped.length > 0) {
+      mapped.forEach(m => matchNames.add(m.toLowerCase().trim()));
+    }
+    matchNames.add(category.name.toLowerCase().trim());
+    matchNames.add(category.slug.toLowerCase().trim());
+    if (matchNames.has(productCat)) return true;
+    const productCatNormalized = productCat.replace(/s$/, '');
+    for (const name of matchNames) {
+      if (productCatNormalized === name.replace(/s$/, '')) return true;
+      if (productCat.replace(/-/g, '') === name.replace(/-/g, '')) return true;
+    }
+    return false;
   });
 
   // Load featured products when category changes

@@ -46,7 +46,7 @@ export default function DeliveryCategoryPage() {
     setActiveTab(urlViewParam === "featured" ? "featured" : "all");
   }, [urlViewParam]);
 
-  const { data: categories = [] } = useQuery<DeliveryCategory[]>({
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<DeliveryCategory[]>({
     queryKey: ["/api/delivery/categories"],
   });
 
@@ -54,7 +54,7 @@ export default function DeliveryCategoryPage() {
     queryKey: ["/api/delivery/brands"],
   });
 
-  const { data: products = [] } = useQuery<DeliveryProduct[]>({
+  const { data: products = [], isLoading: productsLoading } = useQuery<DeliveryProduct[]>({
     queryKey: ["/api/delivery/products"],
   });
 
@@ -139,6 +139,17 @@ export default function DeliveryCategoryPage() {
   const displayProducts = activeTab === "featured" ? featuredProducts : categoryProducts;
 
   const categoryBrands = brands.filter((b) => b.categoryId === category?.id && b.isActive);
+
+  if (categoriesLoading || productsLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!category) {
     return (

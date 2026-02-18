@@ -725,24 +725,25 @@ export default function DeliveryPortal() {
     const category = deliveryCategories.find(c => c.id === categoryId);
     const featuredIds = (category?.featuredProductIds as number[]) || [];
     
-    // First filter products that belong to this category (flexible matching)
     const categoryProducts = products.filter(p => {
-      if (!p.category || !category) return false;
+      if (!p.category || !category || !p.enabled) return false;
       
       const productCat = p.category.toLowerCase().trim();
-      const catName = category.name.toLowerCase().trim();
-      const catSlug = category.slug.toLowerCase().trim();
+      const matchNames = new Set<string>();
+      const mapped = category.mappedCategories as string[] | undefined;
+      if (mapped && mapped.length > 0) {
+        mapped.forEach(m => matchNames.add(m.toLowerCase().trim()));
+      }
+      matchNames.add(category.name.toLowerCase().trim());
+      matchNames.add(category.slug.toLowerCase().trim());
       
+      if (matchNames.has(productCat)) return true;
       const productCatNormalized = productCat.replace(/s$/, '');
-      const catNameNormalized = catName.replace(/s$/, '');
-      
-      const matches = 
-        productCat === catName ||
-        productCat === catSlug ||
-        productCatNormalized === catNameNormalized ||
-        productCat.replace(/-/g, '') === catSlug.replace(/-/g, '');
-      
-      return matches;
+      for (const name of matchNames) {
+        if (productCatNormalized === name.replace(/s$/, '')) return true;
+        if (productCat.replace(/-/g, '') === name.replace(/-/g, '')) return true;
+      }
+      return false;
     });
     
     // If featured products are set, show only those in order
@@ -771,7 +772,9 @@ export default function DeliveryPortal() {
 
   const cartTotal = Object.entries(cartItems).reduce((sum, [productId, quantity]) => {
     const product = products.find(p => p.id === parseInt(productId));
-    return sum + (product ? parseFloat(product.price.toString()) * quantity : 0);
+    if (!product) return sum;
+    const price = product.salePrice ? parseFloat(product.salePrice.toString()) : parseFloat(product.price.toString());
+    return sum + price * quantity;
   }, 0);
 
   const cartItemCount = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0);

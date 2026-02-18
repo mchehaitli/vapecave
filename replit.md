@@ -5,6 +5,7 @@ This project is a full-stack e-commerce website for "Vape Cave Smoke & Stuff" in
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
+Custom domain: vapecavetx.com (NOT vapecavefrisco.com)
 
 ## System Architecture
 ### UI/UX Decisions
