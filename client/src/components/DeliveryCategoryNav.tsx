@@ -460,7 +460,7 @@ export function DeliveryCategoryNav({
                 <div className="py-2">
                   {brandLines.map((productLine) => {
                     const plHref = standalone
-                      ? (parentBrand ? `/products/brand/${parentBrand.slug}` : '/products')
+                      ? (parentBrand ? `/products/brand/${parentBrand.slug}?line=${productLine.slug}` : '/products')
                       : `/delivery/product-line/${productLine.slug}`;
                     return standalone ? (
                       <button

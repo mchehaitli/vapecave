@@ -1,12 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link, useRoute } from "wouter";
+import { Link, useRoute, useLocation } from "wouter";
 import MainLayout from "@/layouts/MainLayout";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, Package, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
-import type { DeliveryProduct, DeliveryBrand, DeliveryCategory } from "@shared/schema";
+import type { DeliveryProduct, DeliveryBrand, DeliveryCategory, DeliveryProductLine } from "@shared/schema";
 
 const badgeColors: Record<string, string> = {
   popular: "bg-orange-500 text-white",
@@ -90,7 +90,14 @@ function GridSkeleton() {
 
 export default function ProductsBrandPage() {
   const [, params] = useRoute("/products/brand/:slug");
+  const [location] = useLocation();
   const slug = params?.slug;
+
+  const lineSlug = useMemo(() => {
+    const search = location.includes('?') ? location.split('?')[1] : '';
+    const urlParams = new URLSearchParams(search);
+    return urlParams.get('line') || null;
+  }, [location]);
 
   const { data: products = [], isLoading: productsLoading } = useQuery<DeliveryProduct[]>({
     queryKey: ["/api/delivery/products"],
@@ -107,9 +114,19 @@ export default function ProductsBrandPage() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const { data: deliveryProductLines = [] } = useQuery<DeliveryProductLine[]>({
+    queryKey: ["/api/delivery/product-lines"],
+    staleTime: 5 * 60 * 1000,
+  });
+
   const brand = useMemo(
     () => deliveryBrands.find(b => b.slug === slug) || null,
     [deliveryBrands, slug]
+  );
+
+  const productLine = useMemo(
+    () => lineSlug ? (deliveryProductLines.find(pl => pl.slug === lineSlug) || null) : null,
+    [deliveryProductLines, lineSlug]
   );
 
   const brandCategory = useMemo(
@@ -119,21 +136,26 @@ export default function ProductsBrandPage() {
 
   const filteredProducts = useMemo(() => {
     if (!brand) return [];
-    return products.filter(p => p.enabled !== false && p.brandId === brand.id);
-  }, [products, brand]);
+    const byBrand = products.filter(p => p.enabled !== false && p.brandId === brand.id);
+    if (productLine) {
+      return byBrand.filter(p => p.productLineId === productLine.id);
+    }
+    return byBrand;
+  }, [products, brand, productLine]);
 
   useEffect(() => {
-    if (!brand || filteredProducts.length === 0) return;
     const existing = document.getElementById("brand-jsonld");
     if (existing) existing.remove();
+    if (!brand || filteredProducts.length === 0) return;
+    const title = productLine ? `${productLine.name} by ${brand.name}` : brand.name;
     const script = document.createElement("script");
     script.id = "brand-jsonld";
     script.type = "application/ld+json";
     script.text = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "ItemList",
-      "name": `${brand.name} Products - Vape Cave Smoke & Stuff`,
-      "description": `Browse ${filteredProducts.length} ${brand.name} products at Vape Cave in Frisco, TX`,
+      "name": `${title} - Vape Cave Smoke & Stuff`,
+      "description": `Browse ${filteredProducts.length} ${title} products at Vape Cave in Frisco, TX`,
       "numberOfItems": filteredProducts.length,
       "itemListElement": filteredProducts.slice(0, 50).map((p, i) => ({
         "@type": "ListItem",
@@ -143,15 +165,23 @@ export default function ProductsBrandPage() {
     });
     document.head.appendChild(script);
     return () => { document.getElementById("brand-jsonld")?.remove(); };
-  }, [brand, filteredProducts]);
+  }, [brand, productLine, filteredProducts]);
 
-  const pageTitle = brand ? `${brand.name} - Vape Cave Smoke & Stuff` : "Brand - Vape Cave Smoke & Stuff";
+  const displayTitle = productLine
+    ? `${productLine.name} by ${brand?.name ?? ''}`
+    : (brand?.name ?? 'Brand');
+
+  const pageTitle = `${displayTitle} - Vape Cave Smoke & Stuff`;
   const pageDesc = brand
-    ? `Shop ${filteredProducts.length} ${brand.name} products at Vape Cave Smoke & Stuff in Frisco, TX. Sign in to see pricing and order.`
+    ? `Shop ${filteredProducts.length} ${displayTitle} products at Vape Cave Smoke & Stuff in Frisco, TX. Sign in to see pricing and order.`
     : "Browse brand products at Vape Cave Smoke & Stuff.";
 
-  const backHref = brandCategory ? `/products/category/${brandCategory.slug}` : "/products";
-  const backLabel = brandCategory ? brandCategory.name : "All Products";
+  const backHref = productLine
+    ? `/products/brand/${slug}`
+    : (brandCategory ? `/products/category/${brandCategory.slug}` : "/products");
+  const backLabel = productLine
+    ? (brand?.name ?? 'Brand')
+    : (brandCategory?.name ?? 'All Products');
 
   return (
     <MainLayout title={pageTitle} description={pageDesc}>
@@ -169,7 +199,7 @@ export default function ProductsBrandPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {brand ? brand.name : "Brand"}
+            {displayTitle}
           </motion.h1>
           <p className="text-muted-foreground">
             {productsLoading ? "Loading products…" : `${filteredProducts.length} product${filteredProducts.length !== 1 ? "s" : ""} available`}
@@ -201,7 +231,9 @@ export default function ProductsBrandPage() {
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-20">
               <Package className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
-              <h2 className="text-xl font-semibold mb-2">No products for this brand yet</h2>
+              <h2 className="text-xl font-semibold mb-2">
+                {productLine ? `No products for ${productLine.name} yet` : `No products for this brand yet`}
+              </h2>
               <Link href={backHref}>
                 <span className="text-primary hover:underline text-sm cursor-pointer">← Back to {backLabel}</span>
               </Link>
