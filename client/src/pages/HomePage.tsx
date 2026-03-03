@@ -67,7 +67,6 @@ const HomePage = () => {
         <meta property="og:image" content="https://vapecavetx.com/vapecave-logo.png" />
         
       </Helmet>
-      
       {/* Hero Section */}
       <section id="home" className="bg-background py-20 md:py-32 text-foreground relative overflow-hidden">
         {/* Animated background glow effects */}
@@ -184,9 +183,7 @@ const HomePage = () => {
                   transition={{ duration: 0.3, delay: 0.75 }}
                 >
                   <Link href="/signup">
-                    <div className="bg-primary hover:bg-primary/90 text-white font-bold py-4 px-10 rounded-lg transition-all duration-300 shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1" data-testid="button-shop-now">
-                      Sign Up
-                    </div>
+                    <div className="bg-primary hover:bg-primary/90 text-white font-bold py-4 px-10 rounded-lg transition-all duration-300 shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1" data-testid="button-shop-now">Sign Up/Sign In</div>
                   </Link>
                 </motion.div>
               </motion.div>
@@ -195,7 +192,6 @@ const HomePage = () => {
           </motion.div>
         </div>
       </section>
-
       {/* Featured Frisco Location Section - Enhance SEO importance */}
       <section 
         className="py-14 bg-background text-foreground relative overflow-hidden" 
@@ -589,7 +585,6 @@ const HomePage = () => {
           </div>
         </motion.div>
       </section>
-
       {/* Featured Brands Section with rotating categories */}
       <section className="py-16 bg-background relative overflow-hidden" id="featured-brands">
         {/* Animated background glow effects */}
@@ -629,7 +624,7 @@ const HomePage = () => {
           >
             {isLoading ? (
               // Loading state
-              Array(6).fill(0).map((_, index) => (
+              (Array(6).fill(0).map((_, index) => (
                 <motion.div
                   key={index}
                   className="rounded-xl shadow-lg bg-muted h-64 animate-pulse"
@@ -645,15 +640,15 @@ const HomePage = () => {
                     <div className="h-4 w-48 bg-muted-foreground/20 rounded"></div>
                   </div>
                 </motion.div>
-              ))
+              )))
             ) : error ? (
               // Error state
-              <div className="col-span-full text-center py-12">
+              (<div className="col-span-full text-center py-12">
                 <p className="text-muted-foreground">Unable to load featured brands. Please try again later.</p>
-              </div>
+              </div>)
             ) : (
               // Loaded successfully - show API data
-              apiBrands?.map((category, index) => (
+              (apiBrands?.map((category, index) => (
                 <motion.div
                   key={category.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -672,7 +667,7 @@ const HomePage = () => {
                     bgClass={category.bgClass || "bg-zinc-800"}
                   />
                 </motion.div>
-              ))
+              )))
             )}
           </motion.div>
           
@@ -692,7 +687,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
       {/* Age Verification Notice */}
       <section className="py-14 bg-background relative overflow-hidden" id="age-verification">
         {/* Animated background glow effects */}
@@ -776,7 +770,6 @@ const HomePage = () => {
           </motion.div>
         </div>
       </section>
-      
       {/* Latest from the Blog - Internal linking for SEO */}
       <section className="py-16 bg-background relative overflow-hidden" id="blog-highlights">
         <div className="container mx-auto px-4 max-w-6xl">
@@ -843,7 +836,6 @@ const HomePage = () => {
           </motion.div>
         </div>
       </section>
-
       {/* Scroll to top button */}
       {showScrollTop && (
         <motion.button 
