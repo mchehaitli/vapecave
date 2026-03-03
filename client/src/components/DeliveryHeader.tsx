@@ -16,7 +16,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/contexts/ThemeContext";
 
-import logo_transparent_background from "@assets/white_logo_transparent_background.png";
+import logo_dark from "@assets/white_logo_transparent_background.png";
+import logo_light from "@assets/logo_transparent_background_1772506707381.png";
 
 const mobileMenuVariants = {
   hidden: { opacity: 0, height: 0 },
@@ -158,7 +159,7 @@ export function DeliveryHeader({
               )}
               <Link href="/delivery/shop" className="flex items-center gap-2 sm:gap-4 font-bold text-xl hover:opacity-80 transition-opacity min-w-0">
                 <img 
-                  src={logo_transparent_background} 
+                  src={theme === "light" ? logo_light : logo_dark} 
                   alt="Vape Cave Frisco - Logo" 
                   loading="lazy"
                   className="h-7 sm:h-12 w-auto flex-shrink-0"
