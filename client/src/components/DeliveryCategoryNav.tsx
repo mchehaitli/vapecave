@@ -109,14 +109,6 @@ export function DeliveryCategoryNav({
     ? activeBrands.filter(b => b.categoryId === expandedCategory.id)
     : [];
 
-  const isOnCategoryPage = standalone
-    ? !!selectedCategory
-    : activeCategories.some(c => location === `/delivery/category/${c.slug}`);
-
-  const activeCategoryForPage = standalone
-    ? (selectedCategory ? activeCategories.find(c => c.name === selectedCategory) || null : null)
-    : activeCategories.find(c => location === `/delivery/category/${c.slug}`);
-
   const hideBoth = hideSpecialTabs || hideBrandsAndSale;
 
   const tabClass = (active: boolean, variant?: 'sale') => {
@@ -130,22 +122,69 @@ export function DeliveryCategoryNav({
     }`;
   };
 
+  const getCategoryActive = (category: DeliveryCategory, isOpen: boolean): boolean => {
+    if (standalone) {
+      return (
+        selectedCategory === category.name ||
+        location === `/products/category/${category.slug}`
+      );
+    }
+    return isOpen || location === `/delivery/category/${category.slug}`;
+  };
+
+  const isMobileOnCategoryPage = standalone
+    ? location.startsWith('/products/category/') || location.startsWith('/products/brand/')
+    : activeCategories.some(c => location === `/delivery/category/${c.slug}`);
+
+  const getMobileCategoryLabel = (): string => {
+    if (standalone) {
+      if (location.startsWith('/products/category/')) {
+        const slug = location.replace('/products/category/', '');
+        const cat = activeCategories.find(c => c.slug === slug);
+        return cat?.name ?? 'Categories';
+      }
+      if (location.startsWith('/products/brand/')) {
+        const brandSlug = location.replace('/products/brand/', '');
+        const brand = activeBrands.find(b => b.slug === brandSlug);
+        if (brand?.categoryId) {
+          const cat = activeCategories.find(c => c.id === brand.categoryId);
+          return cat?.name ?? 'Categories';
+        }
+      }
+      return selectedCategory ?? 'Categories';
+    }
+    const cat = activeCategories.find(c => location === `/delivery/category/${c.slug}`);
+    return cat?.name ?? 'Categories';
+  };
+
   const featuredTabActive = standalone
-    ? (viewMode === 'featured' && !selectedCategory)
+    ? (location === '/products' && !selectedCategory && viewMode !== 'category')
     : (location === '/delivery/shop' && viewMode === 'featured');
 
-  const handleCategoryClick = (category: DeliveryCategory, hasBrands: boolean) => {
+  const handleFeaturedClick = () => {
     if (standalone) {
-      onCategorySelect?.(category.name);
-      onViewModeChange?.('category');
-      closeAll();
+      setLocation('/products');
+      onCategorySelect?.(null);
+      onViewModeChange?.('featured');
+    } else {
+      onCategorySelect?.(null);
+      onViewModeChange?.('featured');
+    }
+    closeAll();
+  };
+
+  const handleCategoryClick = (category: DeliveryCategory, hasBrands: boolean, isOpen: boolean) => {
+    if (standalone) {
+      if (hasBrands) {
+        if (isOpen) { closeAll(); } else { openCategoryDropdown(category.id); }
+      } else {
+        setLocation(`/products/category/${category.slug}`);
+        onCategorySelect?.(category.name);
+        closeAll();
+      }
     } else {
       if (hasBrands) {
-        if (expandedCategoryId === category.id) {
-          closeAll();
-        } else {
-          openCategoryDropdown(category.id);
-        }
+        if (isOpen) { closeAll(); } else { openCategoryDropdown(category.id); }
       } else {
         setLocation(`/delivery/category/${category.slug}`);
         closeAll();
@@ -155,9 +194,14 @@ export function DeliveryCategoryNav({
 
   const handleMobileCategoryClick = (category: DeliveryCategory, hasBrands: boolean) => {
     if (standalone) {
-      onCategorySelect?.(category.name);
-      onViewModeChange?.('category');
-      closeAll();
+      if (hasBrands) {
+        setMobileCategoriesOpen(false);
+        openCategoryDropdown(category.id);
+      } else {
+        setLocation(`/products/category/${category.slug}`);
+        onCategorySelect?.(category.name);
+        closeAll();
+      }
     } else {
       if (hasBrands) {
         setMobileCategoriesOpen(false);
@@ -178,11 +222,7 @@ export function DeliveryCategoryNav({
               <>
                 {standalone ? (
                   <button
-                    onClick={() => {
-                      onCategorySelect?.(null);
-                      onViewModeChange?.('featured');
-                      closeAll();
-                    }}
+                    onClick={handleFeaturedClick}
                     className={tabClass(featuredTabActive)}
                   >
                     <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -191,11 +231,7 @@ export function DeliveryCategoryNav({
                 ) : (
                   <Link href="/delivery/shop">
                     <button
-                      onClick={() => {
-                        onCategorySelect?.(null);
-                        onViewModeChange?.('featured');
-                        closeAll();
-                      }}
+                      onClick={handleFeaturedClick}
                       className={tabClass(featuredTabActive)}
                     >
                       <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -235,9 +271,7 @@ export function DeliveryCategoryNav({
                 const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
                 const hasBrands = categoryBrands.length > 0;
                 const isOpen = expandedCategoryId === category.id;
-                const isActive = standalone
-                  ? selectedCategory === category.name
-                  : (isOpen || location === `/delivery/category/${category.slug}`);
+                const isActive = getCategoryActive(category, isOpen);
                 
                 return (
                   <button
@@ -245,15 +279,7 @@ export function DeliveryCategoryNav({
                     ref={(el) => { categoryButtonRefs.current[category.id] = el; }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (!standalone && hasBrands) {
-                        if (isOpen) {
-                          closeAll();
-                        } else {
-                          openCategoryDropdown(category.id);
-                        }
-                      } else {
-                        handleCategoryClick(category, hasBrands);
-                      }
+                      handleCategoryClick(category, hasBrands, isOpen);
                     }}
                     className={`flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
                       isActive
@@ -262,7 +288,7 @@ export function DeliveryCategoryNav({
                     }`}
                   >
                     {category.name}
-                    {!standalone && hasBrands && (
+                    {hasBrands && (
                       <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                     )}
                   </button>
@@ -280,13 +306,13 @@ export function DeliveryCategoryNav({
                   setBrandDropdownPos(null);
                 }}
                 className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${
-                  mobileCategoriesOpen || isOnCategoryPage
+                  mobileCategoriesOpen || isMobileOnCategoryPage
                     ? "bg-primary text-primary-foreground"
                     : "text-foreground/80 hover:text-primary hover:bg-muted/50"
                 }`}
               >
                 <LayoutGrid className="w-3 h-3" />
-                {activeCategoryForPage ? activeCategoryForPage.name : "Categories"}
+                {getMobileCategoryLabel()}
                 <ChevronDown className={`w-3 h-3 transition-transform ${mobileCategoriesOpen ? 'rotate-180' : ''}`} />
               </button>
             </div>
@@ -301,7 +327,7 @@ export function DeliveryCategoryNav({
                   const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
                   const hasBrands = categoryBrands.length > 0;
                   const isActive = standalone
-                    ? selectedCategory === category.name
+                    ? (selectedCategory === category.name || location === `/products/category/${category.slug}`)
                     : location === `/delivery/category/${category.slug}`;
                   
                   return (
@@ -319,7 +345,7 @@ export function DeliveryCategoryNav({
                       }`}
                     >
                       <span className="truncate">{category.name}</span>
-                      {!standalone && hasBrands && (
+                      {hasBrands && (
                         <ChevronRight className="w-3 h-3 flex-shrink-0 ml-1" />
                       )}
                     </button>
@@ -336,7 +362,7 @@ export function DeliveryCategoryNav({
         document.body
       )}
 
-      {!standalone && expandedCategoryId !== null && createPortal(
+      {expandedCategoryId !== null && createPortal(
         <>
           <div 
             className="fixed inset-0 z-[9998]" 
@@ -351,6 +377,7 @@ export function DeliveryCategoryNav({
                 {categoryBrandsForDropdown.map((brand) => {
                   const brandProductLines = activeProductLines.filter(pl => pl.brandId === brand.id);
                   const isBrandOpen = expandedBrandId === brand.id;
+                  const brandHref = standalone ? `/products/brand/${brand.slug}` : `/delivery/brand/${brand.slug}`;
                   
                   return (
                     <div
@@ -358,13 +385,22 @@ export function DeliveryCategoryNav({
                       ref={(el) => { brandItemRefs.current[brand.id] = el; }}
                     >
                       <div className="flex items-center">
-                        <Link
-                          href={`/delivery/brand/${brand.slug}`}
-                          className="flex-1 px-4 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-muted/50 transition-all"
-                          onClick={closeAll}
-                        >
-                          {brand.name}
-                        </Link>
+                        {standalone ? (
+                          <button
+                            className="flex-1 px-4 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-muted/50 transition-all text-left"
+                            onClick={() => { setLocation(brandHref); closeAll(); }}
+                          >
+                            {brand.name}
+                          </button>
+                        ) : (
+                          <Link
+                            href={brandHref}
+                            className="flex-1 px-4 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-muted/50 transition-all"
+                            onClick={closeAll}
+                          >
+                            {brand.name}
+                          </Link>
+                        )}
                         {brandProductLines.length > 0 && (
                           <button
                             onClick={(e) => {
@@ -388,14 +424,24 @@ export function DeliveryCategoryNav({
                 
                 {expandedCategory && (
                   <div className="border-t border-border/30 mt-2 pt-2">
-                    <Link
-                      href={`/delivery/category/${expandedCategory.slug}`}
-                      onClick={closeAll}
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 transition-all rounded-lg mx-2 cursor-pointer"
-                    >
-                      See All {expandedCategory.name}
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
+                    {standalone ? (
+                      <button
+                        onClick={() => { setLocation(`/products/category/${expandedCategory.slug}`); onCategorySelect?.(expandedCategory.name); closeAll(); }}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 transition-all rounded-lg mx-2 w-[calc(100%-16px)] cursor-pointer"
+                      >
+                        See All {expandedCategory.name}
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/delivery/category/${expandedCategory.slug}`}
+                        onClick={closeAll}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 transition-all rounded-lg mx-2 cursor-pointer"
+                      >
+                        See All {expandedCategory.name}
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>
@@ -404,6 +450,7 @@ export function DeliveryCategoryNav({
 
           {expandedBrandId !== null && brandDropdownPos && (() => {
             const brandLines = activeProductLines.filter(pl => pl.brandId === expandedBrandId);
+            const parentBrand = activeBrands.find(b => b.id === expandedBrandId);
             
             return brandLines.length > 0 ? (
               <div
@@ -411,16 +458,29 @@ export function DeliveryCategoryNav({
                 style={{ top: brandDropdownPos.top, left: brandDropdownPos.left }}
               >
                 <div className="py-2">
-                  {brandLines.map((productLine) => (
-                    <Link
-                      key={productLine.id}
-                      href={`/delivery/product-line/${productLine.slug}`}
-                      className="block px-4 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-muted/50 transition-all"
-                      onClick={closeAll}
-                    >
-                      {productLine.name}
-                    </Link>
-                  ))}
+                  {brandLines.map((productLine) => {
+                    const plHref = standalone
+                      ? (parentBrand ? `/products/brand/${parentBrand.slug}` : '/products')
+                      : `/delivery/product-line/${productLine.slug}`;
+                    return standalone ? (
+                      <button
+                        key={productLine.id}
+                        className="block w-full px-4 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-muted/50 transition-all text-left"
+                        onClick={() => { setLocation(plHref); closeAll(); }}
+                      >
+                        {productLine.name}
+                      </button>
+                    ) : (
+                      <Link
+                        key={productLine.id}
+                        href={plHref}
+                        className="block px-4 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-muted/50 transition-all"
+                        onClick={closeAll}
+                      >
+                        {productLine.name}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             ) : null;

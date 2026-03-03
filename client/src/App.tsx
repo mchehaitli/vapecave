@@ -39,6 +39,8 @@ import TermsPage from "@/pages/TermsPage";
 import PrivacyPage from "@/pages/PrivacyPage";
 import RefundPolicyPage from "@/pages/RefundPolicyPage";
 import SignupPage from "@/pages/SignupPage";
+import ProductsCategoryPage from "@/pages/ProductsCategoryPage";
+import ProductsBrandPage from "@/pages/ProductsBrandPage";
 import AgeVerificationModal from "@/components/AgeVerificationModal";
 import PageTransition from "@/components/PageTransition";
 import { AccessibilityEnhancer, SkipLink } from "@/components/AccessibilityFixes";
@@ -82,6 +84,8 @@ function Router() {
           <Route path="/" component={HomePage} />
           <Route path="/locations/frisco" component={FriscoLocationPage} />
           <Route path="/products" component={ProductsPage} />
+          <Route path="/products/category/:slug" component={ProductsCategoryPage} />
+          <Route path="/products/brand/:slug" component={ProductsBrandPage} />
           <Route path="/contact" component={ContactPage} />
           <Route path="/blog" component={BlogPage} />
           <Route path="/blog/:slug" component={BlogPostPage} />

@@ -53,7 +53,7 @@ function ProductCard({ product, brandName }: { product: DeliveryProduct; brandNa
           <p className="text-[11px] text-muted-foreground line-clamp-2 mb-2 flex-1">{product.description}</p>
         )}
         <div className="mt-auto pt-1">
-          <Link href="/delivery/register">
+          <Link href="/register">
             <span className="block w-full text-center bg-primary hover:bg-primary/90 text-black text-[11px] sm:text-xs font-semibold py-1.5 px-2 rounded-lg transition-colors cursor-pointer">
               Sign In to Order
             </span>
@@ -109,7 +109,7 @@ function ProductGridCard({ product, brandName }: { product: DeliveryProduct; bra
           <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">{product.description}</p>
         )}
         <div className="mt-auto pt-2">
-          <Link href="/delivery/register">
+          <Link href="/register">
             <span className="block w-full text-center bg-primary hover:bg-primary/90 text-black text-xs sm:text-sm font-semibold py-2 px-3 rounded-lg transition-colors cursor-pointer">
               Sign In to Order
             </span>
@@ -547,7 +547,7 @@ const ProductsPage = () => {
               Our products are intended for adult smokers aged 21 and over. Proof of age is required upon purchase.
               Sign up to the delivery portal to browse pricing and place an order.
             </p>
-            <Link href="/delivery/register">
+            <Link href="/register">
               <span className="inline-block mt-5 bg-primary hover:bg-primary/90 text-black font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer text-sm">
                 Create an Account
               </span>
