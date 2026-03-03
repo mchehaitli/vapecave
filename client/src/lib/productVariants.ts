@@ -12,6 +12,7 @@ export interface ProductVariant {
 export interface VariantGroup {
   key: string;
   displayName: string;
+  brandLine: string | null;
   brand: string | null;
   brandId: number | null;
   image: string | null;
@@ -22,35 +23,10 @@ export interface VariantGroup {
   variants: ProductVariant[];
 }
 
-const NIC_SUFFIX_RE =
-  /\s*[\([\-–]?\s*(?:(?:\d+(?:\.\d+)?)\s*mg(?:\/ml)?|nicotine\s*free|nic\s*free|salt\s*nic|salt|salts|e-?liquid|eliquid|e\s*liquid)\s*[\)[\]–]?$/i;
-
-const MG_EXTRACT_RE = /(\d+(?:\.\d+)?)\s*mg/i;
-const NIC_FREE_RE = /nicotine\s*free|nic\s*free|0\s*mg/i;
-
 const VARIANT_CATEGORIES = new Set(["e-liquids", "salts", "e-liquid", "salt e-liquid"]);
 
 export function isVariantCategory(category: string): boolean {
   return VARIANT_CATEGORIES.has(category.toLowerCase().trim());
-}
-
-export function getBaseFlavorName(name: string): string {
-  return name.replace(NIC_SUFFIX_RE, "").trim();
-}
-
-export function extractNicLevel(name: string): string {
-  if (NIC_FREE_RE.test(name)) return "0mg";
-  const match = name.match(MG_EXTRACT_RE);
-  if (match) return `${match[1]}mg`;
-  return "";
-}
-
-export function sortNicLevels(levels: string[]): string[] {
-  return [...levels].sort((a, b) => {
-    const aNum = parseFloat(a.replace("mg", "")) || 0;
-    const bNum = parseFloat(b.replace("mg", "")) || 0;
-    return aNum - bNum;
-  });
 }
 
 function toTitleCase(str: string): string {
@@ -59,6 +35,40 @@ function toTitleCase(str: string): string {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+export function extractNicLevel(name: string): string {
+  const match = name.match(/\b(\d+(?:\.\d+)?)\s*mg\b/i);
+  if (match) return `${match[1]}mg`;
+  return "";
+}
+
+export function getBaseFlavorName(name: string): string {
+  return name
+    .replace(/\s*\b\d+(?:\.\d+)?\s*mg(?:\/ml)?\b\s*/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractFlavorName(baseName: string): string {
+  const match = baseName.match(
+    /(?:E-?Liquids?|Nicotine\s+Salts?|Nic\s+Salts?|Salt\s+Nic|Salts?)\s+(.+)$/i
+  );
+  if (match) return toTitleCase(match[1].trim());
+  return toTitleCase(baseName);
+}
+
+function extractBrandLine(baseName: string): string {
+  const match = baseName.match(/^(.+?)\s+\d+ml\b/i);
+  return match ? toTitleCase(match[1].trim()) : "";
+}
+
+export function sortNicLevels(levels: string[]): string[] {
+  return [...levels].sort((a, b) => {
+    const aNum = parseFloat(a.replace("mg", "")) || 0;
+    const bNum = parseFloat(b.replace("mg", "")) || 0;
+    return aNum - bNum;
+  });
 }
 
 export function isVariantGroup(item: VariantGroup | DeliveryProduct): item is VariantGroup {
@@ -85,8 +95,7 @@ export function groupProductsIntoVariants(products: DeliveryProduct[]): {
     }
 
     const baseName = getBaseFlavorName(product.name);
-    const brandKey = (product.brand || "unknown").toLowerCase().trim();
-    const key = `${brandKey}||${baseName.toLowerCase().trim()}`;
+    const key = baseName.toLowerCase().trim();
 
     if (!groupMap.has(key)) {
       groupMap.set(key, { products: [], nicLevels: [] });
@@ -100,7 +109,7 @@ export function groupProductsIntoVariants(products: DeliveryProduct[]): {
 
   const groups: VariantGroup[] = [];
 
-  Array.from(groupMap.entries()).forEach(([key, entry]) => {
+  Array.from(groupMap.entries()).forEach(([, entry]) => {
     if (entry.products.length <= 1) {
       singles.push(...entry.products);
       return;
@@ -125,9 +134,13 @@ export function groupProductsIntoVariants(products: DeliveryProduct[]): {
       };
     }).filter(Boolean) as ProductVariant[];
 
+    const flavorName = extractFlavorName(baseName);
+    const brandLine = extractBrandLine(baseName) || null;
+
     groups.push({
-      key,
-      displayName: toTitleCase(baseName),
+      key: baseName.toLowerCase().trim(),
+      displayName: flavorName,
+      brandLine,
       brand: first.brand ?? null,
       brandId: first.brandId ?? null,
       image: first.image ?? null,
@@ -149,6 +162,9 @@ export function getDefaultVariant(group: VariantGroup): ProductVariant {
   return inStock || group.variants[0];
 }
 
-export function getVariantByNicLevel(group: VariantGroup, nicLevel: string): ProductVariant | undefined {
+export function getVariantByNicLevel(
+  group: VariantGroup,
+  nicLevel: string
+): ProductVariant | undefined {
   return group.variants.find((v) => v.nicLevel === nicLevel);
 }

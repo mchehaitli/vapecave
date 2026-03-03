@@ -75,7 +75,7 @@ export function ProductQuickView({
       price = variant.salePrice || variant.price;
       inStock = variant.stockQuantity ? parseInt(variant.stockQuantity) > 0 : false;
       sku = variant.cloverItemId || String(variant.productId);
-      brand = variantGroup.brand || "";
+      brand = variantGroup.brandLine || variantGroup.brand || "";
     } else if (product) {
       name = product.name;
       image = product.image || "";
@@ -142,7 +142,7 @@ export function ProductQuickView({
 
     selectedVariant = variant;
     displayName = variantGroup.displayName;
-    displayBrand = variantGroup.brand || "";
+    displayBrand = variantGroup.brandLine || variantGroup.brand || "";
     displayCategory = variantGroup.category;
     displayBadge = variantGroup.badge || "";
     displayDescription = variantGroup.description || "";
