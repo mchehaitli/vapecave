@@ -431,7 +431,7 @@ const ProductsPage = () => {
                 Browse our full inventory. Sign in to the delivery portal to see pricing and place an order.
               </p>
             </div>
-            <Link href="/delivery/register">
+            <Link href="/signup">
               <span className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-black font-semibold px-5 py-2.5 rounded-lg transition-colors cursor-pointer text-sm whitespace-nowrap">
                 <ShoppingBag className="w-4 h-4" />
                 Sign In / Register
