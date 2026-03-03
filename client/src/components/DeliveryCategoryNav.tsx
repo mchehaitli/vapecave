@@ -10,6 +10,7 @@ interface DeliveryCategoryNavProps {
   selectedCategory?: string | null;
   viewMode?: 'featured' | 'category';
   onViewModeChange?: (mode: 'featured' | 'category') => void;
+  hideSpecialTabs?: boolean;
 }
 
 export function DeliveryCategoryNav({ 
@@ -17,6 +18,7 @@ export function DeliveryCategoryNav({
   selectedCategory = null,
   viewMode = 'featured',
   onViewModeChange,
+  hideSpecialTabs = false,
 }: DeliveryCategoryNavProps) {
   const [location, setLocation] = useLocation();
   const [expandedCategoryId, setExpandedCategoryId] = useState<number | null>(null);
@@ -122,39 +124,43 @@ export function DeliveryCategoryNav({
       <section className="bg-card border-b border-border/30 relative z-50">
         <div className="container mx-auto px-2 sm:px-4">
           <nav className="flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 flex-wrap">
-            <Link href="/delivery/shop">
-              <button
-                onClick={() => {
-                  onCategorySelect?.(null);
-                  onViewModeChange?.('featured');
-                  closeAll();
-                }}
-                className={tabClass(location === '/delivery/shop' && viewMode === 'featured')}
-              >
-                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                Featured
-              </button>
-            </Link>
-            
-            <Link href="/delivery/brands">
-              <button
-                onClick={() => closeAll()}
-                className={tabClass(location === '/delivery/brands')}
-              >
-                <Store className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                Brands
-              </button>
-            </Link>
-            
-            <Link href="/delivery/sale">
-              <button
-                onClick={() => closeAll()}
-                className={tabClass(location === '/delivery/sale', 'sale')}
-              >
-                <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                Sale
-              </button>
-            </Link>
+            {!hideSpecialTabs && (
+              <>
+                <Link href="/delivery/shop">
+                  <button
+                    onClick={() => {
+                      onCategorySelect?.(null);
+                      onViewModeChange?.('featured');
+                      closeAll();
+                    }}
+                    className={tabClass(location === '/delivery/shop' && viewMode === 'featured')}
+                  >
+                    <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    Featured
+                  </button>
+                </Link>
+                
+                <Link href="/delivery/brands">
+                  <button
+                    onClick={() => closeAll()}
+                    className={tabClass(location === '/delivery/brands')}
+                  >
+                    <Store className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    Brands
+                  </button>
+                </Link>
+                
+                <Link href="/delivery/sale">
+                  <button
+                    onClick={() => closeAll()}
+                    className={tabClass(location === '/delivery/sale', 'sale')}
+                  >
+                    <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    Sale
+                  </button>
+                </Link>
+              </>
+            )}
 
             <div className="hidden sm:contents">
               {activeCategories.map((category) => {
