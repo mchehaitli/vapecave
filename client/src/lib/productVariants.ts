@@ -13,6 +13,7 @@ export interface VariantGroup {
   key: string;
   displayName: string;
   brandLine: string | null;
+  mlSize: string | null;
   brand: string | null;
   brandId: number | null;
   image: string | null;
@@ -61,6 +62,11 @@ function extractFlavorName(baseName: string): string {
 function extractBrandLine(baseName: string): string {
   const match = baseName.match(/^(.+?)\s+\d+ml\b/i);
   return match ? toTitleCase(match[1].trim()) : "";
+}
+
+function extractMlSize(baseName: string): string {
+  const match = baseName.match(/\b(\d+ml)\b/i);
+  return match ? match[1].toLowerCase() : "";
 }
 
 export function sortNicLevels(levels: string[]): string[] {
@@ -136,11 +142,13 @@ export function groupProductsIntoVariants(products: DeliveryProduct[]): {
 
     const flavorName = extractFlavorName(baseName);
     const brandLine = extractBrandLine(baseName) || null;
+    const mlSize = extractMlSize(baseName) || null;
 
     groups.push({
       key: baseName.toLowerCase().trim(),
       displayName: flavorName,
       brandLine,
+      mlSize,
       brand: first.brand ?? null,
       brandId: first.brandId ?? null,
       image: first.image ?? null,

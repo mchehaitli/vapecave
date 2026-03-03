@@ -426,11 +426,14 @@ export default function DeliveryCategoryPage() {
                         {!isOutOfStock && renderStockBadge(variant.stockQuantity, "grid")}
                       </div>
                       <div className="p-3">
-                        <h3 className="font-medium text-sm line-clamp-1 min-h-[1.25rem]">
+                        {(group.brandLine || group.brand) && (
+                          <p className="font-semibold text-xs line-clamp-1 text-foreground">{group.brandLine || group.brand}</p>
+                        )}
+                        <h3 className="font-medium text-sm line-clamp-1">
                           {group.displayName}
                         </h3>
-                        {(group.brandLine || group.brand) && (
-                          <p className="text-[10px] text-muted-foreground line-clamp-1 mb-1">{group.brandLine || group.brand}</p>
+                        {group.mlSize && (
+                          <p className="text-[10px] text-muted-foreground mb-1">{group.mlSize}</p>
                         )}
                         <div className="flex flex-wrap gap-1 my-1.5">
                           {sortNicLevels(group.variants.map(v => v.nicLevel)).map(level => {
@@ -626,9 +629,14 @@ export default function DeliveryCategoryPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
+                        {(group.brandLine || group.brand) && (
+                          <p className="font-semibold text-xs line-clamp-1 text-foreground">
+                            {group.brandLine || group.brand}
+                            {group.mlSize && <span className="font-normal text-muted-foreground"> · {group.mlSize}</span>}
+                          </p>
+                        )}
                         <h3 className="font-medium text-sm sm:text-base line-clamp-1">
                           {group.displayName}
-                          {(group.brandLine || group.brand) && <span className="text-muted-foreground font-normal"> · {group.brandLine || group.brand}</span>}
                         </h3>
                         <div className="flex flex-wrap gap-1 mt-1 mb-1">
                           {isFeatured && (

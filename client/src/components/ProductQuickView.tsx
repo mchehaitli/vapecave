@@ -300,18 +300,38 @@ export function ProductQuickView({
 
           <div className="flex flex-col">
             <div className="flex-1">
-              <h2
-                className="text-xl sm:text-3xl font-bold mb-3 text-foreground"
-                data-testid={`text-product-name-${isVariantMode ? variantGroup?.key : product?.id}`}
-              >
-                {displayName}
-              </h2>
-
-              {displayBrand && (
-                <p className="text-muted-foreground mb-3 text-sm sm:text-base">
-                  Brand:{" "}
-                  <span className="font-medium text-foreground">{displayBrand}</span>
-                </p>
+              {isVariantMode ? (
+                <div className="mb-3">
+                  {displayBrand && (
+                    <p className="text-base sm:text-lg font-bold text-foreground leading-tight">
+                      {displayBrand}
+                    </p>
+                  )}
+                  <h2
+                    className="text-xl sm:text-3xl font-bold text-foreground leading-tight"
+                    data-testid={`text-product-name-${variantGroup?.key}`}
+                  >
+                    {displayName}
+                  </h2>
+                  {variantGroup?.mlSize && (
+                    <p className="text-xs text-muted-foreground mt-0.5">{variantGroup.mlSize}</p>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <h2
+                    className="text-xl sm:text-3xl font-bold mb-3 text-foreground"
+                    data-testid={`text-product-name-${product?.id}`}
+                  >
+                    {displayName}
+                  </h2>
+                  {displayBrand && (
+                    <p className="text-muted-foreground mb-3 text-sm sm:text-base">
+                      Brand:{" "}
+                      <span className="font-medium text-foreground">{displayBrand}</span>
+                    </p>
+                  )}
+                </>
               )}
 
               {displayCategory && (
