@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link, useRoute, useLocation } from "wouter";
+import { Link, useRoute, useSearch } from "wouter";
 import MainLayout from "@/layouts/MainLayout";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -90,14 +90,12 @@ function GridSkeleton() {
 
 export default function ProductsBrandPage() {
   const [, params] = useRoute("/products/brand/:slug");
-  const [location] = useLocation();
+  const search = useSearch();
   const slug = params?.slug;
 
   const lineSlug = useMemo(() => {
-    const search = location.includes('?') ? location.split('?')[1] : '';
-    const urlParams = new URLSearchParams(search);
-    return urlParams.get('line') || null;
-  }, [location]);
+    return new URLSearchParams(search).get('line') || null;
+  }, [search]);
 
   const { data: products = [], isLoading: productsLoading } = useQuery<DeliveryProduct[]>({
     queryKey: ["/api/delivery/products"],
