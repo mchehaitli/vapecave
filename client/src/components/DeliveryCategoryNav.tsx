@@ -11,6 +11,8 @@ interface DeliveryCategoryNavProps {
   viewMode?: 'featured' | 'category';
   onViewModeChange?: (mode: 'featured' | 'category') => void;
   hideSpecialTabs?: boolean;
+  hideBrandsAndSale?: boolean;
+  standalone?: boolean;
 }
 
 export function DeliveryCategoryNav({ 
@@ -19,6 +21,8 @@ export function DeliveryCategoryNav({
   viewMode = 'featured',
   onViewModeChange,
   hideSpecialTabs = false,
+  hideBrandsAndSale = false,
+  standalone = false,
 }: DeliveryCategoryNavProps) {
   const [location, setLocation] = useLocation();
   const [expandedCategoryId, setExpandedCategoryId] = useState<number | null>(null);
@@ -105,8 +109,15 @@ export function DeliveryCategoryNav({
     ? activeBrands.filter(b => b.categoryId === expandedCategory.id)
     : [];
 
-  const isOnCategoryPage = activeCategories.some(c => location === `/delivery/category/${c.slug}`);
-  const activeCategoryForPage = activeCategories.find(c => location === `/delivery/category/${c.slug}`);
+  const isOnCategoryPage = standalone
+    ? !!selectedCategory
+    : activeCategories.some(c => location === `/delivery/category/${c.slug}`);
+
+  const activeCategoryForPage = standalone
+    ? (selectedCategory ? activeCategories.find(c => c.name === selectedCategory) || null : null)
+    : activeCategories.find(c => location === `/delivery/category/${c.slug}`);
+
+  const hideBoth = hideSpecialTabs || hideBrandsAndSale;
 
   const tabClass = (active: boolean, variant?: 'sale') => {
     if (variant === 'sale') {
@@ -119,6 +130,45 @@ export function DeliveryCategoryNav({
     }`;
   };
 
+  const featuredTabActive = standalone
+    ? (viewMode === 'featured' && !selectedCategory)
+    : (location === '/delivery/shop' && viewMode === 'featured');
+
+  const handleCategoryClick = (category: DeliveryCategory, hasBrands: boolean) => {
+    if (standalone) {
+      onCategorySelect?.(category.name);
+      onViewModeChange?.('category');
+      closeAll();
+    } else {
+      if (hasBrands) {
+        if (expandedCategoryId === category.id) {
+          closeAll();
+        } else {
+          openCategoryDropdown(category.id);
+        }
+      } else {
+        setLocation(`/delivery/category/${category.slug}`);
+        closeAll();
+      }
+    }
+  };
+
+  const handleMobileCategoryClick = (category: DeliveryCategory, hasBrands: boolean) => {
+    if (standalone) {
+      onCategorySelect?.(category.name);
+      onViewModeChange?.('category');
+      closeAll();
+    } else {
+      if (hasBrands) {
+        setMobileCategoriesOpen(false);
+        openCategoryDropdown(category.id);
+      } else {
+        setLocation(`/delivery/category/${category.slug}`);
+        closeAll();
+      }
+    }
+  };
+
   return (
     <>
       <section className="bg-card border-b border-border/30 relative z-50">
@@ -126,47 +176,68 @@ export function DeliveryCategoryNav({
           <nav className="flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 flex-wrap">
             {!hideSpecialTabs && (
               <>
-                <Link href="/delivery/shop">
+                {standalone ? (
                   <button
                     onClick={() => {
                       onCategorySelect?.(null);
                       onViewModeChange?.('featured');
                       closeAll();
                     }}
-                    className={tabClass(location === '/delivery/shop' && viewMode === 'featured')}
+                    className={tabClass(featuredTabActive)}
                   >
                     <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     Featured
                   </button>
-                </Link>
-                
-                <Link href="/delivery/brands">
-                  <button
-                    onClick={() => closeAll()}
-                    className={tabClass(location === '/delivery/brands')}
-                  >
-                    <Store className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                    Brands
-                  </button>
-                </Link>
-                
-                <Link href="/delivery/sale">
-                  <button
-                    onClick={() => closeAll()}
-                    className={tabClass(location === '/delivery/sale', 'sale')}
-                  >
-                    <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                    Sale
-                  </button>
-                </Link>
+                ) : (
+                  <Link href="/delivery/shop">
+                    <button
+                      onClick={() => {
+                        onCategorySelect?.(null);
+                        onViewModeChange?.('featured');
+                        closeAll();
+                      }}
+                      className={tabClass(featuredTabActive)}
+                    >
+                      <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                      Featured
+                    </button>
+                  </Link>
+                )}
+
+                {!hideBoth && (
+                  <>
+                    <Link href="/delivery/brands">
+                      <button
+                        onClick={() => closeAll()}
+                        className={tabClass(location === '/delivery/brands')}
+                      >
+                        <Store className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                        Brands
+                      </button>
+                    </Link>
+                    
+                    <Link href="/delivery/sale">
+                      <button
+                        onClick={() => closeAll()}
+                        className={tabClass(location === '/delivery/sale', 'sale')}
+                      >
+                        <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                        Sale
+                      </button>
+                    </Link>
+                  </>
+                )}
               </>
             )}
 
             <div className="hidden sm:contents">
               {activeCategories.map((category) => {
                 const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
+                const hasBrands = categoryBrands.length > 0;
                 const isOpen = expandedCategoryId === category.id;
-                const isActive = isOpen || location === `/delivery/category/${category.slug}`;
+                const isActive = standalone
+                  ? selectedCategory === category.name
+                  : (isOpen || location === `/delivery/category/${category.slug}`);
                 
                 return (
                   <button
@@ -174,15 +245,14 @@ export function DeliveryCategoryNav({
                     ref={(el) => { categoryButtonRefs.current[category.id] = el; }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (categoryBrands.length === 0) {
-                        setLocation(`/delivery/category/${category.slug}`);
-                        closeAll();
-                      } else {
+                      if (!standalone && hasBrands) {
                         if (isOpen) {
                           closeAll();
                         } else {
                           openCategoryDropdown(category.id);
                         }
+                      } else {
+                        handleCategoryClick(category, hasBrands);
                       }
                     }}
                     className={`flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
@@ -192,7 +262,7 @@ export function DeliveryCategoryNav({
                     }`}
                   >
                     {category.name}
-                    {categoryBrands.length > 0 && (
+                    {!standalone && hasBrands && (
                       <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                     )}
                   </button>
@@ -229,7 +299,10 @@ export function DeliveryCategoryNav({
               <div className="grid grid-cols-2 gap-1.5">
                 {activeCategories.map((category) => {
                   const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
-                  const isActive = location === `/delivery/category/${category.slug}`;
+                  const hasBrands = categoryBrands.length > 0;
+                  const isActive = standalone
+                    ? selectedCategory === category.name
+                    : location === `/delivery/category/${category.slug}`;
                   
                   return (
                     <button
@@ -237,13 +310,7 @@ export function DeliveryCategoryNav({
                       ref={(el) => { categoryButtonRefs.current[category.id] = el; }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (categoryBrands.length === 0) {
-                          setLocation(`/delivery/category/${category.slug}`);
-                          closeAll();
-                        } else {
-                          setMobileCategoriesOpen(false);
-                          openCategoryDropdown(category.id);
-                        }
+                        handleMobileCategoryClick(category, hasBrands);
                       }}
                       className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
                         isActive
@@ -252,7 +319,7 @@ export function DeliveryCategoryNav({
                       }`}
                     >
                       <span className="truncate">{category.name}</span>
-                      {categoryBrands.length > 0 && (
+                      {!standalone && hasBrands && (
                         <ChevronRight className="w-3 h-3 flex-shrink-0 ml-1" />
                       )}
                     </button>
@@ -269,7 +336,7 @@ export function DeliveryCategoryNav({
         document.body
       )}
 
-      {expandedCategoryId !== null && createPortal(
+      {!standalone && expandedCategoryId !== null && createPortal(
         <>
           <div 
             className="fixed inset-0 z-[9998]" 
