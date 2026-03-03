@@ -16,7 +16,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/contexts/ThemeContext";
 
-import logo_transparent_background from "@assets/logo_transparent_background.png";
+import logo_transparent_background from "@assets/white_logo_transparent_background.png";
 
 const mobileMenuVariants = {
   hidden: { opacity: 0, height: 0 },
