@@ -89,11 +89,6 @@ export function groupProductsIntoVariants(products: DeliveryProduct[]): {
   const singles: DeliveryProduct[] = [];
 
   for (const product of products) {
-    if (!product.category || !isVariantCategory(product.category)) {
-      singles.push(product);
-      continue;
-    }
-
     const nicLevel = extractNicLevel(product.name);
     if (!nicLevel) {
       singles.push(product);

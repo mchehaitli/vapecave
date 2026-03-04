@@ -14,6 +14,14 @@ import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
 import { FloatingCartButton } from "@/components/FloatingCartButton";
 import { ProductQuickView } from "@/components/ProductQuickView";
 import type { DeliveryProduct, DeliveryBrand, DeliveryProductLine } from "@shared/schema";
+import {
+  groupProductsIntoVariants,
+  isVariantGroup,
+  getDefaultVariant,
+  getVariantByNicLevel,
+  sortNicLevels,
+  type VariantGroup,
+} from "@/lib/productVariants";
 
 interface CartItem {
   id: number;
@@ -35,6 +43,9 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [quickViewProduct, setQuickViewProduct] = useState<DeliveryProduct | null>(null);
+  const [selectedNicLevels, setSelectedNicLevels] = useState<Record<string, string>>({});
+  const [quickViewVariantGroup, setQuickViewVariantGroup] = useState<VariantGroup | null>(null);
+  const [quickViewVariantNic, setQuickViewVariantNic] = useState<string>("");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(window.innerWidth < 640 ? 'list' : 'grid');
   // Track user's manual selection - persists until user clicks a different tab
   const [userSelection, setUserSelection] = useState<{ slug: string; lineId: number | 'all' } | null>(null);
@@ -112,6 +123,43 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
     if (!aFeatured && bFeatured) return 1;
     return (a.displayOrder || 0) - (b.displayOrder || 0);
   });
+
+  const { groups: variantGroups, singles: singleProducts } = useMemo(
+    () => groupProductsIntoVariants(sortedProducts),
+    [sortedProducts]
+  );
+
+  const displayItems = useMemo(() => {
+    const usedIds = new Set(variantGroups.flatMap(g => g.variants.map(v => v.productId)));
+    return [
+      ...variantGroups,
+      ...singleProducts.filter(p => !usedIds.has(p.id)),
+    ] as Array<VariantGroup | DeliveryProduct>;
+  }, [variantGroups, singleProducts]);
+
+  const getSelectedNic = (group: VariantGroup): string => {
+    if (selectedNicLevels[group.key]) return selectedNicLevels[group.key];
+    return getDefaultVariant(group).nicLevel;
+  };
+
+  const setSelectedNic = (groupKey: string, level: string) => {
+    setSelectedNicLevels(prev => ({ ...prev, [groupKey]: level }));
+  };
+
+  const getVariantData = (group: VariantGroup) => {
+    const nic = getSelectedNic(group);
+    return getVariantByNicLevel(group, nic) || getDefaultVariant(group);
+  };
+
+  const openVariantQuickView = (group: VariantGroup) => {
+    setQuickViewVariantGroup(group);
+    setQuickViewVariantNic(getSelectedNic(group));
+  };
+
+  const closeVariantQuickView = () => {
+    setQuickViewVariantGroup(null);
+    setQuickViewVariantNic("");
+  };
 
   const { data: cart = [] } = useQuery<CartItem[]>({
     queryKey: ['/api/delivery/cart'],
@@ -323,7 +371,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
           </motion.div>
         )}
 
-        {sortedProducts.length === 0 ? (
+        {displayItems.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground text-lg">No products available in this line yet.</p>
             <Link href="/delivery/shop">
@@ -331,147 +379,298 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
             </Link>
           </div>
         ) : viewMode === 'grid' ? (
-          <motion.div 
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ staggerChildren: 0.05 }}
-          >
-            {sortedProducts.map((product, index) => {
-              const quantity = derivedCartQuantities[product.id] || 0;
-              const isFeatured = featuredIds.includes(product.id);
-              
-              const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
-              const isOutOfStock = stock <= 0;
-              const isLowStock = stock > 0 && stock <= 2;
-
-              return (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.03 }}
-                >
-                  <Card className={`group relative overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20 ${isFeatured ? 'ring-2 ring-primary/50' : ''}`}>
-                    {isFeatured && (
-                      <div className="absolute top-2 left-2 z-10">
-                        <Badge className="bg-primary text-primary-foreground text-xs">Featured</Badge>
-                      </div>
-                    )}
-                    <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
-                      {product.badge && (
-                        <Badge variant={product.badge === 'sale' ? 'destructive' : 'secondary'} className="text-xs">
-                          {product.badge}
-                        </Badge>
-                      )}
-                      {isOutOfStock ? (
-                        <Badge className="bg-red-500/90 text-white text-xs">Out of Stock</Badge>
-                      ) : isLowStock ? (
-                        <Badge className="bg-amber-500/90 text-white text-xs">Low Stock</Badge>
-                      ) : (
-                        <Badge className="bg-green-500/90 text-white text-xs">In Stock</Badge>
-                      )}
-                    </div>
-                    
-                    <div className="relative aspect-square overflow-hidden bg-muted">
-                      <img
-                        src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
-                        alt={`${product.name} - Vape Cave Frisco`}
-                        loading="lazy"
-                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${isOutOfStock ? 'blur-sm opacity-70' : ''}`}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (target.dataset.fallbackAttempted) {
-                            target.src = '/placeholder-product.svg';
-                            return;
-                          }
-                          target.dataset.fallbackAttempted = '1';
-                          const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
-                          if (brandLogo) {
-                            target.src = brandLogo;
-                          } else {
-                            target.src = '/placeholder-product.svg';
-                          }
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0"
-                        onClick={() => setQuickViewProduct(product)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    <div className="p-4 space-y-3">
-                      <h3 className="font-semibold text-foreground line-clamp-2 min-h-[3rem]">
-                        {product.name}
-                      </h3>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {product.salePrice ? (
-                            <>
-                              <span className="text-lg font-bold text-primary">${product.salePrice}</span>
-                              <span className="text-sm text-muted-foreground line-through">${product.price}</span>
-                            </>
-                          ) : (
-                            <span className="text-lg font-bold text-primary">${product.price}</span>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+            <AnimatePresence mode="popLayout">
+              {displayItems.map((item, index) => {
+                if (isVariantGroup(item)) {
+                  const group = item;
+                  const selectedNic = getSelectedNic(group);
+                  const variant = getVariantData(group);
+                  const stock = variant.stockQuantity ? parseInt(variant.stockQuantity) : 0;
+                  const isOutOfStock = stock <= 0;
+                  return (
+                    <motion.div
+                      key={group.key}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                    >
+                      <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/50">
+                        <div className="relative aspect-square bg-muted/50">
+                          <img
+                            src={group.image || (group.brandId ? brandMap[group.brandId]?.logo : null) || "/placeholder-product.svg"}
+                            alt={`${group.displayName} - Vape Cave`}
+                            loading="lazy"
+                            className={`w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300 ${isOutOfStock ? 'opacity-50' : ''}`}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (target.dataset.fallbackAttempted) { target.src = '/placeholder-product.svg'; return; }
+                              target.dataset.fallbackAttempted = '1';
+                              const brandLogo = group.brandId ? brandMap[group.brandId]?.logo : null;
+                              target.src = brandLogo || '/placeholder-product.svg';
+                            }}
+                          />
+                          {isOutOfStock && (
+                            <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
+                              <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
+                            </div>
                           )}
                         </div>
-                        
-                        {quantity > 0 ? (
-                          <div className="flex items-center gap-1">
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="h-7 w-7"
-                              onClick={() => handleUpdateQuantity(product.id, quantity - 1)}
-                            >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="w-6 text-center font-semibold text-sm">{quantity}</span>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="h-7 w-7"
-                              onClick={() => handleUpdateQuantity(product.id, quantity + 1)}
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
+                        <div className="p-3">
+                          {(group.brandLine || group.brand) && (
+                            <p className="font-semibold text-xs line-clamp-1 text-foreground">{group.brandLine || group.brand}</p>
+                          )}
+                          <h3 className="font-medium text-sm line-clamp-1">{group.displayName}</h3>
+                          <p className="text-[10px] text-muted-foreground mb-1">
+                            {[group.mlSize, selectedNic].filter(Boolean).join(' · ')}
+                          </p>
+                          <div className="flex flex-wrap gap-1 my-1.5">
+                            {sortNicLevels(group.variants.map(v => v.nicLevel)).map(level => {
+                              const v = getVariantByNicLevel(group, level);
+                              const vStock = v?.stockQuantity ? parseInt(v.stockQuantity) : 0;
+                              return (
+                                <button
+                                  key={level}
+                                  onClick={(e) => { e.stopPropagation(); setSelectedNic(group.key, level); }}
+                                  className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
+                                    selectedNic === level
+                                      ? 'bg-primary text-primary-foreground border-primary'
+                                      : vStock <= 0
+                                      ? 'border-muted-foreground/20 text-muted-foreground/40 line-through'
+                                      : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                                  }`}
+                                  title={vStock <= 0 ? `${level} - Out of stock` : level}
+                                >
+                                  {level}
+                                </button>
+                              );
+                            })}
                           </div>
+                          <div className="flex items-center justify-between mt-1">
+                            {variant.salePrice ? (
+                              <div className="flex items-baseline gap-1">
+                                <p className="text-base font-bold text-primary">${variant.salePrice}</p>
+                                <p className="text-[10px] text-muted-foreground line-through">${variant.price}</p>
+                              </div>
+                            ) : (
+                              <p className="text-base font-bold text-primary">${variant.price}</p>
+                            )}
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => openVariantQuickView(group)}>
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => addToCart.mutate(variant.productId)}
+                                disabled={addToCart.isPending || isOutOfStock}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  );
+                }
+
+                const product = item as DeliveryProduct;
+                const quantity = derivedCartQuantities[product.id] || 0;
+                const isFeatured = featuredIds.includes(product.id);
+                const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
+                const isOutOfStock = stock <= 0;
+                const isLowStock = stock > 0 && stock <= 2;
+
+                return (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.03 }}
+                  >
+                    <Card className={`group relative overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20 ${isFeatured ? 'ring-2 ring-primary/50' : ''}`}>
+                      {isFeatured && (
+                        <div className="absolute top-2 left-2 z-10">
+                          <Badge className="bg-primary text-primary-foreground text-xs">Featured</Badge>
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
+                        {product.badge && (
+                          <Badge variant={product.badge === 'sale' ? 'destructive' : 'secondary'} className="text-xs">
+                            {product.badge}
+                          </Badge>
+                        )}
+                        {isOutOfStock ? (
+                          <Badge className="bg-red-500/90 text-white text-xs">Out of Stock</Badge>
+                        ) : isLowStock ? (
+                          <Badge className="bg-amber-500/90 text-white text-xs">Low Stock</Badge>
                         ) : (
-                          <Button
-                            size="sm"
-                            onClick={() => addToCart.mutate(product.id)}
-                            className="gap-1"
-                          >
-                            <ShoppingCart className="h-4 w-4" />
+                          <Badge className="bg-green-500/90 text-white text-xs">In Stock</Badge>
+                        )}
+                      </div>
+                      
+                      <div className="relative aspect-square overflow-hidden bg-muted">
+                        <img
+                          src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
+                          alt={`${product.name} - Vape Cave Frisco`}
+                          loading="lazy"
+                          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${isOutOfStock ? 'blur-sm opacity-70' : ''}`}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.dataset.fallbackAttempted) { target.src = '/placeholder-product.svg'; return; }
+                            target.dataset.fallbackAttempted = '1';
+                            const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
+                            target.src = brandLogo || '/placeholder-product.svg';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0"
+                          onClick={() => setQuickViewProduct(product)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      <div className="p-4 space-y-3">
+                        <h3 className="font-semibold text-foreground line-clamp-2 min-h-[3rem]">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {product.salePrice ? (
+                              <>
+                                <span className="text-lg font-bold text-primary">${product.salePrice}</span>
+                                <span className="text-sm text-muted-foreground line-through">${product.price}</span>
+                              </>
+                            ) : (
+                              <span className="text-lg font-bold text-primary">${product.price}</span>
+                            )}
+                          </div>
+                          {quantity > 0 ? (
+                            <div className="flex items-center gap-1">
+                              <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => handleUpdateQuantity(product.id, quantity - 1)}>
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="w-6 text-center font-semibold text-sm">{quantity}</span>
+                              <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => handleUpdateQuantity(product.id, quantity + 1)}>
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button size="sm" onClick={() => addToCart.mutate(product.id)} className="gap-1">
+                              <ShoppingCart className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {displayItems.map((item, index) => {
+              if (isVariantGroup(item)) {
+                const group = item;
+                const selectedNic = getSelectedNic(group);
+                const variant = getVariantData(group);
+                const stock = variant.stockQuantity ? parseInt(variant.stockQuantity) : 0;
+                const isOutOfStock = stock <= 0;
+                return (
+                  <motion.div
+                    key={group.key}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                  >
+                    <Card className={`flex items-center gap-3 p-3 hover:shadow-lg transition-all duration-300 hover:border-primary/50 ${isOutOfStock ? 'opacity-60' : ''}`}>
+                      <div className="relative w-20 h-20 bg-muted/50 rounded-lg flex-shrink-0 overflow-hidden">
+                        <img
+                          src={group.image || (group.brandId ? brandMap[group.brandId]?.logo : null) || '/placeholder-product.svg'}
+                          alt={group.displayName}
+                          loading="lazy"
+                          className={`w-full h-full object-contain p-1 ${isOutOfStock ? 'opacity-50' : ''}`}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.dataset.fallbackAttempted) { target.src = '/placeholder-product.svg'; return; }
+                            target.dataset.fallbackAttempted = '1';
+                            const brandLogo = group.brandId ? brandMap[group.brandId]?.logo : null;
+                            target.src = brandLogo || '/placeholder-product.svg';
+                          }}
+                        />
+                        {isOutOfStock && (
+                          <div className="absolute inset-0 bg-background/60 flex items-center justify-center rounded-lg">
+                            <Badge variant="destructive" className="text-[10px]">Out</Badge>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-sm line-clamp-1">{group.displayName}</h3>
+                        <p className="text-[10px] text-muted-foreground">
+                          {[group.mlSize, selectedNic].filter(Boolean).join(' · ')}
+                        </p>
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {sortNicLevels(group.variants.map(v => v.nicLevel)).map(level => {
+                            const v = getVariantByNicLevel(group, level);
+                            const vStock = v?.stockQuantity ? parseInt(v.stockQuantity) : 0;
+                            return (
+                              <button
+                                key={level}
+                                onClick={() => setSelectedNic(group.key, level)}
+                                className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
+                                  selectedNic === level
+                                    ? 'bg-primary text-primary-foreground border-primary'
+                                    : vStock <= 0
+                                    ? 'border-muted-foreground/20 text-muted-foreground/40 line-through'
+                                    : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                                }`}
+                                title={vStock <= 0 ? `${level} - Out of stock` : level}
+                              >
+                                {level}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="text-right">
+                          {variant.salePrice ? (
+                            <>
+                              <p className="text-base font-bold text-primary">${variant.salePrice}</p>
+                              <p className="text-[10px] text-muted-foreground line-through">${variant.price}</p>
+                            </>
+                          ) : (
+                            <p className="text-base font-bold text-primary">${variant.price}</p>
+                          )}
+                        </div>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => openVariantQuickView(group)}>
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        {!isOutOfStock && (
+                          <Button size="sm" className="h-8" onClick={() => addToCart.mutate(variant.productId)} disabled={addToCart.isPending}>
+                            <Plus className="w-3 h-3 mr-1" />
+                            Add
                           </Button>
                         )}
                       </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        ) : (
-          <motion.div 
-            className="space-y-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            {sortedProducts.map((product, index) => {
+                    </Card>
+                  </motion.div>
+                );
+              }
+
+              const product = item as DeliveryProduct;
               const quantity = derivedCartQuantities[product.id] || 0;
               const isFeatured = featuredIds.includes(product.id);
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
               const isOutOfStock = stock <= 0;
               const isLowStock = stock > 0 && stock <= 2;
-              
+
               return (
                 <motion.div
                   key={product.id}
@@ -488,17 +687,10 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                         className={`w-full h-full object-cover ${isOutOfStock ? 'blur-sm opacity-70' : ''}`}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          if (target.dataset.fallbackAttempted) {
-                            target.src = '/placeholder-product.svg';
-                            return;
-                          }
+                          if (target.dataset.fallbackAttempted) { target.src = '/placeholder-product.svg'; return; }
                           target.dataset.fallbackAttempted = '1';
                           const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
-                          if (brandLogo) {
-                            target.src = brandLogo;
-                          } else {
-                            target.src = '/placeholder-product.svg';
-                          }
+                          target.src = brandLogo || '/placeholder-product.svg';
                         }}
                       />
                       {isFeatured && (
@@ -507,7 +699,6 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                         </div>
                       )}
                     </div>
-                    
                     <div className="flex-1 p-4 flex items-center justify-between">
                       <div className="flex-1">
                         <h3 className="font-semibold text-foreground">{product.name}</h3>
@@ -529,7 +720,6 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                           )}
                         </div>
                       </div>
-                      
                       <div className="flex items-center gap-6">
                         <div className="text-right">
                           {product.salePrice ? (
@@ -541,33 +731,17 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                             <span className="text-xl font-bold text-primary">${product.price}</span>
                           )}
                         </div>
-                        
                         <div className="flex items-center gap-2">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => setQuickViewProduct(product)}
-                          >
+                          <Button size="icon" variant="ghost" onClick={() => setQuickViewProduct(product)}>
                             <Eye className="h-4 w-4" />
                           </Button>
-                          
                           {quantity > 0 ? (
                             <div className="flex items-center gap-2">
-                              <Button
-                                size="icon"
-                                variant="outline"
-                                className="h-8 w-8"
-                                onClick={() => handleUpdateQuantity(product.id, quantity - 1)}
-                              >
+                              <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleUpdateQuantity(product.id, quantity - 1)}>
                                 <Minus className="h-4 w-4" />
                               </Button>
                               <span className="w-8 text-center font-semibold">{quantity}</span>
-                              <Button
-                                size="icon"
-                                variant="outline"
-                                className="h-8 w-8"
-                                onClick={() => handleUpdateQuantity(product.id, quantity + 1)}
-                              >
+                              <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleUpdateQuantity(product.id, quantity + 1)}>
                                 <Plus className="h-4 w-4" />
                               </Button>
                             </div>
@@ -584,7 +758,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                 </motion.div>
               );
             })}
-          </motion.div>
+          </div>
         )}
       </main>
 
@@ -596,11 +770,15 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
       
       <ProductQuickView
         product={quickViewProduct}
-        open={!!quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
+        variantGroup={quickViewVariantGroup}
+        selectedNicLevel={quickViewVariantNic}
+        onNicLevelChange={setQuickViewVariantNic}
+        open={!!(quickViewProduct || quickViewVariantGroup)}
+        onClose={() => { setQuickViewProduct(null); closeVariantQuickView(); }}
         onAddToCart={async (productId: number, quantity: number) => {
           addToCart.mutate(productId);
           setQuickViewProduct(null);
+          closeVariantQuickView();
         }}
       />
     </div>
