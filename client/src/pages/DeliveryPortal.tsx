@@ -17,6 +17,7 @@ import { FloatingCartButton } from "@/components/FloatingCartButton";
 import { ProductQuickView } from "@/components/ProductQuickView";
 import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
 import type { DeliveryProduct, DeliveryCategory, DeliveryBrand, DeliveryProductLine } from "@shared/schema";
+import { extractNicLevel } from "@/lib/productVariants";
 
 function BrandCarousel({ 
   title, 
@@ -448,11 +449,10 @@ function ProductCarousel({
                   )}
 
                   {!featuredMode && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 sm:pb-4 gap-1 sm:gap-2">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 sm:pb-4 gap-1 sm:gap-2">
                       <Button
                         size="sm"
-                        variant="secondary"
-                        className="bg-card/90 backdrop-blur-sm hover:bg-card text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
+                        className="bg-black/70 text-white hover:bg-black/90 border-0 text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onQuickView(product); }}
                       >
                         <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
@@ -470,20 +470,20 @@ function ProductCarousel({
                         </Button>
                       )}
                       {!isOutOfStock && inCart && onUpdateQuantity && (
-                        <div className="flex items-center gap-0.5 sm:gap-1 bg-card/90 backdrop-blur-sm rounded-lg p-0.5 sm:p-1">
+                        <div className="flex items-center gap-0.5 sm:gap-1 bg-black/70 rounded-lg p-0.5 sm:p-1">
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 sm:h-8 sm:w-8 p-0"
+                            className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-white hover:text-white hover:bg-white/20"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQuantity(product.id, inCart - 1); }}
                           >
                             <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                           </Button>
-                          <span className="w-6 sm:w-8 text-center font-bold text-xs sm:text-sm">{inCart}</span>
+                          <span className="w-6 sm:w-8 text-center font-bold text-xs sm:text-sm text-white">{inCart}</span>
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 sm:h-8 sm:w-8 p-0"
+                            className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-white hover:text-white hover:bg-white/20"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateQuantity(product.id, inCart + 1); }}
                             disabled={inCart >= stock}
                           >
@@ -496,9 +496,12 @@ function ProductCarousel({
                 </div>
 
                 <div className="p-2 sm:p-3 md:p-4">
-                  <h3 className="font-semibold text-foreground text-xs sm:text-sm md:text-base line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] mb-1 sm:mb-2">
+                  <h3 className="font-semibold text-foreground text-xs sm:text-sm md:text-base line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] mb-0.5">
                     {product.name}
                   </h3>
+                  {(() => { const nic = (product as any).nicotineOverride || extractNicLevel(product.name); return nic ? (
+                    <span className="inline-block text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-semibold mb-1">{nic}</span>
+                  ) : null; })()}
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-baseline gap-1 sm:gap-2">

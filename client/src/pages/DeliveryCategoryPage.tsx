@@ -19,6 +19,7 @@ import {
   getDefaultVariant,
   getVariantByNicLevel,
   sortNicLevels,
+  extractNicLevel,
   type VariantGroup,
 } from "@/lib/productVariants";
 import type { DeliveryProduct, DeliveryCategory, DeliveryBrand } from "@shared/schema";
@@ -549,9 +550,12 @@ export default function DeliveryCategoryPage() {
                       )}
                     </div>
                     <div className="p-3">
-                      <h3 className="font-medium text-sm line-clamp-2 min-h-[2.5rem]">
+                      <h3 className="font-medium text-sm line-clamp-2">
                         {product.name}
                       </h3>
+                      {(() => { const nic = (product as any).nicotineOverride || extractNicLevel(product.name); return nic ? (
+                        <span className="inline-block text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-semibold mt-0.5 mb-1">{nic}</span>
+                      ) : null; })()}
                       <div className="flex items-center justify-between mt-2">
                         {product.salePrice ? (
                           <div className="flex items-baseline gap-1">
@@ -741,6 +745,9 @@ export default function DeliveryCategoryPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-sm sm:text-base line-clamp-2">{product.name}</h3>
+                      {(() => { const nic = (product as any).nicotineOverride || extractNicLevel(product.name); return nic ? (
+                        <span className="inline-block text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-semibold mt-0.5">{nic}</span>
+                      ) : null; })()}
                       <div className="flex items-center gap-1 mt-1 flex-wrap">
                         {isFeatured && (
                           <Badge className="bg-primary/90 flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">

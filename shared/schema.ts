@@ -567,6 +567,7 @@ export const deliveryProducts = pgTable("delivery_products", {
   homePageOrder: integer("home_page_order").default(0),
   stockQuantity: numeric("stock_quantity").default("0"),
   enabled: boolean("enabled").default(true),
+  nicotineOverride: text("nicotine_override"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -585,6 +586,7 @@ export const insertDeliveryProductSchema = createInsertSchema(deliveryProducts).
   description: true,
   category: true,
   badge: true,
+  nicotineOverride: true,
   displayOrder: true,
   isFeaturedSlideshow: true,
   isHeroSlideshow: true,
@@ -604,6 +606,7 @@ export const insertDeliveryProductSchema = createInsertSchema(deliveryProducts).
   description: z.string().optional().nullable(), // Optional
   category: z.string().optional().nullable(), // Optional
   badge: z.string().optional().nullable(), // Optional
+  nicotineOverride: z.string().optional().nullable(), // Manual nic content override
 });
 
 export type InsertDeliveryProduct = z.infer<typeof insertDeliveryProductSchema>;

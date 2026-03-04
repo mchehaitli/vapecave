@@ -13,8 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, CheckCircle, XCircle, Clock, AlertCircle, Package, Edit, Mail, Trash2, Upload, ChevronLeft, ChevronRight, RefreshCw, Download, DollarSign, Save, Loader2 } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Clock, AlertCircle, Package, Edit, Mail, Trash2, Upload, ChevronLeft, ChevronRight, RefreshCw, Download, DollarSign, Save, Loader2, Star, Home, Power } from "lucide-react";
 import type { DeliveryBrand, DeliveryCategory } from "@shared/schema";
+import { extractNicLevel, isVariantCategory } from "@/lib/productVariants";
 
 interface DeliveryCustomer {
   id: number;
@@ -2393,19 +2394,30 @@ const ProductRow = React.memo(function ProductRow({
 }: ProductRowProps) {
   const [localName, setLocalName] = useState(product.customName || product.name);
   const [localBadge, setLocalBadge] = useState(product.badge || "");
+  const [localNic, setLocalNic] = useState((product as any).nicotineOverride || "");
 
   useEffect(() => { setLocalName(product.customName || product.name); }, [product.customName, product.name]);
   useEffect(() => { setLocalBadge(product.badge || ""); }, [product.badge]);
+  useEffect(() => { setLocalNic((product as any).nicotineOverride || ""); }, [(product as any).nicotineOverride]);
+
+  const autoNic = extractNicLevel(product.name);
+  const isNicCategory = product.category ? isVariantCategory(product.category) : autoNic !== "";
+
+  const enabledClass = product.enabled ? "border-l-green-500" : "border-l-red-500/60";
 
   return (
-    <TableRow className="border-gray-700 h-12">
+    <TableRow className={`border-gray-700 h-14 border-l-2 ${enabledClass}`}>
       <TableCell className="py-1 px-1">
         <Checkbox checked={isSelected} onCheckedChange={() => onToggleSelect(product.id)} />
       </TableCell>
       <TableCell className="py-1 px-0.5">
-        <div className="flex items-center gap-1">
-          {product.image && (
-            <img src={product.image} alt={product.name} loading="lazy" className="w-6 h-6 object-cover rounded flex-shrink-0" />
+        <div className="flex items-center gap-1.5">
+          {product.image ? (
+            <img src={product.image} alt={product.name} loading="lazy" className="w-10 h-10 object-contain rounded-md bg-gray-800 flex-shrink-0" />
+          ) : (
+            <div className="w-10 h-10 rounded-md bg-gray-800 flex-shrink-0 flex items-center justify-center">
+              <Package className="h-4 w-4 text-gray-600" />
+            </div>
           )}
           <div className="min-w-0 flex-1">
             <input
@@ -2428,6 +2440,25 @@ const ProductRow = React.memo(function ProductRow({
             <div className="text-[10px] text-gray-500 truncate">{product.cloverItemId || product.id}</div>
           </div>
         </div>
+      </TableCell>
+      <TableCell className="py-1 px-0.5">
+        {isNicCategory ? (
+          <div className="flex flex-col gap-0.5">
+            <input
+              type="text"
+              value={localNic}
+              onChange={(e) => setLocalNic(e.target.value)}
+              onBlur={() => onUpdate(product.id, { nicotineOverride: localNic.trim() || null } as any)}
+              onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+              placeholder={autoNic || "—"}
+              className="w-14 bg-transparent border border-gray-600 rounded px-1 py-0.5 text-[11px] text-white focus:border-primary focus:outline-none"
+              title="Override nicotine level (e.g. 3mg, 6mg)"
+            />
+            {autoNic && (
+              <span className="text-[9px] text-gray-500">auto: {autoNic}</span>
+            )}
+          </div>
+        ) : <span className="text-gray-600 text-[11px]">—</span>}
       </TableCell>
       <TableCell className="py-1 px-0.5">
         {(() => {
@@ -2513,15 +2544,27 @@ const ProductRow = React.memo(function ProductRow({
       </TableCell>
       <TableCell className="py-1 px-0.5">
         <div className="flex items-center gap-1">
-          <label className="flex items-center cursor-pointer" title="Featured">
-            <input type="checkbox" checked={product.isFeaturedSlideshow || false} onChange={(e) => onUpdate(product.id, { isFeaturedSlideshow: e.target.checked })} className="h-3 w-3" />
-          </label>
-          <label className="flex items-center cursor-pointer" title="Hero">
-            <input type="checkbox" checked={product.isHeroSlideshow || false} onChange={(e) => onUpdate(product.id, { isHeroSlideshow: e.target.checked })} className="h-3 w-3" />
-          </label>
-          <label className="flex items-center cursor-pointer" title="Enabled">
-            <input type="checkbox" checked={product.enabled || false} onChange={(e) => onUpdate(product.id, { enabled: e.target.checked })} className="h-3 w-3" />
-          </label>
+          <button
+            title="Featured slideshow"
+            onClick={() => onUpdate(product.id, { isFeaturedSlideshow: !product.isFeaturedSlideshow })}
+            className={`p-0.5 rounded transition-colors ${product.isFeaturedSlideshow ? 'text-yellow-400' : 'text-gray-600 hover:text-gray-400'}`}
+          >
+            <Star className="h-3.5 w-3.5" fill={product.isFeaturedSlideshow ? "currentColor" : "none"} />
+          </button>
+          <button
+            title="Hero slideshow"
+            onClick={() => onUpdate(product.id, { isHeroSlideshow: !product.isHeroSlideshow })}
+            className={`p-0.5 rounded transition-colors ${product.isHeroSlideshow ? 'text-blue-400' : 'text-gray-600 hover:text-gray-400'}`}
+          >
+            <Home className="h-3.5 w-3.5" />
+          </button>
+          <button
+            title={product.enabled ? "Enabled — click to disable" : "Disabled — click to enable"}
+            onClick={() => onUpdate(product.id, { enabled: !product.enabled })}
+            className={`p-0.5 rounded transition-colors ${product.enabled ? 'text-green-400' : 'text-red-400/60 hover:text-red-400'}`}
+          >
+            <Power className="h-3.5 w-3.5" />
+          </button>
         </div>
       </TableCell>
       <TableCell className="py-1 px-0.5">
@@ -3303,11 +3346,11 @@ export function DeliveryProductsTab() {
 
           {/* Unsaved Changes Bar */}
           {Object.keys(pendingChanges).length > 0 && (
-            <div className="mt-4 flex items-center justify-between p-3 bg-amber-900/30 border border-amber-600 rounded-lg">
+            <div className="mt-4 flex items-center justify-between p-3 bg-amber-900/40 border-2 border-amber-500 rounded-lg animate-pulse-once">
               <div className="flex items-center gap-2">
-                <Save className="w-4 h-4 text-amber-400" />
-                <span className="text-sm text-amber-200">
-                  {Object.keys(pendingChanges).length} unsaved change{Object.keys(pendingChanges).length > 1 ? 's' : ''}
+                <Save className="w-4 h-4 text-amber-400 animate-pulse" />
+                <span className="text-sm font-semibold text-amber-300">
+                  {Object.keys(pendingChanges).length} unsaved change{Object.keys(pendingChanges).length > 1 ? 's' : ''} — save before navigating away
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -3323,7 +3366,7 @@ export function DeliveryProductsTab() {
                   size="sm"
                   onClick={handleBatchSave}
                   disabled={savingBatch}
-                  className="bg-primary hover:bg-primary/90"
+                  className="bg-primary hover:bg-primary/90 font-bold shadow-lg shadow-primary/30"
                 >
                   {savingBatch ? (
                     <>
@@ -3451,12 +3494,13 @@ export function DeliveryProductsTab() {
 
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="sticky top-0 z-10 bg-gray-900">
                     <TableRow className="border-gray-700">
                       <TableHead className="w-7 px-0.5"><Checkbox checked={selectedProducts.size === data?.products.length && data?.products.length > 0} onCheckedChange={handleSelectAll} /></TableHead>
                       <TableHead className="px-0.5 cursor-pointer hover:bg-gray-700/50 select-none min-w-[200px]" onClick={() => handleSort("name")}>
                         <div className="flex items-center gap-1 text-[11px]">Product {sortField === "name" && <span>{sortDirection === "asc" ? "↑" : "↓"}</span>}</div>
                       </TableHead>
+                      <TableHead className="px-0.5 text-[11px] whitespace-nowrap" title="Nicotine override (e-liquids & salts)">Nic</TableHead>
                       <TableHead className="px-0.5 text-[11px] whitespace-nowrap">Cat</TableHead>
                       <TableHead className="px-0.5 cursor-pointer hover:bg-gray-700/50 select-none text-[11px] whitespace-nowrap" onClick={() => handleSort("price")}>
                         <div className="flex items-center gap-1">Price {sortField === "price" && <span>{sortDirection === "asc" ? "↑" : "↓"}</span>}</div>
@@ -3467,7 +3511,7 @@ export function DeliveryProductsTab() {
                       <TableHead className="px-0.5 text-[11px] w-6"></TableHead>
                       <TableHead className="px-0.5 text-[11px] whitespace-nowrap">Brand</TableHead>
                       <TableHead className="px-0.5 text-[11px] whitespace-nowrap">Sub</TableHead>
-                      <TableHead className="px-0.5 text-[11px] whitespace-nowrap" title="Featured / Hero / Enabled">F/H/E</TableHead>
+                      <TableHead className="px-0.5 text-[11px] whitespace-nowrap" title="Featured ★ / Hero 🏠 / Enabled ⏻">★🏠⏻</TableHead>
                       <TableHead className="px-0.5 text-[11px] whitespace-nowrap">Badge</TableHead>
                       <TableHead className="px-0.5 text-[11px] w-12"></TableHead>
                     </TableRow>
