@@ -433,9 +433,9 @@ export default function DeliveryCategoryPage() {
                         <h3 className="font-medium text-sm line-clamp-1">
                           {group.displayName}
                         </h3>
-                        {group.mlSize && (
-                          <p className="text-[10px] text-muted-foreground mb-1">{group.mlSize}</p>
-                        )}
+                        <p className="text-[10px] text-muted-foreground mb-1">
+                          {[group.mlSize, selectedNic].filter(Boolean).join(' · ')}
+                        </p>
                         <div className="flex flex-wrap gap-1 my-1.5">
                           {sortNicLevels(group.variants.map(v => v.nicLevel)).map(level => {
                             const v = getVariantByNicLevel(group, level);
@@ -642,6 +642,9 @@ export default function DeliveryCategoryPage() {
                         <h3 className="font-medium text-sm sm:text-base line-clamp-1">
                           {group.displayName}
                         </h3>
+                        <p className="text-[10px] text-muted-foreground mb-1">
+                          {[group.mlSize, selectedNic].filter(Boolean).join(' · ')}
+                        </p>
                         <div className="flex flex-wrap gap-1 mt-1 mb-1">
                           {isFeatured && (
                             <Badge className="bg-primary/90 flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">

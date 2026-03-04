@@ -33,6 +33,7 @@ export function ProductQuickView({
 }: ProductQuickViewProps) {
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [localNicLevel, setLocalNicLevel] = useState<string>("");
@@ -174,6 +175,10 @@ export function ProductQuickView({
   const inStock = stockQty > 0;
   const isLowStock = stockQty > 0 && stockQty <= 2;
 
+  useEffect(() => {
+    if (stockQty > 0 && quantity > stockQty) setQuantity(stockQty);
+  }, [stockQty]);
+
   const handleNicLevelChange = (level: string) => {
     setLocalNicLevel(level);
     onNicLevelChange?.(level);
@@ -206,7 +211,7 @@ export function ProductQuickView({
     }
   };
 
-  const incrementQuantity = () => setQuantity((prev) => prev + 1);
+  const incrementQuantity = () => setQuantity((prev) => Math.min(stockQty, prev + 1));
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -452,7 +457,7 @@ export function ProductQuickView({
                       variant="outline"
                       size="icon"
                       onClick={incrementQuantity}
-                      disabled={isAddingToCart}
+                      disabled={isAddingToCart || quantity >= stockQty}
                       data-testid="button-increment-quantity"
                     >
                       <Plus className="h-4 w-4" />

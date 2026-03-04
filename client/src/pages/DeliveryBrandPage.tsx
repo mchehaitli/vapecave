@@ -452,9 +452,9 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                               <p className="font-semibold text-xs line-clamp-1 text-foreground">{group.brandLine || group.brand}</p>
                             )}
                             <h3 className="font-medium text-sm line-clamp-1">{group.displayName}</h3>
-                            {group.mlSize && (
-                              <p className="text-[10px] text-muted-foreground mb-1">{group.mlSize}</p>
-                            )}
+                            <p className="text-[10px] text-muted-foreground mb-1">
+                              {[group.mlSize, selectedNic].filter(Boolean).join(' · ')}
+                            </p>
                             <div className="flex flex-wrap gap-1 my-1.5">
                               {sortNicLevels(group.variants.map(v => v.nicLevel)).map(level => {
                                 const v = getVariantByNicLevel(group, level);
@@ -561,7 +561,9 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium text-sm line-clamp-1">{group.displayName}</h3>
-                          {group.mlSize && <p className="text-[10px] text-muted-foreground">{group.mlSize}</p>}
+                          <p className="text-[10px] text-muted-foreground">
+                            {[group.mlSize, selectedNic].filter(Boolean).join(' · ')}
+                          </p>
                           <div className="flex flex-wrap gap-1 mt-1.5">
                             {sortNicLevels(group.variants.map(v => v.nicLevel)).map(level => {
                               const v = getVariantByNicLevel(group, level);
