@@ -13,6 +13,14 @@ import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
 import { FloatingCartButton } from "@/components/FloatingCartButton";
 import { ProductQuickView } from "@/components/ProductQuickView";
 import type { DeliveryProduct, DeliveryBrand } from "@shared/schema";
+import {
+  groupProductsIntoVariants,
+  isVariantGroup,
+  getDefaultVariant,
+  getVariantByNicLevel,
+  sortNicLevels,
+  type VariantGroup,
+} from "@/lib/productVariants";
 
 interface CartItem {
   id: number;
@@ -33,6 +41,9 @@ interface CartItem {
 export default function DeliverySalePage() {
   const { toast } = useToast();
   const [quickViewProduct, setQuickViewProduct] = useState<DeliveryProduct | null>(null);
+  const [selectedNicLevels, setSelectedNicLevels] = useState<Record<string, string>>({});
+  const [quickViewVariantGroup, setQuickViewVariantGroup] = useState<VariantGroup | null>(null);
+  const [quickViewVariantNic, setQuickViewVariantNic] = useState<string>("");
 
   const { data: brands = [] } = useQuery<DeliveryBrand[]>({
     queryKey: ['/api/delivery/brands'],
@@ -76,6 +87,43 @@ export default function DeliverySalePage() {
       return true;
     }).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
   }, [allProducts]);
+
+  const { groups: variantGroups, singles: singleProducts } = useMemo(
+    () => groupProductsIntoVariants(saleProducts),
+    [saleProducts]
+  );
+
+  const displayItems = useMemo(() => {
+    const usedIds = new Set(variantGroups.flatMap(g => g.variants.map(v => v.productId)));
+    return [
+      ...variantGroups,
+      ...singleProducts.filter(p => !usedIds.has(p.id)),
+    ] as Array<VariantGroup | DeliveryProduct>;
+  }, [variantGroups, singleProducts]);
+
+  const getSelectedNic = (group: VariantGroup): string => {
+    if (selectedNicLevels[group.key]) return selectedNicLevels[group.key];
+    return getDefaultVariant(group).nicLevel;
+  };
+
+  const setSelectedNic = (groupKey: string, level: string) => {
+    setSelectedNicLevels(prev => ({ ...prev, [groupKey]: level }));
+  };
+
+  const getVariantData = (group: VariantGroup) => {
+    const nic = getSelectedNic(group);
+    return getVariantByNicLevel(group, nic) || getDefaultVariant(group);
+  };
+
+  const openVariantQuickView = (group: VariantGroup) => {
+    setQuickViewVariantGroup(group);
+    setQuickViewVariantNic(getSelectedNic(group));
+  };
+
+  const closeVariantQuickView = () => {
+    setQuickViewVariantGroup(null);
+    setQuickViewVariantNic("");
+  };
 
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
@@ -181,7 +229,7 @@ export default function DeliverySalePage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
               >
-                {saleProducts.length} {saleProducts.length === 1 ? 'product' : 'products'} on sale
+                {displayItems.length} {displayItems.length === 1 ? 'product' : 'products'} on sale
               </motion.p>
             </div>
           </div>
@@ -209,21 +257,134 @@ export default function DeliverySalePage() {
           </motion.div>
         </motion.div>
 
-        {saleProducts.length > 0 ? (
+        {displayItems.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
             <AnimatePresence mode="popLayout">
-              {saleProducts.map((product, index) => (
-                <SaleProductCard
-                  key={product.id}
-                  product={product}
-                  index={index}
-                  inCart={cartItems[product.id]}
-                  onAddToCart={handleAddToCart}
-                  onUpdateQuantity={handleUpdateQuantity}
-                  onQuickView={setQuickViewProduct}
-                  brandMap={brandMap}
-                />
-              ))}
+              {displayItems.map((item, index) => {
+                if (isVariantGroup(item)) {
+                  const group = item;
+                  const selectedNic = getSelectedNic(group);
+                  const variant = getVariantData(group);
+                  const stock = variant.stockQuantity ? parseInt(variant.stockQuantity) : 0;
+                  const isOutOfStock = stock <= 0;
+                  const isLowStock = stock > 0 && stock <= 2;
+                  const originalPriceNum = parseFloat(variant.price);
+                  const salePriceNum = variant.salePrice ? parseFloat(variant.salePrice) : originalPriceNum;
+                  const discount = originalPriceNum > 0 ? Math.round(((originalPriceNum - salePriceNum) / originalPriceNum) * 100) : 0;
+                  return (
+                    <motion.div
+                      key={group.key}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.3, delay: index * 0.03 }}
+                      layout
+                    >
+                      <motion.div whileHover={{ y: -8, scale: 1.02 }} transition={{ duration: 0.3, ease: "easeOut" }} className="h-full">
+                        <Card className="group h-full overflow-hidden bg-card border-red-500/30 hover:border-red-500/60 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all duration-300">
+                          <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
+                            <img
+                              src={group.image || (group.brandId ? brandMap[group.brandId]?.logo : null) || '/placeholder-product.svg'}
+                              alt={`${group.displayName} - Vape Cave`}
+                              loading="lazy"
+                              className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.dataset.fallbackAttempted) { target.src = '/placeholder-product.svg'; return; }
+                                target.dataset.fallbackAttempted = '1';
+                                const brandLogo = group.brandId ? brandMap[group.brandId]?.logo : null;
+                                target.src = brandLogo || '/placeholder-product.svg';
+                              }}
+                            />
+                            <Badge className="absolute top-2 left-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-500 text-white font-bold">
+                              <Tag className="w-2.5 h-2.5 mr-0.5" />
+                              SALE
+                            </Badge>
+                            {discount > 0 && (
+                              <Badge className="absolute top-2 right-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-600 text-white font-bold">
+                                -{discount}%
+                              </Badge>
+                            )}
+                            {isOutOfStock && (
+                              <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
+                                <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
+                              </div>
+                            )}
+                            {isLowStock && !isOutOfStock && (
+                              <Badge className="absolute bottom-2 right-2 text-[10px] bg-amber-500 text-white">Low Stock</Badge>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 sm:pb-4 gap-1 sm:gap-2">
+                              <Button size="sm" variant="secondary" className="bg-card/90 backdrop-blur-sm hover:bg-card text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3" onClick={() => openVariantQuickView(group)}>
+                                <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                                <span className="hidden sm:inline">Quick View</span>
+                                <span className="sm:hidden">View</span>
+                              </Button>
+                              {!isOutOfStock && (
+                                <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3" onClick={() => handleAddToCart(variant.productId)}>
+                                  <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                                  <span className="hidden sm:inline">Add</span>
+                                  <span className="sm:hidden">+</span>
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                          <div className="p-2 sm:p-4">
+                            {(group.brandLine || group.brand) && (
+                              <p className="text-[10px] text-muted-foreground line-clamp-1">{group.brandLine || group.brand}</p>
+                            )}
+                            <h3 className="font-semibold text-xs sm:text-sm text-foreground line-clamp-1 group-hover:text-red-500 transition-colors">
+                              {group.displayName}
+                            </h3>
+                            <p className="text-[10px] text-muted-foreground mb-1">
+                              {[group.mlSize, selectedNic].filter(Boolean).join(' · ')}
+                            </p>
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              {sortNicLevels(group.variants.map(v => v.nicLevel)).map(level => {
+                                const v = getVariantByNicLevel(group, level);
+                                const vStock = v?.stockQuantity ? parseInt(v.stockQuantity) : 0;
+                                return (
+                                  <button
+                                    key={level}
+                                    onClick={(e) => { e.stopPropagation(); setSelectedNic(group.key, level); }}
+                                    className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
+                                      selectedNic === level
+                                        ? 'bg-red-500 text-white border-red-500'
+                                        : vStock <= 0
+                                        ? 'border-muted-foreground/20 text-muted-foreground/40 line-through'
+                                        : 'border-border text-muted-foreground hover:border-red-500/50 hover:text-foreground'
+                                    }`}
+                                    title={vStock <= 0 ? `${level} - Out of stock` : level}
+                                  >
+                                    {level}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs sm:text-sm text-muted-foreground line-through">${originalPriceNum.toFixed(2)}</span>
+                            </div>
+                            <span className="text-lg sm:text-xl font-bold text-red-500">${salePriceNum.toFixed(2)}</span>
+                          </div>
+                        </Card>
+                      </motion.div>
+                    </motion.div>
+                  );
+                }
+
+                const product = item as DeliveryProduct;
+                return (
+                  <SaleProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                    inCart={cartItems[product.id]}
+                    onAddToCart={handleAddToCart}
+                    onUpdateQuantity={handleUpdateQuantity}
+                    onQuickView={setQuickViewProduct}
+                    brandMap={brandMap}
+                  />
+                );
+              })}
             </AnimatePresence>
           </div>
         ) : (
@@ -247,11 +408,15 @@ export default function DeliverySalePage() {
       
       <ProductQuickView
         product={quickViewProduct}
-        open={!!quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
+        variantGroup={quickViewVariantGroup}
+        selectedNicLevel={quickViewVariantNic}
+        onNicLevelChange={setQuickViewVariantNic}
+        open={!!(quickViewProduct || quickViewVariantGroup)}
+        onClose={() => { setQuickViewProduct(null); closeVariantQuickView(); }}
         onAddToCart={async (productId: number, quantity: number) => {
           handleAddToCart(productId, quantity);
           setQuickViewProduct(null);
+          closeVariantQuickView();
         }}
       />
     </div>

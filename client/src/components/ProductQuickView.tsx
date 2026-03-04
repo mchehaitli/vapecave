@@ -122,6 +122,21 @@ export function ProductQuickView({
     };
   }, [open, product, variantGroup, localNicLevel, isVariantMode]);
 
+  // Compute stock quantity before any early return so the useEffect below is always called
+  const effectStockQty = (() => {
+    if (variantGroup) {
+      const v = localNicLevel
+        ? getVariantByNicLevel(variantGroup, localNicLevel) || getDefaultVariant(variantGroup)
+        : getDefaultVariant(variantGroup);
+      return v.stockQuantity ? parseInt(v.stockQuantity) : 0;
+    }
+    return product?.stockQuantity ? parseInt(product.stockQuantity) : 0;
+  })();
+
+  useEffect(() => {
+    if (effectStockQty > 0 && quantity > effectStockQty) setQuantity(effectStockQty);
+  }, [effectStockQty]);
+
   if (!product && !variantGroup) return null;
 
   let displayName = "";
@@ -174,10 +189,6 @@ export function ProductQuickView({
 
   const inStock = stockQty > 0;
   const isLowStock = stockQty > 0 && stockQty <= 2;
-
-  useEffect(() => {
-    if (stockQty > 0 && quantity > stockQty) setQuantity(stockQty);
-  }, [stockQty]);
 
   const handleNicLevelChange = (level: string) => {
     setLocalNicLevel(level);
