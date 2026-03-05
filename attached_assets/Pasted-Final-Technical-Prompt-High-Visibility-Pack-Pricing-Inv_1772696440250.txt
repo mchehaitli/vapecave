@@ -1,0 +1,35 @@
+Final Technical Prompt: High-Visibility Pack Pricing & Inventory Guardrails
+Objective: Bring "Pack" visibility to the main product grid and implement safety logic that disables pack options if individual stock is too low to fulfill a full pack.
+
+1. Main Grid Visibility (Product Cards)
+
+Price Suffix: For any product with allowPackToggle enabled, update the price display on the main grid (Category, Brand, and Home pages) to include the word 'each' (e.g., "$5.49 each").
+
+Bulk Savings Badge: Add a small, high-contrast badge (e.g., Green background) to the product image or near the price that says 'Pack Savings Available' or 'Save [X]%'.
+
+Card-Level Toggle: Implement the [ Single | Pack ] toggle switch directly on the product cards in the main listing. When toggled, the price on the card should update instantly to the discounted pack price.
+
+2. Smart Inventory Guardrails
+
+Auto-Disable Logic: If the current stockQuantity (synced from Clover) is less than the packSize, the "Pack" option must automatically be disabled or hidden on both the Product Card and QuickView.
+
+Example: If you have 3 coils left but a pack requires 5, the customer should only be able to select 'Single'.
+
+Real-time Validation: If a customer has a "Pack" in their cart, but the stock drops below the required amount before they check out, display a warning in the cart: "Insufficient stock for a full pack. Please adjust to singles."
+
+3. UI/UX Refinement
+
+Ensure the "Description" header is removed from the QuickView as previously requested.
+
+Ensure the "each" suffix and toggles are responsive and don't overlap with the "Add to Cart" or "Quantity" buttons on mobile screens.
+
+4. Clover Active Push (Reminder)
+
+Maintain the "Active Push" logic: On successful checkout, tell Clover to deduct Quantity * packSize for all pack purchases.
+
+Why this is the final piece of the puzzle:
+No More "Hidden" Deals: Customers will see "each" and the "Bulk Savings" badge immediately, which stops them from assuming the single price is for a whole box.
+
+Professional Trust: By automatically disabling the "Pack" option when you don't have enough physical stock, you prevent the headache of having to call a customer to tell them you can't fulfill their bulk order.
+
+Conversion: Putting the toggle directly on the card reduces the number of clicks needed to buy, which directly increases sales.
