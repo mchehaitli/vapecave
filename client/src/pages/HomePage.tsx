@@ -153,7 +153,7 @@ const HomePage = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, delay: 0.25 }}
               >
-                <span className="text-primary font-semibold">DELIVERY COMING SOON</span> - Sign up to be notified!
+                <span className="text-primary font-semibold">Online Order Pick Up and DELIVERY COMING SOON</span> - Sign up to be notified!
               </motion.div>
               <motion.h2 
                 className="text-xl md:text-2xl lg:text-3xl mb-8 text-foreground/90 font-medium max-w-[1100px] mx-auto leading-relaxed"
