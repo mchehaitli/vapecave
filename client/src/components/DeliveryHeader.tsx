@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, User, LogOut, Search, Menu, X, ChevronDown, Package, ArrowLeft, Sun, Moon, HelpCircle, ExternalLink } from "lucide-react";
+import { ShoppingCart, User, LogOut, Search, Menu, X, ChevronDown, Package, ArrowLeft, Sun, Moon, HelpCircle, ExternalLink, Truck, Store } from "lucide-react";
 import type { DeliveryProduct } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,9 +108,6 @@ export function DeliveryHeader({
   };
   
   const { fulfillmentMode, setFulfillmentMode } = useFulfillment();
-  const toggleFulfillment = () => {
-    setFulfillmentMode(fulfillmentMode === 'delivery' ? 'pickup' : 'delivery');
-  };
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -171,16 +168,48 @@ export function DeliveryHeader({
                   className="h-7 sm:h-12 w-auto flex-shrink-0"
                 />
               </Link>
-              <button
-                onClick={toggleFulfillment}
-                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors cursor-pointer ${
-                  fulfillmentMode === 'delivery'
-                    ? 'bg-green-500 text-white hover:bg-green-600'
-                    : 'bg-yellow-500 text-black hover:bg-yellow-600'
-                }`}
+              <div
+                className="relative flex items-center rounded-full bg-muted/60 border border-border p-0.5"
+                role="radiogroup"
+                aria-label="Fulfillment method"
               >
-                {fulfillmentMode === 'delivery' ? 'Delivery' : 'Pickup'}
-              </button>
+                <motion.div
+                  className={`absolute top-0.5 bottom-0.5 w-[calc(50%-2px)] rounded-full ${
+                    fulfillmentMode === 'delivery' ? 'bg-green-500' : 'bg-yellow-400'
+                  }`}
+                  animate={{ x: fulfillmentMode === 'delivery' ? 0 : '100%' }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  style={{ left: '2px' }}
+                />
+                <button
+                  onClick={() => setFulfillmentMode('delivery')}
+                  role="radio"
+                  aria-checked={fulfillmentMode === 'delivery'}
+                  aria-label="Delivery"
+                  className={`relative z-10 flex items-center justify-center gap-1 sm:gap-1.5 rounded-full px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-colors min-h-[36px] sm:min-h-[38px] ${
+                    fulfillmentMode === 'delivery'
+                      ? 'text-white'
+                      : 'text-muted-foreground hover:text-foreground cursor-pointer'
+                  }`}
+                >
+                  <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Delivery</span>
+                </button>
+                <button
+                  onClick={() => setFulfillmentMode('pickup')}
+                  role="radio"
+                  aria-checked={fulfillmentMode === 'pickup'}
+                  aria-label="Pickup"
+                  className={`relative z-10 flex items-center justify-center gap-1 sm:gap-1.5 rounded-full px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-colors min-h-[36px] sm:min-h-[38px] ${
+                    fulfillmentMode === 'pickup'
+                      ? 'text-black'
+                      : 'text-muted-foreground hover:text-foreground cursor-pointer'
+                  }`}
+                >
+                  <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Pickup</span>
+                </button>
+              </div>
               
               
             </div>
