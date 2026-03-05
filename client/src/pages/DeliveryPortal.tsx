@@ -411,7 +411,7 @@ function ProductCarousel({
             : null;
 
           const cardContent = (
-            <Card className="group h-full overflow-hidden bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
+            <Card className="group h-full flex flex-col overflow-hidden bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
                 <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
                   <img
                     src={product.image || (brandMap && product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
@@ -502,14 +502,15 @@ function ProductCarousel({
                   )}
                 </div>
 
-                <div className="p-2 sm:p-3 md:p-4">
+                <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-1">
                   <h3 className="font-semibold text-foreground text-xs sm:text-sm md:text-base line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] mb-0.5">
                     {product.name}
                   </h3>
                   {(() => { const nic = (product as any).nicotineOverride || extractNicLevel(product.name); return nic ? (
                     <span className="inline-block text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-semibold mb-1">{nic}</span>
                   ) : null; })()}
-                  
+
+                  <div className="mt-auto pt-1">
                   {product.allowPackToggle && (
                     <div className="mb-1">
                       {!product.isPackOnly ? (() => {
@@ -528,9 +529,7 @@ function ProductCarousel({
                               title={packDisabled ? 'Not enough stock for a pack' : ''}
                             >Pack</button>
                           </div>
-                          {(product.packDiscountPercent || 0) > 0 && (
-                            <span className="text-[9px] text-green-500 font-semibold self-end">Save {product.packDiscountPercent}%</span>
-                          )}
+                          <span className={`text-[9px] font-semibold self-end ${(product.packDiscountPercent || 0) > 0 ? 'text-green-500' : 'invisible'}`}>Save {product.packDiscountPercent || 0}%</span>
                         </div>
                         );
                       })() : (
@@ -591,6 +590,7 @@ function ProductCarousel({
                       </Badge>
                     )}
                   </div>
+                  </div>
                 </div>
               </Card>
           );
@@ -598,7 +598,7 @@ function ProductCarousel({
           return (
             <motion.div
               key={product.id}
-              className="flex-shrink-0 w-[145px] sm:w-[180px] md:w-[240px] lg:w-[280px]"
+              className="flex-shrink-0 w-[145px] sm:w-[180px] md:w-[240px] lg:w-[280px] flex flex-col"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >

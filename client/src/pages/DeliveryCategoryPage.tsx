@@ -571,8 +571,9 @@ export default function DeliveryCategoryPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.03 }}
+                  className="h-full"
                 >
-                  <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/50">
+                  <Card className="group h-full flex flex-col overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/50">
                     <div className="relative aspect-square bg-muted/50">
                       <img
                         src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || "/placeholder-product.svg"}
@@ -602,14 +603,15 @@ export default function DeliveryCategoryPage() {
                         </div>
                       )}
                     </div>
-                    <div className="p-3">
+                    <div className="p-3 flex flex-col flex-1">
                       <h3 className="font-medium text-sm line-clamp-2 min-h-[2.5rem]">
                         {product.name}
                       </h3>
                       {(() => { const nic = (product as any).nicotineOverride || extractNicLevel(product.name); return nic ? (
                         <span className="inline-block text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-semibold mt-0.5 mb-1">{nic}</span>
                       ) : null; })()}
-                      <div className="flex items-center justify-between mt-2">
+                      <div className="mt-auto pt-2">
+                      <div className="flex items-center justify-between">
                         {selectedPurchaseType === 'pack' && packPrice ? (
                           <div className="flex items-baseline gap-1">
                             <p className="text-lg font-bold text-primary">${packPrice}</p>
@@ -678,12 +680,11 @@ export default function DeliveryCategoryPage() {
                             >
                               Pack ({packSize})
                             </button>
-                            {packDiscountPercent > 0 && (
-                              <span className="text-[9px] text-green-500 font-semibold">Save {packDiscountPercent}%</span>
-                            )}
+                            <span className={`text-[9px] font-semibold ${packDiscountPercent > 0 ? 'text-green-500' : 'invisible'}`}>Save {packDiscountPercent}%</span>
                           </div>
                         </div>
                       )}
+                      </div>
                     </div>
                   </Card>
                 </motion.div>
