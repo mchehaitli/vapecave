@@ -210,7 +210,7 @@ export default function DeliveryLanding() {
           className="mt-20 text-center"
         >
           <motion.div 
-            className="p-8 rounded-xl bg-card border-2 border-primary/50 shadow-[0_0_20px_rgba(255,113,0,0.3),0_0_40px_rgba(255,113,0,0.15)]"
+            className="p-8 rounded-xl bg-card border-2 border-primary/50 shadow-[0_0_20px_rgba(255,113,0,0.3),0_0_40px_rgba(255,113,0,0.15)] ml-[203px] mr-[203px]"
           >
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
