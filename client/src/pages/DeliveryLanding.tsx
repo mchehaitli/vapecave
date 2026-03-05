@@ -212,7 +212,7 @@ export default function DeliveryLanding() {
           <motion.div 
             className="p-8 rounded-xl bg-card border-2 border-primary/50 shadow-[0_0_20px_rgba(255,113,0,0.3),0_0_40px_rgba(255,113,0,0.15)]"
           >
-            <h2 className="text-3xl font-bold text-foreground ml-[0px] mr-[0px] mt-[-4px] mb-[-4px]">Ready to Get Started?
+            <h2 className="text-3xl font-bold text-foreground ml-[0px] mr-[0px] mt-[-16px] mb-[-16px]">Ready to Get Started?
 </h2>
             <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
               Join hundreds of satisfied customers who enjoy the convenience of Vape Cave Smoke & Stuff delivery service.
