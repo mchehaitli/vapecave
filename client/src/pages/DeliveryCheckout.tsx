@@ -580,8 +580,7 @@ export default function DeliveryCheckout() {
                 <CardContent>
                   <div className="space-y-2" data-testid="section-pickup-info">
                     <p className="font-semibold">Vape Cave Smoke & Stuff</p>
-                    <p className="text-muted-foreground">Your order will be ready for pickup within an hour at the store.  No curbside pick up available at this time. 
-                    Pick up at the register inside.</p>
+                    <p className="text-muted-foreground">Your order will be ready for pickup within an hour at the store. Pick up at the register inside. No curbside pick up available at this time.</p>
                     {customer && (
                       <p className="text-sm text-muted-foreground mt-2">Pickup for: {customer.fullName} — {customer.phone}</p>
                     )}
