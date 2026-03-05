@@ -94,12 +94,12 @@ export default function DeliveryCategoryPage() {
   }, [cartItems]);
 
   const addToCartMutation = useMutation({
-    mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
+    mutationFn: async ({ productId, quantity, purchaseType }: { productId: number; quantity: number; purchaseType?: string }) => {
       const response = await fetch("/api/delivery/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ productId, quantity }),
+        body: JSON.stringify({ productId, quantity, purchaseType: purchaseType || 'single' }),
       });
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
@@ -899,8 +899,8 @@ export default function DeliveryCategoryPage() {
         product={quickViewProduct}
         open={!!(quickViewProduct || quickViewVariantGroup)}
         onClose={closeQuickView}
-        onAddToCart={async (productId, quantity) => {
-          await addToCartMutation.mutateAsync({ productId, quantity });
+        onAddToCart={async (productId, quantity, purchaseType) => {
+          await addToCartMutation.mutateAsync({ productId, quantity, purchaseType });
         }}
         variantGroup={quickViewVariantGroup}
         selectedNicLevel={quickViewVariantNic}

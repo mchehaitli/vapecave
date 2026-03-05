@@ -3028,6 +3028,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (stockQuantity === 0) {
         return res.status(400).json({ error: "This product is out of stock" });
       }
+
+      const purchaseType = validated.purchaseType || 'single';
+      const packSize = product.packSize || 1;
+      const unitsPerItem = purchaseType === 'pack' ? packSize : 1;
       
       // Check current cart quantity for this product
       const currentCart = await storage.getCartItems(customerId);
@@ -3040,13 +3044,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ removed: true, productId: validated.productId });
       }
       
-      // Stock cap only applies when adding/incrementing
-      if (currentCartQuantity >= stockQuantity) {
+      // Stock cap: for packs, each cart unit uses packSize units of stock
+      const currentStockUsed = currentCartQuantity * (existingItem?.purchaseType === 'pack' ? packSize : 1);
+      if (currentStockUsed + unitsPerItem > stockQuantity) {
         return res.status(400).json({ error: "You've reached the maximum available quantity for this product" });
       }
 
       if (existingItem) {
-        const newQty = Math.min(existingItem.quantity + validated.quantity, stockQuantity);
+        const maxQty = Math.floor(stockQuantity / unitsPerItem);
+        const newQty = Math.min(existingItem.quantity + validated.quantity, maxQty);
         const item = await storage.updateCartItemQuantity(existingItem.id, newQty);
         return res.json(item);
       }
@@ -3084,12 +3090,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Cart item not found" });
       }
       
-      // Check stock availability
+      // Check stock availability (pack-aware: each pack unit uses packSize stock units)
       const product = await storage.getDeliveryProduct(cartItem.productId);
       if (product) {
         const stockQuantity = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
-        if (quantity > stockQuantity) {
-          return res.status(400).json({ error: `Only ${stockQuantity} available in stock` });
+        const isPackPurchase = cartItem.purchaseType === 'pack';
+        const unitsPerItem = isPackPurchase ? (product.packSize || 1) : 1;
+        const maxQty = Math.floor(stockQuantity / unitsPerItem);
+        if (quantity > maxQty) {
+          return res.status(400).json({ error: `Only ${maxQty} available in stock` });
         }
       }
 
@@ -4027,7 +4036,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // SERVER-SIDE: Calculate subtotal from cart items with actual product prices
+      // SERVER-SIDE: Calculate subtotal from cart items with actual product prices (pack-aware)
       let subtotal = 0;
       const cartItemsWithProducts = [];
       for (const item of cartItems) {
@@ -4035,9 +4044,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!product) {
           return res.status(400).json({ error: `Product not found: ${item.productId}` });
         }
-        const itemTotal = parseFloat(product.price) * item.quantity;
+
+        const isPackPurchase = item.purchaseType === 'pack' && product.allowPackToggle;
+        const packSize = product.packSize || 1;
+        const packDiscount = product.packDiscountPercent || 0;
+
+        // Pre-order stock validation (pack-aware)
+        const stockQty = product.stockQuantity ? parseInt(product.stockQuantity as string) : 0;
+        const unitsNeeded = isPackPurchase ? item.quantity * packSize : item.quantity;
+        if (unitsNeeded > stockQty) {
+          return res.status(400).json({ error: `Insufficient stock for ${product.name}. Need ${unitsNeeded} units but only ${stockQty} available.` });
+        }
+
+        let itemPrice: number;
+        if (isPackPurchase) {
+          itemPrice = Math.round(parseFloat(product.price) * packSize * (1 - packDiscount / 100) * 100) / 100;
+        } else {
+          itemPrice = parseFloat(product.salePrice || product.price);
+        }
+
+        const itemTotal = itemPrice * item.quantity;
         subtotal += itemTotal;
-        cartItemsWithProducts.push({ ...item, product });
+        cartItemsWithProducts.push({ ...item, product, calculatedPrice: itemPrice });
       }
 
       // SERVER-SIDE: Validate promo code and calculate discount
@@ -4157,13 +4185,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const order = await storage.createDeliveryOrder(validated);
 
-      // Create order items from cart with product prices
+      // Create order items from cart with calculated prices and purchaseType
       for (const itemWithProduct of cartItemsWithProducts) {
         await storage.createDeliveryOrderItem({
           orderId: order.id,
           productId: itemWithProduct.productId,
           quantity: itemWithProduct.quantity,
-          price: itemWithProduct.product.price
+          price: (itemWithProduct.calculatedPrice as number).toFixed(2),
+          purchaseType: itemWithProduct.purchaseType || 'single',
         });
       }
 
@@ -4185,7 +4214,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Trigger immediate Clover sync after order completion
+      // Active Stock Push: immediately deduct stock from Clover for each order item
+      try {
+        if (process.env.CLOVER_API_TOKEN && process.env.CLOVER_MERCHANT_ID) {
+          const cloverService = new CloverService();
+          const stockItems = cartItemsWithProducts.map(item => ({
+            cloverItemId: item.product.cloverItemId,
+            quantity: item.quantity,
+            purchaseType: item.purchaseType || 'single',
+            packSize: item.product.packSize || 1,
+          }));
+          cloverService.deductStockForOrder(stockItems).catch(err => {
+            console.error("[Order] Error pushing stock deduction to Clover:", err);
+          });
+        }
+      } catch (stockPushError) {
+        console.error("[Order] Error initiating Clover stock push:", stockPushError);
+      }
+
+      // Trigger Clover sync as safety net backup
       triggerManualSync().catch(err => {
         console.error("[Order] Error triggering sync after order:", err);
       });

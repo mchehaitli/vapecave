@@ -234,7 +234,7 @@ function ProductCarousel({
 }: { 
   title: string;
   products: DeliveryProduct[];
-  onAddToCart: (productId: number) => void;
+  onAddToCart: (productId: number, purchaseType?: string) => void;
   onQuickView: (product: DeliveryProduct) => void;
   cartItems: Record<number, number>;
   seeAllLink?: string;
@@ -250,6 +250,7 @@ function ProductCarousel({
   const [isTouching, setIsTouching] = useState(false);
   const isPausedRef = useRef(false);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [packToggleMap, setPackToggleMap] = useState<Record<number, 'single' | 'pack'>>({});
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -455,7 +456,7 @@ function ProductCarousel({
                         <Button
                           size="sm"
                           className="bg-primary hover:bg-primary/90 text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product.id); }}
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product.id, product.allowPackToggle ? (packToggleMap[product.id] || (product.isPackOnly ? 'pack' : 'single')) : 'single'); }}
                         >
                           <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                           Add
@@ -495,22 +496,73 @@ function ProductCarousel({
                     <span className="inline-block text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-semibold mb-1">{nic}</span>
                   ) : null; })()}
                   
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-baseline gap-1 sm:gap-2">
-                      {product.salePrice ? (
-                        <>
-                          <span className="text-base sm:text-xl md:text-2xl font-bold text-primary">
-                            ${product.salePrice}
-                          </span>
-                          <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground line-through">
-                            ${product.price}
-                          </span>
-                        </>
+                  {product.allowPackToggle && (
+                    <div className="mb-1">
+                      {!product.isPackOnly ? (
+                        <div className="inline-flex items-center rounded-full bg-muted/60 border border-border p-0.5 text-[9px] sm:text-[10px]">
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPackToggleMap(prev => ({ ...prev, [product.id]: 'single' })); }}
+                            className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${(packToggleMap[product.id] || 'single') === 'single' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                          >Single</button>
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPackToggleMap(prev => ({ ...prev, [product.id]: 'pack' })); }}
+                            className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${(packToggleMap[product.id] || 'single') === 'pack' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                          >Pack</button>
+                        </div>
                       ) : (
-                        <span className="text-base sm:text-xl md:text-2xl font-bold text-primary">
-                          ${product.price}
-                        </span>
+                        <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1.5 py-0 bg-green-500/20 text-green-400 border-green-500/30">
+                          Pack of {product.packSize}
+                        </Badge>
                       )}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-baseline gap-1 sm:gap-2 flex-wrap">
+                      {(() => {
+                        const currentMode = product.allowPackToggle
+                          ? (product.isPackOnly ? 'pack' : (packToggleMap[product.id] || 'single'))
+                          : 'single';
+
+                        if (currentMode === 'pack' && product.allowPackToggle) {
+                          const packPrice = Math.round(parseFloat(product.price) * (product.packSize || 1) * (1 - (product.packDiscountPercent || 0) / 100) * 100) / 100;
+                          return (
+                            <>
+                              <span className="text-base sm:text-xl md:text-2xl font-bold text-green-500">
+                                ${packPrice.toFixed(2)}
+                              </span>
+                              {(product.packDiscountPercent || 0) > 0 && (
+                                <Badge variant="secondary" className="text-[8px] sm:text-[10px] px-1 py-0 bg-green-500/20 text-green-400 border-green-500/30">
+                                  Save {product.packDiscountPercent}%
+                                </Badge>
+                              )}
+                            </>
+                          );
+                        }
+
+                        if (product.salePrice) {
+                          return (
+                            <>
+                              <span className="text-base sm:text-xl md:text-2xl font-bold text-primary">
+                                ${product.salePrice}
+                              </span>
+                              <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground line-through">
+                                ${product.price}
+                              </span>
+                              {product.allowPackToggle && <span className="text-[9px] text-muted-foreground">each</span>}
+                            </>
+                          );
+                        }
+
+                        return (
+                          <>
+                            <span className="text-base sm:text-xl md:text-2xl font-bold text-primary">
+                              ${product.price}
+                            </span>
+                            {product.allowPackToggle && <span className="text-[9px] text-muted-foreground">each</span>}
+                          </>
+                        );
+                      })()}
                     </div>
                     
                     {inCart && (
@@ -821,12 +873,12 @@ export default function DeliveryPortal() {
   const deliveryFee = cartTotal >= freeDeliveryThreshold ? 0 : calculatePortalDeliveryFee();
 
   const addToCartMutation = useMutation({
-    mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
+    mutationFn: async ({ productId, quantity, purchaseType }: { productId: number; quantity: number; purchaseType?: string }) => {
       const response = await fetch("/api/delivery/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ productId, quantity }),
+        body: JSON.stringify({ productId, quantity, purchaseType: purchaseType || 'single' }),
       });
       if (!response.ok) {
         throw new Error("Failed to add to cart");
@@ -940,8 +992,8 @@ export default function DeliveryPortal() {
     },
   });
 
-  const addToCart = (productId: number) => {
-    addToCartMutation.mutate({ productId, quantity: 1 });
+  const addToCart = (productId: number, purchaseType?: string) => {
+    addToCartMutation.mutate({ productId, quantity: 1, purchaseType: purchaseType || 'single' });
     setCartJiggle(true);
     setTimeout(() => setCartJiggle(false), 600);
     toast({
@@ -977,8 +1029,8 @@ export default function DeliveryPortal() {
     }
   };
 
-  const handleQuickViewAddToCart = async (productId: number, quantity: number) => {
-    addToCartMutation.mutate({ productId, quantity });
+  const handleQuickViewAddToCart = async (productId: number, quantity: number, purchaseType?: string) => {
+    addToCartMutation.mutate({ productId, quantity, purchaseType: purchaseType || 'single' });
   };
 
   if (isLoading) {

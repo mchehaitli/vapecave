@@ -49,15 +49,21 @@ interface CartItem {
   customerId: number;
   productId: number;
   quantity: number;
+  purchaseType?: string;
   createdAt: Date;
   product: {
     id: number;
     name: string;
     price: string;
+    salePrice?: string | null;
     image: string;
     description: string;
     category: string;
     stockQuantity?: string;
+    allowPackToggle?: boolean;
+    packSize?: number;
+    packDiscountPercent?: number;
+    isPackOnly?: boolean;
   };
 }
 
@@ -180,8 +186,15 @@ export default function DeliveryCart() {
     queryKey: ['/api/site-settings'],
   });
 
+  const getItemLinePrice = (item: CartItem) => {
+    if (item.purchaseType === 'pack' && item.product.allowPackToggle) {
+      return Math.round(parseFloat(item.product.price) * (item.product.packSize || 1) * (1 - (item.product.packDiscountPercent || 0) / 100) * 100) / 100;
+    }
+    return parseFloat(item.product.salePrice || item.product.price);
+  };
+
   const subtotal = cartItems.reduce((sum, item) => {
-    return sum + (parseFloat(item.product.price) * item.quantity);
+    return sum + (getItemLinePrice(item) * item.quantity);
   }, 0);
 
   const freeDeliveryThreshold = parseFloat(siteSettings?.freeDeliveryThreshold || "100");
@@ -314,6 +327,11 @@ export default function DeliveryCart() {
                         <div className="min-w-0">
                           <h3 className="font-semibold text-sm sm:text-lg line-clamp-2" data-testid={`text-product-name-${item.product.id}`}>
                             {item.product.name}
+                            {item.purchaseType === 'pack' && item.product.allowPackToggle && (
+                              <span className="ml-2 inline-block text-[10px] sm:text-xs font-medium px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-500 border border-green-500/30">
+                                Pack of {item.product.packSize}
+                              </span>
+                            )}
                           </h3>
                           <p className="text-xs sm:text-sm text-muted-foreground">
                             {item.product.category}
@@ -360,11 +378,16 @@ export default function DeliveryCart() {
 
                         <div className="text-right flex-shrink-0">
                           <p className="text-xs sm:text-sm text-muted-foreground">
-                            ${item.product.price} each
+                            ${getItemLinePrice(item).toFixed(2)} {item.purchaseType === 'pack' ? 'per pack' : 'each'}
                           </p>
                           <p className="text-sm sm:text-lg font-bold" data-testid={`text-item-total-${item.id}`}>
-                            ${(parseFloat(item.product.price) * item.quantity).toFixed(2)}
+                            ${(getItemLinePrice(item) * item.quantity).toFixed(2)}
                           </p>
+                          {item.purchaseType === 'pack' && (item.product.packDiscountPercent || 0) > 0 && (
+                            <p className="text-[10px] sm:text-xs text-green-500 font-medium">
+                              Save {item.product.packDiscountPercent}%
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>

@@ -1326,6 +1326,9 @@ export class DbStorage implements IStorage {
         const existing = await this.getDeliveryProductByCloverItemId(product.cloverItemId);
         
         if (existing) {
+          // Only sync price, description, stock, category, name, and image from Clover.
+          // Web-only pack fields (allowPackToggle, packSize, packDiscountPercent, isPackOnly)
+          // are never overwritten by Clover data — they only exist in the Replit database.
           const updateData: any = {
             price: product.price,
             description: product.description,

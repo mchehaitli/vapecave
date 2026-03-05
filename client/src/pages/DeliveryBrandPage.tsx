@@ -106,12 +106,12 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
   const cartItemCount = apiCartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const addToCartMutation = useMutation({
-    mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
+    mutationFn: async ({ productId, quantity, purchaseType }: { productId: number; quantity: number; purchaseType?: string }) => {
       const response = await fetch("/api/delivery/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ productId, quantity }),
+        body: JSON.stringify({ productId, quantity, purchaseType: purchaseType || 'single' }),
       });
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
@@ -172,8 +172,8 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
     },
   });
 
-  const handleAddToCart = (productId: number, quantity: number = 1) => {
-    addToCartMutation.mutate({ productId, quantity }, {
+  const handleAddToCart = (productId: number, quantity: number = 1, purchaseType?: string) => {
+    addToCartMutation.mutate({ productId, quantity, purchaseType }, {
       onSuccess: () => {
         toast({
           title: "Added to cart",
@@ -752,12 +752,12 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                               <Minus className="w-4 h-4" />
                             </Button>
                             <span className="text-xs font-semibold w-5 text-center">{lQty}</span>
-                            <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(product.id)} disabled={addToCartMutation.isPending}>
+                            <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(product.id, 1, product.isPackOnly ? 'pack' : 'single')} disabled={addToCartMutation.isPending}>
                               <Plus className="w-4 h-4" />
                             </Button>
                           </div>
                         ) : (
-                          <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => handleAddToCart(product.id)} disabled={addToCartMutation.isPending || isOutOfStock}>
+                          <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => handleAddToCart(product.id, 1, product.isPackOnly ? 'pack' : 'single')} disabled={addToCartMutation.isPending || isOutOfStock}>
                             <Plus className="w-4 h-4 sm:mr-1" />
                             <span className="hidden sm:inline">Add</span>
                           </Button>
@@ -793,8 +793,8 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
         onNicLevelChange={setQuickViewVariantNic}
         open={!!(quickViewProduct || quickViewVariantGroup)}
         onClose={() => { setQuickViewProduct(null); closeVariantQuickView(); }}
-        onAddToCart={async (productId: number, quantity: number) => {
-          handleAddToCart(productId, quantity);
+        onAddToCart={async (productId: number, quantity: number, purchaseType?: string) => {
+          handleAddToCart(productId, quantity, purchaseType);
           setQuickViewProduct(null);
           closeVariantQuickView();
         }}
@@ -816,7 +816,7 @@ function ProductCard({
 }: { 
   product: DeliveryProduct;
   index: number;
-  onAddToCart: (productId: number) => void;
+  onAddToCart: (productId: number, quantity?: number, purchaseType?: string) => void;
   onUpdateQuantity: (productId: number, quantity: number) => void;
   onQuickView: (product: DeliveryProduct) => void;
   brandMap: Record<number, DeliveryBrand>;
@@ -904,12 +904,12 @@ function ProductCard({
                     <Minus className="w-4 h-4" />
                   </Button>
                   <span className="text-xs font-semibold w-5 text-center">{cartQty}</span>
-                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => onAddToCart(product.id)} disabled={addPending}>
+                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => onAddToCart(product.id, 1, product.isPackOnly ? 'pack' : 'single')} disabled={addPending}>
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
               ) : (
-                <Button size="sm" className="h-8 w-8 p-0" onClick={() => onAddToCart(product.id)} disabled={addPending || isOutOfStock}>
+                <Button size="sm" className="h-8 w-8 p-0" onClick={() => onAddToCart(product.id, 1, product.isPackOnly ? 'pack' : 'single')} disabled={addPending || isOutOfStock}>
                   <Plus className="w-4 h-4" />
                 </Button>
               )}

@@ -568,6 +568,10 @@ export const deliveryProducts = pgTable("delivery_products", {
   stockQuantity: numeric("stock_quantity").default("0"),
   enabled: boolean("enabled").default(true),
   nicotineOverride: text("nicotine_override"),
+  allowPackToggle: boolean("allow_pack_toggle").default(false),
+  packSize: integer("pack_size").default(1),
+  packDiscountPercent: integer("pack_discount_percent").default(0),
+  isPackOnly: boolean("is_pack_only").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -595,18 +599,26 @@ export const insertDeliveryProductSchema = createInsertSchema(deliveryProducts).
   homePageOrder: true,
   stockQuantity: true,
   enabled: true,
+  allowPackToggle: true,
+  packSize: true,
+  packDiscountPercent: true,
+  isPackOnly: true,
 }).extend({
-  cloverItemId: z.string().optional().nullable(), // Optional for manual products
-  brand: z.string().optional().nullable(), // Optional for manual products
-  brandId: z.number().optional().nullable(), // Links to deliveryBrands
-  productLineId: z.number().optional().nullable(), // Links to deliveryProductLines
-  salePrice: z.string().optional().nullable(), // Optional for sale pricing
-  image: z.string().optional().nullable(), // Optional for manual products
-  images: z.array(z.string()).optional().nullable(), // Optional, can be null
-  description: z.string().optional().nullable(), // Optional
-  category: z.string().optional().nullable(), // Optional
-  badge: z.string().optional().nullable(), // Optional
-  nicotineOverride: z.string().optional().nullable(), // Manual nic content override
+  cloverItemId: z.string().optional().nullable(),
+  brand: z.string().optional().nullable(),
+  brandId: z.number().optional().nullable(),
+  productLineId: z.number().optional().nullable(),
+  salePrice: z.string().optional().nullable(),
+  image: z.string().optional().nullable(),
+  images: z.array(z.string()).optional().nullable(),
+  description: z.string().optional().nullable(),
+  category: z.string().optional().nullable(),
+  badge: z.string().optional().nullable(),
+  nicotineOverride: z.string().optional().nullable(),
+  allowPackToggle: z.boolean().optional().nullable(),
+  packSize: z.number().optional().nullable(),
+  packDiscountPercent: z.number().optional().nullable(),
+  isPackOnly: z.boolean().optional().nullable(),
 });
 
 export type InsertDeliveryProduct = z.infer<typeof insertDeliveryProductSchema>;
@@ -618,6 +630,7 @@ export const cartItems = pgTable("cart_items", {
   customerId: integer("customer_id").notNull(),
   productId: integer("product_id").notNull(),
   quantity: integer("quantity").notNull().default(1),
+  purchaseType: text("purchase_type").default("single"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -626,6 +639,9 @@ export const insertCartItemSchema = createInsertSchema(cartItems).pick({
   customerId: true,
   productId: true,
   quantity: true,
+  purchaseType: true,
+}).extend({
+  purchaseType: z.enum(["single", "pack"]).optional().default("single"),
 });
 
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
@@ -721,6 +737,7 @@ export const deliveryOrderItems = pgTable("delivery_order_items", {
   productId: integer("product_id").notNull(),
   quantity: integer("quantity").notNull(),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  purchaseType: text("purchase_type").default("single"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -729,6 +746,9 @@ export const insertDeliveryOrderItemSchema = createInsertSchema(deliveryOrderIte
   productId: true,
   quantity: true,
   price: true,
+  purchaseType: true,
+}).extend({
+  purchaseType: z.enum(["single", "pack"]).optional().default("single"),
 });
 
 export type InsertDeliveryOrderItem = z.infer<typeof insertDeliveryOrderItemSchema>;

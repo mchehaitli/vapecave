@@ -43,7 +43,9 @@ async function syncEnabledProducts(): Promise<{ refreshed: number; timestamp: st
       }
       
       const stockQuantity = (item.itemStock?.quantity || 0).toString();
-      const price = (item.price / 100).toFixed(2); // Convert cents to dollars
+      const price = (item.price / 100).toFixed(2);
+      // Only syncs stockQuantity and price from Clover. Web-only fields (allowPackToggle,
+      // packSize, packDiscountPercent, isPackOnly) are never overwritten by Clover data.
       const updated = await storage.refreshProductStockAndPrice(item.id, stockQuantity, price);
       if (updated) refreshed++;
     }

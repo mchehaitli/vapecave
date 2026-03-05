@@ -181,12 +181,12 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const addToCart = useMutation({
-    mutationFn: async (productId: number) => {
+    mutationFn: async ({ productId, purchaseType }: { productId: number; purchaseType?: string }) => {
       const response = await fetch('/api/delivery/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ productId, quantity: 1 }),
+        body: JSON.stringify({ productId, quantity: 1, purchaseType: purchaseType || 'single' }),
       });
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
@@ -485,12 +485,12 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                                       <Minus className="w-4 h-4" />
                                     </Button>
                                     <span className="text-xs font-semibold w-5 text-center">{qty}</span>
-                                    <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(variant.productId)} disabled={addToCart.isPending}>
+                                    <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: variant.productId })} disabled={addToCart.isPending}>
                                       <Plus className="w-4 h-4" />
                                     </Button>
                                   </div>
                                 ) : (
-                                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(variant.productId)} disabled={addToCart.isPending || isOutOfStock}>
+                                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: variant.productId })} disabled={addToCart.isPending || isOutOfStock}>
                                     <Plus className="w-4 h-4" />
                                   </Button>
                                 );
@@ -563,12 +563,12 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                                   <Minus className="w-4 h-4" />
                                 </Button>
                                 <span className="text-xs font-semibold w-5 text-center">{pQty}</span>
-                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(product.id)} disabled={addToCart.isPending}>
+                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: product.id, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCart.isPending}>
                                   <Plus className="w-4 h-4" />
                                 </Button>
                               </div>
                             ) : (
-                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(product.id)} disabled={addToCart.isPending || isOutOfStock}>
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: product.id, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCart.isPending || isOutOfStock}>
                                 <Plus className="w-4 h-4" />
                               </Button>
                             )}
@@ -668,12 +668,12 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                                 <Minus className="w-4 h-4" />
                               </Button>
                               <span className="text-xs font-semibold w-5 text-center">{qty}</span>
-                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(variant.productId)} disabled={addToCart.isPending}>
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: variant.productId })} disabled={addToCart.isPending}>
                                 <Plus className="w-4 h-4" />
                               </Button>
                             </div>
                           ) : !isOutOfStock ? (
-                            <Button size="sm" className="h-8" onClick={() => addToCart.mutate(variant.productId)} disabled={addToCart.isPending}>
+                            <Button size="sm" className="h-8" onClick={() => addToCart.mutate({ productId: variant.productId })} disabled={addToCart.isPending}>
                               <Plus className="w-3 h-3 mr-1" />
                               Add
                             </Button>
@@ -756,12 +756,12 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                             <Minus className="w-4 h-4" />
                           </Button>
                           <span className="text-xs font-semibold w-5 text-center">{lQty}</span>
-                          <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(product.id)} disabled={addToCart.isPending}>
+                          <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: product.id, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCart.isPending}>
                             <Plus className="w-4 h-4" />
                           </Button>
                         </div>
                       ) : (
-                        <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCart.mutate(product.id)} disabled={addToCart.isPending || isOutOfStock}>
+                        <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCart.mutate({ productId: product.id, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCart.isPending || isOutOfStock}>
                           <Plus className="w-4 h-4 sm:mr-1" />
                           <span className="hidden sm:inline">Add</span>
                         </Button>
@@ -788,8 +788,8 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
         onNicLevelChange={setQuickViewVariantNic}
         open={!!(quickViewProduct || quickViewVariantGroup)}
         onClose={() => { setQuickViewProduct(null); closeVariantQuickView(); }}
-        onAddToCart={async (productId: number, quantity: number) => {
-          addToCart.mutate(productId);
+        onAddToCart={async (productId: number, quantity: number, purchaseType?: string) => {
+          addToCart.mutate({ productId, purchaseType });
           setQuickViewProduct(null);
           closeVariantQuickView();
         }}

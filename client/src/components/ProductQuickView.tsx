@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import type { DeliveryProduct } from "@shared/schema";
 import type { VariantGroup, ProductVariant } from "@/lib/productVariants";
@@ -16,7 +17,7 @@ interface ProductQuickViewProps {
   product: DeliveryProduct | null;
   open: boolean;
   onClose: () => void;
-  onAddToCart?: (productId: number, quantity: number) => Promise<void>;
+  onAddToCart?: (productId: number, quantity: number, purchaseType?: string) => Promise<void>;
   variantGroup?: VariantGroup | null;
   selectedNicLevel?: string;
   onNicLevelChange?: (level: string) => void;
@@ -37,6 +38,7 @@ export function ProductQuickView({
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [localNicLevel, setLocalNicLevel] = useState<string>("");
+  const [purchaseMode, setPurchaseMode] = useState<'single' | 'pack'>('single');
 
   const isVariantMode = !!variantGroup;
 
@@ -51,6 +53,11 @@ export function ProductQuickView({
   useEffect(() => {
     if (open) {
       setSelectedImageIndex(0);
+      if (product?.allowPackToggle) {
+        setPurchaseMode(product.isPackOnly ? 'pack' : 'single');
+      } else {
+        setPurchaseMode('single');
+      }
     }
   }, [open, product?.id, variantGroup?.key]);
 
@@ -207,7 +214,7 @@ export function ProductQuickView({
     setIsAddingToCart(true);
     try {
       if (onAddToCart) {
-        await onAddToCart(productId, quantity);
+        await onAddToCart(productId, quantity, product?.allowPackToggle ? purchaseMode : 'single');
       }
       setAddedToCart(true);
       setTimeout(() => {
@@ -389,33 +396,85 @@ export function ProductQuickView({
                 </div>
               )}
 
-              <div className="mb-4 sm:mb-6">
-                <div className="flex items-baseline gap-2 sm:gap-3">
-                  <span
-                    className="text-2xl sm:text-4xl font-bold text-primary"
-                    data-testid={`text-price-${isVariantMode ? variantGroup?.key : product?.id}`}
-                  >
-                    ${displayPrice.toFixed(2)}
-                  </span>
-                  {originalPrice && (
-                    <span
-                      className="text-base sm:text-xl text-muted-foreground line-through"
-                      data-testid={`text-original-price-${isVariantMode ? variantGroup?.key : product?.id}`}
-                    >
-                      ${originalPrice.toFixed(2)}
-                    </span>
+              {product?.allowPackToggle && !isVariantMode && (
+                <div className="mb-4">
+                  {!product.isPackOnly ? (
+                    <div className="inline-flex items-center rounded-full bg-muted/60 border border-border p-1 text-sm">
+                      <button
+                        onClick={() => setPurchaseMode('single')}
+                        className={`px-4 py-1.5 rounded-full font-medium transition-colors ${purchaseMode === 'single' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                      >Single</button>
+                      <button
+                        onClick={() => setPurchaseMode('pack')}
+                        className={`px-4 py-1.5 rounded-full font-medium transition-colors ${purchaseMode === 'pack' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                      >Pack of {product.packSize || 1}</button>
+                    </div>
+                  ) : (
+                    <Badge variant="secondary" className="text-sm px-3 py-1 bg-green-500/20 text-green-400 border-green-500/30">
+                      Pack of {product.packSize}
+                    </Badge>
                   )}
                 </div>
+              )}
 
-                {isOnSale && originalPrice && (
-                  <p className="text-red-500 font-semibold mt-2">
-                    Save ${(originalPrice - displayPrice).toFixed(2)} (
-                    {Math.round(
-                      ((originalPrice - displayPrice) / originalPrice) * 100
-                    )}
-                    % off)
-                  </p>
-                )}
+              <div className="mb-4 sm:mb-6">
+                {(() => {
+                  if (product?.allowPackToggle && purchaseMode === 'pack' && !isVariantMode) {
+                    const packPrice = Math.round(parseFloat(product.price) * (product.packSize || 1) * (1 - (product.packDiscountPercent || 0) / 100) * 100) / 100;
+                    return (
+                      <>
+                        <div className="flex items-baseline gap-2 sm:gap-3">
+                          <span className="text-2xl sm:text-4xl font-bold text-green-500">
+                            ${packPrice.toFixed(2)}
+                          </span>
+                          {(product.packDiscountPercent || 0) > 0 && (
+                            <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-green-500/20 text-green-400 border-green-500/30">
+                              Save {product.packDiscountPercent}%
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          ${product.price} each × {product.packSize} units
+                          {(product.packDiscountPercent || 0) > 0 && ` with ${product.packDiscountPercent}% discount`}
+                        </p>
+                      </>
+                    );
+                  }
+
+                  return (
+                    <>
+                      <div className="flex items-baseline gap-2 sm:gap-3">
+                        <span
+                          className="text-2xl sm:text-4xl font-bold text-primary"
+                          data-testid={`text-price-${isVariantMode ? variantGroup?.key : product?.id}`}
+                        >
+                          ${displayPrice.toFixed(2)}
+                        </span>
+                        {originalPrice && (
+                          <span
+                            className="text-base sm:text-xl text-muted-foreground line-through"
+                            data-testid={`text-original-price-${isVariantMode ? variantGroup?.key : product?.id}`}
+                          >
+                            ${originalPrice.toFixed(2)}
+                          </span>
+                        )}
+                        {product?.allowPackToggle && purchaseMode === 'single' && (
+                          <span className="text-sm text-muted-foreground">each</span>
+                        )}
+                      </div>
+
+                      {isOnSale && originalPrice && (
+                        <p className="text-red-500 font-semibold mt-2">
+                          Save ${(originalPrice - displayPrice).toFixed(2)} (
+                          {Math.round(
+                            ((originalPrice - displayPrice) / originalPrice) * 100
+                          )}
+                          % off)
+                        </p>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
 
               {displayDescription && (
@@ -518,7 +577,13 @@ export function ProductQuickView({
                     >
                       <ShoppingCart className="h-5 w-5" />
                       {inStock
-                        ? `Add to Cart - $${(displayPrice * quantity).toFixed(2)}`
+                        ? (() => {
+                            if (product?.allowPackToggle && purchaseMode === 'pack') {
+                              const packPrice = Math.round(parseFloat(product.price) * (product.packSize || 1) * (1 - (product.packDiscountPercent || 0) / 100) * 100) / 100;
+                              return `Add to Cart - $${(packPrice * quantity).toFixed(2)}`;
+                            }
+                            return `Add to Cart - $${(displayPrice * quantity).toFixed(2)}`;
+                          })()
                         : "Out of Stock"}
                     </motion.div>
                   )}

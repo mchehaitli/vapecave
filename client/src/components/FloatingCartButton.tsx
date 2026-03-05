@@ -13,14 +13,19 @@ interface CartItem {
   customerId: number;
   productId: number;
   quantity: number;
+  purchaseType?: string;
   createdAt?: Date;
   product?: {
     id: number;
     name: string;
     price: string;
+    salePrice?: string | null;
     image?: string;
     description?: string;
     category?: string;
+    allowPackToggle?: boolean;
+    packSize?: number;
+    packDiscountPercent?: number;
   };
 }
 
@@ -55,7 +60,13 @@ export function FloatingCartButton({
 
   const cartTotal = cartItems.reduce((sum, item) => {
     const product = products.find((p) => p.id === item.productId);
-    return sum + (product ? parseFloat(product.price) * item.quantity : 0);
+    if (!product) return sum;
+    if (item.purchaseType === 'pack' && item.product?.allowPackToggle) {
+      const packPrice = Math.round(parseFloat(product.price) * (item.product.packSize || 1) * (1 - (item.product.packDiscountPercent || 0) / 100) * 100) / 100;
+      return sum + packPrice * item.quantity;
+    }
+    const unitPrice = parseFloat(item.product?.salePrice || product.price);
+    return sum + unitPrice * item.quantity;
   }, 0);
 
   const deliveryFee = cartTotal >= freeDeliveryThreshold ? 0 : baseFee;
@@ -101,7 +112,12 @@ export function FloatingCartButton({
                 const productName = product?.name || "Unknown Product";
                 return (
                   <div key={item.id} className="flex items-center justify-between text-sm">
-                    <span className="truncate flex-1 mr-2">{productName}</span>
+                    <span className="truncate flex-1 mr-2">
+                      {productName}
+                      {item.purchaseType === 'pack' && item.product?.allowPackToggle && (
+                        <span className="ml-1 text-[9px] text-green-500"> (Pack)</span>
+                      )}
+                    </span>
                     <span className="text-muted-foreground">x{item.quantity}</span>
                   </div>
                 );

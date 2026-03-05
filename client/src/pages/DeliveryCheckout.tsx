@@ -24,12 +24,18 @@ interface CartItem {
   customerId: number;
   productId: number;
   quantity: number;
+  purchaseType?: string;
   product: {
     id: number;
     name: string;
     price: string;
+    salePrice?: string | null;
     image: string;
     category: string;
+    allowPackToggle?: boolean;
+    packSize?: number;
+    packDiscountPercent?: number;
+    isPackOnly?: boolean;
   };
 }
 
@@ -226,9 +232,15 @@ export default function DeliveryCheckout() {
     },
   });
 
-  // Calculate totals
+  const getItemLinePrice = (item: CartItem) => {
+    if (item.purchaseType === 'pack' && item.product.allowPackToggle) {
+      return Math.round(parseFloat(item.product.price) * (item.product.packSize || 1) * (1 - (item.product.packDiscountPercent || 0) / 100) * 100) / 100;
+    }
+    return parseFloat(item.product.salePrice || item.product.price);
+  };
+
   const subtotal = cartItems.reduce((sum, item) => {
-    return sum + (parseFloat(item.product.price) * item.quantity);
+    return sum + (getItemLinePrice(item) * item.quantity);
   }, 0);
 
   // Calculate delivery fee based on settings and actual distance
@@ -934,24 +946,35 @@ export default function DeliveryCheckout() {
 
                 {/* Cart Items */}
                 <div className="space-y-3">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="flex gap-3" data-testid={`summary-item-${item.id}`}>
-                      <img
-                        src={item.product.image}
-                        alt={item.product.name}
-                        className="w-16 h-16 object-contain bg-muted rounded p-1"
-                      />
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{item.product.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Qty: {item.quantity} × ${item.product.price}
-                        </p>
-                        <p className="text-sm font-semibold">
-                          ${(parseFloat(item.product.price) * item.quantity).toFixed(2)}
-                        </p>
+                  {cartItems.map((item) => {
+                    const linePrice = getItemLinePrice(item);
+                    const isPack = item.purchaseType === 'pack' && item.product.allowPackToggle;
+                    return (
+                      <div key={item.id} className="flex gap-3" data-testid={`summary-item-${item.id}`}>
+                        <img
+                          src={item.product.image}
+                          alt={item.product.name}
+                          className="w-16 h-16 object-contain bg-muted rounded p-1"
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">
+                            {item.product.name}
+                            {isPack && (
+                              <span className="ml-1.5 inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-500 border border-green-500/30">
+                                Pack of {item.product.packSize}
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Qty: {item.quantity} × ${linePrice.toFixed(2)}{isPack ? ' per pack' : ''}
+                          </p>
+                          <p className="text-sm font-semibold">
+                            ${(linePrice * item.quantity).toFixed(2)}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <Separator />

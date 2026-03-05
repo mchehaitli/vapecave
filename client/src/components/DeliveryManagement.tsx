@@ -2629,6 +2629,10 @@ export function DeliveryProductsTab() {
     category: "",
     stockQuantity: "",
     enabled: true,
+    allowPackToggle: false,
+    packSize: 1,
+    packDiscountPercent: 0,
+    isPackOnly: false,
   });
 
   // Batch save states
@@ -2908,7 +2912,7 @@ export function DeliveryProductsTab() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/delivery/products"] });
       toast({ title: "Product Created", description: "Product has been created successfully." });
       setProductDialogOpen(false);
-      setProductForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: true });
+      setProductForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: true, allowPackToggle: false, packSize: 1, packDiscountPercent: 0, isPackOnly: false });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to create product.", variant: "destructive" });
@@ -2917,6 +2921,7 @@ export function DeliveryProductsTab() {
 
   const editProductMutation = useMutation({
     mutationFn: async ({ productId, data }: { productId: number; data: typeof productForm }) => {
+      const safePackSize = data.allowPackToggle && (!data.packSize || data.packSize < 1) ? 1 : data.packSize;
       const res = await apiRequest("PATCH", `/api/admin/delivery/products/${productId}`, {
         name: data.name,
         description: data.description || null,
@@ -2925,6 +2930,10 @@ export function DeliveryProductsTab() {
         category: data.category || null,
         stockQuantity: data.stockQuantity || null,
         enabled: data.enabled,
+        allowPackToggle: data.allowPackToggle,
+        packSize: safePackSize,
+        packDiscountPercent: data.packDiscountPercent || 0,
+        isPackOnly: data.isPackOnly,
       });
       return res.json();
     },
@@ -2934,7 +2943,7 @@ export function DeliveryProductsTab() {
       toast({ title: "Product Updated", description: "Product has been updated successfully." });
       setProductDialogOpen(false);
       setEditingProduct(null);
-      setProductForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: true });
+      setProductForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: true, allowPackToggle: false, packSize: 1, packDiscountPercent: 0, isPackOnly: false });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to update product.", variant: "destructive" });
@@ -2993,7 +3002,7 @@ export function DeliveryProductsTab() {
 
   const handleAddProduct = () => {
     setEditingProduct(null);
-    setProductForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: true });
+    setProductForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: true, allowPackToggle: false, packSize: 1, packDiscountPercent: 0, isPackOnly: false });
     setProductDialogOpen(true);
   };
 
@@ -3007,6 +3016,10 @@ export function DeliveryProductsTab() {
       category: product.category || "",
       stockQuantity: product.stockQuantity || "",
       enabled: product.enabled || false,
+      allowPackToggle: product.allowPackToggle || false,
+      packSize: product.packSize || 1,
+      packDiscountPercent: product.packDiscountPercent || 0,
+      isPackOnly: product.isPackOnly || false,
     });
     setProductDialogOpen(true);
   }, []);
@@ -3677,6 +3690,78 @@ export function DeliveryProductsTab() {
                 data-testid="checkbox-product-enabled"
               />
               <Label htmlFor="product-enabled">Enable product in delivery portal</Label>
+            </div>
+
+            <div className="border border-gray-600 rounded-lg p-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-2 text-sm font-medium">
+                  <Package className="h-4 w-4" />
+                  Bulk/Pack Pricing
+                  <span className="text-xs text-blue-400 font-normal">(website only)</span>
+                </Label>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={productForm.allowPackToggle}
+                    onChange={(e) => setProductForm({ ...productForm, allowPackToggle: e.target.checked, packSize: e.target.checked && productForm.packSize < 1 ? 1 : productForm.packSize })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+
+              {productForm.allowPackToggle && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="pack-size" className="text-xs">Pack Size</Label>
+                      <Input
+                        id="pack-size"
+                        type="number"
+                        min="1"
+                        value={productForm.packSize}
+                        onChange={(e) => setProductForm({ ...productForm, packSize: Math.max(1, parseInt(e.target.value) || 1) })}
+                        className="bg-gray-900 border-gray-700 text-white h-8 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="pack-discount" className="text-xs">Discount %</Label>
+                      <Input
+                        id="pack-discount"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={productForm.packDiscountPercent}
+                        onChange={(e) => setProductForm({ ...productForm, packDiscountPercent: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) })}
+                        className="bg-gray-900 border-gray-700 text-white h-8 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="pack-only"
+                      checked={productForm.isPackOnly}
+                      onChange={(e) => setProductForm({ ...productForm, isPackOnly: e.target.checked })}
+                      className="h-4 w-4"
+                    />
+                    <Label htmlFor="pack-only" className="text-xs">Pack Only (hide Single option)</Label>
+                  </div>
+
+                  {productForm.price && (
+                    <div className="bg-gray-900 rounded p-2 text-xs">
+                      <span className="text-gray-400">Web Pack Price: </span>
+                      <span className="text-green-400 font-bold">
+                        ${(Math.round(parseFloat(productForm.price) * productForm.packSize * (1 - productForm.packDiscountPercent / 100) * 100) / 100).toFixed(2)}
+                      </span>
+                      <span className="text-gray-500 ml-1">
+                        ({productForm.packSize} × ${productForm.price} − {productForm.packDiscountPercent}%)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           

@@ -205,4 +205,70 @@ export class CloverService {
       return 0;
     }
   }
+
+  /**
+   * Update stock quantity for a specific item on Clover (active push).
+   * Only writes stock quantity — never pushes name, description, price, or any other field.
+   */
+  async updateItemStock(cloverItemId: string, quantityToDeduct: number): Promise<{ success: boolean; previousStock: number; newStock: number }> {
+    try {
+      const currentStock = await this.getItemStock(cloverItemId);
+      const newStock = Math.max(0, currentStock - quantityToDeduct);
+
+      const url = `${this.baseUrl}/v3/merchants/${this.merchantId}/item_stocks/${cloverItemId}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ quantity: newStock }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[Clover Stock Push] Failed to update stock for ${cloverItemId}: ${response.status} ${errorText}`);
+        return { success: false, previousStock: currentStock, newStock: currentStock };
+      }
+
+      console.log(`[Clover Stock Push] ${cloverItemId}: ${currentStock} → ${newStock} (deducted ${quantityToDeduct})`);
+      return { success: true, previousStock: currentStock, newStock };
+    } catch (error) {
+      console.error(`[Clover Stock Push] Error updating stock for ${cloverItemId}:`, error);
+      return { success: false, previousStock: 0, newStock: 0 };
+    }
+  }
+
+  /**
+   * Deduct stock for an entire order. Handles inventory multiplier for pack purchases.
+   * If purchaseType is "pack", deducts quantity × packSize units from Clover.
+   * Only pushes stock quantity — never pushes names, prices, or pack settings to Clover.
+   */
+  async deductStockForOrder(items: Array<{ cloverItemId: string | null; quantity: number; purchaseType: string; packSize: number }>): Promise<Array<{ cloverItemId: string; unitsDeducted: number; success: boolean }>> {
+    const results: Array<{ cloverItemId: string; unitsDeducted: number; success: boolean }> = [];
+
+    for (const item of items) {
+      if (!item.cloverItemId) {
+        continue;
+      }
+
+      const unitsToDeduct = item.purchaseType === 'pack'
+        ? item.quantity * item.packSize
+        : item.quantity;
+
+      const result = await this.updateItemStock(item.cloverItemId, unitsToDeduct);
+      results.push({
+        cloverItemId: item.cloverItemId,
+        unitsDeducted: unitsToDeduct,
+        success: result.success,
+      });
+    }
+
+    const succeeded = results.filter(r => r.success).length;
+    const failed = results.filter(r => !r.success).length;
+    console.log(`[Clover Stock Push] Order deduction complete: ${succeeded} succeeded, ${failed} failed`);
+
+    return results;
+  }
 }
