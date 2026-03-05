@@ -713,11 +713,6 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                             target.src = brandLogo || '/placeholder-product.svg';
                           }}
                         />
-                        {product.allowPackToggle && (product.packDiscountPercent || 0) > 0 && (
-                          <div className="absolute top-1 right-1">
-                            <Badge className="bg-green-500 text-white text-[8px] px-1 py-0">Save {product.packDiscountPercent}%</Badge>
-                          </div>
-                        )}
                         {isOutOfStock && (
                           <div className="absolute inset-0 bg-background/60 flex items-center justify-center rounded-lg">
                             <Badge variant="destructive" className="text-[10px]">Out</Badge>
@@ -887,11 +882,6 @@ function ProductCard({
               {product.badge.toUpperCase()}
             </Badge>
           )}
-          {product.allowPackToggle && packDiscountPercent > 0 && (
-            <Badge className="absolute top-2 right-2 bg-green-500 text-white text-[10px] sm:text-xs px-1.5 py-0.5">
-              Save {packDiscountPercent}%
-            </Badge>
-          )}
           {isOutOfStock && (
             <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
               <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
@@ -946,7 +936,7 @@ function ProductCard({
             </div>
           </div>
           {product.allowPackToggle && !product.isPackOnly && (
-            <div className="flex gap-1 mt-2">
+            <div className="flex items-start gap-1 mt-2">
               <button
                 onClick={() => onPackToggle(product.id, 'single')}
                 className={`flex-1 text-[10px] py-1 rounded border transition-all ${
@@ -957,20 +947,25 @@ function ProductCard({
               >
                 Single
               </button>
-              <button
-                onClick={() => canPack && onPackToggle(product.id, 'pack')}
-                disabled={!canPack}
-                className={`flex-1 text-[10px] py-1 rounded border transition-all ${
-                  !canPack
-                    ? 'border-muted-foreground/20 text-muted-foreground/40 cursor-not-allowed'
-                    : packMode === 'pack'
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border text-muted-foreground hover:border-primary/50'
-                }`}
-                title={!canPack ? 'Not enough stock for a pack' : `Pack of ${packSize}`}
-              >
-                Pack ({packSize})
-              </button>
+              <div className="flex-1 flex flex-col items-center gap-0.5">
+                <button
+                  onClick={() => canPack && onPackToggle(product.id, 'pack')}
+                  disabled={!canPack}
+                  className={`w-full text-[10px] py-1 rounded border transition-all ${
+                    !canPack
+                      ? 'border-muted-foreground/20 text-muted-foreground/40 cursor-not-allowed'
+                      : packMode === 'pack'
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'border-border text-muted-foreground hover:border-primary/50'
+                  }`}
+                  title={!canPack ? 'Not enough stock for a pack' : `Pack of ${packSize}`}
+                >
+                  Pack ({packSize})
+                </button>
+                {packDiscountPercent > 0 && (
+                  <span className="text-[9px] text-green-500 font-semibold">Save {packDiscountPercent}%</span>
+                )}
+              </div>
             </div>
           )}
         </div>

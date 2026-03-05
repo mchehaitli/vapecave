@@ -596,11 +596,6 @@ export default function DeliveryCategoryPage() {
                           Featured
                         </Badge>
                       )}
-                      {canPack && packDiscountPercent > 0 && (
-                        <Badge className="absolute top-2 right-2 bg-green-600 text-white text-[10px] px-1.5 py-0.5">
-                          Save {packDiscountPercent}%
-                        </Badge>
-                      )}
                       {isOutOfStock && (
                         <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
                           <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
@@ -655,7 +650,7 @@ export default function DeliveryCategoryPage() {
                         </div>
                       </div>
                       {canPack && (
-                        <div className="flex items-center gap-1 mt-2">
+                        <div className="flex items-start gap-1 mt-2">
                           <button
                             onClick={() => setPackToggleMap(prev => ({ ...prev, [product.id]: 'single' }))}
                             className={`flex-1 text-[10px] py-1 rounded border transition-all ${
@@ -666,22 +661,27 @@ export default function DeliveryCategoryPage() {
                           >
                             Single
                           </button>
-                          <button
-                            onClick={() => {
-                              if (!packDisabled) setPackToggleMap(prev => ({ ...prev, [product.id]: 'pack' }));
-                            }}
-                            disabled={packDisabled}
-                            className={`flex-1 text-[10px] py-1 rounded border transition-all ${
-                              packDisabled
-                                ? 'border-muted-foreground/20 text-muted-foreground/40 cursor-not-allowed'
-                                : selectedPurchaseType === 'pack'
-                                ? 'bg-primary text-primary-foreground border-primary'
-                                : 'border-border text-muted-foreground hover:border-primary/50'
-                            }`}
-                            title={packDisabled ? 'Not enough stock for a pack' : `Pack of ${packSize}`}
-                          >
-                            Pack ({packSize})
-                          </button>
+                          <div className="flex-1 flex flex-col items-center gap-0.5">
+                            <button
+                              onClick={() => {
+                                if (!packDisabled) setPackToggleMap(prev => ({ ...prev, [product.id]: 'pack' }));
+                              }}
+                              disabled={packDisabled}
+                              className={`w-full text-[10px] py-1 rounded border transition-all ${
+                                packDisabled
+                                  ? 'border-muted-foreground/20 text-muted-foreground/40 cursor-not-allowed'
+                                  : selectedPurchaseType === 'pack'
+                                  ? 'bg-primary text-primary-foreground border-primary'
+                                  : 'border-border text-muted-foreground hover:border-primary/50'
+                              }`}
+                              title={packDisabled ? 'Not enough stock for a pack' : `Pack of ${packSize}`}
+                            >
+                              Pack ({packSize})
+                            </button>
+                            {packDiscountPercent > 0 && (
+                              <span className="text-[9px] text-green-500 font-semibold">Save {packDiscountPercent}%</span>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>

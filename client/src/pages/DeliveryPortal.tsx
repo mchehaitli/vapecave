@@ -448,11 +448,6 @@ function ProductCarousel({
                     </Badge>
                   )}
 
-                  {product.allowPackToggle && (product.packDiscountPercent || 0) > 0 && (
-                    <Badge className="absolute top-2 right-2 sm:top-3 sm:right-3 text-[8px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5 leading-tight bg-green-500 text-white border-green-600">
-                      Save {product.packDiscountPercent}%
-                    </Badge>
-                  )}
 
                   {isOutOfStock && (
                     <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
@@ -520,17 +515,22 @@ function ProductCarousel({
                       {!product.isPackOnly ? (() => {
                         const packDisabled = stock < (product.packSize || 1);
                         return (
-                        <div className="inline-flex items-center rounded-full bg-muted/60 border border-border p-0.5 text-[9px] sm:text-[10px]">
-                          <button
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPackToggleMap(prev => ({ ...prev, [product.id]: 'single' })); }}
-                            className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${(packToggleMap[product.id] || 'single') === 'single' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                          >Single</button>
-                          <button
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!packDisabled) setPackToggleMap(prev => ({ ...prev, [product.id]: 'pack' })); }}
-                            disabled={packDisabled}
-                            className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${packDisabled ? 'opacity-40 cursor-not-allowed text-muted-foreground' : (packToggleMap[product.id] || 'single') === 'pack' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
-                            title={packDisabled ? 'Not enough stock for a pack' : ''}
-                          >Pack</button>
+                        <div className="flex flex-col gap-0.5">
+                          <div className="inline-flex self-start items-center rounded-full bg-muted/60 border border-border p-0.5 text-[9px] sm:text-[10px]">
+                            <button
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPackToggleMap(prev => ({ ...prev, [product.id]: 'single' })); }}
+                              className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${(packToggleMap[product.id] || 'single') === 'single' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                            >Single</button>
+                            <button
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!packDisabled) setPackToggleMap(prev => ({ ...prev, [product.id]: 'pack' })); }}
+                              disabled={packDisabled}
+                              className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${packDisabled ? 'opacity-40 cursor-not-allowed text-muted-foreground' : (packToggleMap[product.id] || 'single') === 'pack' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                              title={packDisabled ? 'Not enough stock for a pack' : ''}
+                            >Pack</button>
+                          </div>
+                          {(product.packDiscountPercent || 0) > 0 && (
+                            <span className="text-[9px] text-green-500 font-semibold self-end">Save {product.packDiscountPercent}%</span>
+                          )}
                         </div>
                         );
                       })() : (
@@ -555,11 +555,6 @@ function ProductCarousel({
                               <span className="text-base sm:text-xl md:text-2xl font-bold text-green-500">
                                 ${packPrice.toFixed(2)}
                               </span>
-                              {(product.packDiscountPercent || 0) > 0 && (
-                                <Badge variant="secondary" className="text-[8px] sm:text-[10px] px-1 py-0 bg-green-500/20 text-green-400 border-green-500/30">
-                                  Save {product.packDiscountPercent}%
-                                </Badge>
-                              )}
                             </>
                           );
                         }
