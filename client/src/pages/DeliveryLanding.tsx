@@ -212,7 +212,7 @@ export default function DeliveryLanding() {
           <motion.div 
             className="p-8 rounded-xl bg-card border-2 border-primary/50 shadow-[0_0_20px_rgba(255,113,0,0.3),0_0_40px_rgba(255,113,0,0.15)]"
           >
-            <h2 className="text-3xl font-bold text-foreground ml-[0px] mr-[0px] mt-[-16px] mb-[-16px]">Ready to Get Started?
+            <h2 className="text-3xl font-bold text-foreground ml-[0px] mr-[0px] mt-[0px] mb-[0px]">Ready to Get Started?
 </h2>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-[-19px] mb-[-19px]">
               <Button
