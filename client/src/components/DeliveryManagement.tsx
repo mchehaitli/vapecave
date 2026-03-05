@@ -2978,10 +2978,14 @@ export function DeliveryProductsTab() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/delivery/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/delivery/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/delivery/brands"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/delivery/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/delivery/product-lines"] });
       toast({ title: "Bulk Update Complete", description: data.message });
       setBulkEditDialogOpen(false);
       setSelectedProducts(new Set());
-      setBulkEditForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: null, isFeaturedSlideshow: null, isHeroSlideshow: null, showOnHomePage: null, badge: "", imageUrl: "", brandId: null, productLineId: null });
+      setBulkEditForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: null, isFeaturedSlideshow: null, isHeroSlideshow: null, showOnHomePage: null, badge: "", imageUrl: "", brandId: null, productLineId: null, allowPackToggle: null, packSize: "", packDiscountPercent: "", isPackOnly: null });
       setBulkImageFile(null);
     },
     onError: () => {
