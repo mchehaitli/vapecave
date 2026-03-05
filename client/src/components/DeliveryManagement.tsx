@@ -2658,6 +2658,10 @@ export function DeliveryProductsTab() {
     imageUrl: "",
     brandId: null as number | null,
     productLineId: null as number | null,
+    allowPackToggle: null as boolean | null,
+    packSize: "",
+    packDiscountPercent: "",
+    isPackOnly: null as boolean | null,
   });
   const [bulkImageFile, setBulkImageFile] = useState<File | null>(null);
   const [brandFilter, setBrandFilter] = useState<string>("all");
@@ -3214,6 +3218,12 @@ export function DeliveryProductsTab() {
     if (bulkEditForm.productLineId !== null) {
       updates.productLineId = bulkEditForm.productLineId === 0 ? null : bulkEditForm.productLineId;
     }
+
+    // Handle pack pricing fields
+    if (bulkEditForm.allowPackToggle !== null) updates.allowPackToggle = bulkEditForm.allowPackToggle;
+    if (bulkEditForm.packSize !== "") updates.packSize = Math.max(1, parseInt(bulkEditForm.packSize) || 1);
+    if (bulkEditForm.packDiscountPercent !== "") updates.packDiscountPercent = Math.min(100, Math.max(0, parseInt(bulkEditForm.packDiscountPercent) || 0));
+    if (bulkEditForm.isPackOnly !== null) updates.isPackOnly = bulkEditForm.isPackOnly;
 
     // Handle bulk image upload using object storage
     if (bulkImageFile) {
@@ -4073,6 +4083,79 @@ export function DeliveryProductsTab() {
               </Select>
             </div>
           </div>
+
+          {/* Bulk/Pack Pricing */}
+          <div className="border border-gray-600 rounded-lg p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <Package className="h-4 w-4" />
+                Bulk/Pack Pricing
+                <span className="text-xs text-blue-400 font-normal">(website only)</span>
+              </Label>
+            </div>
+            <div>
+              <Label className="text-xs mb-1 block">Enable Pack Toggle</Label>
+              <Select
+                value={bulkEditForm.allowPackToggle === null ? "keep" : bulkEditForm.allowPackToggle ? "true" : "false"}
+                onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, allowPackToggle: value === "keep" ? null : value === "true" })}
+              >
+                <SelectTrigger className="bg-gray-900 border-gray-700 text-white h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-600">
+                  <SelectItem value="keep">Keep Current</SelectItem>
+                  <SelectItem value="true">Enable</SelectItem>
+                  <SelectItem value="false">Disable</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {bulkEditForm.allowPackToggle !== false && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs mb-1 block">Pack Size</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      placeholder="Keep current"
+                      value={bulkEditForm.packSize}
+                      onChange={(e) => setBulkEditForm({ ...bulkEditForm, packSize: e.target.value })}
+                      className="bg-gray-900 border-gray-700 text-white h-8 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs mb-1 block">Discount %</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      placeholder="Keep current"
+                      value={bulkEditForm.packDiscountPercent}
+                      onChange={(e) => setBulkEditForm({ ...bulkEditForm, packDiscountPercent: e.target.value })}
+                      className="bg-gray-900 border-gray-700 text-white h-8 text-sm"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs mb-1 block">Pack Only (hide Single option)</Label>
+                  <Select
+                    value={bulkEditForm.isPackOnly === null ? "keep" : bulkEditForm.isPackOnly ? "true" : "false"}
+                    onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, isPackOnly: value === "keep" ? null : value === "true" })}
+                  >
+                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="keep">Keep Current</SelectItem>
+                      <SelectItem value="true">Yes – hide Single</SelectItem>
+                      <SelectItem value="false">No – show both</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+          </div>
           
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
@@ -4081,7 +4164,7 @@ export function DeliveryProductsTab() {
               className="border-gray-600 hover:bg-gray-700 text-gray-300"
               onClick={() => {
                 setBulkEditDialogOpen(false);
-                setBulkEditForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: null, isFeaturedSlideshow: null, isHeroSlideshow: null, showOnHomePage: null, badge: "", imageUrl: "", brandId: null, productLineId: null });
+                setBulkEditForm({ name: "", description: "", price: "", salePrice: "", category: "", stockQuantity: "", enabled: null, isFeaturedSlideshow: null, isHeroSlideshow: null, showOnHomePage: null, badge: "", imageUrl: "", brandId: null, productLineId: null, allowPackToggle: null, packSize: "", packDiscountPercent: "", isPackOnly: null });
                 setBulkImageFile(null);
               }}
               data-testid="button-cancel-bulk-edit"
