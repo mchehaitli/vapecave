@@ -82,7 +82,7 @@ export default function DeliveryLanding() {
           className="text-center mb-16"
         >
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight text-foreground">
-            <span className="text-primary">PICK UP & DELIVERY</span> COMING <span className="text-[#ff6300]">SOON</span>
+            <span className="text-primary">DELIVERY</span> COMING <span className="text-[#ff6300]">SOON</span>
           </h1>
           
           <p className="text-xs md:text-base lg:text-lg mb-8 max-w-4xl mx-auto leading-relaxed text-foreground">
