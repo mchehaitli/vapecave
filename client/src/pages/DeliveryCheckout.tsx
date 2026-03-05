@@ -702,7 +702,7 @@ export default function DeliveryCheckout() {
                           <RadioGroupItem value="pay_in_store" id="pay_in_store" data-testid="radio-payment-in-store" />
                           <Label htmlFor="pay_in_store" className="flex-1 cursor-pointer flex items-center gap-2">
                             <Banknote className="h-4 w-4" />
-                            Pay in Store
+                            Pay in Store <span className="text-xs text-muted-foreground">(Order will be held until the end of the day)</span>
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
