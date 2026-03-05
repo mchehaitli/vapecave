@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tag, Eye, Plus, Minus, Percent } from "lucide-react";
+import { Tag, Eye, Plus, Minus, Percent, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -475,12 +475,20 @@ function SaleProductCard({
   addPending: boolean;
   updatePending: boolean;
 }) {
+  const [purchaseType, setPurchaseType] = useState<'single' | 'pack'>(product.isPackOnly ? 'pack' : 'single');
   const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
   const isOutOfStock = stock <= 0;
+  const packSize = product.packSize || 1;
+  const packDiscountPercent = product.packDiscountPercent || 0;
+  const canBuyPack = stock >= packSize;
 
   const originalPrice = parseFloat(product.price);
   const salePrice = parseFloat(product.salePrice || '0');
   const discount = originalPrice > 0 ? Math.round(((originalPrice - salePrice) / originalPrice) * 100) : 0;
+
+  const packPrice = salePrice * packSize * (1 - packDiscountPercent / 100);
+
+  const currentPurchaseType = product.isPackOnly ? 'pack' : purchaseType;
 
   return (
     <motion.div
@@ -520,6 +528,13 @@ function SaleProductCard({
             </Badge>
           )}
 
+          {product.allowPackToggle && packDiscountPercent > 0 && (
+            <Badge className="absolute bottom-2 left-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-green-600 text-white font-bold">
+              <Package className="w-2.5 h-2.5 mr-0.5" />
+              Save {packDiscountPercent}%
+            </Badge>
+          )}
+
           {isOutOfStock && (
             <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
               <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
@@ -537,9 +552,15 @@ function SaleProductCard({
               <span className="text-xs text-muted-foreground line-through">
                 ${originalPrice.toFixed(2)}
               </span>
-              <p className="text-base font-bold text-red-500">
-                ${salePrice.toFixed(2)}
-              </p>
+              {currentPurchaseType === 'pack' ? (
+                <p className="text-base font-bold text-red-500">
+                  ${packPrice.toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">/ {packSize}pk</span>
+                </p>
+              ) : (
+                <p className="text-base font-bold text-red-500">
+                  ${salePrice.toFixed(2)}{product.allowPackToggle ? <span className="text-[10px] font-normal text-muted-foreground"> each</span> : null}
+                </p>
+              )}
             </div>
             <div className="flex gap-1">
               <Button
@@ -556,17 +577,46 @@ function SaleProductCard({
                     <Minus className="w-4 h-4" />
                   </Button>
                   <span className="text-xs font-semibold w-5 text-center">{cartQty}</span>
-                  <Button size="sm" className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white" onClick={() => onAddToCart(product.id, 1, product.isPackOnly ? 'pack' : 'single')} disabled={addPending}>
+                  <Button size="sm" className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white" onClick={() => onAddToCart(product.id, 1, currentPurchaseType)} disabled={addPending}>
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
               ) : (
-                <Button size="sm" className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white" onClick={() => onAddToCart(product.id, 1, product.isPackOnly ? 'pack' : 'single')} disabled={addPending || isOutOfStock}>
+                <Button size="sm" className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white" onClick={() => onAddToCart(product.id, 1, currentPurchaseType)} disabled={addPending || isOutOfStock}>
                   <Plus className="w-4 h-4" />
                 </Button>
               )}
             </div>
           </div>
+
+          {product.allowPackToggle && !product.isPackOnly && (
+            <div className="flex items-center gap-1 mt-2">
+              <button
+                onClick={() => setPurchaseType('single')}
+                className={`flex-1 text-[10px] py-1 rounded-l border transition-all ${
+                  purchaseType === 'single'
+                    ? 'bg-red-500 text-white border-red-500 font-semibold'
+                    : 'border-border text-muted-foreground hover:border-red-500/50'
+                }`}
+              >
+                Single
+              </button>
+              <button
+                onClick={() => canBuyPack && setPurchaseType('pack')}
+                disabled={!canBuyPack}
+                className={`flex-1 text-[10px] py-1 rounded-r border transition-all ${
+                  !canBuyPack
+                    ? 'border-muted-foreground/20 text-muted-foreground/40 cursor-not-allowed'
+                    : purchaseType === 'pack'
+                    ? 'bg-red-500 text-white border-red-500 font-semibold'
+                    : 'border-border text-muted-foreground hover:border-red-500/50'
+                }`}
+                title={!canBuyPack ? `Need ${packSize} in stock for pack` : `Pack of ${packSize}`}
+              >
+                Pack ({packSize})
+              </button>
+            </div>
+          )}
         </div>
       </Card>
     </motion.div>

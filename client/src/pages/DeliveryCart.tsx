@@ -349,6 +349,19 @@ export default function DeliveryCart() {
                         </Button>
                       </div>
 
+                      {item.purchaseType === 'pack' && item.product.allowPackToggle && (() => {
+                        const stock = item.product.stockQuantity ? parseInt(item.product.stockQuantity) : 0;
+                        const requiredStock = item.quantity * (item.product.packSize || 1);
+                        return stock < requiredStock;
+                      })() && (
+                        <div className="flex items-center gap-1.5 mt-1.5 sm:mt-2 px-2 py-1.5 rounded-md bg-amber-500/10 border border-amber-500/30">
+                          <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+                          <span className="text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium">
+                            Insufficient stock for a full pack. Please adjust to singles.
+                          </span>
+                        </div>
+                      )}
+
                       <div className="flex justify-between items-center mt-2 sm:mt-4">
                         <div className="flex items-center gap-1.5 sm:gap-2">
                           <Button

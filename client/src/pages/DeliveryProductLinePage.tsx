@@ -47,6 +47,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
   const [quickViewVariantGroup, setQuickViewVariantGroup] = useState<VariantGroup | null>(null);
   const [quickViewVariantNic, setQuickViewVariantNic] = useState<string>("");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(window.innerWidth < 640 ? 'list' : 'grid');
+  const [packToggleMap, setPackToggleMap] = useState<Record<number, 'single' | 'pack'>>({});
   // Track user's manual selection - persists until user clicks a different tab
   const [userSelection, setUserSelection] = useState<{ slug: string; lineId: number | 'all' } | null>(null);
 
@@ -508,6 +509,15 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                 const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
                 const isOutOfStock = stock <= 0;
                 const pQty = derivedCartQuantities[product.id] || 0;
+                const hasPackOption = product.allowPackToggle && !product.isPackOnly;
+                const packSize = product.packSize || 1;
+                const packDiscountPercent = product.packDiscountPercent || 0;
+                const canPack = stock >= packSize;
+                const currentToggle = product.isPackOnly ? 'pack' : (packToggleMap[product.id] || 'single');
+                const singlePrice = parseFloat(product.salePrice || product.price);
+                const packTotalPrice = parseFloat((singlePrice * packSize * (1 - packDiscountPercent / 100)).toFixed(2));
+                const displayPrice = currentToggle === 'pack' ? packTotalPrice.toFixed(2) : (product.salePrice || product.price);
+                const purchaseType = currentToggle;
 
                 return (
                   <motion.div
@@ -534,6 +544,9 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                         {isFeatured && (
                           <Badge className="absolute top-2 left-2 bg-primary/90 text-xs">Featured</Badge>
                         )}
+                        {hasPackOption && packDiscountPercent > 0 && (
+                          <Badge className="absolute top-2 right-2 bg-green-600 text-white text-[10px] px-1.5 py-0.5">Save {packDiscountPercent}%</Badge>
+                        )}
                         {isOutOfStock && (
                           <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
                             <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
@@ -545,13 +558,15 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                           {product.name}
                         </h3>
                         <div className="flex items-center justify-between mt-2">
-                          {product.salePrice ? (
+                          {currentToggle === 'pack' ? (
+                            <p className="text-base font-bold text-primary">${displayPrice}</p>
+                          ) : product.salePrice ? (
                             <div className="flex items-baseline gap-1">
-                              <p className="text-base font-bold text-primary">${product.salePrice}</p>
+                              <p className="text-base font-bold text-primary">${product.salePrice}{hasPackOption ? <span className="text-[10px] font-normal text-muted-foreground"> each</span> : ''}</p>
                               <p className="text-[10px] text-muted-foreground line-through">${product.price}</p>
                             </div>
                           ) : (
-                            <p className="text-base font-bold text-primary">${product.price}</p>
+                            <p className="text-base font-bold text-primary">${product.price}{hasPackOption ? <span className="text-[10px] font-normal text-muted-foreground"> each</span> : ''}</p>
                           )}
                           <div className="flex gap-1">
                             <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setQuickViewProduct(product)}>
@@ -563,17 +578,35 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                                   <Minus className="w-4 h-4" />
                                 </Button>
                                 <span className="text-xs font-semibold w-5 text-center">{pQty}</span>
-                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: product.id, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCart.isPending}>
+                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: product.id, purchaseType })} disabled={addToCart.isPending}>
                                   <Plus className="w-4 h-4" />
                                 </Button>
                               </div>
                             ) : (
-                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: product.id, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCart.isPending || isOutOfStock}>
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: product.id, purchaseType })} disabled={addToCart.isPending || isOutOfStock}>
                                 <Plus className="w-4 h-4" />
                               </Button>
                             )}
                           </div>
                         </div>
+                        {hasPackOption && (
+                          <div className="flex items-center gap-1 mt-2">
+                            <button
+                              onClick={() => setPackToggleMap(prev => ({ ...prev, [product.id]: 'single' }))}
+                              className={`text-[10px] px-2 py-0.5 rounded-l border transition-all ${currentToggle === 'single' ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                            >
+                              Single
+                            </button>
+                            <button
+                              onClick={() => { if (canPack) setPackToggleMap(prev => ({ ...prev, [product.id]: 'pack' })); }}
+                              disabled={!canPack}
+                              className={`text-[10px] px-2 py-0.5 rounded-r border transition-all ${!canPack ? 'opacity-40 cursor-not-allowed border-muted text-muted-foreground' : currentToggle === 'pack' ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                              title={!canPack ? `Not enough stock for a pack of ${packSize}` : `Pack of ${packSize}`}
+                            >
+                              Pack of {packSize}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </Card>
                   </motion.div>
@@ -690,6 +723,8 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
               const isOutOfStock = stock <= 0;
               const lQty = derivedCartQuantities[product.id] || 0;
+              const listHasPackOption = product.allowPackToggle && !product.isPackOnly;
+              const listPackDiscountPercent = product.packDiscountPercent || 0;
 
               return (
                 <motion.div
@@ -713,6 +748,9 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                           target.src = brandLogo || '/placeholder-product.svg';
                         }}
                       />
+                      {listHasPackOption && listPackDiscountPercent > 0 && (
+                        <Badge className="absolute -top-1 -right-1 bg-green-600 text-white text-[8px] px-1 py-0">Save {listPackDiscountPercent}%</Badge>
+                      )}
                       {isOutOfStock && (
                         <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-lg">
                           <Badge variant="destructive" className="text-xs">Out</Badge>
@@ -736,11 +774,11 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                     <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                       {product.salePrice ? (
                         <div className="text-right">
-                          <p className="text-base sm:text-xl font-bold text-primary">${product.salePrice}</p>
+                          <p className="text-base sm:text-xl font-bold text-primary">${product.salePrice}{listHasPackOption ? <span className="text-[10px] font-normal text-muted-foreground"> each</span> : ''}</p>
                           <p className="text-[10px] sm:text-xs text-muted-foreground line-through">${product.price}</p>
                         </div>
                       ) : (
-                        <p className="text-base sm:text-xl font-bold text-primary">${product.price}</p>
+                        <p className="text-base sm:text-xl font-bold text-primary">${product.price}{listHasPackOption ? <span className="text-[10px] font-normal text-muted-foreground"> each</span> : ''}</p>
                       )}
                       <Button
                         size="sm"

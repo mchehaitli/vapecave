@@ -140,9 +140,16 @@ export function ProductQuickView({
     return product?.stockQuantity ? parseInt(product.stockQuantity) : 0;
   })();
 
+  const effectMaxQty = (product?.allowPackToggle && purchaseMode === 'pack' && !isVariantMode)
+    ? Math.floor(effectStockQty / (product?.packSize || 1))
+    : effectStockQty;
+
   useEffect(() => {
-    if (effectStockQty > 0 && quantity > effectStockQty) setQuantity(effectStockQty);
-  }, [effectStockQty]);
+    if (effectMaxQty > 0 && quantity > effectMaxQty) setQuantity(effectMaxQty);
+    if (effectMaxQty <= 0 && purchaseMode === 'pack' && product?.allowPackToggle && !product?.isPackOnly) {
+      setPurchaseMode('single');
+    }
+  }, [effectMaxQty, purchaseMode]);
 
   if (!product && !variantGroup) return null;
 
@@ -229,7 +236,10 @@ export function ProductQuickView({
     }
   };
 
-  const incrementQuantity = () => setQuantity((prev) => Math.min(stockQty, prev + 1));
+  const maxQuantity = (product?.allowPackToggle && purchaseMode === 'pack' && !isVariantMode)
+    ? Math.floor(stockQty / (product?.packSize || 1))
+    : stockQty;
+  const incrementQuantity = () => setQuantity((prev) => Math.min(maxQuantity, prev + 1));
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -396,26 +406,36 @@ export function ProductQuickView({
                 </div>
               )}
 
-              {product?.allowPackToggle && !isVariantMode && (
-                <div className="mb-4">
-                  {!product.isPackOnly ? (
-                    <div className="inline-flex items-center rounded-full bg-muted/60 border border-border p-1 text-sm">
-                      <button
-                        onClick={() => setPurchaseMode('single')}
-                        className={`px-4 py-1.5 rounded-full font-medium transition-colors ${purchaseMode === 'single' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                      >Single</button>
-                      <button
-                        onClick={() => setPurchaseMode('pack')}
-                        className={`px-4 py-1.5 rounded-full font-medium transition-colors ${purchaseMode === 'pack' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
-                      >Pack of {product.packSize || 1}</button>
-                    </div>
-                  ) : (
-                    <Badge variant="secondary" className="text-sm px-3 py-1 bg-green-500/20 text-green-400 border-green-500/30">
-                      Pack of {product.packSize}
-                    </Badge>
-                  )}
-                </div>
-              )}
+              {product?.allowPackToggle && !isVariantMode && (() => {
+                const packSize = product.packSize || 1;
+                const packDisabled = stockQty < packSize;
+                return (
+                  <div className="mb-4">
+                    {!product.isPackOnly ? (
+                      <>
+                        <div className="inline-flex items-center rounded-full bg-muted/60 border border-border p-1 text-sm">
+                          <button
+                            onClick={() => { setPurchaseMode('single'); setQuantity(1); }}
+                            className={`px-4 py-1.5 rounded-full font-medium transition-colors ${purchaseMode === 'single' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                          >Single</button>
+                          <button
+                            onClick={() => { if (!packDisabled) { setPurchaseMode('pack'); setQuantity(1); } }}
+                            disabled={packDisabled}
+                            className={`px-4 py-1.5 rounded-full font-medium transition-colors ${packDisabled ? 'opacity-50 cursor-not-allowed text-muted-foreground' : purchaseMode === 'pack' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                          >Pack of {packSize}</button>
+                        </div>
+                        {packDisabled && (
+                          <p className="text-xs text-muted-foreground mt-1.5">Not enough stock for a pack</p>
+                        )}
+                      </>
+                    ) : (
+                      <Badge variant="secondary" className="text-sm px-3 py-1 bg-green-500/20 text-green-400 border-green-500/30">
+                        Pack of {product.packSize}
+                      </Badge>
+                    )}
+                  </div>
+                );
+              })()}
 
               <div className="mb-4 sm:mb-6">
                 {(() => {
@@ -524,7 +544,7 @@ export function ProductQuickView({
                       variant="outline"
                       size="icon"
                       onClick={incrementQuantity}
-                      disabled={isAddingToCart || quantity >= stockQty}
+                      disabled={isAddingToCart || quantity >= maxQuantity}
                       data-testid="button-increment-quantity"
                     >
                       <Plus className="h-4 w-4" />

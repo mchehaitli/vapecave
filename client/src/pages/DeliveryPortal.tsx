@@ -252,6 +252,19 @@ function ProductCarousel({
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [packToggleMap, setPackToggleMap] = useState<Record<number, 'single' | 'pack'>>({});
 
+  useEffect(() => {
+    const updates: Record<number, 'single'> = {};
+    products.forEach(p => {
+      const s = p.stockQuantity ? parseInt(p.stockQuantity) : 0;
+      if (p.allowPackToggle && !p.isPackOnly && s < (p.packSize || 1) && packToggleMap[p.id] === 'pack') {
+        updates[p.id] = 'single';
+      }
+    });
+    if (Object.keys(updates).length > 0) {
+      setPackToggleMap(prev => ({ ...prev, ...updates }));
+    }
+  }, [products, packToggleMap]);
+
   const checkScroll = () => {
     if (scrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
@@ -435,6 +448,12 @@ function ProductCarousel({
                     </Badge>
                   )}
 
+                  {product.allowPackToggle && (product.packDiscountPercent || 0) > 0 && (
+                    <Badge className="absolute top-2 right-2 sm:top-3 sm:right-3 text-[8px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5 leading-tight bg-green-500 text-white border-green-600">
+                      Save {product.packDiscountPercent}%
+                    </Badge>
+                  )}
+
                   {isOutOfStock && (
                     <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
                       <Badge variant="destructive" className="text-[8px] sm:text-sm px-1 sm:px-2 py-0 sm:py-0.5">Out of Stock</Badge>
@@ -498,18 +517,23 @@ function ProductCarousel({
                   
                   {product.allowPackToggle && (
                     <div className="mb-1">
-                      {!product.isPackOnly ? (
+                      {!product.isPackOnly ? (() => {
+                        const packDisabled = stock < (product.packSize || 1);
+                        return (
                         <div className="inline-flex items-center rounded-full bg-muted/60 border border-border p-0.5 text-[9px] sm:text-[10px]">
                           <button
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPackToggleMap(prev => ({ ...prev, [product.id]: 'single' })); }}
                             className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${(packToggleMap[product.id] || 'single') === 'single' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                           >Single</button>
                           <button
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPackToggleMap(prev => ({ ...prev, [product.id]: 'pack' })); }}
-                            className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${(packToggleMap[product.id] || 'single') === 'pack' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!packDisabled) setPackToggleMap(prev => ({ ...prev, [product.id]: 'pack' })); }}
+                            disabled={packDisabled}
+                            className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${packDisabled ? 'opacity-40 cursor-not-allowed text-muted-foreground' : (packToggleMap[product.id] || 'single') === 'pack' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                            title={packDisabled ? 'Not enough stock for a pack' : ''}
                           >Pack</button>
                         </div>
-                      ) : (
+                        );
+                      })() : (
                         <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1.5 py-0 bg-green-500/20 text-green-400 border-green-500/30">
                           Pack of {product.packSize}
                         </Badge>

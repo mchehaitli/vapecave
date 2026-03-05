@@ -60,7 +60,10 @@ The application uses a modular architecture, separating frontend and backend. It
 - **Active Stock Push**: On order completion, `cloverService.deductStockForOrder()` pushes stock deductions to Clover immediately. The 5-min passive sync remains as a safety net.
 - **Clover sync protection**: `syncProductsFromClover` and `refreshProductStockAndPrice` never touch pack fields.
 - **Admin UI**: "Bulk/Pack Pricing" section in product edit dialog with toggle, pack size, discount %, pack-only, and live price preview.
-- **Frontend**: Single/Pack toggle on product cards (DeliveryPortal carousel) and QuickView modal. Cart/Checkout display pack labels and correct pricing. All pages pass `purchaseType` through add-to-cart mutations; pack-only products default to `'pack'`.
+- **Frontend**: Single/Pack toggle on product cards across all pages (DeliveryPortal, Category, Brand, Sale, ProductLine) and QuickView modal. Cart/Checkout display pack labels and correct pricing. All pages pass `purchaseType` through add-to-cart mutations; pack-only products default to `'pack'`.
+- **UI enhancements**: "each" suffix on prices for pack-eligible products; green "Save X%" badge on product images; `[Single | Pack]` toggle on grid cards (not list mode — too compact).
+- **Stock guardrails**: Pack toggle disabled when `stockQuantity < packSize`; QuickView caps pack quantity to `Math.floor(stockQuantity / packSize)`; DeliveryPortal auto-reverts toggle to Single when stock insufficient.
+- **Cart warning**: Amber inline alert on pack cart items when `stockQuantity < quantity × packSize` — "Insufficient stock for a full pack."
 
 ## Fulfillment Hybrid System (Pickup/Delivery)
 - **FulfillmentContext** (`client/src/contexts/FulfillmentContext.tsx`): React context providing `{fulfillmentMode, setFulfillmentMode}` with `"delivery" | "pickup"` modes (default: `"delivery"`). Wrapped around all routes via `App.tsx`.

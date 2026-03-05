@@ -52,6 +52,7 @@ export default function DeliveryCategoryPage() {
   const [quickViewVariantGroup, setQuickViewVariantGroup] = useState<VariantGroup | null>(null);
   const [quickViewVariantNic, setQuickViewVariantNic] = useState<string>("");
   const [selectedNicLevels, setSelectedNicLevels] = useState<Record<string, string>>({});
+  const [packToggleMap, setPackToggleMap] = useState<Record<number, 'single' | 'pack'>>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -555,6 +556,14 @@ export default function DeliveryCategoryPage() {
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
               const isOutOfStock = stock <= 0;
               const pQty = cartQuantityMap[product.id] || 0;
+              const canPack = product.allowPackToggle && !product.isPackOnly;
+              const packSize = product.packSize || 1;
+              const packDiscountPercent = product.packDiscountPercent || 0;
+              const packDisabled = stock < packSize;
+              const selectedPurchaseType = product.isPackOnly ? 'pack' : (canPack ? (packToggleMap[product.id] || 'single') : 'single');
+              const basePrice = parseFloat(product.salePrice || product.price);
+              const packPrice = canPack ? (basePrice * packSize * (1 - packDiscountPercent / 100)).toFixed(2) : null;
+              const displayPrice = selectedPurchaseType === 'pack' && packPrice ? packPrice : (product.salePrice || product.price);
 
               return (
                 <motion.div
@@ -587,6 +596,11 @@ export default function DeliveryCategoryPage() {
                           Featured
                         </Badge>
                       )}
+                      {canPack && packDiscountPercent > 0 && (
+                        <Badge className="absolute top-2 right-2 bg-green-600 text-white text-[10px] px-1.5 py-0.5">
+                          Save {packDiscountPercent}%
+                        </Badge>
+                      )}
                       {isOutOfStock && (
                         <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
                           <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
@@ -601,13 +615,18 @@ export default function DeliveryCategoryPage() {
                         <span className="inline-block text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-semibold mt-0.5 mb-1">{nic}</span>
                       ) : null; })()}
                       <div className="flex items-center justify-between mt-2">
-                        {product.salePrice ? (
+                        {selectedPurchaseType === 'pack' && packPrice ? (
                           <div className="flex items-baseline gap-1">
-                            <p className="text-lg font-bold text-primary">${product.salePrice}</p>
+                            <p className="text-lg font-bold text-primary">${packPrice}</p>
+                            <p className="text-[10px] text-muted-foreground">pack of {packSize}</p>
+                          </div>
+                        ) : product.salePrice ? (
+                          <div className="flex items-baseline gap-1">
+                            <p className="text-lg font-bold text-primary">${product.salePrice}{canPack ? <span className="text-xs font-normal text-muted-foreground"> each</span> : null}</p>
                             <p className="text-xs text-muted-foreground line-through">${product.price}</p>
                           </div>
                         ) : (
-                          <p className="text-lg font-bold text-primary">${product.price}</p>
+                          <p className="text-lg font-bold text-primary">${product.price}{canPack ? <span className="text-xs font-normal text-muted-foreground"> each</span> : null}</p>
                         )}
                         <div className="flex gap-1">
                           <Button
@@ -624,17 +643,47 @@ export default function DeliveryCategoryPage() {
                                 <Minus className="w-4 h-4" />
                               </Button>
                               <span className="text-xs font-semibold w-5 text-center">{pQty}</span>
-                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCartMutation.isPending}>
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: selectedPurchaseType })} disabled={addToCartMutation.isPending}>
                                 <Plus className="w-4 h-4" />
                               </Button>
                             </div>
                           ) : (
-                            <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCartMutation.isPending || isOutOfStock}>
+                            <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: selectedPurchaseType })} disabled={addToCartMutation.isPending || isOutOfStock}>
                               <Plus className="w-4 h-4" />
                             </Button>
                           )}
                         </div>
                       </div>
+                      {canPack && (
+                        <div className="flex items-center gap-1 mt-2">
+                          <button
+                            onClick={() => setPackToggleMap(prev => ({ ...prev, [product.id]: 'single' }))}
+                            className={`flex-1 text-[10px] py-1 rounded border transition-all ${
+                              selectedPurchaseType === 'single'
+                                ? 'bg-primary text-primary-foreground border-primary'
+                                : 'border-border text-muted-foreground hover:border-primary/50'
+                            }`}
+                          >
+                            Single
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (!packDisabled) setPackToggleMap(prev => ({ ...prev, [product.id]: 'pack' }));
+                            }}
+                            disabled={packDisabled}
+                            className={`flex-1 text-[10px] py-1 rounded border transition-all ${
+                              packDisabled
+                                ? 'border-muted-foreground/20 text-muted-foreground/40 cursor-not-allowed'
+                                : selectedPurchaseType === 'pack'
+                                ? 'bg-primary text-primary-foreground border-primary'
+                                : 'border-border text-muted-foreground hover:border-primary/50'
+                            }`}
+                            title={packDisabled ? 'Not enough stock for a pack' : `Pack of ${packSize}`}
+                          >
+                            Pack ({packSize})
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </Card>
                 </motion.div>
@@ -774,6 +823,8 @@ export default function DeliveryCategoryPage() {
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
               const isOutOfStock = stock <= 0;
               const listQty = cartQuantityMap[product.id] || 0;
+              const listCanPack = product.allowPackToggle && !product.isPackOnly;
+              const listPackDiscountPercent = product.packDiscountPercent || 0;
 
               return (
                 <motion.div
@@ -800,6 +851,11 @@ export default function DeliveryCategoryPage() {
                           target.src = brandLogo || '/placeholder-product.svg';
                         }}
                       />
+                      {listCanPack && listPackDiscountPercent > 0 && (
+                        <Badge className="absolute -top-1 -right-1 bg-green-600 text-white text-[8px] px-1 py-0">
+                          Save {listPackDiscountPercent}%
+                        </Badge>
+                      )}
                       {isOutOfStock && (
                         <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-lg">
                           <Badge variant="destructive" className="text-xs">Out</Badge>
@@ -831,11 +887,11 @@ export default function DeliveryCategoryPage() {
                     <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                       {product.salePrice ? (
                         <div className="text-right">
-                          <p className="text-base sm:text-xl font-bold text-primary">${product.salePrice}</p>
+                          <p className="text-base sm:text-xl font-bold text-primary">${product.salePrice}{listCanPack ? <span className="text-[10px] font-normal text-muted-foreground"> each</span> : null}</p>
                           <p className="text-[10px] sm:text-xs text-muted-foreground line-through">${product.price}</p>
                         </div>
                       ) : (
-                        <p className="text-base sm:text-xl font-bold text-primary">${product.price}</p>
+                        <p className="text-base sm:text-xl font-bold text-primary">${product.price}{listCanPack ? <span className="text-[10px] font-normal text-muted-foreground"> each</span> : null}</p>
                       )}
                       <Button
                         size="sm"
