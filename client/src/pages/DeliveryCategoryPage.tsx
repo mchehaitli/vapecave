@@ -94,15 +94,18 @@ export default function DeliveryCategoryPage() {
         credentials: "include",
         body: JSON.stringify({ productId, quantity }),
       });
-      if (!response.ok) throw new Error("Failed to add to cart");
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to add to cart");
+      }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/delivery/cart"] });
       toast({ title: "Added to cart", description: "Product added to your cart." });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to add to cart.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     },
   });
 

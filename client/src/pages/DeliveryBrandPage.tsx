@@ -114,17 +114,59 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
         body: JSON.stringify({ productId, quantity }),
       });
       if (!response.ok) {
-        throw new Error("Failed to add to cart");
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to add to cart");
       }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/delivery/cart"] });
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: "Failed to update cart. Please try again.",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateCartMutation = useMutation({
+    mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
+      const cartItem = apiCartItems.find(item => item.productId === productId);
+      if (!cartItem) throw new Error("Item not in cart");
+
+      if (quantity <= 0) {
+        const response = await fetch(`/api/delivery/cart/${cartItem.id}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to remove item");
+        }
+        return response.json();
+      }
+
+      const response = await fetch(`/api/delivery/cart/${cartItem.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ quantity }),
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to update quantity");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/delivery/cart"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -142,11 +184,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
   };
 
   const handleUpdateQuantity = (productId: number, quantity: number) => {
-    if (quantity <= 0) {
-      addToCartMutation.mutate({ productId, quantity: 0 });
-    } else {
-      addToCartMutation.mutate({ productId, quantity });
-    }
+    updateCartMutation.mutate({ productId, quantity });
   };
 
   const activeProductLines = useMemo(() => 

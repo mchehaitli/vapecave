@@ -42,3 +42,11 @@ The application uses a modular architecture, separating frontend and backend. It
 - **Clover POS Integration**: OAuth 2.0, `https://api.clover.com`, `https://www.clover.com/oauth`.
 - **UI & Styling**: Google Fonts, Font Awesome, Lucide React.
 - **Archiving**: JSZip.
+
+## Cart System Architecture
+- **POST /api/delivery/cart**: Adds items. If item already exists, increments quantity (clamped to stock). If `quantity: 0`, removes the item. New items get inserted.
+- **PATCH /api/delivery/cart/:id**: Sets absolute quantity on an existing cart item (validates against stock).
+- **DELETE /api/delivery/cart/:id**: Removes a cart item.
+- **Frontend pattern**: `addToCartMutation` (POST) for "Add" buttons. `updateCartMutation` (PATCH/DELETE) for +/- quantity controls. All pages parse server error messages for toast display.
+- **Navbar cart count**: `cartItemCount` prop passed to `DeliveryHeader` on all browse pages (Brand, Category, Sale, ProductLine, Cart, Checkout).
+- **Variant grouping**: E-liquid/salt products with multiple nic levels grouped into single cards with selectable nic pills on Brand, Category, ProductLine, and Sale pages.

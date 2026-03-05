@@ -184,43 +184,55 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
         credentials: 'include',
         body: JSON.stringify({ productId, quantity: 1 }),
       });
-      if (!response.ok) throw new Error('Failed to add to cart');
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to add to cart');
+      }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/delivery/cart'] });
       toast({ title: "Added to cart!" });
     },
-    onError: () => {
-      toast({ title: "Please sign in to add items", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   });
 
   const updateQuantity = useMutation({
     mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
+      const cartItem = cart.find(item => item.productId === productId);
+      if (!cartItem) throw new Error("Item not in cart");
+
       if (quantity <= 0) {
-        const cartItem = cart.find(item => item.productId === productId);
-        if (cartItem) {
-          const response = await fetch(`/api/delivery/cart/${cartItem.id}`, {
-            method: 'DELETE',
-            credentials: 'include',
-          });
-          if (!response.ok) throw new Error('Failed to remove from cart');
-          return response.json();
+        const response = await fetch(`/api/delivery/cart/${cartItem.id}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.error || 'Failed to remove from cart');
         }
-        return;
+        return response.json();
       }
-      const response = await fetch('/api/delivery/cart', {
-        method: 'POST',
+
+      const response = await fetch(`/api/delivery/cart/${cartItem.id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ productId, quantity }),
+        body: JSON.stringify({ quantity }),
       });
-      if (!response.ok) throw new Error('Failed to update cart');
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to update quantity');
+      }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/delivery/cart'] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   });
 

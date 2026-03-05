@@ -3033,18 +3033,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentCart = await storage.getCartItems(customerId);
       const existingItem = currentCart.find(item => item.productId === validated.productId);
       const currentCartQuantity = existingItem ? existingItem.quantity : 0;
+
+      // Handle remove signal before stock-cap check
+      if (existingItem && validated.quantity === 0) {
+        await storage.removeFromCart(existingItem.id);
+        return res.json({ removed: true, productId: validated.productId });
+      }
       
+      // Stock cap only applies when adding/incrementing
       if (currentCartQuantity >= stockQuantity) {
         return res.status(400).json({ error: "You've reached the maximum available quantity for this product" });
       }
 
       if (existingItem) {
-        // quantity === 0 is a "remove" signal
-        if (validated.quantity === 0) {
-          await storage.removeFromCart(existingItem.id);
-          return res.json({ removed: true, productId: validated.productId });
-        }
-        // Increment quantity, clamped to available stock
         const newQty = Math.min(existingItem.quantity + validated.quantity, stockQuantity);
         const item = await storage.updateCartItemQuantity(existingItem.id, newQty);
         return res.json(item);
