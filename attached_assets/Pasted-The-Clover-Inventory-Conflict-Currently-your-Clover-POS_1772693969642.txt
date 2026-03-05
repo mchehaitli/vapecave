@@ -1,0 +1,37 @@
+The Clover Inventory Conflict
+Currently, your Clover POS sees one product (e.g., "GeekVape B Coils") as a single unit. If the website sells a "Full Pack of 5," and we simply send a "1 Pack" order to Clover, Clover will only deduct one unit from your inventory instead of five.
+
+To fix this, we need to modify Task T004 and Task T008 to include "Inventory Multiplier" logic.
+
+The "Master Architect" Critique of the Plan:
+1. The Inventory Fix (Most Important):
+The plan currently calculates the price for the pack, but it doesn't tell the system how many units to deduct from Clover.
+
+The Solution: We must instruct the Agent that when a purchaseType: "pack" is sold, the order sent to the backend must register as quantity * packSize for inventory purposes. If they buy 1 pack of 5, Clover needs to receive a "Quantity: 5" update.
+
+2. The "Each" Labeling (T005):
+The plan correctly identifies adding "each" next to the price. This is vital for customer clarity so they don't think $5 is for the whole box.
+
+3. Database & Admin (T001-T003):
+The setup for allowPackToggle and packDiscountPercent is perfect. Keeping these as "web-only" fields ensures that your Clover database doesn't get cluttered with website-specific settings.
+
+Copy & Paste this "Course Correction" to Replit:
+"The plan is excellent, but we need to add a critical inventory rule to ensure Clover quantities stay accurate. Please update the plan with these requirements:
+
+1. Inventory Multiplier Logic (Update T004 & T008):
+
+When an order is placed with purchaseType: "pack", the system must calculate the Inventory Deduction as Quantity * packSize.
+
+Example: If a customer buys 2 packs of coils (where packSize = 5), the sync sent to Clover must deduct 10 units from the stock, not 2.
+
+2. Price Precision:
+
+All pack price calculations must use Math.round(value * 100) / 100 to ensure we don't send fractions of a cent to the payment processor.
+
+3. Admin Safety:
+
+Ensure that the packSize field in the Admin portal cannot be empty or zero if allowPackToggle is enabled. It should default to 1.
+
+4. Clover Sync Direction:
+
+Re-confirm that these new fields (packSize, packDiscountPercent) are read-only for the web and are never pushed to the Clover Product Catalog. They only affect the checkout calculation."

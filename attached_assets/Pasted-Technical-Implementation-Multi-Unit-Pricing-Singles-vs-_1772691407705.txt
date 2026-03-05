@@ -1,0 +1,56 @@
+Technical Implementation: Multi-Unit Pricing (Singles vs. Full Pack)
+Objective: Enable a "Pack Toggle" for specific products (Coils, E-Liquids, Salts). This allows customers to switch between "Each" and "Full Pack" pricing on the frontend, with a custom discount for the full pack, affecting only the website and NOT the Clover POS.
+
+1. Database Schema Update (shared/schema.ts)
+Add the following fields to the products table:
+
+allowPackToggle: Boolean (Default: false).
+
+packSize: Integer (Number of units in a full pack, e.g., 5).
+
+packDiscountPercent: Decimal/Integer (Percentage off when buying a full pack).
+
+isPackOnly: Boolean (If true, only the pack price is shown).
+
+2. Admin Portal Enhancements (AdminPage.tsx or Product Editor Component)
+In the Product Edit/Add modal, add a new "Bulk Pricing" section:
+
+Toggle: "Enable Pack Option" (sets allowPackToggle).
+
+Toggle: "Pack Only" (sets isPackOnly).
+
+Input: "Items per Pack" (number input, sets packSize).
+
+Input: "Pack Discount (%)" (number input, sets packDiscountPercent).
+
+Live Preview: Display a "Web-Only Pack Price" calculated as: (Price * PackSize) * (1 - Discount/100).
+
+3. Client UI Implementation (DeliveryPortal.tsx & Product Cards)
+Modify the product card and QuickView pricing display:
+
+Price Label: If allowPackToggle is true, display the price followed by the word "each" (e.g., "$4.99 each").
+
+Pack Toggle: Add a small, stylized toggle or segmented control next to the price: [ Single | Pack ].
+
+Price Calculation: * When "Pack" is selected, update the displayed price to the calculated discounted pack price.
+
+Show a "Save X%" badge next to the pack price.
+
+Cart Logic: Ensure that when "Pack" is selected, the item is added to the cart as a "Pack" unit with the correct calculated price.
+
+4. Data Integrity (Clover Synchronization)
+
+Ensure these new fields are Virtual/Web-Only.
+
+When syncing with Clover, these fields should never be overwritten or sent back to Clover. The base price remains the master link to the POS, while the packPrice exists only in the web CartContext.
+
+5. Checkout & Cart
+
+The cart must clearly label the item as "Full Pack (5 pcs)" or "Single" so the store staff knows exactly what to pull during fulfillment.
+
+Why this works:
+Visual Clarity: By adding "each" next to the price, you remove customer confusion immediately.
+
+Sales Incentive: The percentage discount makes the "Full Pack" look like a deal, encouraging higher order values.
+
+POS Safety: By keeping the discount logic within the Replit web code, your Clover POS stays clean and continues to charge your standard in-store rates.

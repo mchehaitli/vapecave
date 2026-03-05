@@ -1,0 +1,33 @@
+This is a crucial distinction. Replit’s previous logic was "Passive" (waiting for a sync), but you want it to be "Active" (telling Clover exactly what happened the moment it happens).
+
+To achieve this, the Agent needs to move from a "Read-Only" sync to a "Write-Back" integration. This requires using the Clover REST API's orders and line_items endpoints or the atomic_stock endpoint.
+
+Here is the exact technical prompt to change the Agent's strategy:
+
+Urgent Correction: Switch to Active Stock Push (Real-Time Deduction)
+Objective: Change the stock management from Passive Sync to Active Real-Time Push. The website must immediately inform Clover to deduct stock when a checkout is completed, while ensuring web-only names/settings are never uploaded to Clover.
+
+1. Implement Real-Time Stock Deduction:
+
+Trigger: Modify the POST /api/delivery/orders route. As soon as a payment is successful/order is placed, trigger a call to the Clover API.
+
+Mechanism: Use the Clover Internal Stock API or create a Clover Order via the API with the correct quantity * packSize for each line item.
+
+Inventory Multiplier: Ensure that if a "Pack" is sold, you tell Clover to deduct the full amount (e.g., 5 units for 1 pack).
+
+2. Protect Website Content (One-Way Data Protection):
+
+Constraint: The website must NEVER push name, description, or alternateName changes back to Clover.
+
+Rule: The only data allowed to be "Pushed" to Clover is Inventory Quantity Adjustments. All other fields (Names, Pack Toggles, Discounts) must remain local to the Replit database.
+
+3. Prevent Overselling (Pre-check):
+
+Before the "Place Order" button is clickable, do a final real-time check against the local DB stock to ensure the items haven't sold out in the last few minutes.
+
+Why this is better for your business:
+Accuracy: If someone buys the last coil on the website at 2:00 PM, your Clover POS in the store will know it's gone by 2:01 PM.
+
+Brand Control: You can rename products on your website to be more "SEO friendly" or descriptive without worrying about your physical Clover receipt looking messy in-store.
+
+Staff Efficiency: Your staff won't have to manually "subtract" web orders from the POS because the website did the work for them.

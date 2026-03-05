@@ -1,0 +1,54 @@
+Technical Implementation: Multi-Unit Pricing (Singles vs. Full Pack)
+Objective: Create a web-exclusive pricing system for specific products (Coils, E-Liquids, Salts) that allows customers to toggle between buying a "Single" or a "Full Pack" with an automated discount, without affecting the Clover POS prices.
+
+1. Database Schema Update (shared/schema.ts)
+Add the following fields to the products table:
+
+allowPackToggle: Boolean (Default: false).
+
+packSize: Integer (e.g., 5 for a pack of coils).
+
+packDiscountPercent: Integer (The percentage discount applied to the total pack price).
+
+isPackOnly: Boolean (If true, disables the "Single" option).
+
+2. Admin Portal Enhancements (AdminPage.tsx)
+In the Product Management section, add a "Bulk/Pack Pricing" card with:
+
+Enable Pack Toggle: A switch to turn the feature on/off for that product.
+
+Pack Size Input: Number of items in a pack.
+
+Discount Input: Percentage off for the pack.
+
+Pack-Only Switch: To hide the "Single" price if necessary.
+
+Price Preview: A read-only field showing: Web Pack Price: $((BasePrice * PackSize) * (1 - Discount/100)).
+
+Important: Ensure these fields are saved only to the Replit database and are not pushed to Clover.
+
+3. Client UI Implementation (DeliveryPortal.tsx & Product Components)
+Modify the product cards and QuickView modal:
+
+Price Label: If allowPackToggle is true, add the word "each" next to the base price (e.g., "$4.99 each").
+
+Segmented Toggle: Add a small toggle switch next to the price: [ Single | Pack ].
+
+Dynamic Pricing: When "Pack" is selected:
+
+Update the price to the calculated discounted pack price.
+
+Add a badge saying "Save [X]%".
+
+QuickView: Remove the "Description" header as previously requested while implementing these new toggles.
+
+4. Cart & Checkout Logic
+
+Cart Item Object: Update the CartContext to store whether the item was added as a "Single" or a "Pack".
+
+Fulfillment: In the Cart and Order Summary, display the unit type clearly (e.g., "GeekVape B Coils - Full Pack (5pcs)") so staff knows exactly what to pick.
+
+Clover Sync: Ensure the order sent to the backend uses the calculated web price for that specific line item, overriding the default POS price for that transaction only.
+
+Architect's Note for the Agent:
+"Please ensure that the calculation uses Math.round to two decimal places to avoid long floating-point numbers in the price (e.g., $19.96666... should be $19.97). The allowPackToggle state should be reactive so the price updates instantly when the user clicks the toggle on the product card."
