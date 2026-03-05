@@ -3037,7 +3037,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (currentCartQuantity >= stockQuantity) {
         return res.status(400).json({ error: "You've reached the maximum available quantity for this product" });
       }
-      
+
+      if (existingItem) {
+        // quantity === 0 is a "remove" signal
+        if (validated.quantity === 0) {
+          await storage.removeFromCart(existingItem.id);
+          return res.json({ removed: true, productId: validated.productId });
+        }
+        // Increment quantity, clamped to available stock
+        const newQty = Math.min(existingItem.quantity + validated.quantity, stockQuantity);
+        const item = await storage.updateCartItemQuantity(existingItem.id, newQty);
+        return res.json(item);
+      }
+
+      // No existing row — insert a new cart item
       const item = await storage.addToCart(validated);
       res.json(item);
     } catch (error: any) {

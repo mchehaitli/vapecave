@@ -80,6 +80,8 @@ export default function DeliverySalePage() {
     return items;
   }, [apiCartItems]);
 
+  const cartItemCount = apiCartItems.reduce((sum, item) => sum + item.quantity, 0);
+
   const saleProducts = useMemo(() => {
     return allProducts.filter(p => {
       if (!p.enabled) return false;
@@ -176,7 +178,7 @@ export default function DeliverySalePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DeliveryHeader />
+      <DeliveryHeader cartItemCount={cartItemCount} />
       <DeliveryCategoryNav />
       
       <main className="container mx-auto px-4 py-8 relative">
@@ -320,7 +322,7 @@ export default function DeliverySalePage() {
                                 <span className="sm:hidden">View</span>
                               </Button>
                               {!isOutOfStock && (
-                                <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3" onClick={() => handleAddToCart(variant.productId)}>
+                                <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending}>
                                   <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                                   <span className="hidden sm:inline">Add</span>
                                   <span className="sm:hidden">+</span>

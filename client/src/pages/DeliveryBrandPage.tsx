@@ -103,6 +103,8 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
     return items;
   }, [apiCartItems]);
 
+  const cartItemCount = apiCartItems.reduce((sum, item) => sum + item.quantity, 0);
+
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
       const response = await fetch("/api/delivery/cart", {
@@ -246,7 +248,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
   if (!brand) {
     return (
       <div className="min-h-screen bg-background">
-        <DeliveryHeader />
+        <DeliveryHeader cartItemCount={cartItemCount} />
         <DeliveryCategoryNav />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Brand Not Found</h1>
@@ -261,7 +263,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
 
   return (
     <div className="min-h-screen bg-background">
-      <DeliveryHeader />
+      <DeliveryHeader cartItemCount={cartItemCount} />
       <DeliveryCategoryNav />
       
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
@@ -686,7 +688,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                               </Button>
                             </div>
                           ) : (
-                            <Button size="sm" className="h-8" onClick={() => handleAddToCart(product.id)}>
+                            <Button size="sm" className="h-8" onClick={() => handleAddToCart(product.id)} disabled={addToCartMutation.isPending}>
                               <Plus className="w-3 h-3 mr-1" />
                               Add
                             </Button>

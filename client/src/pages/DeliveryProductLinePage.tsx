@@ -174,6 +174,8 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
     return quantities;
   }, [cart]);
 
+  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
   const addToCart = useMutation({
     mutationFn: async (productId: number) => {
       const response = await fetch('/api/delivery/cart', {
@@ -237,7 +239,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
   if (!productLine) {
     return (
       <div className="min-h-screen bg-background">
-        <DeliveryHeader />
+        <DeliveryHeader cartItemCount={cartItemCount} />
         <DeliveryCategoryNav />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Product Line Not Found</h1>
@@ -252,7 +254,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
 
   return (
     <div className="min-h-screen bg-background">
-      <DeliveryHeader />
+      <DeliveryHeader cartItemCount={cartItemCount} />
       <DeliveryCategoryNav />
       
       <main className="container mx-auto px-4 py-8">
