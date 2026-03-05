@@ -139,7 +139,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Helmet>
       <div 
-        className="overflow-hidden py-1.5 z-[60] relative bg-[#FF2B00]"
+        className="overflow-hidden py-1.5 z-[60] relative bg-[#d42500e6]"
         style={{
           boxShadow: '0 0 10px rgba(255, 113, 0, 0.5), 0 0 20px rgba(255, 113, 0, 0.3), 0 0 30px rgba(255, 113, 0, 0.15)'
         }}
