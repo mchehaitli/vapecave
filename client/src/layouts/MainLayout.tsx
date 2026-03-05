@@ -144,22 +144,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           boxShadow: '0 0 10px rgba(255, 113, 0, 0.5), 0 0 20px rgba(255, 113, 0, 0.3), 0 0 30px rgba(255, 113, 0, 0.15)'
         }}
       >
-        <div className="animate-marquee whitespace-nowrap text-white text-xs md:text-sm font-bold tracking-wide">
-          <span className="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span>
-          <span className="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span>
-          <span className="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span>
+        <div className="whitespace-nowrap text-white text-xs md:text-sm font-bold tracking-wide text-center">
           <span className="mx-8">⚠️ WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.</span>
         </div>
-        <style>{`
-          @keyframes marquee {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
-          }
-          .animate-marquee {
-            display: inline-block;
-            animation: marquee 20s linear infinite;
-          }
-        `}</style>
       </div>
       <Navigation />
       <main className="flex-grow">
