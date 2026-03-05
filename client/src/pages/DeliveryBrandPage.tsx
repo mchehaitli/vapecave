@@ -838,7 +838,7 @@ function ProductCard({
           )}
         </div>
         <div className="p-3">
-          <h3 className="font-medium text-sm line-clamp-2">
+          <h3 className="font-medium text-sm line-clamp-2 min-h-[2.5rem]">
             {product.name}
           </h3>
           {(() => { const nic = (product as any).nicotineOverride || extractNicLevel(product.name); return nic ? (

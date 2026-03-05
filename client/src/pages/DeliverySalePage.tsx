@@ -495,7 +495,7 @@ function SaleProductCard({
         </div>
 
         <div className="p-3">
-          <h3 className="font-medium text-sm text-foreground line-clamp-2">
+          <h3 className="font-medium text-sm text-foreground line-clamp-2 min-h-[2.5rem]">
             {product.name}
           </h3>
           

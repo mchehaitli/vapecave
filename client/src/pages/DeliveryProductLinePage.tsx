@@ -534,7 +534,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                         )}
                       </div>
                       <div className="p-3">
-                        <h3 className="font-medium text-sm line-clamp-2">
+                        <h3 className="font-medium text-sm line-clamp-2 min-h-[2.5rem]">
                           {product.name}
                         </h3>
                         <div className="flex items-center justify-between mt-2">
