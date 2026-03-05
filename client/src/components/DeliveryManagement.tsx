@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Eye, CheckCircle, XCircle, Clock, AlertCircle, Package, Edit, Mail, Trash2, Upload, ChevronLeft, ChevronRight, RefreshCw, Download, DollarSign, Save, Loader2, Star, Home, Power } from "lucide-react";
 import type { DeliveryBrand, DeliveryCategory } from "@shared/schema";
 import { extractNicLevel, isVariantCategory } from "@/lib/productVariants";
@@ -3841,321 +3842,330 @@ export function DeliveryProductsTab() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-            <div>
-              <Label className="text-gray-300">Product Name</Label>
-              <Input
-                placeholder="Leave empty to keep current"
-                value={bulkEditForm.name}
-                onChange={(e) => setBulkEditForm({ ...bulkEditForm, name: e.target.value })}
-                className="bg-gray-700 border-gray-600 text-white"
-              />
-            </div>
+          <Tabs defaultValue="general" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-700">
+              <TabsTrigger value="general" className="data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-400 text-sm">General</TabsTrigger>
+              <TabsTrigger value="display" className="data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-400 text-sm">Display</TabsTrigger>
+              <TabsTrigger value="pack" className="data-[state=active]:bg-gray-600 data-[state=active]:text-white text-gray-400 text-sm">Pack Pricing</TabsTrigger>
+            </TabsList>
 
-            <div>
-              <Label className="text-gray-300">Description</Label>
-              <Textarea
-                placeholder="Leave empty to keep current"
-                value={bulkEditForm.description}
-                onChange={(e) => setBulkEditForm({ ...bulkEditForm, description: e.target.value })}
-                className="bg-gray-700 border-gray-600 text-white"
-                rows={2}
-              />
-            </div>
-
-            <div>
-              <Label className="text-gray-300">Category</Label>
-              <Select
-                value={bulkEditForm.category || "keep"}
-                onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, category: value === "keep" ? "" : value, brandId: null, productLineId: null })}
-              >
-                <SelectTrigger className="bg-gray-700 border-gray-600">
-                  <SelectValue placeholder="Keep Current" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="keep">Keep Current</SelectItem>
-                  {deliveryCategories.filter(c => c.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)).map(cat => (
-                    <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+            {/* General Tab */}
+            <TabsContent value="general" className="space-y-4 max-h-[55vh] overflow-y-auto pr-1 mt-3">
               <div>
-                <Label className="text-gray-300">Price ($)</Label>
+                <Label className="text-gray-300">Product Name</Label>
                 <Input
-                  type="number"
-                  step="0.01"
                   placeholder="Leave empty to keep current"
-                  value={bulkEditForm.price}
-                  onChange={(e) => setBulkEditForm({ ...bulkEditForm, price: e.target.value })}
+                  value={bulkEditForm.name}
+                  onChange={(e) => setBulkEditForm({ ...bulkEditForm, name: e.target.value })}
                   className="bg-gray-700 border-gray-600 text-white"
-                  data-testid="input-bulk-price"
                 />
               </div>
+
               <div>
-                <Label className="text-gray-300 flex items-center gap-2">
-                  Sale Price ($)
-                  <span className="text-xs text-red-400 font-normal">(website only)</span>
-                </Label>
+                <Label className="text-gray-300">Description</Label>
+                <Textarea
+                  placeholder="Leave empty to keep current"
+                  value={bulkEditForm.description}
+                  onChange={(e) => setBulkEditForm({ ...bulkEditForm, description: e.target.value })}
+                  className="bg-gray-700 border-gray-600 text-white"
+                  rows={2}
+                />
+              </div>
+
+              <div>
+                <Label className="text-gray-300">Category</Label>
+                <Select
+                  value={bulkEditForm.category || "keep"}
+                  onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, category: value === "keep" ? "" : value, brandId: null, productLineId: null })}
+                >
+                  <SelectTrigger className="bg-gray-700 border-gray-600">
+                    <SelectValue placeholder="Keep Current" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="keep">Keep Current</SelectItem>
+                    {deliveryCategories.filter(c => c.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)).map(cat => (
+                      <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-gray-300">Price ($)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="Leave empty to keep current"
+                    value={bulkEditForm.price}
+                    onChange={(e) => setBulkEditForm({ ...bulkEditForm, price: e.target.value })}
+                    className="bg-gray-700 border-gray-600 text-white"
+                    data-testid="input-bulk-price"
+                  />
+                </div>
+                <div>
+                  <Label className="text-gray-300 flex items-center gap-2">
+                    Sale Price ($)
+                    <span className="text-xs text-red-400 font-normal">(website only)</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="Enter price or 0 to remove sale"
+                    value={bulkEditForm.salePrice}
+                    onChange={(e) => setBulkEditForm({ ...bulkEditForm, salePrice: e.target.value })}
+                    className="bg-gray-700 border-gray-600 text-white"
+                    data-testid="input-bulk-sale-price"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-gray-300">Stock Quantity</Label>
                 <Input
                   type="number"
-                  step="0.01"
-                  placeholder="Enter price or 0 to remove sale"
-                  value={bulkEditForm.salePrice}
-                  onChange={(e) => setBulkEditForm({ ...bulkEditForm, salePrice: e.target.value })}
+                  placeholder="Leave empty to keep current"
+                  value={bulkEditForm.stockQuantity}
+                  onChange={(e) => setBulkEditForm({ ...bulkEditForm, stockQuantity: e.target.value })}
                   className="bg-gray-700 border-gray-600 text-white"
-                  data-testid="input-bulk-sale-price"
+                  data-testid="input-bulk-stock"
                 />
               </div>
-            </div>
-            
-            <div>
-              <Label className="text-gray-300">Stock Quantity</Label>
-              <Input
-                type="number"
-                placeholder="Leave empty to keep current"
-                value={bulkEditForm.stockQuantity}
-                onChange={(e) => setBulkEditForm({ ...bulkEditForm, stockQuantity: e.target.value })}
-                className="bg-gray-700 border-gray-600 text-white"
-                data-testid="input-bulk-stock"
-              />
-            </div>
 
-            <div>
-              <Label className="text-gray-300">Badge</Label>
-              <Input
-                placeholder="Leave empty to keep current, or type 'none' to remove"
-                value={bulkEditForm.badge}
-                onChange={(e) => setBulkEditForm({ ...bulkEditForm, badge: e.target.value })}
-                className="bg-gray-700 border-gray-600 text-white"
-                data-testid="input-bulk-badge"
-              />
-            </div>
-
-            <div>
-              <Label className="text-gray-300">Upload Image</Label>
-              <div className="flex items-center gap-2">
+              <div>
+                <Label className="text-gray-300">Badge</Label>
                 <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      if (file.size > 5 * 1024 * 1024) {
-                        toast({ title: "Error", description: "Image must be less than 5MB", variant: "destructive" });
-                        return;
-                      }
-                      setBulkImageFile(file);
-                    }
-                  }}
-                  className="bg-gray-700 border-gray-600 text-white file:bg-gray-600 file:text-white file:border-0 file:mr-2"
-                  data-testid="input-bulk-image-file"
+                  placeholder="Leave empty to keep current, or type 'none' to remove"
+                  value={bulkEditForm.badge}
+                  onChange={(e) => setBulkEditForm({ ...bulkEditForm, badge: e.target.value })}
+                  className="bg-gray-700 border-gray-600 text-white"
+                  data-testid="input-bulk-badge"
                 />
-                {bulkImageFile && (
-                  <span className="text-sm text-green-400 whitespace-nowrap">
-                    {bulkImageFile.name}
-                  </span>
-                )}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Recommended: 800 x 800px (square). Max 5MB. JPG or PNG.
-              </p>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-gray-300">Enabled Status</Label>
-                <Select 
-                  value={bulkEditForm.enabled === null ? "keep" : bulkEditForm.enabled ? "true" : "false"}
-                  onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, enabled: value === "keep" ? null : value === "true" })}
+                <Label className="text-gray-300">Upload Image</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 5 * 1024 * 1024) {
+                          toast({ title: "Error", description: "Image must be less than 5MB", variant: "destructive" });
+                          return;
+                        }
+                        setBulkImageFile(file);
+                      }
+                    }}
+                    className="bg-gray-700 border-gray-600 text-white file:bg-gray-600 file:text-white file:border-0 file:mr-2"
+                    data-testid="input-bulk-image-file"
+                  />
+                  {bulkImageFile && (
+                    <span className="text-sm text-green-400 whitespace-nowrap">
+                      {bulkImageFile.name}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Recommended: 800 x 800px (square). Max 5MB. JPG or PNG.
+                </p>
+              </div>
+            </TabsContent>
+
+            {/* Display Tab */}
+            <TabsContent value="display" className="space-y-4 max-h-[55vh] overflow-y-auto pr-1 mt-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-gray-300">Enabled Status</Label>
+                  <Select
+                    value={bulkEditForm.enabled === null ? "keep" : bulkEditForm.enabled ? "true" : "false"}
+                    onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, enabled: value === "keep" ? null : value === "true" })}
+                  >
+                    <SelectTrigger className="bg-gray-700 border-gray-600" data-testid="select-bulk-enabled">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="keep">Keep Current</SelectItem>
+                      <SelectItem value="true">Enabled</SelectItem>
+                      <SelectItem value="false">Disabled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Featured Status</Label>
+                  <Select
+                    value={bulkEditForm.isFeaturedSlideshow === null ? "keep" : bulkEditForm.isFeaturedSlideshow ? "true" : "false"}
+                    onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, isFeaturedSlideshow: value === "keep" ? null : value === "true" })}
+                  >
+                    <SelectTrigger className="bg-gray-700 border-gray-600" data-testid="select-bulk-featured">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="keep">Keep Current</SelectItem>
+                      <SelectItem value="true">Featured</SelectItem>
+                      <SelectItem value="false">Not Featured</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Hero Slideshow</Label>
+                  <Select
+                    value={bulkEditForm.isHeroSlideshow === null ? "keep" : bulkEditForm.isHeroSlideshow ? "true" : "false"}
+                    onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, isHeroSlideshow: value === "keep" ? null : value === "true" })}
+                  >
+                    <SelectTrigger className="bg-gray-700 border-gray-600">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="keep">Keep Current</SelectItem>
+                      <SelectItem value="true">Show in Hero</SelectItem>
+                      <SelectItem value="false">Hide from Hero</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Show on Home Page</Label>
+                  <Select
+                    value={bulkEditForm.showOnHomePage === null ? "keep" : bulkEditForm.showOnHomePage ? "true" : "false"}
+                    onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, showOnHomePage: value === "keep" ? null : value === "true" })}
+                  >
+                    <SelectTrigger className="bg-gray-700 border-gray-600" data-testid="select-bulk-homepage">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="keep">Keep Current</SelectItem>
+                      <SelectItem value="true">Show on Home</SelectItem>
+                      <SelectItem value="false">Hide from Home</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-gray-300">Assign to Brand</Label>
+                <Select
+                  value={bulkEditForm.brandId == null ? "keep" : bulkEditForm.brandId === 0 ? "none" : String(bulkEditForm.brandId)}
+                  onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, brandId: value === "keep" ? null : value === "none" ? 0 : parseInt(value), productLineId: null })}
                 >
-                  <SelectTrigger className="bg-gray-700 border-gray-600" data-testid="select-bulk-enabled">
-                    <SelectValue />
+                  <SelectTrigger className="bg-gray-700 border-gray-600" data-testid="select-bulk-brand">
+                    <SelectValue placeholder="Keep current brand" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="keep">Keep Current</SelectItem>
-                    <SelectItem value="true">Enabled</SelectItem>
-                    <SelectItem value="false">Disabled</SelectItem>
+                    <SelectItem value="none">Remove Brand</SelectItem>
+                    {(() => {
+                      const selectedCat = bulkEditForm.category ? deliveryCategories.find(c => c.name === bulkEditForm.category) : null;
+                      return deliveryBrands
+                        .filter(b => b.isActive && (!selectedCat || b.categoryId === selectedCat.id))
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map(brand => (
+                          <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
+                        ));
+                    })()}
                   </SelectContent>
                 </Select>
               </div>
+
               <div>
-                <Label className="text-gray-300">Featured Status</Label>
-                <Select 
-                  value={bulkEditForm.isFeaturedSlideshow === null ? "keep" : bulkEditForm.isFeaturedSlideshow ? "true" : "false"}
-                  onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, isFeaturedSlideshow: value === "keep" ? null : value === "true" })}
+                <Label className="text-gray-300">Assign to Product Line</Label>
+                <Select
+                  value={bulkEditForm.productLineId == null ? "keep" : bulkEditForm.productLineId === 0 ? "none" : String(bulkEditForm.productLineId)}
+                  onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, productLineId: value === "keep" ? null : value === "none" ? 0 : parseInt(value) })}
                 >
-                  <SelectTrigger className="bg-gray-700 border-gray-600" data-testid="select-bulk-featured">
-                    <SelectValue />
+                  <SelectTrigger className="bg-gray-700 border-gray-600" data-testid="select-bulk-product-line">
+                    <SelectValue placeholder="Keep current product line" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="keep">Keep Current</SelectItem>
-                    <SelectItem value="true">Featured</SelectItem>
-                    <SelectItem value="false">Not Featured</SelectItem>
+                    <SelectItem value="none">Remove Product Line</SelectItem>
+                    {deliveryProductLines
+                      .filter(pl => pl.isActive && (bulkEditForm.brandId === null || bulkEditForm.brandId === 0 || pl.brandId === bulkEditForm.brandId))
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map(productLine => {
+                        const brand = deliveryBrands.find(b => b.id === productLine.brandId);
+                        return (
+                          <SelectItem key={productLine.id} value={productLine.id.toString()}>
+                            {productLine.name}{brand ? ` (${brand.name})` : ''}
+                          </SelectItem>
+                        );
+                      })}
                   </SelectContent>
                 </Select>
               </div>
+            </TabsContent>
+
+            {/* Pack Pricing Tab */}
+            <TabsContent value="pack" className="space-y-4 max-h-[55vh] overflow-y-auto pr-1 mt-3">
               <div>
-                <Label className="text-gray-300">Hero Slideshow</Label>
-                <Select 
-                  value={bulkEditForm.isHeroSlideshow === null ? "keep" : bulkEditForm.isHeroSlideshow ? "true" : "false"}
-                  onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, isHeroSlideshow: value === "keep" ? null : value === "true" })}
+                <Label className="text-gray-300 flex items-center gap-2 mb-1">
+                  <Package className="h-4 w-4" />
+                  Enable Pack Toggle
+                  <span className="text-xs text-blue-400 font-normal">(website only)</span>
+                </Label>
+                <Select
+                  value={bulkEditForm.allowPackToggle === null ? "keep" : bulkEditForm.allowPackToggle ? "true" : "false"}
+                  onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, allowPackToggle: value === "keep" ? null : value === "true" })}
                 >
                   <SelectTrigger className="bg-gray-700 border-gray-600">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="keep">Keep Current</SelectItem>
-                    <SelectItem value="true">Show in Hero</SelectItem>
-                    <SelectItem value="false">Hide from Hero</SelectItem>
+                    <SelectItem value="true">Enable</SelectItem>
+                    <SelectItem value="false">Disable</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label className="text-gray-300">Show on Home Page</Label>
-                <Select 
-                  value={bulkEditForm.showOnHomePage === null ? "keep" : bulkEditForm.showOnHomePage ? "true" : "false"}
-                  onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, showOnHomePage: value === "keep" ? null : value === "true" })}
-                >
-                  <SelectTrigger className="bg-gray-700 border-gray-600" data-testid="select-bulk-homepage">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="keep">Keep Current</SelectItem>
-                    <SelectItem value="true">Show on Home</SelectItem>
-                    <SelectItem value="false">Hide from Home</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
-            <div>
-              <Label className="text-gray-300">Assign to Brand</Label>
-              <Select 
-                value={bulkEditForm.brandId == null ? "keep" : bulkEditForm.brandId === 0 ? "none" : String(bulkEditForm.brandId)}
-                onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, brandId: value === "keep" ? null : value === "none" ? 0 : parseInt(value), productLineId: null })}
-              >
-                <SelectTrigger className="bg-gray-700 border-gray-600" data-testid="select-bulk-brand">
-                  <SelectValue placeholder="Keep current brand" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="keep">Keep Current</SelectItem>
-                  <SelectItem value="none">Remove Brand</SelectItem>
-                  {(() => {
-                    const selectedCat = bulkEditForm.category ? deliveryCategories.find(c => c.name === bulkEditForm.category) : null;
-                    return deliveryBrands
-                      .filter(b => b.isActive && (!selectedCat || b.categoryId === selectedCat.id))
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map(brand => (
-                        <SelectItem key={brand.id} value={brand.id.toString()}>{brand.name}</SelectItem>
-                      ));
-                  })()}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="text-gray-300">Assign to Product Line</Label>
-              <Select 
-                value={bulkEditForm.productLineId == null ? "keep" : bulkEditForm.productLineId === 0 ? "none" : String(bulkEditForm.productLineId)}
-                onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, productLineId: value === "keep" ? null : value === "none" ? 0 : parseInt(value) })}
-              >
-                <SelectTrigger className="bg-gray-700 border-gray-600" data-testid="select-bulk-product-line">
-                  <SelectValue placeholder="Keep current product line" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="keep">Keep Current</SelectItem>
-                  <SelectItem value="none">Remove Product Line</SelectItem>
-                  {deliveryProductLines
-                    .filter(pl => pl.isActive && (bulkEditForm.brandId === null || bulkEditForm.brandId === 0 || pl.brandId === bulkEditForm.brandId))
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map(productLine => {
-                      const brand = deliveryBrands.find(b => b.id === productLine.brandId);
-                      return (
-                        <SelectItem key={productLine.id} value={productLine.id.toString()}>
-                          {productLine.name}{brand ? ` (${brand.name})` : ''}
-                        </SelectItem>
-                      );
-                    })}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Bulk/Pack Pricing */}
-          <div className="border border-gray-600 rounded-lg p-3 space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2 text-sm font-medium">
-                <Package className="h-4 w-4" />
-                Bulk/Pack Pricing
-                <span className="text-xs text-blue-400 font-normal">(website only)</span>
-              </Label>
-            </div>
-            <div>
-              <Label className="text-xs mb-1 block">Enable Pack Toggle</Label>
-              <Select
-                value={bulkEditForm.allowPackToggle === null ? "keep" : bulkEditForm.allowPackToggle ? "true" : "false"}
-                onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, allowPackToggle: value === "keep" ? null : value === "true" })}
-              >
-                <SelectTrigger className="bg-gray-900 border-gray-700 text-white h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-600">
-                  <SelectItem value="keep">Keep Current</SelectItem>
-                  <SelectItem value="true">Enable</SelectItem>
-                  <SelectItem value="false">Disable</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {bulkEditForm.allowPackToggle !== false && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs mb-1 block">Pack Size</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      placeholder="Keep current"
-                      value={bulkEditForm.packSize}
-                      onChange={(e) => setBulkEditForm({ ...bulkEditForm, packSize: e.target.value })}
-                      className="bg-gray-900 border-gray-700 text-white h-8 text-sm"
-                    />
+              {bulkEditForm.allowPackToggle !== false && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-gray-300">Pack Size</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        placeholder="Keep current"
+                        value={bulkEditForm.packSize}
+                        onChange={(e) => setBulkEditForm({ ...bulkEditForm, packSize: e.target.value })}
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-gray-300">Discount %</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        placeholder="Keep current"
+                        value={bulkEditForm.packDiscountPercent}
+                        onChange={(e) => setBulkEditForm({ ...bulkEditForm, packDiscountPercent: e.target.value })}
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                    </div>
                   </div>
                   <div>
-                    <Label className="text-xs mb-1 block">Discount %</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      placeholder="Keep current"
-                      value={bulkEditForm.packDiscountPercent}
-                      onChange={(e) => setBulkEditForm({ ...bulkEditForm, packDiscountPercent: e.target.value })}
-                      className="bg-gray-900 border-gray-700 text-white h-8 text-sm"
-                    />
+                    <Label className="text-gray-300">Pack Only (hide Single option)</Label>
+                    <Select
+                      value={bulkEditForm.isPackOnly === null ? "keep" : bulkEditForm.isPackOnly ? "true" : "false"}
+                      onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, isPackOnly: value === "keep" ? null : value === "true" })}
+                    >
+                      <SelectTrigger className="bg-gray-700 border-gray-600">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="keep">Keep Current</SelectItem>
+                        <SelectItem value="true">Yes – hide Single</SelectItem>
+                        <SelectItem value="false">No – show both</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-                <div>
-                  <Label className="text-xs mb-1 block">Pack Only (hide Single option)</Label>
-                  <Select
-                    value={bulkEditForm.isPackOnly === null ? "keep" : bulkEditForm.isPackOnly ? "true" : "false"}
-                    onValueChange={(value) => setBulkEditForm({ ...bulkEditForm, isPackOnly: value === "keep" ? null : value === "true" })}
-                  >
-                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white h-9 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600">
-                      <SelectItem value="keep">Keep Current</SelectItem>
-                      <SelectItem value="true">Yes – hide Single</SelectItem>
-                      <SelectItem value="false">No – show both</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </TabsContent>
+          </Tabs>
           
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
