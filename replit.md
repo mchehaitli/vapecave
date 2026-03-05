@@ -52,6 +52,16 @@ The application uses a modular architecture, separating frontend and backend. It
 - **Variant grouping**: E-liquid/salt products with multiple nic levels grouped into single cards with selectable nic pills on Brand, Category, ProductLine, and Sale pages.
 - **Card style**: All delivery portal product cards (grid and list) use the standardized Category page style — always-visible compact Eye (Quick View) + Plus (Add) icon buttons next to price. No hover gradient overlays, no quantity steppers in browse cards.
 
+## Multi-Unit Pricing (Singles vs. Full Pack)
+- **Schema fields** (web-only, never pushed to Clover catalog): `allowPackToggle` (boolean), `packSize` (integer, default 1), `packDiscountPercent` (integer, default 0), `isPackOnly` (boolean).
+- **purchaseType** field on `cartItems` and `deliveryOrderItems`: `"single"` (default) or `"pack"`.
+- **Pack price formula**: `Math.round(price × packSize × (1 − discountPercent/100) × 100) / 100`.
+- **Inventory multiplier**: Pack purchases deduct `quantity × packSize` units from Clover stock.
+- **Active Stock Push**: On order completion, `cloverService.deductStockForOrder()` pushes stock deductions to Clover immediately. The 5-min passive sync remains as a safety net.
+- **Clover sync protection**: `syncProductsFromClover` and `refreshProductStockAndPrice` never touch pack fields.
+- **Admin UI**: "Bulk/Pack Pricing" section in product edit dialog with toggle, pack size, discount %, pack-only, and live price preview.
+- **Frontend**: Single/Pack toggle on product cards (DeliveryPortal carousel) and QuickView modal. Cart/Checkout display pack labels and correct pricing. All pages pass `purchaseType` through add-to-cart mutations; pack-only products default to `'pack'`.
+
 ## Fulfillment Hybrid System (Pickup/Delivery)
 - **FulfillmentContext** (`client/src/contexts/FulfillmentContext.tsx`): React context providing `{fulfillmentMode, setFulfillmentMode}` with `"delivery" | "pickup"` modes (default: `"delivery"`). Wrapped around all routes via `App.tsx`.
 - **DeliveryHeader toggle**: Clickable pill badge next to logo — green "Delivery" or yellow "Pickup". Toggles between modes globally.

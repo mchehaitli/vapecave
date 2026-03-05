@@ -532,12 +532,12 @@ export default function DeliveryCategoryPage() {
                                     <Minus className="w-4 h-4" />
                                   </Button>
                                   <span className="text-xs font-semibold w-5 text-center">{qty}</span>
-                                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1 })} disabled={addToCartMutation.isPending}>
+                                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1, purchaseType: 'single' })} disabled={addToCartMutation.isPending}>
                                     <Plus className="w-4 h-4" />
                                   </Button>
                                 </div>
                               ) : (
-                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1 })} disabled={addToCartMutation.isPending || isOutOfStock}>
+                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1, purchaseType: 'single' })} disabled={addToCartMutation.isPending || isOutOfStock}>
                                   <Plus className="w-4 h-4" />
                                 </Button>
                               );
@@ -624,12 +624,12 @@ export default function DeliveryCategoryPage() {
                                 <Minus className="w-4 h-4" />
                               </Button>
                               <span className="text-xs font-semibold w-5 text-center">{pQty}</span>
-                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })} disabled={addToCartMutation.isPending}>
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCartMutation.isPending}>
                                 <Plus className="w-4 h-4" />
                               </Button>
                             </div>
                           ) : (
-                            <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })} disabled={addToCartMutation.isPending || isOutOfStock}>
+                            <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCartMutation.isPending || isOutOfStock}>
                               <Plus className="w-4 h-4" />
                             </Button>
                           )}
@@ -752,12 +752,12 @@ export default function DeliveryCategoryPage() {
                                 <Minus className="w-4 h-4" />
                               </Button>
                               <span className="text-xs font-semibold w-5 text-center">{qty}</span>
-                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1 })} disabled={addToCartMutation.isPending}>
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1, purchaseType: 'single' })} disabled={addToCartMutation.isPending}>
                                 <Plus className="w-4 h-4" />
                               </Button>
                             </div>
                           ) : (
-                            <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1 })} disabled={addToCartMutation.isPending || isOutOfStock}>
+                            <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1, purchaseType: 'single' })} disabled={addToCartMutation.isPending || isOutOfStock}>
                               <Plus className="w-4 h-4 sm:mr-1" />
                               <span className="hidden sm:inline">Add</span>
                             </Button>
@@ -851,12 +851,12 @@ export default function DeliveryCategoryPage() {
                             <Minus className="w-4 h-4" />
                           </Button>
                           <span className="text-xs font-semibold w-5 text-center">{listQty}</span>
-                          <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })} disabled={addToCartMutation.isPending}>
+                          <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCartMutation.isPending}>
                             <Plus className="w-4 h-4" />
                           </Button>
                         </div>
                       ) : (
-                        <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })} disabled={addToCartMutation.isPending || isOutOfStock}>
+                        <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCartMutation.isPending || isOutOfStock}>
                           <Plus className="w-4 h-4 sm:mr-1" />
                           <span className="hidden sm:inline">Add</span>
                         </Button>

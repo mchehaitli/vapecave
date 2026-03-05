@@ -544,12 +544,12 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                                         <Minus className="w-4 h-4" />
                                       </Button>
                                       <span className="text-xs font-semibold w-5 text-center">{qty}</span>
-                                      <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending}>
+                                      <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(variant.productId, 1)} disabled={addToCartMutation.isPending}>
                                         <Plus className="w-4 h-4" />
                                       </Button>
                                     </div>
                                   ) : (
-                                    <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending || isOutOfStock}>
+                                    <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(variant.productId, 1)} disabled={addToCartMutation.isPending || isOutOfStock}>
                                       <Plus className="w-4 h-4" />
                                     </Button>
                                   );
@@ -667,12 +667,12 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                                   <Minus className="w-4 h-4" />
                                 </Button>
                                 <span className="text-xs font-semibold w-5 text-center">{qty}</span>
-                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending}>
+                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(variant.productId, 1)} disabled={addToCartMutation.isPending}>
                                   <Plus className="w-4 h-4" />
                                 </Button>
                               </div>
                             ) : !isOutOfStock ? (
-                              <Button size="sm" className="h-8" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending}>
+                              <Button size="sm" className="h-8" onClick={() => handleAddToCart(variant.productId, 1)} disabled={addToCartMutation.isPending}>
                                 <Plus className="w-3 h-3 mr-1" />
                                 Add
                               </Button>
