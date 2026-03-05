@@ -235,8 +235,14 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
         if (!p.productLineId || !allowedLineIds.includes(p.productLineId)) return false;
       }
       return true;
-    }).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-  }, [allProducts, brand?.id, selectedRootLineId, selectedChildLineId, activeProductLines]);
+    }).sort((a, b) => {
+      const aBrand = (a.brandId ? brandMap[a.brandId]?.name : '') || '';
+      const bBrand = (b.brandId ? brandMap[b.brandId]?.name : '') || '';
+      const brandCmp = aBrand.localeCompare(bBrand);
+      if (brandCmp !== 0) return brandCmp;
+      return (a.name || '').localeCompare(b.name || '');
+    });
+  }, [allProducts, brand?.id, selectedRootLineId, selectedChildLineId, activeProductLines, brandMap]);
 
   const { groups: variantGroups, singles: singleProducts } = useMemo(
     () => groupProductsIntoVariants(brandProducts),

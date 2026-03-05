@@ -79,8 +79,14 @@ export default function DeliverySalePage() {
       if (!p.enabled) return false;
       if (!p.salePrice || p.salePrice === '' || p.salePrice === '0') return false;
       return true;
-    }).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-  }, [allProducts]);
+    }).sort((a, b) => {
+      const aBrand = (a.brandId ? brandMap[a.brandId]?.name : '') || '';
+      const bBrand = (b.brandId ? brandMap[b.brandId]?.name : '') || '';
+      const brandCmp = aBrand.localeCompare(bBrand);
+      if (brandCmp !== 0) return brandCmp;
+      return (a.name || '').localeCompare(b.name || '');
+    });
+  }, [allProducts, brandMap]);
 
   const { groups: variantGroups, singles: singleProducts } = useMemo(
     () => groupProductsIntoVariants(saleProducts),

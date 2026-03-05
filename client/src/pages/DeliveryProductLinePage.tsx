@@ -121,6 +121,10 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
     const bFeatured = featuredIds.includes(b.id);
     if (aFeatured && !bFeatured) return -1;
     if (!aFeatured && bFeatured) return 1;
+    const aBrand = (a.brandId ? brandMap[a.brandId]?.name : '') || '';
+    const bBrand = (b.brandId ? brandMap[b.brandId]?.name : '') || '';
+    const brandCmp = aBrand.localeCompare(bBrand);
+    if (brandCmp !== 0) return brandCmp;
     return (a.name || '').localeCompare(b.name || '');
   });
 

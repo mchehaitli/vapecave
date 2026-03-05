@@ -166,6 +166,10 @@ export default function DeliveryCategoryPage() {
       const bFeatured = featuredIds.includes(b.id);
       if (aFeatured && !bFeatured) return -1;
       if (!aFeatured && bFeatured) return 1;
+      const aBrand = (a.brandId ? brandMap[a.brandId]?.name : '') || '';
+      const bBrand = (b.brandId ? brandMap[b.brandId]?.name : '') || '';
+      const brandCmp = aBrand.localeCompare(bBrand);
+      if (brandCmp !== 0) return brandCmp;
       return (a.name || '').localeCompare(b.name || '');
     });
 
@@ -224,9 +228,15 @@ export default function DeliveryCategoryPage() {
         : featuredIds.includes(b.id);
       if (aFeatured && !bFeatured) return -1;
       if (!aFeatured && bFeatured) return 1;
+      const aBrandId = isVariantGroup(a) ? a.brandId : a.brandId;
+      const bBrandId = isVariantGroup(b) ? b.brandId : b.brandId;
+      const aBrand = (aBrandId ? brandMap[aBrandId]?.name : '') || '';
+      const bBrand = (bBrandId ? brandMap[bBrandId]?.name : '') || '';
+      const brandCmp = aBrand.localeCompare(bBrand);
+      if (brandCmp !== 0) return brandCmp;
       return aName.localeCompare(bName);
     });
-  }, [variantGroups, singleProducts, featuredIds]);
+  }, [variantGroups, singleProducts, featuredIds, brandMap]);
 
   const getSelectedNic = (group: VariantGroup): string => {
     if (selectedNicLevels[group.key]) return selectedNicLevels[group.key];
