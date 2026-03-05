@@ -214,9 +214,6 @@ export default function DeliveryLanding() {
           >
             <h2 className="text-3xl font-bold text-foreground ml-[0px] mr-[0px] mt-[-16px] mb-[-16px]">Ready to Get Started?
 </h2>
-            <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Join hundreds of satisfied customers who enjoy the convenience of Vape Cave Smoke & Stuff delivery service.
-            </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-[-19px] mb-[-19px]">
               <Button
                 size="lg"
