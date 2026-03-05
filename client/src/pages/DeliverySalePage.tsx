@@ -322,10 +322,10 @@ export default function DeliverySalePage() {
                                   key={level}
                                   onClick={(e) => { e.stopPropagation(); setSelectedNic(group.key, level); }}
                                   className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
-                                    selectedNic === level
-                                      ? 'bg-red-500 text-white border-red-500'
-                                      : vStock <= 0
+                                    vStock <= 0
                                       ? 'border-muted-foreground/20 text-muted-foreground/40 line-through'
+                                      : selectedNic === level
+                                      ? 'bg-red-500 text-white border-red-500'
                                       : 'border-border text-muted-foreground hover:border-red-500/50 hover:text-foreground'
                                   }`}
                                   title={vStock <= 0 ? `${level} - Out of stock` : level}

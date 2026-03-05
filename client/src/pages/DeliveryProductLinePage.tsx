@@ -447,10 +447,10 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                                   key={level}
                                   onClick={(e) => { e.stopPropagation(); setSelectedNic(group.key, level); }}
                                   className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
-                                    selectedNic === level
-                                      ? 'bg-primary text-primary-foreground border-primary'
-                                      : vStock <= 0
+                                    vStock <= 0
                                       ? 'border-muted-foreground/20 text-muted-foreground/40 line-through'
+                                      : selectedNic === level
+                                      ? 'bg-primary text-primary-foreground border-primary'
                                       : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
                                   }`}
                                   title={vStock <= 0 ? `${level} - Out of stock` : level}
@@ -618,10 +618,10 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                                 key={level}
                                 onClick={() => setSelectedNic(group.key, level)}
                                 className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
-                                  selectedNic === level
-                                    ? 'bg-primary text-primary-foreground border-primary'
-                                    : vStock <= 0
+                                  vStock <= 0
                                     ? 'border-muted-foreground/20 text-muted-foreground/40 line-through'
+                                    : selectedNic === level
+                                    ? 'bg-primary text-primary-foreground border-primary'
                                     : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
                                 }`}
                                 title={vStock <= 0 ? `${level} - Out of stock` : level}
