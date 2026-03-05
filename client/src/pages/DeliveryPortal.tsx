@@ -1050,29 +1050,6 @@ export default function DeliveryPortal() {
       <main className="flex-1">
         {heroProducts.length > 0 && (
           <section className="relative w-full py-6 overflow-hidden bg-gradient-to-b from-background to-card">
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"
-              animate={{ 
-                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-              }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-            />
-            <motion.div 
-              className="absolute top-4 left-10 w-20 h-20 bg-primary/10 rounded-full blur-2xl"
-              animate={{ 
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.5, 0.3],
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <motion.div 
-              className="absolute bottom-4 right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"
-              animate={{ 
-                scale: [1.2, 1, 1.2],
-                opacity: [0.4, 0.2, 0.4],
-              }}
-              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-            />
             <div className="container mx-auto px-3 sm:px-6 relative z-10">
               <AnimatePresence mode="wait">
                 <motion.div
