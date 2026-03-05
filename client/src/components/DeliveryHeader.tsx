@@ -177,6 +177,7 @@ export function DeliveryHeader({
                   className={`absolute top-0.5 bottom-0.5 w-[calc(50%-2px)] rounded-full ${
                     fulfillmentMode === 'delivery' ? 'bg-green-500' : 'bg-yellow-400'
                   }`}
+                  initial={false}
                   animate={{ x: fulfillmentMode === 'delivery' ? 0 : '100%' }}
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   style={{ left: '2px' }}
