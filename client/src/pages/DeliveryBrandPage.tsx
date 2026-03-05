@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Eye, Plus, Minus, ShoppingCart, TrendingUp, Sparkles, Grid3X3, List } from "lucide-react";
+import { ArrowLeft, Eye, Plus, Minus, TrendingUp, Sparkles, Grid3X3, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -552,9 +552,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                       key={product.id}
                       product={product}
                       index={index}
-                      inCart={cartItems[product.id]}
                       onAddToCart={handleAddToCart}
-                      onUpdateQuantity={handleUpdateQuantity}
                       onQuickView={setQuickViewProduct}
                       brandMap={brandMap}
                     />
@@ -657,7 +655,6 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                 const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
                 const isOutOfStock = stock <= 0;
                 const isLowStock = stock > 0 && stock <= 2;
-                const quantity = cartItems[product.id] || 0;
                 return (
                   <motion.div
                     key={product.id}
@@ -703,35 +700,32 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <div className="text-right">
-                          {product.salePrice ? (
-                            <>
-                              <p className="text-base font-bold text-primary">${product.salePrice}</p>
-                              <p className="text-[10px] text-muted-foreground line-through">${product.price}</p>
-                            </>
-                          ) : (
-                            <p className="text-base font-bold text-primary">${product.price}</p>
-                          )}
-                        </div>
-                        {!isOutOfStock && (
-                          quantity > 0 ? (
-                            <div className="flex items-center gap-1">
-                              <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => handleUpdateQuantity(product.id, quantity - 1)}>
-                                <Minus className="w-3 h-3" />
-                              </Button>
-                              <span className="text-sm font-medium w-5 text-center">{quantity}</span>
-                              <Button size="icon" className="h-7 w-7" onClick={() => handleUpdateQuantity(product.id, quantity + 1)}>
-                                <Plus className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button size="sm" className="h-8" onClick={() => handleAddToCart(product.id)} disabled={addToCartMutation.isPending}>
-                              <Plus className="w-3 h-3 mr-1" />
-                              Add
-                            </Button>
-                          )
+                      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                        {product.salePrice ? (
+                          <div className="text-right">
+                            <p className="text-base sm:text-xl font-bold text-primary">${product.salePrice}</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground line-through">${product.price}</p>
+                          </div>
+                        ) : (
+                          <p className="text-base sm:text-xl font-bold text-primary">${product.price}</p>
                         )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          onClick={() => setQuickViewProduct(product)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="h-8 px-2 sm:px-3"
+                          onClick={() => handleAddToCart(product.id)}
+                          disabled={addToCartMutation.isPending || isOutOfStock}
+                        >
+                          <Plus className="w-4 h-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Add</span>
+                        </Button>
                       </div>
                     </Card>
                   </motion.div>
@@ -776,17 +770,13 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
 function ProductCard({ 
   product, 
   index, 
-  inCart, 
   onAddToCart, 
-  onUpdateQuantity, 
   onQuickView,
   brandMap
 }: { 
   product: DeliveryProduct;
   index: number;
-  inCart?: number;
   onAddToCart: (productId: number) => void;
-  onUpdateQuantity: (productId: number, quantity: number) => void;
   onQuickView: (product: DeliveryProduct) => void;
   brandMap: Record<number, DeliveryBrand>;
 }) {
@@ -803,151 +793,87 @@ function ProductCard({
       transition={{ duration: 0.3, delay: index * 0.03 }}
       layout
     >
-      <motion.div
-        whileHover={{ y: -8, scale: 1.02 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="h-full"
-      >
-        <Card className="group h-full overflow-hidden bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
-          <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
-            <img
-              src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
-              alt={product.name}
-              className={`w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 ${isOutOfStock ? 'blur-sm opacity-70' : ''}`}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                if (target.dataset.fallbackAttempted) {
-                  target.src = '/placeholder-product.svg';
-                  return;
-                }
-                target.dataset.fallbackAttempted = '1';
-                const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
-                if (brandLogo) {
-                  target.src = brandLogo;
-                } else {
-                  target.src = '/placeholder-product.svg';
-                }
-              }}
-            />
-            
-            {product.badge && (
-              <Badge
-                className={`absolute top-2 left-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 ${
-                  product.badge === 'popular' ? 'bg-primary text-primary-foreground' :
-                  product.badge === 'new' ? 'bg-green-500 text-white' :
-                  product.badge === 'sale' ? 'bg-red-500 text-white' :
-                  'bg-secondary text-secondary-foreground'
-                }`}
-              >
-                {product.badge === 'popular' && <TrendingUp className="w-2.5 h-2.5 mr-0.5" />}
-                {product.badge === 'new' && <Sparkles className="w-2.5 h-2.5 mr-0.5" />}
-                {product.badge.toUpperCase()}
-              </Badge>
-            )}
-
-            {isOutOfStock && (
-              <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
-                <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
+      <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/50">
+        <div className="relative aspect-square bg-muted/50">
+          <img
+            src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
+            alt={`${product.name} - Vape Cave`}
+            loading="lazy"
+            className={`w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300 ${isOutOfStock ? 'opacity-50' : ''}`}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (target.dataset.fallbackAttempted) {
+                target.src = '/placeholder-product.svg';
+                return;
+              }
+              target.dataset.fallbackAttempted = '1';
+              const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
+              target.src = brandLogo || '/placeholder-product.svg';
+            }}
+          />
+          {product.badge && (
+            <Badge
+              className={`absolute top-2 left-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 ${
+                product.badge === 'popular' ? 'bg-primary text-primary-foreground' :
+                product.badge === 'new' ? 'bg-green-500 text-white' :
+                product.badge === 'sale' ? 'bg-red-500 text-white' :
+                'bg-secondary text-secondary-foreground'
+              }`}
+            >
+              {product.badge === 'popular' && <TrendingUp className="w-2.5 h-2.5 mr-0.5" />}
+              {product.badge === 'new' && <Sparkles className="w-2.5 h-2.5 mr-0.5" />}
+              {product.badge.toUpperCase()}
+            </Badge>
+          )}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
+              <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
+            </div>
+          )}
+          {isLowStock && !isOutOfStock && (
+            <Badge className="absolute top-2 right-2 bg-amber-500 text-white text-xs">Low Stock</Badge>
+          )}
+          {isInStock && !product.badge && (
+            <Badge className="absolute top-2 right-2 bg-green-500 text-white text-xs">In Stock</Badge>
+          )}
+        </div>
+        <div className="p-3">
+          <h3 className="font-medium text-sm line-clamp-2">
+            {product.name}
+          </h3>
+          {(() => { const nic = (product as any).nicotineOverride || extractNicLevel(product.name); return nic ? (
+            <span className="inline-block text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-semibold mt-0.5 mb-1">{nic}</span>
+          ) : null; })()}
+          <div className="flex items-center justify-between mt-2">
+            {product.salePrice ? (
+              <div className="flex items-baseline gap-1">
+                <p className="text-lg font-bold text-primary">${product.salePrice}</p>
+                <p className="text-xs text-muted-foreground line-through">${product.price}</p>
               </div>
+            ) : (
+              <p className="text-lg font-bold text-primary">${product.price}</p>
             )}
-
-            {isLowStock && !isOutOfStock && (
-              <Badge 
-                className="absolute top-2 right-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-amber-500 text-white"
-              >
-                Low Stock
-              </Badge>
-            )}
-
-            {isInStock && !product.badge && (
-              <Badge 
-                className="absolute top-2 right-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-green-500 text-white"
-              >
-                In Stock
-              </Badge>
-            )}
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 sm:pb-4 gap-1 sm:gap-2">
+            <div className="flex gap-1">
               <Button
                 size="sm"
-                className="bg-black/70 text-white hover:bg-black/90 border-0 text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
+                variant="ghost"
+                className="h-8 w-8 p-0"
                 onClick={() => onQuickView(product)}
               >
-                <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                <span className="hidden sm:inline">Quick View</span>
-                <span className="sm:hidden">View</span>
+                <Eye className="w-4 h-4" />
               </Button>
-              {!isOutOfStock && !inCart && (
-                <Button
-                  size="sm"
-                  className="bg-primary hover:bg-primary/90 text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
-                  onClick={() => onAddToCart(product.id)}
-                >
-                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                  Add
-                </Button>
-              )}
-              {!isOutOfStock && inCart && (
-                <div className="flex items-center gap-0.5 sm:gap-1 bg-black/70 rounded-lg p-0.5 sm:p-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-white hover:text-white hover:bg-white/20"
-                    onClick={() => onUpdateQuantity(product.id, inCart - 1)}
-                  >
-                    <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </Button>
-                  <span className="w-6 sm:w-8 text-center font-bold text-xs sm:text-sm text-white">{inCart}</span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-white hover:text-white hover:bg-white/20"
-                    onClick={() => onUpdateQuantity(product.id, inCart + 1)}
-                    disabled={inCart >= stock}
-                  >
-                    <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </Button>
-                </div>
-              )}
+              <Button
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => onAddToCart(product.id)}
+                disabled={isOutOfStock}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
             </div>
           </div>
-
-          <div className="p-2 sm:p-3 md:p-4">
-            <h3 className="font-semibold text-foreground text-xs sm:text-sm md:text-base line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] mb-0.5">
-              {product.name}
-            </h3>
-            {(() => { const nic = (product as any).nicotineOverride || extractNicLevel(product.name); return nic ? (
-              <span className="inline-block text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-semibold mb-1">{nic}</span>
-            ) : null; })()}
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-baseline gap-1 sm:gap-2">
-                {product.salePrice ? (
-                  <>
-                    <span className="text-base sm:text-xl font-bold text-primary">
-                      ${product.salePrice}
-                    </span>
-                    <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
-                      ${product.price}
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-base sm:text-xl font-bold text-primary">
-                    ${product.price}
-                  </span>
-                )}
-              </div>
-              
-              {inCart && (
-                <Badge variant="secondary" className="bg-primary/20 text-primary text-[10px] sm:text-xs px-1.5 sm:px-2">
-                  <ShoppingCart className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                  {inCart}
-                </Badge>
-              )}
-            </div>
-          </div>
-        </Card>
-      </motion.div>
+        </div>
+      </Card>
     </motion.div>
   );
 }

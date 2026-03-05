@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tag, Eye, Plus, Minus, ShoppingCart, Percent } from "lucide-react";
+import { Tag, Eye, Plus, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -71,14 +71,6 @@ export default function DeliverySalePage() {
       return response.json();
     },
   });
-
-  const cartItems = useMemo(() => {
-    const items: Record<number, number> = {};
-    apiCartItems.forEach(item => {
-      items[item.productId] = item.quantity;
-    });
-    return items;
-  }, [apiCartItems]);
 
   const cartItemCount = apiCartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -153,47 +145,6 @@ export default function DeliverySalePage() {
     },
   });
 
-  const updateCartMutation = useMutation({
-    mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
-      const cartItem = apiCartItems.find(item => item.productId === productId);
-      if (!cartItem) throw new Error("Item not in cart");
-
-      if (quantity <= 0) {
-        const response = await fetch(`/api/delivery/cart/${cartItem.id}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to remove item");
-        }
-        return response.json();
-      }
-
-      const response = await fetch(`/api/delivery/cart/${cartItem.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ quantity }),
-      });
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to update quantity");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/delivery/cart"] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
   const handleAddToCart = (productId: number, quantity: number = 1) => {
     addToCartMutation.mutate({ productId, quantity }, {
       onSuccess: () => {
@@ -203,10 +154,6 @@ export default function DeliverySalePage() {
         });
       }
     });
-  };
-
-  const handleUpdateQuantity = (productId: number, quantity: number) => {
-    updateCartMutation.mutate({ productId, quantity });
   };
 
   if (isLoading) {
@@ -323,93 +270,97 @@ export default function DeliverySalePage() {
                       transition={{ duration: 0.3, delay: index * 0.03 }}
                       layout
                     >
-                      <motion.div whileHover={{ y: -8, scale: 1.02 }} transition={{ duration: 0.3, ease: "easeOut" }} className="h-full">
-                        <Card className="group h-full overflow-hidden bg-card border-red-500/30 hover:border-red-500/60 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all duration-300">
-                          <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
-                            <img
-                              src={group.image || (group.brandId ? brandMap[group.brandId]?.logo : null) || '/placeholder-product.svg'}
-                              alt={`${group.displayName} - Vape Cave`}
-                              loading="lazy"
-                              className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                if (target.dataset.fallbackAttempted) { target.src = '/placeholder-product.svg'; return; }
-                                target.dataset.fallbackAttempted = '1';
-                                const brandLogo = group.brandId ? brandMap[group.brandId]?.logo : null;
-                                target.src = brandLogo || '/placeholder-product.svg';
-                              }}
-                            />
-                            <Badge className="absolute top-2 left-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-500 text-white font-bold">
-                              <Tag className="w-2.5 h-2.5 mr-0.5" />
-                              SALE
+                      <Card className="group h-full overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-red-500/50">
+                        <div className="relative aspect-square overflow-hidden bg-muted/50">
+                          <img
+                            src={group.image || (group.brandId ? brandMap[group.brandId]?.logo : null) || '/placeholder-product.svg'}
+                            alt={`${group.displayName} - Vape Cave`}
+                            loading="lazy"
+                            className={`w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300 ${isOutOfStock ? 'opacity-50' : ''}`}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (target.dataset.fallbackAttempted) { target.src = '/placeholder-product.svg'; return; }
+                              target.dataset.fallbackAttempted = '1';
+                              const brandLogo = group.brandId ? brandMap[group.brandId]?.logo : null;
+                              target.src = brandLogo || '/placeholder-product.svg';
+                            }}
+                          />
+                          <Badge className="absolute top-2 left-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-500 text-white font-bold">
+                            <Tag className="w-2.5 h-2.5 mr-0.5" />
+                            SALE
+                          </Badge>
+                          {discount > 0 && (
+                            <Badge className="absolute top-2 right-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-600 text-white font-bold">
+                              -{discount}%
                             </Badge>
-                            {discount > 0 && (
-                              <Badge className="absolute top-2 right-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-600 text-white font-bold">
-                                -{discount}%
-                              </Badge>
-                            )}
-                            {isOutOfStock && (
-                              <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
-                                <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
-                              </div>
-                            )}
-                            {isLowStock && !isOutOfStock && (
-                              <Badge className="absolute bottom-2 right-2 text-[10px] bg-amber-500 text-white">Low Stock</Badge>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 sm:pb-4 gap-1 sm:gap-2">
-                              <Button size="sm" variant="secondary" className="bg-card/90 backdrop-blur-sm hover:bg-card text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3" onClick={() => openVariantQuickView(group)}>
-                                <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                                <span className="hidden sm:inline">Quick View</span>
-                                <span className="sm:hidden">View</span>
+                          )}
+                          {isOutOfStock && (
+                            <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
+                              <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
+                            </div>
+                          )}
+                          {isLowStock && !isOutOfStock && (
+                            <Badge className="absolute bottom-2 right-2 text-[10px] bg-amber-500 text-white">Low Stock</Badge>
+                          )}
+                        </div>
+                        <div className="p-3">
+                          {(group.brandLine || group.brand) && (
+                            <p className="text-[10px] text-muted-foreground line-clamp-1">{group.brandLine || group.brand}</p>
+                          )}
+                          <h3 className="font-medium text-sm text-foreground line-clamp-1">
+                            {group.displayName}
+                          </h3>
+                          <p className="text-[10px] text-muted-foreground mb-1">
+                            {[group.mlSize, selectedNic].filter(Boolean).join(' · ')}
+                          </p>
+                          <div className="flex flex-wrap gap-1 my-1.5">
+                            {sortNicLevels(group.variants.map(v => v.nicLevel)).map(level => {
+                              const v = getVariantByNicLevel(group, level);
+                              const vStock = v?.stockQuantity ? parseInt(v.stockQuantity) : 0;
+                              return (
+                                <button
+                                  key={level}
+                                  onClick={(e) => { e.stopPropagation(); setSelectedNic(group.key, level); }}
+                                  className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
+                                    selectedNic === level
+                                      ? 'bg-red-500 text-white border-red-500'
+                                      : vStock <= 0
+                                      ? 'border-muted-foreground/20 text-muted-foreground/40 line-through'
+                                      : 'border-border text-muted-foreground hover:border-red-500/50 hover:text-foreground'
+                                  }`}
+                                  title={vStock <= 0 ? `${level} - Out of stock` : level}
+                                >
+                                  {level}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div className="flex items-center justify-between mt-1">
+                            <div>
+                              <span className="text-xs text-muted-foreground line-through">${originalPriceNum.toFixed(2)}</span>
+                              <p className="text-base font-bold text-red-500">${salePriceNum.toFixed(2)}</p>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                                onClick={() => openVariantQuickView(group)}
+                              >
+                                <Eye className="w-4 h-4" />
                               </Button>
-                              {!isOutOfStock && (
-                                <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending}>
-                                  <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                                  <span className="hidden sm:inline">Add</span>
-                                  <span className="sm:hidden">+</span>
-                                </Button>
-                              )}
+                              <Button
+                                size="sm"
+                                className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white"
+                                onClick={() => handleAddToCart(variant.productId)}
+                                disabled={addToCartMutation.isPending || isOutOfStock}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
                             </div>
                           </div>
-                          <div className="p-2 sm:p-4">
-                            {(group.brandLine || group.brand) && (
-                              <p className="text-[10px] text-muted-foreground line-clamp-1">{group.brandLine || group.brand}</p>
-                            )}
-                            <h3 className="font-semibold text-xs sm:text-sm text-foreground line-clamp-1 group-hover:text-red-500 transition-colors">
-                              {group.displayName}
-                            </h3>
-                            <p className="text-[10px] text-muted-foreground mb-1">
-                              {[group.mlSize, selectedNic].filter(Boolean).join(' · ')}
-                            </p>
-                            <div className="flex flex-wrap gap-1 mb-2">
-                              {sortNicLevels(group.variants.map(v => v.nicLevel)).map(level => {
-                                const v = getVariantByNicLevel(group, level);
-                                const vStock = v?.stockQuantity ? parseInt(v.stockQuantity) : 0;
-                                return (
-                                  <button
-                                    key={level}
-                                    onClick={(e) => { e.stopPropagation(); setSelectedNic(group.key, level); }}
-                                    className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
-                                      selectedNic === level
-                                        ? 'bg-red-500 text-white border-red-500'
-                                        : vStock <= 0
-                                        ? 'border-muted-foreground/20 text-muted-foreground/40 line-through'
-                                        : 'border-border text-muted-foreground hover:border-red-500/50 hover:text-foreground'
-                                    }`}
-                                    title={vStock <= 0 ? `${level} - Out of stock` : level}
-                                  >
-                                    {level}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs sm:text-sm text-muted-foreground line-through">${originalPriceNum.toFixed(2)}</span>
-                            </div>
-                            <span className="text-lg sm:text-xl font-bold text-red-500">${salePriceNum.toFixed(2)}</span>
-                          </div>
-                        </Card>
-                      </motion.div>
+                        </div>
+                      </Card>
                     </motion.div>
                   );
                 }
@@ -420,9 +371,7 @@ export default function DeliverySalePage() {
                     key={product.id}
                     product={product}
                     index={index}
-                    inCart={cartItems[product.id]}
                     onAddToCart={handleAddToCart}
-                    onUpdateQuantity={handleUpdateQuantity}
                     onQuickView={setQuickViewProduct}
                     brandMap={brandMap}
                   />
@@ -469,17 +418,13 @@ export default function DeliverySalePage() {
 function SaleProductCard({ 
   product, 
   index, 
-  inCart, 
   onAddToCart, 
-  onUpdateQuantity, 
   onQuickView,
   brandMap
 }: { 
   product: DeliveryProduct;
   index: number;
-  inCart?: number;
   onAddToCart: (productId: number) => void;
-  onUpdateQuantity: (productId: number, quantity: number) => void;
   onQuickView: (product: DeliveryProduct) => void;
   brandMap: Record<number, DeliveryBrand>;
 }) {
@@ -500,151 +445,90 @@ function SaleProductCard({
       transition={{ duration: 0.3, delay: index * 0.03 }}
       layout
     >
-      <motion.div
-        whileHover={{ y: -8, scale: 1.02 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="h-full"
-      >
-        <Card className="group h-full overflow-hidden bg-card border-red-500/30 hover:border-red-500/60 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all duration-300">
-          <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
-            <img
-              src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
-              alt={`${product.name} - Vape Cave Frisco`}
-              loading="lazy"
-              className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                if (target.dataset.fallbackAttempted) {
-                  target.src = '/placeholder-product.svg';
-                  return;
-                }
-                target.dataset.fallbackAttempted = '1';
-                const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
-                if (brandLogo) {
-                  target.src = brandLogo;
-                } else {
-                  target.src = '/placeholder-product.svg';
-                }
-              }}
-            />
-            
-            <Badge className="absolute top-2 left-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-500 text-white font-bold">
-              <Tag className="w-2.5 h-2.5 mr-0.5" />
-              SALE
+      <Card className="group h-full overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-red-500/50">
+        <div className="relative aspect-square overflow-hidden bg-muted/50">
+          <img
+            src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
+            alt={`${product.name} - Vape Cave Frisco`}
+            loading="lazy"
+            className={`w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300 ${isOutOfStock ? 'opacity-50' : ''}`}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (target.dataset.fallbackAttempted) {
+                target.src = '/placeholder-product.svg';
+                return;
+              }
+              target.dataset.fallbackAttempted = '1';
+              const brandLogo = product.brandId ? brandMap[product.brandId]?.logo : null;
+              target.src = brandLogo || '/placeholder-product.svg';
+            }}
+          />
+          
+          <Badge className="absolute top-2 left-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-500 text-white font-bold">
+            <Tag className="w-2.5 h-2.5 mr-0.5" />
+            SALE
+          </Badge>
+
+          {discount > 0 && (
+            <Badge className="absolute top-2 right-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-600 text-white font-bold">
+              -{discount}%
             </Badge>
+          )}
 
-            {discount > 0 && (
-              <Badge className="absolute top-2 right-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-600 text-white font-bold">
-                -{discount}%
-              </Badge>
-            )}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
+              <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
+            </div>
+          )}
 
-            {isOutOfStock && (
-              <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
-                <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
-              </div>
-            )}
+          {isLowStock && !isOutOfStock && (
+            <Badge className="absolute bottom-2 right-2 text-[10px] bg-amber-500 text-white">
+              Low Stock
+            </Badge>
+          )}
 
-            {isLowStock && !isOutOfStock && (
-              <Badge 
-                className="absolute bottom-2 right-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-amber-500 text-white"
-              >
-                Low Stock
-              </Badge>
-            )}
+          {isInStock && (
+            <Badge className="absolute bottom-2 right-2 text-[10px] bg-green-500 text-white">
+              In Stock
+            </Badge>
+          )}
+        </div>
 
-            {isInStock && (
-              <Badge 
-                className="absolute bottom-2 right-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-green-500 text-white"
-              >
-                In Stock
-              </Badge>
-            )}
-
-            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 sm:pb-4 gap-1 sm:gap-2">
+        <div className="p-3">
+          <h3 className="font-medium text-sm text-foreground line-clamp-2">
+            {product.name}
+          </h3>
+          
+          <div className="flex items-center justify-between mt-2">
+            <div>
+              <span className="text-xs text-muted-foreground line-through">
+                ${originalPrice.toFixed(2)}
+              </span>
+              <p className="text-base font-bold text-red-500">
+                ${salePrice.toFixed(2)}
+              </p>
+            </div>
+            <div className="flex gap-1">
               <Button
                 size="sm"
-                variant="secondary"
-                className="bg-card/90 backdrop-blur-sm hover:bg-card text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
+                variant="ghost"
+                className="h-8 w-8 p-0"
                 onClick={() => onQuickView(product)}
               >
-                <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Quick View</span>
-                <span className="sm:hidden">View</span>
+                <Eye className="w-4 h-4" />
               </Button>
-              {!isOutOfStock && !inCart && (
-                <Button
-                  size="sm"
-                  className="bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
-                  onClick={() => onAddToCart(product.id)}
-                >
-                  <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Add</span>
-                  <span className="sm:hidden">+</span>
-                </Button>
-              )}
+              <Button
+                size="sm"
+                className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white"
+                onClick={() => onAddToCart(product.id)}
+                disabled={isOutOfStock}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
             </div>
           </div>
-
-          <div className="p-2 sm:p-4">
-            <h3 className="font-semibold text-xs sm:text-sm text-foreground line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] group-hover:text-red-500 transition-colors">
-              {product.name}
-            </h3>
-            
-            <div className="mt-2 sm:mt-3 flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <span className="text-xs sm:text-sm text-muted-foreground line-through">
-                  ${originalPrice.toFixed(2)}
-                </span>
-              </div>
-              <span className="text-lg sm:text-xl font-bold text-red-500">
-                ${salePrice.toFixed(2)}
-              </span>
-            </div>
-
-            <div className="mt-2 sm:mt-3">
-              {inCart ? (
-                <div className="flex items-center justify-between bg-red-500/10 rounded-lg p-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-red-500/20 text-red-500"
-                    onClick={() => onUpdateQuantity(product.id, inCart - 1)}
-                  >
-                    <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </Button>
-                  <span className="text-xs sm:text-sm font-semibold text-foreground">{inCart}</span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-red-500/20 text-red-500"
-                    onClick={() => onUpdateQuantity(product.id, inCart + 1)}
-                    disabled={inCart >= stock}
-                  >
-                    <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  size="sm"
-                  className="w-full bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm h-8 sm:h-9"
-                  onClick={() => onAddToCart(product.id)}
-                  disabled={isOutOfStock}
-                >
-                  {isOutOfStock ? (
-                    "Out of Stock"
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      Add to Cart
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </div>
-        </Card>
-      </motion.div>
+        </div>
+      </Card>
     </motion.div>
   );
 }

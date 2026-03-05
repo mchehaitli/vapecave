@@ -50,3 +50,4 @@ The application uses a modular architecture, separating frontend and backend. It
 - **Frontend pattern**: `addToCartMutation` (POST) for "Add" buttons. `updateCartMutation` (PATCH/DELETE) for +/- quantity controls. All pages parse server error messages for toast display.
 - **Navbar cart count**: `cartItemCount` prop passed to `DeliveryHeader` on all browse pages (Brand, Category, Sale, ProductLine, Cart, Checkout).
 - **Variant grouping**: E-liquid/salt products with multiple nic levels grouped into single cards with selectable nic pills on Brand, Category, ProductLine, and Sale pages.
+- **Card style**: All delivery portal product cards (grid and list) use the standardized Category page style — always-visible compact Eye (Quick View) + Plus (Add) icon buttons next to price. No hover gradient overlays, no quantity steppers in browse cards.
