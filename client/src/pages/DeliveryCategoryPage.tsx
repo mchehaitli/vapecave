@@ -20,6 +20,7 @@ import {
   getVariantByNicLevel,
   sortNicLevels,
   extractNicLevel,
+  getBaseFlavorName,
   type VariantGroup,
 } from "@/lib/productVariants";
 import type { DeliveryProduct, DeliveryCategory, DeliveryBrand } from "@shared/schema";
@@ -145,8 +146,32 @@ export default function DeliveryCategoryPage() {
       return (a.name || '').localeCompare(b.name || '');
     });
 
-  const featuredProducts = categoryProducts.filter(p => featuredIds.includes(p.id));
-  const displayProducts = activeTab === "featured" ? featuredProducts : categoryProducts;
+  const enrichedProducts = useMemo(() => {
+    const existingIds = new Set(categoryProducts.map(p => p.id));
+    const siblings: DeliveryProduct[] = [];
+
+    for (const p of categoryProducts) {
+      const nic = extractNicLevel(p.name);
+      if (!nic) continue;
+      const baseKey = getBaseFlavorName(p.name).toLowerCase().trim();
+
+      for (const candidate of products) {
+        if (!candidate.enabled || existingIds.has(candidate.id)) continue;
+        const candidateNic = extractNicLevel(candidate.name);
+        if (!candidateNic) continue;
+        const candidateKey = getBaseFlavorName(candidate.name).toLowerCase().trim();
+        if (candidateKey === baseKey && candidate.brandId === p.brandId) {
+          siblings.push(candidate);
+          existingIds.add(candidate.id);
+        }
+      }
+    }
+
+    return [...categoryProducts, ...siblings];
+  }, [categoryProducts, products]);
+
+  const featuredProducts = enrichedProducts.filter(p => featuredIds.includes(p.id));
+  const displayProducts = activeTab === "featured" ? featuredProducts : enrichedProducts;
 
   const { groups: variantGroups, singles: singleProducts } = useMemo(
     () => groupProductsIntoVariants(displayProducts),
