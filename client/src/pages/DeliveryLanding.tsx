@@ -202,6 +202,37 @@ export default function DeliveryLanding() {
           </div>
         </motion.div>
 
+        {/* Bottom CTA */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 0.6 }}
+          className="mt-20 text-center"
+        >
+          <motion.div 
+            className="p-8 rounded-xl bg-card border-2 border-primary/50 shadow-[0_0_20px_rgba(255,113,0,0.3),0_0_40px_rgba(255,113,0,0.15)]"
+          >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                className="px-8 py-6 text-lg"
+                onClick={() => setLocation("/register")}
+                data-testid="button-signup-bottom"
+              >
+                Sign Up Now
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-8 py-6 text-lg bg-background border-primary/50 text-foreground hover:bg-primary/10"
+                onClick={() => setLocation("/signin")}
+                data-testid="button-signin-bottom"
+              >
+                Already Have an Account? Sign In
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
         </div>
       </div>
     </MainLayout>
