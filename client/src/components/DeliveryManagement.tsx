@@ -3850,7 +3850,7 @@ export function DeliveryProductsTab() {
             </TabsList>
 
             {/* General Tab */}
-            <TabsContent value="general" className="space-y-4 max-h-[55vh] overflow-y-auto pr-1 mt-3">
+            <TabsContent value="general" className="space-y-2 mt-2">
               <div>
                 <Label className="text-gray-300">Product Name</Label>
                 <Input
@@ -3868,7 +3868,7 @@ export function DeliveryProductsTab() {
                   value={bulkEditForm.description}
                   onChange={(e) => setBulkEditForm({ ...bulkEditForm, description: e.target.value })}
                   className="bg-gray-700 border-gray-600 text-white"
-                  rows={2}
+                  rows={1}
                 />
               </div>
 
@@ -3890,7 +3890,7 @@ export function DeliveryProductsTab() {
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label className="text-gray-300">Price ($)</Label>
                   <Input
@@ -3975,8 +3975,8 @@ export function DeliveryProductsTab() {
             </TabsContent>
 
             {/* Display Tab */}
-            <TabsContent value="display" className="space-y-4 max-h-[55vh] overflow-y-auto pr-1 mt-3">
-              <div className="grid grid-cols-2 gap-4">
+            <TabsContent value="display" className="space-y-2 mt-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label className="text-gray-300">Enabled Status</Label>
                   <Select
@@ -4097,9 +4097,9 @@ export function DeliveryProductsTab() {
             </TabsContent>
 
             {/* Pack Pricing Tab */}
-            <TabsContent value="pack" className="space-y-4 max-h-[55vh] overflow-y-auto pr-1 mt-3">
+            <TabsContent value="pack" className="space-y-2 mt-2">
               <div>
-                <Label className="text-gray-300 flex items-center gap-2 mb-1">
+                <Label className="text-gray-300 flex items-center gap-2">
                   <Package className="h-4 w-4" />
                   Enable Pack Toggle
                   <span className="text-xs text-blue-400 font-normal">(website only)</span>
@@ -4120,8 +4120,8 @@ export function DeliveryProductsTab() {
               </div>
 
               {bulkEditForm.allowPackToggle !== false && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <Label className="text-gray-300">Pack Size</Label>
                       <Input
