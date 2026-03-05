@@ -534,7 +534,6 @@ export default function DeliveryCheckout() {
     <div className="min-h-screen bg-background flex flex-col">
       <DeliveryHeader cartItemCount={cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0)} showSearch={false} showBackButton={true} />
       <DeliveryCategoryNav />
-
       <div className="flex-1 py-6">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="mb-8">
@@ -581,7 +580,7 @@ export default function DeliveryCheckout() {
                 <CardContent>
                   <div className="space-y-2" data-testid="section-pickup-info">
                     <p className="font-semibold">Vape Cave Smoke & Stuff</p>
-                    <p className="text-muted-foreground">Your order will be ready for pickup at the store.</p>
+                    <p className="text-muted-foreground">Your order will be ready for pickup within an hour at the store store. No curbside pick up available at this time.</p>
                     {customer && (
                       <p className="text-sm text-muted-foreground mt-2">Pickup for: {customer.fullName} — {customer.phone}</p>
                     )}
@@ -1095,9 +1094,7 @@ export default function DeliveryCheckout() {
         </div>
         </div>
       </div>
-
       <DeliveryFooter />
-
       {showConfirmDialog && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center">
           <div className="fixed inset-0 bg-black/50" onClick={() => setShowConfirmDialog(false)} />
