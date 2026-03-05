@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { queryClient } from "@/lib/queryClient";
@@ -17,6 +17,7 @@ import { Calendar, Clock, MapPin, ShoppingBag, CreditCard, Loader2, CheckCircle,
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DeliveryFooter } from "@/components/DeliveryFooter";
+import { useFulfillment } from "@/contexts/FulfillmentContext";
 
 interface CartItem {
   id: number;
@@ -65,14 +66,25 @@ interface CloverConfig {
 export default function DeliveryCheckout() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { fulfillmentMode } = useFulfillment();
+  const isPickup = fulfillmentMode === 'pickup';
   const [selectedWindowId, setSelectedWindowId] = useState<number | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   useInactivityTimeout({
     timeoutMinutes: 30,
     warningMinutes: 2,
   });
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("cash");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>(isPickup ? "pay_in_store" : "cash");
+
+  useEffect(() => {
+    setSelectedPaymentMethod(isPickup ? "pay_in_store" : "cash");
+    if (isPickup) {
+      setSelectedWindowId(null);
+    }
+  }, [isPickup]);
+
   const [sameAsDelivery, setSameAsDelivery] = useState(true);
   const [billingAddress, setBillingAddress] = useState("");
   const [billingCity, setBillingCity] = useState("");
@@ -164,7 +176,7 @@ export default function DeliveryCheckout() {
   // Place order mutation
   const placeOrderMutation = useMutation({
     mutationFn: async (orderData: { 
-      deliveryWindowId: number; 
+      deliveryWindowId?: number; 
       paymentMethod: string;
       paymentToken?: string;
       deliveryAddress: string;
@@ -244,8 +256,9 @@ export default function DeliveryCheckout() {
     }
   };
 
-  const deliveryFee = calculateDeliveryFee();
-  const deliveryDistance = feeData?.distance || 0;
+  const rawDeliveryFee = calculateDeliveryFee();
+  const deliveryFee = isPickup ? 0 : rawDeliveryFee;
+  const deliveryDistance = isPickup ? 0 : (feeData?.distance || 0);
   const discount = promoValidation?.valid ? (promoValidation.discountAmount || 0) : 0;
   const discountedSubtotal = Math.max(0, subtotal - discount);
   const tax = discountedSubtotal * 0.0825;
@@ -300,7 +313,7 @@ export default function DeliveryCheckout() {
   };
 
   const handlePlaceOrder = async () => {
-    if (!selectedWindowId) {
+    if (!isPickup && !selectedWindowId) {
       toast({
         variant: "destructive",
         title: "Missing Information",
@@ -318,8 +331,7 @@ export default function DeliveryCheckout() {
       return;
     }
 
-    // Check if customer is within delivery zone
-    if (feeData && !feeData.withinDeliveryZone) {
+    if (!isPickup && feeData && !feeData.withinDeliveryZone) {
       toast({
         variant: "destructive",
         title: "Outside Delivery Zone",
@@ -328,7 +340,7 @@ export default function DeliveryCheckout() {
       return;
     }
 
-    processOrder();
+    setShowConfirmDialog(true);
   };
 
   // Build notes string including cash payment info
@@ -415,14 +427,9 @@ export default function DeliveryCheckout() {
     // For cash payments, use the existing flow
     const deliveryAddress = `${customer!.address}, ${customer!.city}, ${customer!.state} ${customer!.zipCode}`;
 
-    placeOrderMutation.mutate({
-      deliveryWindowId: selectedWindowId!,
-      paymentMethod: selectedPaymentMethod,
+    const orderPayload: any = {
+      paymentMethod: selectedPaymentMethod === "pay_in_store" ? "cash" : selectedPaymentMethod,
       deliveryAddress,
-      billingAddress: sameAsDelivery ? undefined : billingAddress,
-      billingCity: sameAsDelivery ? undefined : billingCity,
-      billingState: sameAsDelivery ? undefined : billingState,
-      billingZipCode: sameAsDelivery ? undefined : billingZipCode,
       sameAsDelivery,
       subtotal: subtotal.toFixed(2),
       discount: discount.toFixed(2),
@@ -432,7 +439,18 @@ export default function DeliveryCheckout() {
       deliveryFee: deliveryFee.toFixed(2),
       total: total.toFixed(2),
       notes: orderNotes,
-    });
+      fulfillmentMode: isPickup ? "pickup" : "delivery",
+    };
+
+    if (!isPickup) {
+      orderPayload.deliveryWindowId = selectedWindowId!;
+      orderPayload.billingAddress = sameAsDelivery ? undefined : billingAddress;
+      orderPayload.billingCity = sameAsDelivery ? undefined : billingCity;
+      orderPayload.billingState = sameAsDelivery ? undefined : billingState;
+      orderPayload.billingZipCode = sameAsDelivery ? undefined : billingZipCode;
+    }
+
+    placeOrderMutation.mutate(orderPayload);
   };
 
   const isLoading = isLoadingCart || isLoadingCustomer || isLoadingWindows || isLoadingFeeSettings;
@@ -529,116 +547,141 @@ export default function DeliveryCheckout() {
           <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Delivery Address */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Delivery Address
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {customer && (
-                  <div className="space-y-2" data-testid="section-delivery-address">
-                    <p className="font-semibold">{customer.fullName}</p>
-                    <p>{customer.address}</p>
-                    <p>{customer.city}, {customer.state} {customer.zipCode}</p>
-                    <p className="text-muted-foreground">{customer.phone}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {/* Delivery Address (delivery mode only) */}
+            {!isPickup && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Delivery Address
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {customer && (
+                    <div className="space-y-2" data-testid="section-delivery-address">
+                      <p className="font-semibold">{customer.fullName}</p>
+                      <p>{customer.address}</p>
+                      <p>{customer.city}, {customer.state} {customer.zipCode}</p>
+                      <p className="text-muted-foreground">{customer.phone}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Delivery Window Selection */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Select Delivery Window
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Schedule your delivery up to 5 days ahead. Windows close 1 hour before delivery time.
-                </p>
-              </CardHeader>
-              <CardContent>
-                {Object.keys(windowsByDate).length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Clock className="mx-auto h-12 w-12 mb-2" />
-                    <p>No delivery windows available for the next 5 days.</p>
-                    <p className="text-sm mt-2">Please check back later or contact us for assistance.</p>
+            {/* Pickup Info (pickup mode only) */}
+            {isPickup && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Pickup Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2" data-testid="section-pickup-info">
+                    <p className="font-semibold">Vape Cave Smoke & Stuff</p>
+                    <p className="text-muted-foreground">Your order will be ready for pickup at the store.</p>
+                    {customer && (
+                      <p className="text-sm text-muted-foreground mt-2">Pickup for: {customer.fullName} — {customer.phone}</p>
+                    )}
                   </div>
-                ) : (
-                  <RadioGroup
-                    value={selectedWindowId?.toString()}
-                    onValueChange={(value) => setSelectedWindowId(parseInt(value))}
-                  >
-                    <div className="space-y-4">
-                      {Object.entries(windowsByDate).map(([date, windows]) => (
-                        <div key={date} className="space-y-2">
-                          <h3 className="font-semibold text-sm text-muted-foreground">
-                            {new Date(date).toLocaleDateString('en-US', {
-                              weekday: 'long',
-                              month: 'long',
-                              day: 'numeric',
-                            })}
-                          </h3>
-                          {windows.map((window) => {
-                            const isWindowClosed = window.isClosed || (window.capacity - window.currentBookings) <= 0;
-                            const isDisabled = isWindowClosed;
-                            
-                            return (
-                              <div
-                                key={window.id}
-                                className={`flex items-center space-x-2 p-3 border rounded-lg ${
-                                  isDisabled 
-                                    ? 'opacity-50 cursor-not-allowed bg-muted' 
-                                    : 'hover:bg-accent cursor-pointer'
-                                }`}
-                                data-testid={`radio-window-${window.id}`}
-                              >
-                                <RadioGroupItem
-                                  value={window.id.toString()}
-                                  id={`window-${window.id}`}
-                                  disabled={isDisabled}
-                                  data-testid={`radio-button-window-${window.id}`}
-                                />
-                                <Label
-                                  htmlFor={`window-${window.id}`}
-                                  className={`flex-1 ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Delivery Window Selection (delivery mode only) */}
+            {!isPickup && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    Select Delivery Window
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Schedule your delivery up to 5 days ahead. Windows close 1 hour before delivery time.
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  {Object.keys(windowsByDate).length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Clock className="mx-auto h-12 w-12 mb-2" />
+                      <p>No delivery windows available for the next 5 days.</p>
+                      <p className="text-sm mt-2">Please check back later or contact us for assistance.</p>
+                    </div>
+                  ) : (
+                    <RadioGroup
+                      value={selectedWindowId?.toString()}
+                      onValueChange={(value) => setSelectedWindowId(parseInt(value))}
+                    >
+                      <div className="space-y-4">
+                        {Object.entries(windowsByDate).map(([date, windows]) => (
+                          <div key={date} className="space-y-2">
+                            <h3 className="font-semibold text-sm text-muted-foreground">
+                              {new Date(date).toLocaleDateString('en-US', {
+                                weekday: 'long',
+                                month: 'long',
+                                day: 'numeric',
+                              })}
+                            </h3>
+                            {windows.map((window) => {
+                              const isWindowClosed = window.isClosed || (window.capacity - window.currentBookings) <= 0;
+                              const isDisabled = isWindowClosed;
+                              
+                              return (
+                                <div
+                                  key={window.id}
+                                  className={`flex items-center space-x-2 p-3 border rounded-lg ${
+                                    isDisabled 
+                                      ? 'opacity-50 cursor-not-allowed bg-muted' 
+                                      : 'hover:bg-accent cursor-pointer'
+                                  }`}
+                                  data-testid={`radio-window-${window.id}`}
                                 >
-                                  <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-2">
-                                      <Clock className="h-4 w-4 text-muted-foreground" />
-                                      <span className="font-medium">
-                                        {window.startTime} - {window.endTime}
+                                  <RadioGroupItem
+                                    value={window.id.toString()}
+                                    id={`window-${window.id}`}
+                                    disabled={isDisabled}
+                                    data-testid={`radio-button-window-${window.id}`}
+                                  />
+                                  <Label
+                                    htmlFor={`window-${window.id}`}
+                                    className={`flex-1 ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                  >
+                                    <div className="flex justify-between items-center">
+                                      <div className="flex items-center gap-2">
+                                        <Clock className="h-4 w-4 text-muted-foreground" />
+                                        <span className="font-medium">
+                                          {window.startTime} - {window.endTime}
+                                        </span>
+                                      </div>
+                                      <span className="text-sm text-muted-foreground">
+                                        {window.isClosed ? (
+                                          <span className="text-destructive">Closed</span>
+                                        ) : (window.capacity - window.currentBookings) <= 0 ? (
+                                          <span className="text-destructive">Full</span>
+                                        ) : (
+                                          `${window.capacity - window.currentBookings} slots left`
+                                        )}
                                       </span>
                                     </div>
-                                    <span className="text-sm text-muted-foreground">
-                                      {window.isClosed ? (
-                                        <span className="text-destructive">Closed</span>
-                                      ) : (window.capacity - window.currentBookings) <= 0 ? (
-                                        <span className="text-destructive">Full</span>
-                                      ) : (
-                                        `${window.capacity - window.currentBookings} slots left`
-                                      )}
-                                    </span>
-                                  </div>
-                                  {window.isClosed && window.closedReason && (
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                      {window.closedReason}
-                                    </p>
-                                  )}
-                                </Label>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ))}
-                    </div>
-                  </RadioGroup>
-                )}
-              </CardContent>
-            </Card>
+                                    {window.isClosed && window.closedReason && (
+                                      <p className="text-xs text-muted-foreground mt-1">
+                                        {window.closedReason}
+                                      </p>
+                                    )}
+                                  </Label>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                    </RadioGroup>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Payment Method */}
             <Card>
@@ -654,20 +697,41 @@ export default function DeliveryCheckout() {
                   onValueChange={setSelectedPaymentMethod}
                 >
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
-                      <RadioGroupItem value="cash" id="cash" data-testid="radio-payment-cash" />
-                      <Label htmlFor="cash" className="flex-1 cursor-pointer flex items-center gap-2">
-                        <Banknote className="h-4 w-4" />
-                        Cash on Delivery
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
-                      <RadioGroupItem value="credit_card" id="credit_card" data-testid="radio-payment-credit" />
-                      <Label htmlFor="credit_card" className="flex-1 cursor-pointer flex items-center gap-2">
-                        <CreditCard className="h-4 w-4" />
-                        Credit/Debit Card
-                      </Label>
-                    </div>
+                    {isPickup ? (
+                      <>
+                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
+                          <RadioGroupItem value="pay_in_store" id="pay_in_store" data-testid="radio-payment-in-store" />
+                          <Label htmlFor="pay_in_store" className="flex-1 cursor-pointer flex items-center gap-2">
+                            <Banknote className="h-4 w-4" />
+                            Pay in Store
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
+                          <RadioGroupItem value="credit_card" id="credit_card" data-testid="radio-payment-credit" />
+                          <Label htmlFor="credit_card" className="flex-1 cursor-pointer flex items-center gap-2">
+                            <CreditCard className="h-4 w-4" />
+                            Credit/Debit Card
+                          </Label>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
+                          <RadioGroupItem value="cash" id="cash" data-testid="radio-payment-cash" />
+                          <Label htmlFor="cash" className="flex-1 cursor-pointer flex items-center gap-2">
+                            <Banknote className="h-4 w-4" />
+                            Cash on Delivery
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
+                          <RadioGroupItem value="credit_card" id="credit_card" data-testid="radio-payment-credit" />
+                          <Label htmlFor="credit_card" className="flex-1 cursor-pointer flex items-center gap-2">
+                            <CreditCard className="h-4 w-4" />
+                            Credit/Debit Card
+                          </Label>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </RadioGroup>
 
@@ -747,23 +811,25 @@ export default function DeliveryCheckout() {
               </CardContent>
             </Card>
 
-            {/* Delivery Instructions */}
+            {/* Instructions */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  Delivery Instructions
+                  {isPickup ? 'Order Notes' : 'Delivery Instructions'}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Textarea
-                  placeholder="Gate code, leave at door, call when arriving, apartment number..."
+                  placeholder={isPickup ? "Any special requests for your order..." : "Gate code, leave at door, call when arriving, apartment number..."}
                   value={deliveryNotes}
                   onChange={(e) => setDeliveryNotes(e.target.value)}
                   className="min-h-[80px]"
                   data-testid="input-delivery-notes"
                 />
-                <p className="text-xs text-muted-foreground mt-2">Optional - Add any special instructions for your delivery driver</p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {isPickup ? 'Optional - Add any special requests for your pickup order' : 'Optional - Add any special instructions for your delivery driver'}
+                </p>
               </CardContent>
             </Card>
 
@@ -851,8 +917,8 @@ export default function DeliveryCheckout() {
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Outside Delivery Zone Warning */}
-                {feeData && !feeData.withinDeliveryZone && (
+                {/* Outside Delivery Zone Warning (delivery only) */}
+                {!isPickup && feeData && !feeData.withinDeliveryZone && (
                   <Alert variant="destructive">
                     <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>
@@ -965,21 +1031,23 @@ export default function DeliveryCheckout() {
                       <span data-testid="text-checkout-discount">-${discount.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Delivery Fee
-                      {deliveryDistance > 0 && (
-                        <span className="text-xs ml-1">({deliveryDistance.toFixed(1)} mi)</span>
-                      )}
-                    </span>
-                    <span data-testid="text-checkout-delivery-fee">
-                      {deliveryFee === 0 ? (
-                        <span className="text-green-600 font-medium">FREE</span>
-                      ) : (
-                        `$${deliveryFee.toFixed(2)}`
-                      )}
-                    </span>
-                  </div>
+                  {!isPickup && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Delivery Fee
+                        {deliveryDistance > 0 && (
+                          <span className="text-xs ml-1">({deliveryDistance.toFixed(1)} mi)</span>
+                        )}
+                      </span>
+                      <span data-testid="text-checkout-delivery-fee">
+                        {deliveryFee === 0 ? (
+                          <span className="text-green-600 font-medium">FREE</span>
+                        ) : (
+                          `$${deliveryFee.toFixed(2)}`
+                        )}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Tax (8.25%)</span>
                     <span data-testid="text-checkout-tax">${tax.toFixed(2)}</span>
@@ -997,7 +1065,7 @@ export default function DeliveryCheckout() {
                   className="w-full"
                   size="lg"
                   onClick={handlePlaceOrder}
-                  disabled={!selectedWindowId || isProcessingPayment || placeOrderMutation.isPending || (selectedPaymentMethod === "cash" && cashPaymentType === "specify" && (!cashPaymentAmount || parseFloat(cashPaymentAmount) < total))}
+                  disabled={(!isPickup && !selectedWindowId) || isProcessingPayment || placeOrderMutation.isPending || (selectedPaymentMethod === "cash" && cashPaymentType === "specify" && (!cashPaymentAmount || parseFloat(cashPaymentAmount) < total))}
                   data-testid="button-place-order"
                 >
                   {isProcessingPayment || placeOrderMutation.isPending ? (
@@ -1028,8 +1096,59 @@ export default function DeliveryCheckout() {
         </div>
       </div>
 
-      
       <DeliveryFooter />
+
+      {showConfirmDialog && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setShowConfirmDialog(false)} />
+          <div className="relative bg-card rounded-xl border border-border shadow-2xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-bold mb-3">Confirm Your Order</h3>
+            <div className="space-y-3 mb-6">
+              <p className="text-sm text-muted-foreground">
+                You have selected <span className="font-semibold text-foreground">{isPickup ? 'Pickup' : 'Delivery'}</span> as your fulfillment method.
+              </p>
+              {(selectedPaymentMethod === "pay_in_store" || selectedPaymentMethod === "cash") && (
+                <div className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    Items for {selectedPaymentMethod === "pay_in_store" ? "pay-in-store" : "cash"} orders will be held until the end of the business day.
+                  </p>
+                </div>
+              )}
+              <div className="text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Total</span>
+                  <span className="font-bold">${total.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Payment</span>
+                  <span className="font-medium">
+                    {selectedPaymentMethod === "pay_in_store" ? "Pay in Store" : selectedPaymentMethod === "cash" ? "Cash" : "Credit Card"}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowConfirmDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  setShowConfirmDialog(false);
+                  processOrder();
+                }}
+              >
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Confirm & Place Order
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

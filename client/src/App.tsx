@@ -4,6 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { FulfillmentProvider } from "@/contexts/FulfillmentContext";
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import HomePage from "@/pages/HomePage";
@@ -202,7 +203,9 @@ function App() {
           <BundleAnalyzer />
 
           <main id="main-content">
-            <Router />
+            <FulfillmentProvider>
+              <Router />
+            </FulfillmentProvider>
           </main>
           <Toaster />
           {showAgeVerification && <AgeVerificationModal onVerify={handleVerifyAge} />}

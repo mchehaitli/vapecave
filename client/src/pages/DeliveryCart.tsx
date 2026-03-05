@@ -12,6 +12,7 @@ import { DeliveryHeader } from "@/components/DeliveryHeader";
 import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Truck, ArrowLeft, AlertTriangle } from "lucide-react";
 import { DeliveryFooter } from "@/components/DeliveryFooter";
+import { useFulfillment } from "@/contexts/FulfillmentContext";
 
 function ConfirmDialog({ open, onConfirm, onCancel, title, message }: {
   open: boolean;
@@ -65,6 +66,8 @@ export default function DeliveryCart() {
   const [, setLocation] = useLocation();
   const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
   const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null);
+  const { fulfillmentMode } = useFulfillment();
+  const isPickup = fulfillmentMode === 'pickup';
 
   useInactivityTimeout({
     timeoutMinutes: 30,
@@ -197,10 +200,10 @@ export default function DeliveryCart() {
   };
 
   const baseFee = calculateCartDeliveryFee();
-  const deliveryFee = subtotal >= freeDeliveryThreshold ? 0 : baseFee;
+  const deliveryFee = isPickup ? 0 : (subtotal >= freeDeliveryThreshold ? 0 : baseFee);
   const total = subtotal + deliveryFee;
-  const amountUntilFreeDelivery = Math.max(0, freeDeliveryThreshold - subtotal);
-  const freeDeliveryProgress = Math.min(100, (subtotal / freeDeliveryThreshold) * 100);
+  const amountUntilFreeDelivery = isPickup ? 0 : Math.max(0, freeDeliveryThreshold - subtotal);
+  const freeDeliveryProgress = isPickup ? 100 : Math.min(100, (subtotal / freeDeliveryThreshold) * 100);
 
   const handleUpdateQuantity = (id: number, currentQuantity: number, change: number) => {
     const newQuantity = currentQuantity + change;
@@ -384,16 +387,18 @@ export default function DeliveryCart() {
                     <span>Subtotal</span>
                     <span data-testid="text-subtotal">${subtotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Delivery Fee</span>
-                    <span data-testid="text-delivery-fee">
-                      {deliveryFee === 0 ? (
-                        <span className="text-green-600 font-medium">FREE</span>
-                      ) : (
-                        `$${deliveryFee.toFixed(2)}`
-                      )}
-                    </span>
-                  </div>
+                  {!isPickup && (
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Delivery Fee</span>
+                      <span data-testid="text-delivery-fee">
+                        {deliveryFee === 0 ? (
+                          <span className="text-green-600 font-medium">FREE</span>
+                        ) : (
+                          `$${deliveryFee.toFixed(2)}`
+                        )}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <Separator />
@@ -403,34 +408,45 @@ export default function DeliveryCart() {
                   <span data-testid="text-total">${total.toFixed(2)}</span>
                 </div>
 
-                {/* Free Delivery Progress */}
-                {amountUntilFreeDelivery > 0 && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        ${amountUntilFreeDelivery.toFixed(2)} until free delivery
-                      </span>
-                      <span className="font-medium">
-                        {freeDeliveryProgress.toFixed(0)}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${freeDeliveryProgress}%` }}
-                        data-testid="progress-free-delivery"
-                      />
-                    </div>
-                    <p className="text-xs text-green-600 font-medium">
-                      Add ${amountUntilFreeDelivery.toFixed(2)} more to get FREE delivery!
-                    </p>
-                  </div>
+                {!isPickup && (
+                  <>
+                    {amountUntilFreeDelivery > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            ${amountUntilFreeDelivery.toFixed(2)} until free delivery
+                          </span>
+                          <span className="font-medium">
+                            {freeDeliveryProgress.toFixed(0)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2">
+                          <div
+                            className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${freeDeliveryProgress}%` }}
+                            data-testid="progress-free-delivery"
+                          />
+                        </div>
+                        <p className="text-xs text-green-600 font-medium">
+                          Add ${amountUntilFreeDelivery.toFixed(2)} more to get FREE delivery!
+                        </p>
+                      </div>
+                    )}
+
+                    {amountUntilFreeDelivery === 0 && (
+                      <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                        <p className="text-green-700 dark:text-green-300 font-medium text-sm text-center">
+                          🎉 You qualify for FREE delivery!
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
 
-                {amountUntilFreeDelivery === 0 && (
-                  <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                    <p className="text-green-700 dark:text-green-300 font-medium text-sm text-center">
-                      🎉 You qualify for FREE delivery!
+                {isPickup && (
+                  <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                    <p className="text-yellow-700 dark:text-yellow-300 font-medium text-sm text-center">
+                      🏪 Pickup — No delivery fee
                     </p>
                   </div>
                 )}

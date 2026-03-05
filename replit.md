@@ -51,3 +51,13 @@ The application uses a modular architecture, separating frontend and backend. It
 - **Navbar cart count**: `cartItemCount` prop passed to `DeliveryHeader` on all browse pages (Brand, Category, Sale, ProductLine, Cart, Checkout).
 - **Variant grouping**: E-liquid/salt products with multiple nic levels grouped into single cards with selectable nic pills on Brand, Category, ProductLine, and Sale pages.
 - **Card style**: All delivery portal product cards (grid and list) use the standardized Category page style — always-visible compact Eye (Quick View) + Plus (Add) icon buttons next to price. No hover gradient overlays, no quantity steppers in browse cards.
+
+## Fulfillment Hybrid System (Pickup/Delivery)
+- **FulfillmentContext** (`client/src/contexts/FulfillmentContext.tsx`): React context providing `{fulfillmentMode, setFulfillmentMode}` with `"delivery" | "pickup"` modes (default: `"delivery"`). Wrapped around all routes via `App.tsx`.
+- **DeliveryHeader toggle**: Clickable pill badge next to logo — green "Delivery" or yellow "Pickup". Toggles between modes globally.
+- **DeliveryCart**: In pickup mode, delivery fee = $0, delivery progress bars hidden, pickup banner shown instead.
+- **DeliveryCheckout**: In pickup mode, delivery address/window cards hidden; "Pickup Information" card shown instead; payment options show "Pay in Store" instead of "Cash on Delivery"; delivery fee hidden from order summary; delivery zone validation skipped.
+- **Confirmation Popup**: On "Place Order" click, shows confirmation dialog with fulfillment method, total, payment method. Cash/pay-in-store orders show "Items will be held until end of business day" warning. Order only processes on confirm.
+- **FloatingCartButton**: Uses fulfillment context to hide delivery fees/progress in pickup mode.
+- **Stock badge rule**: Only "Out of Stock" badge/overlay on customer-facing cards; QuickView retains all stock states (In Stock, Low Stock, Out of Stock).
+- **Two-tier sort**: All product listings sorted by Brand Name A-Z → Product Name A-Z.

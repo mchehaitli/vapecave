@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useFulfillment } from "@/contexts/FulfillmentContext";
 
 import logo_dark from "@assets/white_logo_transparent_background.png";
 import logo_light from "@assets/logo_transparent_background_1772506707381.png";
@@ -106,6 +107,11 @@ export function DeliveryHeader({
     onProductSelect?.(product);
   };
   
+  const { fulfillmentMode, setFulfillmentMode } = useFulfillment();
+  const toggleFulfillment = () => {
+    setFulfillmentMode(fulfillmentMode === 'delivery' ? 'pickup' : 'delivery');
+  };
+
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
@@ -164,10 +170,17 @@ export function DeliveryHeader({
                   loading="lazy"
                   className="h-7 sm:h-12 w-auto flex-shrink-0"
                 />
-                <Badge variant="secondary" className="hidden sm:inline-flex text-xs">
-                  Delivery
-                </Badge>
               </Link>
+              <button
+                onClick={toggleFulfillment}
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors cursor-pointer ${
+                  fulfillmentMode === 'delivery'
+                    ? 'bg-green-500 text-white hover:bg-green-600'
+                    : 'bg-yellow-500 text-black hover:bg-yellow-600'
+                }`}
+              >
+                {fulfillmentMode === 'delivery' ? 'Delivery' : 'Pickup'}
+              </button>
               
               
             </div>

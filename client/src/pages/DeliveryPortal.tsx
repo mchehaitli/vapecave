@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DeliveryHeader } from "@/components/DeliveryHeader";
 import { DeliveryFooter } from "@/components/DeliveryFooter";
 import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
+import { useFulfillment } from "@/contexts/FulfillmentContext";
 import { FloatingCartButton } from "@/components/FloatingCartButton";
 import { ProductQuickView } from "@/components/ProductQuickView";
 import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
@@ -387,7 +388,6 @@ function ProductCarousel({
         {products.map((product) => {
           const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
           const isOutOfStock = stock <= 0;
-          const isLowStock = stock > 0 && stock <= 2;
           const inCart = cartItems[product.id];
 
           const featuredLink = featuredMode && product.productLineId && productLineMap?.[product.productLineId]
@@ -438,14 +438,6 @@ function ProductCarousel({
                     <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
                       <Badge variant="destructive" className="text-[8px] sm:text-sm px-1 sm:px-2 py-0 sm:py-0.5">Out of Stock</Badge>
                     </div>
-                  )}
-                  
-                  {isLowStock && !isOutOfStock && (
-                    <Badge 
-                      className="absolute top-2 right-2 sm:top-3 sm:right-3 text-[8px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5 leading-tight bg-amber-500 text-white"
-                    >
-                      Low Stock
-                    </Badge>
                   )}
 
                   {!featuredMode && (
@@ -555,7 +547,7 @@ function ProductCarousel({
 export default function DeliveryPortal() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [deliveryMethod] = useState<"pickup" | "delivery">("delivery");
+  const { fulfillmentMode: deliveryMethod } = useFulfillment();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'featured' | 'category'>('featured');
   const [searchQuery, setSearchQuery] = useState("");
@@ -718,7 +710,7 @@ export default function DeliveryPortal() {
         const bFeatured = featuredIds.includes(b.id);
         if (aFeatured && !bFeatured) return -1;
         if (!aFeatured && bFeatured) return 1;
-        return (a.displayOrder || 0) - (b.displayOrder || 0);
+        return (a.name || '').localeCompare(b.name || '');
       })
       .slice(0, 12);
   };
@@ -761,16 +753,36 @@ export default function DeliveryPortal() {
         .slice(0, 12);
     }
     
-    // No featured products set - show all products in the category
-    return categoryProducts.slice(0, 12);
+    // No featured products set - show all products sorted by brand then name
+    return categoryProducts.sort((a, b) => {
+      const aBrand = (a.brandId ? brandMap[a.brandId]?.name : '') || '';
+      const bBrand = (b.brandId ? brandMap[b.brandId]?.name : '') || '';
+      const brandCmp = aBrand.localeCompare(bBrand);
+      if (brandCmp !== 0) return brandCmp;
+      return (a.name || '').localeCompare(b.name || '');
+    }).slice(0, 12);
   };
 
   const popularProducts = filteredProducts
     .filter(p => p.badge === 'popular')
+    .sort((a, b) => {
+      const aBrand = (a.brandId ? brandMap[a.brandId]?.name : '') || '';
+      const bBrand = (b.brandId ? brandMap[b.brandId]?.name : '') || '';
+      const brandCmp = aBrand.localeCompare(bBrand);
+      if (brandCmp !== 0) return brandCmp;
+      return (a.name || '').localeCompare(b.name || '');
+    })
     .slice(0, 12);
 
   const newProducts = filteredProducts
     .filter(p => p.badge === 'new')
+    .sort((a, b) => {
+      const aBrand = (a.brandId ? brandMap[a.brandId]?.name : '') || '';
+      const bBrand = (b.brandId ? brandMap[b.brandId]?.name : '') || '';
+      const brandCmp = aBrand.localeCompare(bBrand);
+      if (brandCmp !== 0) return brandCmp;
+      return (a.name || '').localeCompare(b.name || '');
+    })
     .slice(0, 12);
 
   const cartTotal = Object.entries(cartItems).reduce((sum, [productId, quantity]) => {
@@ -1110,7 +1122,6 @@ export default function DeliveryPortal() {
                         {(() => {
                           const featuredStock = parseInt(heroProducts[featuredIndex].stockQuantity || '0');
                           const isFeaturedOutOfStock = featuredStock <= 0;
-                          const isFeaturedLowStock = featuredStock > 0 && featuredStock <= 2;
                           
                           if (isFeaturedOutOfStock) {
                             return (
@@ -1126,22 +1137,15 @@ export default function DeliveryPortal() {
                           const fpLink = fpProductLine ? `/delivery/product-line/${fpProductLine.slug}` : fpBrand ? `/delivery/brand/${fpBrand.slug}` : `/delivery/shop`;
                           
                           return (
-                            <>
-                              {isFeaturedLowStock && (
-                                <Badge className="bg-amber-500 text-white text-[9px] sm:text-xs px-1 sm:px-1.5 py-0">
-                                  Low Stock
-                                </Badge>
-                              )}
-                              <Link href={fpLink}>
-                                <Button
-                                  size="sm"
-                                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/30 text-[10px] sm:text-sm h-6 sm:h-9 px-2 sm:px-3"
-                                >
-                                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-2" />
-                                  View Products
-                                </Button>
-                              </Link>
-                            </>
+                            <Link href={fpLink}>
+                              <Button
+                                size="sm"
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/30 text-[10px] sm:text-sm h-6 sm:h-9 px-2 sm:px-3"
+                              >
+                                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-2" />
+                                View Products
+                              </Button>
+                            </Link>
                           );
                         })()}
                       </div>

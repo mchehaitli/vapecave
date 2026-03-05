@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { useLocation } from "wouter";
+import { useFulfillment } from "@/contexts/FulfillmentContext";
 
 interface CartItem {
   id: number;
@@ -34,12 +35,14 @@ interface FloatingCartButtonProps {
 export function FloatingCartButton({
   cartItems,
   products,
-  deliveryMethod = "delivery",
+  deliveryMethod: deliveryMethodProp = "delivery",
   freeDeliveryThreshold = 100,
   deliveryFee: baseFee = 0,
 }: FloatingCartButtonProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [, setLocation] = useLocation();
+  const { fulfillmentMode } = useFulfillment();
+  const deliveryMethod = fulfillmentMode || deliveryMethodProp;
 
   useEffect(() => {
     if (isExpanded) {
