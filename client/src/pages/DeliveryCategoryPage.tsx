@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useRoute, Link, useSearch } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, Grid3X3, List, Star, Package, Plus, Eye, Sparkles, LayoutGrid } from "lucide-react";
+import { ArrowLeft, Grid3X3, List, Star, Package, Plus, Minus, Eye, Sparkles, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -87,6 +87,12 @@ export default function DeliveryCategoryPage() {
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  const cartQuantityMap = useMemo(() => {
+    const map: Record<number, number> = {};
+    cartItems.forEach(item => { map[item.productId] = item.quantity; });
+    return map;
+  }, [cartItems]);
+
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
       const response = await fetch("/api/delivery/cart", {
@@ -108,6 +114,23 @@ export default function DeliveryCategoryPage() {
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     },
+  });
+
+  const updateCartMutation = useMutation({
+    mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
+      const cartItem = cartItems.find(item => item.productId === productId);
+      if (!cartItem) throw new Error("Item not in cart");
+      if (quantity <= 0) {
+        const res = await fetch(`/api/delivery/cart/${cartItem.id}`, { method: 'DELETE', credentials: 'include' });
+        if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || "Failed to remove"); }
+        return res.json();
+      }
+      const res = await fetch(`/api/delivery/cart/${cartItem.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ quantity }) });
+      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || "Failed to update"); }
+      return res.json();
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/delivery/cart"] }); },
+    onError: (error: Error) => { toast({ title: "Error", description: error.message, variant: "destructive" }); },
   });
 
   const category = categories.find((c) => c.slug === slug);
@@ -236,25 +259,10 @@ export default function DeliveryCategoryPage() {
   const renderStockBadge = (stockQuantity: string | null, position: "grid" | "list" = "grid") => {
     const stock = stockQuantity ? parseInt(stockQuantity) : 0;
     const isOutOfStock = stock <= 0;
-    const isLowStock = stock > 0 && stock <= 2;
-    const isInStock = stock >= 3;
 
-    if (position === "grid") {
-      if (isLowStock) return (
-        <Badge className="absolute top-2 right-2 bg-amber-500 text-white text-xs">Low Stock</Badge>
-      );
-      if (isInStock) return (
-        <Badge className="absolute top-2 right-2 bg-green-500 text-white text-xs">In Stock</Badge>
-      );
-    } else {
-      if (isOutOfStock) return (
+    if (position === "list" && isOutOfStock) {
+      return (
         <Badge variant="destructive" className="flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">Out of Stock</Badge>
-      );
-      if (isLowStock) return (
-        <Badge className="bg-amber-500 text-white flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">Low Stock</Badge>
-      );
-      if (isInStock) return (
-        <Badge className="bg-green-500 text-white flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">In Stock</Badge>
       );
     }
     return null;
@@ -452,7 +460,6 @@ export default function DeliveryCategoryPage() {
                             <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
                           </div>
                         )}
-                        {!isOutOfStock && renderStockBadge(variant.stockQuantity, "grid")}
                       </div>
                       <div className="p-3">
                         {(group.brandLine || group.brand) && (
@@ -507,14 +514,24 @@ export default function DeliveryCategoryPage() {
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1 })}
-                              disabled={addToCartMutation.isPending || isOutOfStock}
-                            >
-                              <Plus className="w-4 h-4" />
-                            </Button>
+                            {(() => {
+                              const qty = cartQuantityMap[variant.productId] || 0;
+                              return qty > 0 ? (
+                                <div className="flex items-center gap-0.5">
+                                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => updateCartMutation.mutate({ productId: variant.productId, quantity: qty - 1 })} disabled={updateCartMutation.isPending}>
+                                    <Minus className="w-4 h-4" />
+                                  </Button>
+                                  <span className="text-xs font-semibold w-5 text-center">{qty}</span>
+                                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1 })} disabled={addToCartMutation.isPending}>
+                                    <Plus className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1 })} disabled={addToCartMutation.isPending || isOutOfStock}>
+                                  <Plus className="w-4 h-4" />
+                                </Button>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -527,8 +544,7 @@ export default function DeliveryCategoryPage() {
               const isFeatured = featuredIds.includes(product.id);
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
               const isOutOfStock = stock <= 0;
-              const isLowStock = stock > 0 && stock <= 2;
-              const isInStock = stock >= 3;
+              const pQty = cartQuantityMap[product.id] || 0;
 
               return (
                 <motion.div
@@ -566,16 +582,6 @@ export default function DeliveryCategoryPage() {
                           <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
                         </div>
                       )}
-                      {isLowStock && !isOutOfStock && (
-                        <Badge className="absolute top-2 right-2 bg-amber-500 text-white text-xs">
-                          Low Stock
-                        </Badge>
-                      )}
-                      {isInStock && !isFeatured && (
-                        <Badge className="absolute top-2 right-2 bg-green-500 text-white text-xs">
-                          In Stock
-                        </Badge>
-                      )}
                     </div>
                     <div className="p-3">
                       <h3 className="font-medium text-sm line-clamp-2 min-h-[2.5rem]">
@@ -602,14 +608,21 @@ export default function DeliveryCategoryPage() {
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })}
-                            disabled={addToCartMutation.isPending || isOutOfStock}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
+                          {pQty > 0 ? (
+                            <div className="flex items-center gap-0.5">
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => updateCartMutation.mutate({ productId: product.id, quantity: pQty - 1 })} disabled={updateCartMutation.isPending}>
+                                <Minus className="w-4 h-4" />
+                              </Button>
+                              <span className="text-xs font-semibold w-5 text-center">{pQty}</span>
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })} disabled={addToCartMutation.isPending}>
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })} disabled={addToCartMutation.isPending || isOutOfStock}>
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -721,15 +734,25 @@ export default function DeliveryCategoryPage() {
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button
-                          size="sm"
-                          className="h-8 px-2 sm:px-3"
-                          onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1 })}
-                          disabled={addToCartMutation.isPending || isOutOfStock}
-                        >
-                          <Plus className="w-4 h-4 sm:mr-1" />
-                          <span className="hidden sm:inline">Add</span>
-                        </Button>
+                        {(() => {
+                          const qty = cartQuantityMap[variant.productId] || 0;
+                          return qty > 0 ? (
+                            <div className="flex items-center gap-0.5">
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => updateCartMutation.mutate({ productId: variant.productId, quantity: qty - 1 })} disabled={updateCartMutation.isPending}>
+                                <Minus className="w-4 h-4" />
+                              </Button>
+                              <span className="text-xs font-semibold w-5 text-center">{qty}</span>
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1 })} disabled={addToCartMutation.isPending}>
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCartMutation.mutate({ productId: variant.productId, quantity: 1 })} disabled={addToCartMutation.isPending || isOutOfStock}>
+                              <Plus className="w-4 h-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Add</span>
+                            </Button>
+                          );
+                        })()}
                       </div>
                     </Card>
                   </motion.div>
@@ -740,8 +763,7 @@ export default function DeliveryCategoryPage() {
               const isFeatured = featuredIds.includes(product.id);
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
               const isOutOfStock = stock <= 0;
-              const isLowStock = stock > 0 && stock <= 2;
-              const isInStock = stock >= 3;
+              const listQty = cartQuantityMap[product.id] || 0;
 
               return (
                 <motion.div
@@ -789,12 +811,6 @@ export default function DeliveryCategoryPage() {
                         {isOutOfStock && (
                           <Badge variant="destructive" className="flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">Out of Stock</Badge>
                         )}
-                        {isLowStock && !isOutOfStock && (
-                          <Badge className="bg-amber-500 text-white flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">Low Stock</Badge>
-                        )}
-                        {isInStock && !isFeatured && (
-                          <Badge className="bg-green-500 text-white flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">In Stock</Badge>
-                        )}
                       </div>
                       {product.description && (
                         <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1 hidden sm:block">
@@ -819,15 +835,22 @@ export default function DeliveryCategoryPage() {
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button
-                        size="sm"
-                        className="h-8 px-2 sm:px-3"
-                        onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })}
-                        disabled={addToCartMutation.isPending || isOutOfStock}
-                      >
-                        <Plus className="w-4 h-4 sm:mr-1" />
-                        <span className="hidden sm:inline">Add</span>
-                      </Button>
+                      {listQty > 0 ? (
+                        <div className="flex items-center gap-0.5">
+                          <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => updateCartMutation.mutate({ productId: product.id, quantity: listQty - 1 })} disabled={updateCartMutation.isPending}>
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                          <span className="text-xs font-semibold w-5 text-center">{listQty}</span>
+                          <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })} disabled={addToCartMutation.isPending}>
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1 })} disabled={addToCartMutation.isPending || isOutOfStock}>
+                          <Plus className="w-4 h-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Add</span>
+                        </Button>
+                      )}
                     </div>
                   </Card>
                 </motion.div>

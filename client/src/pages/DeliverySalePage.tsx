@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tag, Eye, Plus, Percent } from "lucide-react";
+import { Tag, Eye, Plus, Minus, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -79,7 +79,7 @@ export default function DeliverySalePage() {
       if (!p.enabled) return false;
       if (!p.salePrice || p.salePrice === '' || p.salePrice === '0') return false;
       return true;
-    }).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    }).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }, [allProducts]);
 
   const { groups: variantGroups, singles: singleProducts } = useMemo(
@@ -155,6 +155,29 @@ export default function DeliverySalePage() {
       }
     });
   };
+
+  const cartQuantityMap = useMemo(() => {
+    const map: Record<number, number> = {};
+    apiCartItems.forEach(item => { map[item.productId] = item.quantity; });
+    return map;
+  }, [apiCartItems]);
+
+  const updateCartMutation = useMutation({
+    mutationFn: async ({ productId, quantity }: { productId: number; quantity: number }) => {
+      const cartItem = apiCartItems.find(item => item.productId === productId);
+      if (!cartItem) throw new Error("Item not in cart");
+      if (quantity <= 0) {
+        const res = await fetch(`/api/delivery/cart/${cartItem.id}`, { method: 'DELETE', credentials: 'include' });
+        if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || "Failed to remove"); }
+        return res.json();
+      }
+      const res = await fetch(`/api/delivery/cart/${cartItem.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ quantity }) });
+      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || "Failed to update"); }
+      return res.json();
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/delivery/cart"] }); },
+    onError: (error: Error) => { toast({ title: "Error", description: error.message, variant: "destructive" }); },
+  });
 
   if (isLoading) {
     return (
@@ -257,7 +280,6 @@ export default function DeliverySalePage() {
                   const variant = getVariantData(group);
                   const stock = variant.stockQuantity ? parseInt(variant.stockQuantity) : 0;
                   const isOutOfStock = stock <= 0;
-                  const isLowStock = stock > 0 && stock <= 2;
                   const originalPriceNum = parseFloat(variant.price);
                   const salePriceNum = variant.salePrice ? parseFloat(variant.salePrice) : originalPriceNum;
                   const discount = originalPriceNum > 0 ? Math.round(((originalPriceNum - salePriceNum) / originalPriceNum) * 100) : 0;
@@ -298,9 +320,6 @@ export default function DeliverySalePage() {
                             <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
                               <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
                             </div>
-                          )}
-                          {isLowStock && !isOutOfStock && (
-                            <Badge className="absolute bottom-2 right-2 text-[10px] bg-amber-500 text-white">Low Stock</Badge>
                           )}
                         </div>
                         <div className="p-3">
@@ -349,14 +368,24 @@ export default function DeliverySalePage() {
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              <Button
-                                size="sm"
-                                className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white"
-                                onClick={() => handleAddToCart(variant.productId)}
-                                disabled={addToCartMutation.isPending || isOutOfStock}
-                              >
-                                <Plus className="w-4 h-4" />
-                              </Button>
+                              {(() => {
+                                const qty = cartQuantityMap[variant.productId] || 0;
+                                return qty > 0 ? (
+                                  <div className="flex items-center gap-0.5">
+                                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => updateCartMutation.mutate({ productId: variant.productId, quantity: qty - 1 })} disabled={updateCartMutation.isPending}>
+                                      <Minus className="w-4 h-4" />
+                                    </Button>
+                                    <span className="text-xs font-semibold w-5 text-center">{qty}</span>
+                                    <Button size="sm" className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending}>
+                                      <Plus className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <Button size="sm" className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending || isOutOfStock}>
+                                    <Plus className="w-4 h-4" />
+                                  </Button>
+                                );
+                              })()}
                             </div>
                           </div>
                         </div>
@@ -372,8 +401,12 @@ export default function DeliverySalePage() {
                     product={product}
                     index={index}
                     onAddToCart={handleAddToCart}
+                    onUpdateQuantity={(pid: number, qty: number) => updateCartMutation.mutate({ productId: pid, quantity: qty })}
                     onQuickView={setQuickViewProduct}
                     brandMap={brandMap}
+                    cartQty={cartQuantityMap[product.id] || 0}
+                    addPending={addToCartMutation.isPending}
+                    updatePending={updateCartMutation.isPending}
                   />
                 );
               })}
@@ -418,20 +451,26 @@ export default function DeliverySalePage() {
 function SaleProductCard({ 
   product, 
   index, 
-  onAddToCart, 
+  onAddToCart,
+  onUpdateQuantity,
   onQuickView,
-  brandMap
+  brandMap,
+  cartQty,
+  addPending,
+  updatePending
 }: { 
   product: DeliveryProduct;
   index: number;
   onAddToCart: (productId: number) => void;
+  onUpdateQuantity: (productId: number, quantity: number) => void;
   onQuickView: (product: DeliveryProduct) => void;
   brandMap: Record<number, DeliveryBrand>;
+  cartQty: number;
+  addPending: boolean;
+  updatePending: boolean;
 }) {
   const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
   const isOutOfStock = stock <= 0;
-  const isLowStock = stock > 0 && stock <= 2;
-  const isInStock = stock >= 3;
 
   const originalPrice = parseFloat(product.price);
   const salePrice = parseFloat(product.salePrice || '0');
@@ -480,18 +519,6 @@ function SaleProductCard({
               <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
             </div>
           )}
-
-          {isLowStock && !isOutOfStock && (
-            <Badge className="absolute bottom-2 right-2 text-[10px] bg-amber-500 text-white">
-              Low Stock
-            </Badge>
-          )}
-
-          {isInStock && (
-            <Badge className="absolute bottom-2 right-2 text-[10px] bg-green-500 text-white">
-              In Stock
-            </Badge>
-          )}
         </div>
 
         <div className="p-3">
@@ -517,14 +544,21 @@ function SaleProductCard({
               >
                 <Eye className="w-4 h-4" />
               </Button>
-              <Button
-                size="sm"
-                className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white"
-                onClick={() => onAddToCart(product.id)}
-                disabled={isOutOfStock}
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
+              {cartQty > 0 ? (
+                <div className="flex items-center gap-0.5">
+                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => onUpdateQuantity(product.id, cartQty - 1)} disabled={updatePending}>
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <span className="text-xs font-semibold w-5 text-center">{cartQty}</span>
+                  <Button size="sm" className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white" onClick={() => onAddToCart(product.id)} disabled={addPending}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button size="sm" className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white" onClick={() => onAddToCart(product.id)} disabled={addPending || isOutOfStock}>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>

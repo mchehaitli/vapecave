@@ -420,9 +420,6 @@ export function ProductQuickView({
 
               {displayDescription && (
                 <div className="mb-4 sm:mb-6">
-                  <h3 className="font-semibold mb-2 text-foreground text-sm sm:text-base">
-                    Description
-                  </h3>
                   <p className="text-muted-foreground text-sm sm:text-base">
                     {displayDescription}
                   </p>

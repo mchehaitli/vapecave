@@ -121,7 +121,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
     const bFeatured = featuredIds.includes(b.id);
     if (aFeatured && !bFeatured) return -1;
     if (!aFeatured && bFeatured) return 1;
-    return (a.displayOrder || 0) - (b.displayOrder || 0);
+    return (a.name || '').localeCompare(b.name || '');
   });
 
   const { groups: variantGroups, singles: singleProducts } = useMemo(
@@ -473,14 +473,24 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                               <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => openVariantQuickView(group)}>
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              <Button
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => addToCart.mutate(variant.productId)}
-                                disabled={addToCart.isPending || isOutOfStock}
-                              >
-                                <Plus className="w-4 h-4" />
-                              </Button>
+                              {(() => {
+                                const qty = derivedCartQuantities[variant.productId] || 0;
+                                return qty > 0 ? (
+                                  <div className="flex items-center gap-0.5">
+                                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleUpdateQuantity(variant.productId, qty - 1)} disabled={updateQuantity.isPending}>
+                                      <Minus className="w-4 h-4" />
+                                    </Button>
+                                    <span className="text-xs font-semibold w-5 text-center">{qty}</span>
+                                    <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(variant.productId)} disabled={addToCart.isPending}>
+                                      <Plus className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(variant.productId)} disabled={addToCart.isPending || isOutOfStock}>
+                                    <Plus className="w-4 h-4" />
+                                  </Button>
+                                );
+                              })()}
                             </div>
                           </div>
                         </div>
@@ -493,8 +503,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                 const isFeatured = featuredIds.includes(product.id);
                 const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
                 const isOutOfStock = stock <= 0;
-                const isLowStock = stock > 0 && stock <= 2;
-                const isInStock = stock >= 3;
+                const pQty = derivedCartQuantities[product.id] || 0;
 
                 return (
                   <motion.div
@@ -526,12 +535,6 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                             <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
                           </div>
                         )}
-                        {isLowStock && !isOutOfStock && (
-                          <Badge className="absolute top-2 right-2 bg-amber-500 text-white text-xs">Low Stock</Badge>
-                        )}
-                        {isInStock && !isFeatured && (
-                          <Badge className="absolute top-2 right-2 bg-green-500 text-white text-xs">In Stock</Badge>
-                        )}
                       </div>
                       <div className="p-3">
                         <h3 className="font-medium text-sm line-clamp-2 min-h-[2.5rem]">
@@ -550,14 +553,21 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                             <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setQuickViewProduct(product)}>
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => addToCart.mutate(product.id)}
-                              disabled={addToCart.isPending || isOutOfStock}
-                            >
-                              <Plus className="w-4 h-4" />
-                            </Button>
+                            {pQty > 0 ? (
+                              <div className="flex items-center gap-0.5">
+                                <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleUpdateQuantity(product.id, pQty - 1)} disabled={updateQuantity.isPending}>
+                                  <Minus className="w-4 h-4" />
+                                </Button>
+                                <span className="text-xs font-semibold w-5 text-center">{pQty}</span>
+                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(product.id)} disabled={addToCart.isPending}>
+                                  <Plus className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(product.id)} disabled={addToCart.isPending || isOutOfStock}>
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -646,12 +656,25 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                         <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => openVariantQuickView(group)}>
                           <Eye className="w-4 h-4" />
                         </Button>
-                        {!isOutOfStock && (
-                          <Button size="sm" className="h-8" onClick={() => addToCart.mutate(variant.productId)} disabled={addToCart.isPending}>
-                            <Plus className="w-3 h-3 mr-1" />
-                            Add
-                          </Button>
-                        )}
+                        {(() => {
+                          const qty = derivedCartQuantities[variant.productId] || 0;
+                          return qty > 0 ? (
+                            <div className="flex items-center gap-0.5">
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleUpdateQuantity(variant.productId, qty - 1)} disabled={updateQuantity.isPending}>
+                                <Minus className="w-4 h-4" />
+                              </Button>
+                              <span className="text-xs font-semibold w-5 text-center">{qty}</span>
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(variant.productId)} disabled={addToCart.isPending}>
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ) : !isOutOfStock ? (
+                            <Button size="sm" className="h-8" onClick={() => addToCart.mutate(variant.productId)} disabled={addToCart.isPending}>
+                              <Plus className="w-3 h-3 mr-1" />
+                              Add
+                            </Button>
+                          ) : null;
+                        })()}
                       </div>
                     </Card>
                   </motion.div>
@@ -662,7 +685,7 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
               const isFeatured = featuredIds.includes(product.id);
               const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
               const isOutOfStock = stock <= 0;
-              const isLowStock = stock > 0 && stock <= 2;
+              const lQty = derivedCartQuantities[product.id] || 0;
 
               return (
                 <motion.div
@@ -701,12 +724,6 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                         {isOutOfStock && (
                           <Badge variant="destructive" className="flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">Out of Stock</Badge>
                         )}
-                        {isLowStock && !isOutOfStock && (
-                          <Badge className="bg-amber-500 text-white flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">Low Stock</Badge>
-                        )}
-                        {stock >= 3 && (
-                          <Badge className="bg-green-500 text-white flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">In Stock</Badge>
-                        )}
                       </div>
                       {product.description && (
                         <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1 hidden sm:block">{product.description}</p>
@@ -729,15 +746,22 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button
-                        size="sm"
-                        className="h-8 px-2 sm:px-3"
-                        onClick={() => addToCart.mutate(product.id)}
-                        disabled={addToCart.isPending || isOutOfStock}
-                      >
-                        <Plus className="w-4 h-4 sm:mr-1" />
-                        <span className="hidden sm:inline">Add</span>
-                      </Button>
+                      {lQty > 0 ? (
+                        <div className="flex items-center gap-0.5">
+                          <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleUpdateQuantity(product.id, lQty - 1)} disabled={updateQuantity.isPending}>
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                          <span className="text-xs font-semibold w-5 text-center">{lQty}</span>
+                          <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate(product.id)} disabled={addToCart.isPending}>
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCart.mutate(product.id)} disabled={addToCart.isPending || isOutOfStock}>
+                          <Plus className="w-4 h-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Add</span>
+                        </Button>
+                      )}
                     </div>
                   </Card>
                 </motion.div>

@@ -235,7 +235,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
         if (!p.productLineId || !allowedLineIds.includes(p.productLineId)) return false;
       }
       return true;
-    }).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    }).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }, [allProducts, brand?.id, selectedRootLineId, selectedChildLineId, activeProductLines]);
 
   const { groups: variantGroups, singles: singleProducts } = useMemo(
@@ -530,14 +530,24 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                                 <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => openVariantQuickView(group)}>
                                   <Eye className="w-4 h-4" />
                                 </Button>
-                                <Button
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => handleAddToCart(variant.productId)}
-                                  disabled={addToCartMutation.isPending || isOutOfStock}
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </Button>
+                                {(() => {
+                                  const qty = cartItems[variant.productId] || 0;
+                                  return qty > 0 ? (
+                                    <div className="flex items-center gap-0.5">
+                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleUpdateQuantity(variant.productId, qty - 1)} disabled={updateCartMutation.isPending}>
+                                        <Minus className="w-4 h-4" />
+                                      </Button>
+                                      <span className="text-xs font-semibold w-5 text-center">{qty}</span>
+                                      <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending}>
+                                        <Plus className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending || isOutOfStock}>
+                                      <Plus className="w-4 h-4" />
+                                    </Button>
+                                  );
+                                })()}
                               </div>
                             </div>
                           </div>
@@ -553,8 +563,12 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                       product={product}
                       index={index}
                       onAddToCart={handleAddToCart}
+                      onUpdateQuantity={handleUpdateQuantity}
                       onQuickView={setQuickViewProduct}
                       brandMap={brandMap}
+                      cartQty={cartItems[product.id] || 0}
+                      addPending={addToCartMutation.isPending}
+                      updatePending={updateCartMutation.isPending}
                     />
                   );
                 })}
@@ -639,12 +653,25 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                           <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => openVariantQuickView(group)}>
                             <Eye className="w-4 h-4" />
                           </Button>
-                          {!isOutOfStock && (
-                            <Button size="sm" className="h-8" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending}>
-                              <Plus className="w-3 h-3 mr-1" />
-                              Add
-                            </Button>
-                          )}
+                          {(() => {
+                            const qty = cartItems[variant.productId] || 0;
+                            return qty > 0 ? (
+                              <div className="flex items-center gap-0.5">
+                                <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleUpdateQuantity(variant.productId, qty - 1)} disabled={updateCartMutation.isPending}>
+                                  <Minus className="w-4 h-4" />
+                                </Button>
+                                <span className="text-xs font-semibold w-5 text-center">{qty}</span>
+                                <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending}>
+                                  <Plus className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : !isOutOfStock ? (
+                              <Button size="sm" className="h-8" onClick={() => handleAddToCart(variant.productId)} disabled={addToCartMutation.isPending}>
+                                <Plus className="w-3 h-3 mr-1" />
+                                Add
+                              </Button>
+                            ) : null;
+                          })()}
                         </div>
                       </Card>
                     </motion.div>
@@ -654,7 +681,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                 const product = item as DeliveryProduct;
                 const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
                 const isOutOfStock = stock <= 0;
-                const isLowStock = stock > 0 && stock <= 2;
+                const lQty = cartItems[product.id] || 0;
                 return (
                   <motion.div
                     key={product.id}
@@ -686,12 +713,8 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-sm line-clamp-2">{product.name}</h3>
                         <div className="flex items-center gap-1.5 mt-1">
-                          {isOutOfStock ? (
+                          {isOutOfStock && (
                             <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Out of Stock</Badge>
-                          ) : isLowStock ? (
-                            <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0">Low Stock</Badge>
-                          ) : (
-                            <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0">In Stock</Badge>
                           )}
                           {product.badge && (
                             <Badge variant={product.badge === 'sale' ? 'destructive' : 'secondary'} className="text-[10px] px-1.5 py-0">
@@ -717,15 +740,22 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button
-                          size="sm"
-                          className="h-8 px-2 sm:px-3"
-                          onClick={() => handleAddToCart(product.id)}
-                          disabled={addToCartMutation.isPending || isOutOfStock}
-                        >
-                          <Plus className="w-4 h-4 sm:mr-1" />
-                          <span className="hidden sm:inline">Add</span>
-                        </Button>
+                        {lQty > 0 ? (
+                          <div className="flex items-center gap-0.5">
+                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleUpdateQuantity(product.id, lQty - 1)} disabled={updateCartMutation.isPending}>
+                              <Minus className="w-4 h-4" />
+                            </Button>
+                            <span className="text-xs font-semibold w-5 text-center">{lQty}</span>
+                            <Button size="sm" className="h-8 w-8 p-0" onClick={() => handleAddToCart(product.id)} disabled={addToCartMutation.isPending}>
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => handleAddToCart(product.id)} disabled={addToCartMutation.isPending || isOutOfStock}>
+                            <Plus className="w-4 h-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Add</span>
+                          </Button>
+                        )}
                       </div>
                     </Card>
                   </motion.div>
@@ -770,20 +800,26 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
 function ProductCard({ 
   product, 
   index, 
-  onAddToCart, 
+  onAddToCart,
+  onUpdateQuantity,
   onQuickView,
-  brandMap
+  brandMap,
+  cartQty,
+  addPending,
+  updatePending
 }: { 
   product: DeliveryProduct;
   index: number;
   onAddToCart: (productId: number) => void;
+  onUpdateQuantity: (productId: number, quantity: number) => void;
   onQuickView: (product: DeliveryProduct) => void;
   brandMap: Record<number, DeliveryBrand>;
+  cartQty: number;
+  addPending: boolean;
+  updatePending: boolean;
 }) {
   const stock = product.stockQuantity ? parseInt(product.stockQuantity) : 0;
   const isOutOfStock = stock <= 0;
-  const isLowStock = stock > 0 && stock <= 2;
-  const isInStock = stock >= 3;
 
   return (
     <motion.div
@@ -830,12 +866,6 @@ function ProductCard({
               <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
             </div>
           )}
-          {isLowStock && !isOutOfStock && (
-            <Badge className="absolute top-2 right-2 bg-amber-500 text-white text-xs">Low Stock</Badge>
-          )}
-          {isInStock && !product.badge && (
-            <Badge className="absolute top-2 right-2 bg-green-500 text-white text-xs">In Stock</Badge>
-          )}
         </div>
         <div className="p-3">
           <h3 className="font-medium text-sm line-clamp-2 min-h-[2.5rem]">
@@ -862,14 +892,21 @@ function ProductCard({
               >
                 <Eye className="w-4 h-4" />
               </Button>
-              <Button
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => onAddToCart(product.id)}
-                disabled={isOutOfStock}
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
+              {cartQty > 0 ? (
+                <div className="flex items-center gap-0.5">
+                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => onUpdateQuantity(product.id, cartQty - 1)} disabled={updatePending}>
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <span className="text-xs font-semibold w-5 text-center">{cartQty}</span>
+                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => onAddToCart(product.id)} disabled={addPending}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button size="sm" className="h-8 w-8 p-0" onClick={() => onAddToCart(product.id)} disabled={addPending || isOutOfStock}>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
