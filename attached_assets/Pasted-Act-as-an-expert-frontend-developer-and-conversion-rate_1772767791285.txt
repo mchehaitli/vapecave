@@ -1,0 +1,45 @@
+Act as an expert frontend developer and conversion rate optimizer. Our website currently uses the word "Delivery" which makes customers think we don't offer in-store pickup. I want to rebrand this entirely to "Order Online" and ensure the positioning drives sales.
+
+Please scan the codebase (specifically looking at the Navbar, Footer, Homepage routing, and static text pages) and implement the following exact changes:
+
+Step 1: The Navbar (Exact Positioning)
+
+Locate the main Navigation menu (likely in Navbar.tsx or similar).
+
+Find the link currently labeled "Delivery".
+
+Change the text to "Order Online".
+
+Positioning: Keep it in its exact current slot in the sequence: immediately after "Products" and before "Reviews".
+
+Styling: Because this is our main call-to-action, do not just make it plain text like the other links. Wrap it in a subtle button UI or give it our brand's accent text color (Vape Cave Orange) so it stands out from the rest of the navigation links. Keep the routing the same (/delivery).
+
+Step 2: The Footer (Exact Positioning)
+
+Locate the Footer component.
+
+Under the "Quick Links" column, locate the "Delivery" link.
+
+Change the text to "Delivery & Pickup".
+
+Positioning: Keep it exactly between the "Products" link and the "Frisco Store" link.
+
+Step 3: Homepage Hero Area (Directly Under Main Title)
+
+Locate the main Hero section on the homepage.
+
+Positioning: Immediately beneath the main <h1> headline, inject a new sub-headline or paragraph text.
+
+Text to add: "Shop our massive inventory online. Choose rapid local delivery or skip the line with fast in-store pickup in Frisco."
+
+Step 4: FAQs Page
+
+Locate the FAQ component or page.
+
+Positioning: Insert this new Q&A at the very TOP of the FAQ list so it is the first thing people read.
+
+Q: "Can I order online and pick up in-store?"
+
+A: "Yes! Simply add items to your cart and select 'In-Store Pickup' during checkout. Your order will be bagged and ready for you when you arrive."
+
+Please propose the files you will edit and ask for my approval before making the changes.
