@@ -1,0 +1,39 @@
+Act as an expert full-stack developer. I need to implement a "First-Time Login Welcome Modal" for my storefront to announce new features and manage customer expectations during our launch phase. It must only show up the first time a user logs in.
+
+Please implement this step-by-step using our existing stack (React, Tailwind, Express, Drizzle ORM).
+
+Step 1: Database Schema Update (Drizzle)
+In shared/schema.ts, add a new boolean column to the users (or delivery_customers depending on our exact auth schema) table called hasSeenWelcomeModal and set its default value to false.
+Export the updated schema and types, and run the database migration to apply this change.
+
+Step 2: Backend API Route (Express)
+In server/routes.ts, create a new endpoint: PATCH /api/users/welcome-seen.
+When an authenticated user calls this, it should update their hasSeenWelcomeModal status to true in the database and return the updated user object.
+
+Step 3: Frontend Component (React/Tailwind)
+Create a new component called WelcomeLaunchModal.tsx in the appropriate components folder. Use our existing Dialog/Modal UI components (like shadcn/ui if we are using it).
+
+Use this exact copy for the modal content:
+Title: Welcome to the New Vape Cave Portal! 🚀
+Body: > We are thrilled to roll out our brand new online system! Here is what's new:
+
+📦 Delivery & Pick Up: You can now easily toggle between local delivery or in-store pickup using the buttons at the top of the page.
+🔔 Restock Alerts: See a favorite product that is out of stock? Click the "🔔 Notify Me" button, and we'll email you the second it hits our shelves again!
+
+🛠️ Pardon Our Dust (Launch Phase)
+We are still in our launch phase, which means you might experience a few minor glitches or slight inventory discrepancies. Don't worry—we are actively fixing these as they happen!
+
+If you run into any issues at all, please reach out to us directly at: vapecavetx@gmail.com
+
+Button: "Got it, let's shop!"
+
+Step 4: Frontend Integration
+In the main layout or dashboard wrapper of the storefront (e.g., wherever the authenticated user state is first established or loaded):
+
+Check if user exists and if user.hasSeenWelcomeModal is false.
+
+If true, render the WelcomeLaunchModal.
+
+When the user clicks "Got it, let's shop!", fire the PATCH /api/users/welcome-seen endpoint, update the local user state so the modal closes, and ensure it never shows for them again.
+
+Please implement this systematically, checking for errors after each step.
