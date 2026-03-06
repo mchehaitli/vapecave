@@ -903,10 +903,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create a clean update object with only the fields that are in the request
       const updatedData: Record<string, any> = {};
-      
-      // Map all properties from the request body to the updatedData object
+
+      const ALLOWED_STORE_LOCATION_FIELDS = new Set([
+        'name', 'city', 'address', 'full_address', 'phone', 'hours', 'closed_days',
+        'image', 'lat', 'lng', 'google_place_id', 'apple_maps_link', 'map_embed',
+        'email', 'store_code', 'opening_hours', 'services', 'accepted_payments',
+        'area_served', 'public_transit', 'parking', 'year_established', 'price_range',
+        'social_profiles', 'description', 'neighborhood_info', 'amenities'
+      ]);
+
+      // Only copy keys that are in the allowlist to prevent prototype pollution
       Object.keys(req.body).forEach(key => {
-        if (req.body[key] !== undefined) {
+        if (ALLOWED_STORE_LOCATION_FIELDS.has(key) && req.body[key] !== undefined) {
           updatedData[key] = req.body[key];
         }
       });

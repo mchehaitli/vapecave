@@ -94,7 +94,7 @@ export class CloverService {
           console.error(`Clover API error (${response.status}):`, errorText);
           console.error(`API URL: ${url}`);
           console.error(`Merchant ID: ${this.merchantId}`);
-          console.error(`Token (first 8 chars): ${this.apiToken.substring(0, 8)}...`);
+          console.error(`Authentication failed. Verify your API token and merchant ID are correct.`);
           
           if (response.status === 401) {
             throw new Error(

@@ -56,7 +56,7 @@ export class CloverOAuthService {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Token exchange failed:', errorText);
+      console.error('Token exchange failed:', response.status, response.statusText);
       throw new Error(`Failed to exchange code for token: ${response.status} ${response.statusText}`);
     }
 
@@ -86,7 +86,7 @@ export class CloverOAuthService {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Token refresh failed:', errorText);
+      console.error('Token refresh failed:', response.status, response.statusText);
       throw new Error(`Failed to refresh token: ${response.status} ${response.statusText}`);
     }
 
