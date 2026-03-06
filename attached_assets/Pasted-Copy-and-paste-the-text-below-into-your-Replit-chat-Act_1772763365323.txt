@@ -1,0 +1,51 @@
+Copy and paste the text below into your Replit chat:
+
+Act as an expert full-stack developer. I want to build a "Dynamic Email Content Manager" in my Admin Portal. The goal is to allow admin users to edit the subject lines and body text of all system emails (Welcome, Restock, Password Reset, etc.) WITHOUT allowing them to edit the HTML structure, buttons, or links.
+
+Please implement this step-by-step using our existing stack (React, Tailwind, Express, Drizzle ORM).
+
+Step 1: Database Schema (Drizzle)
+In shared/schema.ts, create a new table called email_templates. It needs the following columns:
+
+id (serial primary key)
+
+templateId (text, unique - e.g., 'welcome_approved', 'restock_alert')
+
+templateName (text - human-readable name for the admin)
+
+subject (text)
+
+bodyText (text - will store the main paragraph text)
+
+availableVariables (text - a comma-separated list of placeholders the admin can use, like '[CUSTOMER_NAME], [PRODUCT_NAME]')
+Run the db push to apply this.
+
+Step 2: Seed the Database
+Create a mechanism to seed this table with our existing emails if they don't already exist. For example, insert the 'welcome_approved' template with its current subject and body text, specifying [CUSTOMER_NAME] as an available variable.
+
+Step 3: Backend API Routes (Express)
+Create two new admin-only routes in server/routes.ts:
+
+GET /api/admin/email-templates: Fetches all email templates.
+
+PATCH /api/admin/email-templates/:id: Updates the subject and bodyText of a specific template.
+
+Step 4: Update the Email Service
+In server/email-service.ts, refactor the email sending functions to fetch the relevant text from the email_templates database table instead of using hardcoded strings.
+
+Create a Master HTML Shell (the white box, orange header, dark footer, and CTA button).
+
+Write a utility function that takes the bodyText from the database, uses .replace() to swap placeholders like [CUSTOMER_NAME] with actual dynamic variables, and injects that text into the Master HTML Shell above the CTA button.
+
+Step 5: Frontend Admin UI (React)
+Create a new tab in the Admin Dashboard called "Email Templates".
+
+Fetch and display a list of all templates.
+
+When an admin clicks a template, open a form with two standard <textarea> or <input> fields: one for the Subject, one for the Body Text. Do NOT use a rich text/HTML editor.
+
+Clearly display the availableVariables next to the form so the admin knows what dynamic tags they can type (e.g., "You can use [PRODUCT_NAME] in your text").
+
+Add a "Save Changes" button that calls the PATCH route and shows a success toast.
+
+Please implement this systematically and test to ensure the text variables replace correctly!
