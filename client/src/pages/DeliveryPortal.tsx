@@ -393,7 +393,7 @@ function ProductCarousel({
 
       <div
         ref={scrollRef}
-        className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-4 -mx-2 px-2 sm:-mx-4 sm:px-4"
+        className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pt-2 pb-4 -mx-2 px-2 sm:-mx-4 sm:px-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -412,7 +412,7 @@ function ProductCarousel({
             : null;
 
           const cardContent = (
-            <Card className="group h-full flex flex-col overflow-hidden bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
+            <Card className="group h-full flex flex-col bg-card border-border/50 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300">
                 <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-muted/50 to-muted">
                   <img
                     src={product.image || (brandMap && product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
@@ -599,7 +599,7 @@ function ProductCarousel({
           return (
             <motion.div
               key={product.id}
-              className="flex-shrink-0 w-[145px] sm:w-[180px] md:w-[240px] lg:w-[280px] flex flex-col"
+              className="flex-shrink-0 w-[145px] sm:w-[180px] md:w-[240px] lg:w-[280px] flex flex-col relative hover:z-10"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >
