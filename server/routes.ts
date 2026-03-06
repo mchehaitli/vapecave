@@ -1998,10 +1998,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("[Admin Sync] Starting manual sync from Clover...");
       
       if (!process.env.CLOVER_API_TOKEN || !process.env.CLOVER_MERCHANT_ID) {
-        console.log("[Admin Sync] Missing credentials:", {
-          hasToken: !!process.env.CLOVER_API_TOKEN,
-          hasMerchant: !!process.env.CLOVER_MERCHANT_ID
-        });
         return res.status(503).json({ error: "Clover API credentials not configured" });
       }
 
