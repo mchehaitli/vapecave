@@ -133,7 +133,6 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
     script.onerror = (error) => {
       console.error("Error loading Google Maps API:", error);
       console.log("Attempted to load with URL:", script.src.replace(apiKey, "API_KEY_REDACTED"));
-      console.log("API key provided:", apiKey ? `Yes (length: ${apiKey.length}, starts with: ${apiKey.substring(0, 3)}...)` : "No");
       console.log("Current hostname:", window.location.hostname);
       console.log("Current protocol:", window.location.protocol);
       
