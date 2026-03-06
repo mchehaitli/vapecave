@@ -805,6 +805,30 @@ export default function DeliveryPortal() {
       .slice(0, 12);
   };
 
+  // Get products flagged isFeaturedSlideshow for a category (used in featured view)
+  const getFeaturedSlideshowByCategory = (categoryId: number) => {
+    const category = deliveryCategories.find(c => c.id === categoryId);
+    if (!category) return [];
+    return products.filter(p => {
+      if (!p.isFeaturedSlideshow || !p.enabled || !p.category) return false;
+      const productCat = p.category.toLowerCase().trim();
+      const matchNames = new Set<string>();
+      const mapped = category.mappedCategories as string[] | undefined;
+      if (mapped && mapped.length > 0) {
+        mapped.forEach(m => matchNames.add(m.toLowerCase().trim()));
+      }
+      matchNames.add(category.name.toLowerCase().trim());
+      matchNames.add(category.slug.toLowerCase().trim());
+      if (matchNames.has(productCat)) return true;
+      const norm = productCat.replace(/s$/, '');
+      for (const name of matchNames) {
+        if (norm === name.replace(/s$/, '')) return true;
+        if (productCat.replace(/-/g, '') === name.replace(/-/g, '')) return true;
+      }
+      return false;
+    });
+  };
+
   // Get products for a category - shows featured products if set, otherwise all products
   const getProductsByCategory = (categoryId: number) => {
     const category = deliveryCategories.find(c => c.id === categoryId);
@@ -1309,10 +1333,7 @@ export default function DeliveryPortal() {
               {viewMode === 'featured' ? (
                 <>
                   {(() => {
-                    const hasFeatured = activeCategories.some(cat => {
-                      const ids = (cat.featuredProductIds as number[]) || [];
-                      return ids.length > 0;
-                    });
+                    const hasFeatured = products.some(p => p.isFeaturedSlideshow && p.enabled);
 
                     if (!hasFeatured) {
                       return (
@@ -1327,7 +1348,7 @@ export default function DeliveryPortal() {
                     return (
                       <>
                         {activeCategories.map(cat => {
-                          const catProducts = getProductsByCategory(cat.id);
+                          const catProducts = getFeaturedSlideshowByCategory(cat.id);
                           if (!catProducts || catProducts.length === 0) return null;
                           return (
                             <div key={cat.id} className="py-2">
