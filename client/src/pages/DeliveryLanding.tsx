@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Package, Truck, Clock, Shield, MapPin, DollarSign } from "lucide-react";
+import { Package, Truck, Clock, Shield, MapPin, DollarSign, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocation } from "wouter";
@@ -40,6 +40,11 @@ export default function DeliveryLanding() {
       description: "Get your order delivered within your scheduled time window"
     },
     {
+      icon: <ShoppingBag className="w-8 h-8" />,
+      title: "Express In-Store Pickup",
+      description: "Skip the line. Order ahead and we'll have your items bagged and waiting for you at the counter."
+    },
+    {
       icon: <DollarSign className="w-8 h-8" />,
       title: `Free Delivery Over $${freeDeliveryThreshold}`,
       description: `No delivery fees when you spend $${freeDeliveryThreshold} or more`
@@ -68,8 +73,8 @@ export default function DeliveryLanding() {
 
   return (
     <MainLayout
-      title="Delivery Service - Vape Cave Smoke & Stuff"
-      description={`Order our products for delivery within ${deliveryRadiusMiles} miles of Frisco, TX. Fast, convenient, and reliable delivery service.`}
+      title="Order Online - Delivery & Pickup | Vape Cave Smoke & Stuff"
+      description={`Order online for same-day delivery or express in-store pickup within ${deliveryRadiusMiles} miles of Frisco, TX. Fast, convenient, and reliable.`}
       canonical="/delivery"
     >
       <div className="min-h-[80vh] bg-background" data-testid="delivery-landing">
@@ -82,11 +87,11 @@ export default function DeliveryLanding() {
           className="text-center mb-16"
         >
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight text-foreground">
-            <span className="text-primary">DELIVERY</span> COMING <span className="text-[#ff6300]">SOON</span>
+            <span className="text-primary">ONLINE ORDERING</span> COMING <span className="text-[#ff6300]">SOON</span>
           </h1>
           
           <p className="text-xs md:text-base lg:text-lg mb-8 max-w-4xl mx-auto leading-relaxed text-foreground">
-            [ Sign up now to be one of the first to know when our <span className="text-primary">SAME DAY</span> delivery services begin ]
+            [ Sign up now to be one of the first to know when our <span className="text-primary">SAME DAY</span> delivery and express in-store pickup services begin ]
           </p>
 
           {/* CTA Buttons */}
@@ -128,7 +133,7 @@ export default function DeliveryLanding() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.6 }}
         >
-          <h2 className="text-3xl font-bold text-center mb-10 text-foreground">Why Choose Delivery?</h2>
+          <h2 className="text-3xl font-bold text-center mb-10 text-foreground">Why Use Our Online Portal?</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {features.map((feature, index) => (
@@ -180,8 +185,8 @@ export default function DeliveryLanding() {
               { step: "1", title: "Create Account", description: "Sign up and verify your age with a valid photo ID" },
               { step: "2", title: "Wait for Approval", description: "Our team will review and approve your account within 24 hours" },
               { step: "3", title: "Browse & Order", description: "Shop our full catalog and add items to your cart" },
-              { step: "4", title: "Schedule Delivery", description: "Choose a convenient delivery window for your order" },
-              { step: "5", title: "Receive Your Order", description: "Get your products delivered right to your door" }
+              { step: "4", title: "Choose Delivery or Pickup", description: "Select a convenient delivery window or choose to grab it in-store." },
+              { step: "5", title: "Enjoy Your Products", description: "Get your order delivered right to your door or walk in and pick it up instantly." }
             ].map((step, index) => (
               <motion.div
                 key={index}

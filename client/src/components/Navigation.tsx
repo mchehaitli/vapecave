@@ -106,29 +106,18 @@ const Navigation = () => {
               {navItems.map((item) => (
                 <li key={item.path} role="none">
                   <Link href={item.path}>
-                    {item.highlight ? (
-                      <span
-                        role="menuitem"
-                        aria-label={item.ariaLabel}
-                        aria-current={location === item.path ? "page" : undefined}
-                        className="bg-black text-primary cursor-pointer font-bold px-3 py-1.5 rounded-md hover:bg-black/80 transition-all duration-200 text-[15.5px] whitespace-nowrap"
-                      >
-                        {item.label}
-                      </span>
-                    ) : (
-                      <span
-                        role="menuitem"
-                        aria-label={item.ariaLabel}
-                        aria-current={location === item.path ? "page" : undefined}
-                        className={`text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] ${
-                          location === item.path 
-                            ? 'font-bold after:block after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-black'
-                            : 'after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300'
-                        }`}
-                      >
-                        {item.label}
-                      </span>
-                    )}
+                    <span
+                      role="menuitem"
+                      aria-label={item.ariaLabel}
+                      aria-current={location === item.path ? "page" : undefined}
+                      className={`text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] ${
+                        location === item.path
+                          ? 'font-bold after:block after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-black'
+                          : 'after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300'
+                      }`}
+                    >
+                      {item.label}
+                    </span>
                   </Link>
                 </li>
               ))}
