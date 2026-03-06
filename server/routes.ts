@@ -1617,6 +1617,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Mark welcome modal as seen for authenticated customer
+  app.patch('/api/delivery/customers/welcome-seen', async (req, res) => {
+    try {
+      const customerId = req.session.deliveryCustomerId;
+      if (!customerId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      await storage.updateDeliveryCustomerWelcomeSeen(customerId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating welcome modal status:", error);
+      res.status(500).json({ error: "Failed to update welcome status" });
+    }
+  });
+
   // Change delivery customer password (requires authentication)
   app.patch('/api/delivery/customers/change-password', async (req, res) => {
     try {

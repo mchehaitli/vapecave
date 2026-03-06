@@ -134,6 +134,7 @@ export interface IStorage {
   setDeliveryCustomerPassword(id: number, passwordHash: string): Promise<DeliveryCustomer | undefined>;
   deleteDeliveryCustomer(id: number): Promise<boolean>;
   updateDeliveryCustomer(id: number, data: Partial<Pick<DeliveryCustomer, 'fullName' | 'phone' | 'address' | 'city' | 'state' | 'zipCode'>>): Promise<DeliveryCustomer | undefined>;
+  updateDeliveryCustomerWelcomeSeen(id: number): Promise<DeliveryCustomer | undefined>;
 
   // Delivery product operations
   getAllDeliveryProducts(filters?: {
@@ -1137,6 +1138,15 @@ export class DbStorage implements IStorage {
       .where(eq(deliveryCustomers.id, id))
       .returning();
     
+    return result[0];
+  }
+
+  async updateDeliveryCustomerWelcomeSeen(id: number): Promise<DeliveryCustomer | undefined> {
+    const result = await db
+      .update(deliveryCustomers)
+      .set({ hasSeenWelcomeModal: true, updatedAt: new Date() })
+      .where(eq(deliveryCustomers.id, id))
+      .returning();
     return result[0];
   }
 
@@ -3199,6 +3209,10 @@ export class MemStorage implements IStorage {
     
     this.deliveryCustomersMap.set(id, updatedCustomer);
     return updatedCustomer;
+  }
+
+  async updateDeliveryCustomerWelcomeSeen(id: number): Promise<DeliveryCustomer | undefined> {
+    return undefined;
   }
 
   // Delivery product operations

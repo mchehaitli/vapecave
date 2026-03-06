@@ -17,6 +17,7 @@ import { useFulfillment } from "@/contexts/FulfillmentContext";
 import { FloatingCartButton } from "@/components/FloatingCartButton";
 import { ProductQuickView } from "@/components/ProductQuickView";
 import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
+import WelcomeLaunchModal from "@/components/WelcomeLaunchModal";
 import type { DeliveryProduct, DeliveryCategory, DeliveryBrand, DeliveryProductLine } from "@shared/schema";
 import { extractNicLevel } from "@/lib/productVariants";
 
@@ -625,6 +626,7 @@ export default function DeliveryPortal() {
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [cartJiggle, setCartJiggle] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<DeliveryProduct | null>(null);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   useInactivityTimeout({
     timeoutMinutes: 30,
@@ -639,6 +641,11 @@ export default function DeliveryPortal() {
         });
         if (!response.ok) {
           setLocation("/delivery/login");
+          return;
+        }
+        const customer = await response.json();
+        if (customer && customer.hasSeenWelcomeModal === false) {
+          setShowWelcomeModal(true);
         }
       } catch (error) {
         setLocation("/delivery/login");
@@ -646,6 +653,18 @@ export default function DeliveryPortal() {
     };
     checkAuth();
   }, [setLocation]);
+
+  const handleWelcomeClose = async () => {
+    setShowWelcomeModal(false);
+    try {
+      await fetch("/api/delivery/customers/welcome-seen", {
+        method: "PATCH",
+        credentials: "include",
+      });
+    } catch {
+      // non-critical — modal is already closed
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -1467,6 +1486,8 @@ export default function DeliveryPortal() {
       />
       
       <DeliveryFooter />
+
+      <WelcomeLaunchModal open={showWelcomeModal} onClose={handleWelcomeClose} />
     </div>
   );
 }

@@ -284,6 +284,7 @@ export const deliveryCustomers = pgTable("delivery_customers", {
   passwordResetToken: text("password_reset_token"), // Token for password reset
   passwordResetExpiry: timestamp("password_reset_expiry"), // Expiry time for reset token
   mustChangePassword: boolean("must_change_password").default(false), // Flag to force password change on next login
+  hasSeenWelcomeModal: boolean("has_seen_welcome_modal").default(false), // Flag to show first-time welcome modal
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
