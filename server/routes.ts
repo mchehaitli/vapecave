@@ -3710,14 +3710,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const merchantId = process.env.CLOVER_MERCHANT_ID;
       const apiBase = process.env.CLOVER_API_BASE || "https://api.clover.com";
       
-      console.log("[Test Connection] Testing with:", {
-        tokenExists: !!token,
-        tokenLength: token?.length,
-        merchantIdExists: !!merchantId,
-        merchantIdLength: merchantId?.length,
-        apiBase
-      });
-      
       if (!token || !merchantId) {
         return res.status(503).json({ 
           error: "Clover API credentials not configured",
