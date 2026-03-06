@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Star, Loader2, Search, ImagePlay } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import type { DeliveryCategory } from "@shared/schema";
 
 interface SpotlightProduct {
   id: number;
@@ -19,6 +20,25 @@ interface SpotlightProduct {
   category: string | null;
   isFeaturedSlideshow: boolean;
   isHeroSlideshow: boolean;
+}
+
+function matchesCategory(product: SpotlightProduct, category: DeliveryCategory): boolean {
+  if (!product.category) return false;
+  const productCat = product.category.toLowerCase().trim();
+  const matchNames = new Set<string>();
+  const mapped = category.mappedCategories as string[] | undefined;
+  if (mapped && mapped.length > 0) {
+    mapped.forEach(m => matchNames.add(m.toLowerCase().trim()));
+  }
+  matchNames.add(category.name.toLowerCase().trim());
+  matchNames.add(category.slug.toLowerCase().trim());
+  if (matchNames.has(productCat)) return true;
+  const norm = productCat.replace(/s$/, "");
+  for (const name of matchNames) {
+    if (norm === name.replace(/s$/, "")) return true;
+    if (productCat.replace(/-/g, "") === name.replace(/-/g, "")) return true;
+  }
+  return false;
 }
 
 function ProductList({
@@ -144,19 +164,106 @@ function ProductList({
   );
 }
 
+function CategoryFilterBar({
+  categories,
+  products,
+  flagKey,
+  selectedCategoryId,
+  onSelect,
+}: {
+  categories: DeliveryCategory[];
+  products: SpotlightProduct[];
+  flagKey: "isFeaturedSlideshow" | "isHeroSlideshow";
+  selectedCategoryId: number | "all";
+  onSelect: (id: number | "all") => void;
+}) {
+  const totalActive = products.filter(p => p[flagKey]).length;
+
+  return (
+    <div className="flex gap-2 flex-wrap">
+      <Button
+        size="sm"
+        variant={selectedCategoryId === "all" ? "default" : "outline"}
+        onClick={() => onSelect("all")}
+        className={`text-xs h-7 px-3 ${selectedCategoryId === "all" ? "" : "border-gray-600 text-gray-400 hover:text-white"}`}
+      >
+        All
+        {totalActive > 0 && (
+          <Badge className={`ml-1.5 text-xs px-1.5 py-0 ${selectedCategoryId === "all" ? "bg-white/20 text-white" : "bg-gray-700 text-gray-300"}`}>
+            {totalActive}
+          </Badge>
+        )}
+      </Button>
+
+      {categories.map(cat => {
+        const catProducts = products.filter(p => matchesCategory(p, cat));
+        const catActive = catProducts.filter(p => p[flagKey]).length;
+        const isSelected = selectedCategoryId === cat.id;
+
+        return (
+          <Button
+            key={cat.id}
+            size="sm"
+            variant={isSelected ? "default" : "outline"}
+            onClick={() => onSelect(cat.id)}
+            className={`text-xs h-7 px-3 ${isSelected ? "" : "border-gray-600 text-gray-400 hover:text-white"}`}
+          >
+            {cat.name}
+            {catActive > 0 && (
+              <Badge className={`ml-1.5 text-xs px-1.5 py-0 ${isSelected ? "bg-white/20 text-white" : flagKey === "isFeaturedSlideshow" ? "bg-yellow-500/80 text-black" : "bg-blue-600/80 text-white"}`}>
+                {catActive}
+              </Badge>
+            )}
+          </Button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function FeaturedProductsManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [featuredSearch, setFeaturedSearch] = useState("");
   const [heroSearch, setHeroSearch] = useState("");
+  const [featuredCategoryId, setFeaturedCategoryId] = useState<number | "all">("all");
+  const [heroCategoryId, setHeroCategoryId] = useState<number | "all">("all");
   const [pendingIds, setPendingIds] = useState<Set<number>>(new Set());
 
-  const { data: products = [], isLoading } = useQuery<SpotlightProduct[]>({
+  const { data: products = [], isLoading: productsLoading } = useQuery<SpotlightProduct[]>({
     queryKey: ["/api/admin/delivery/products/spotlight"],
   });
 
+  const { data: allCategories = [], isLoading: categoriesLoading } = useQuery<DeliveryCategory[]>({
+    queryKey: ["/api/delivery/categories"],
+  });
+
+  const isLoading = productsLoading || categoriesLoading;
+
+  const activeCategories = useMemo(
+    () => allCategories.filter(c => c.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)),
+    [allCategories]
+  );
+
   const featuredCount = products.filter(p => p.isFeaturedSlideshow).length;
   const heroCount = products.filter(p => p.isHeroSlideshow).length;
+
+  const getFilteredProducts = (flagKey: "isFeaturedSlideshow" | "isHeroSlideshow", categoryId: number | "all") => {
+    if (categoryId === "all") return products;
+    const cat = allCategories.find(c => c.id === categoryId);
+    if (!cat) return products;
+    return products.filter(p => matchesCategory(p, cat));
+  };
+
+  const featuredProducts = useMemo(
+    () => getFilteredProducts("isFeaturedSlideshow", featuredCategoryId),
+    [products, featuredCategoryId, allCategories]
+  );
+
+  const heroProducts = useMemo(
+    () => getFilteredProducts("isHeroSlideshow", heroCategoryId),
+    [products, heroCategoryId, allCategories]
+  );
 
   const toggleMutation = useMutation({
     mutationFn: async ({
@@ -249,6 +356,18 @@ export function FeaturedProductsManagement() {
             </TabsList>
 
             <TabsContent value="featured" className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Featured products appear in the highlighted carousel on the delivery portal home page.
+              </p>
+
+              <CategoryFilterBar
+                categories={activeCategories}
+                products={products}
+                flagKey="isFeaturedSlideshow"
+                selectedCategoryId={featuredCategoryId}
+                onSelect={id => { setFeaturedCategoryId(id); setFeaturedSearch(""); }}
+              />
+
               <div className="flex items-center justify-between gap-4">
                 <div className="relative flex-1 max-w-sm">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -260,15 +379,15 @@ export function FeaturedProductsManagement() {
                   />
                 </div>
                 <p className="text-sm text-muted-foreground whitespace-nowrap">
-                  {featuredCount} of {products.length} featured
+                  {featuredProducts.filter(p => p.isFeaturedSlideshow).length} featured
+                  {featuredCategoryId !== "all" && ` in category`}
+                  {" / "}{featuredProducts.length} shown
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Featured products appear in the highlighted carousel on the delivery portal home page.
-              </p>
-              <div className="max-h-[560px] overflow-y-auto pr-1">
+
+              <div className="max-h-[520px] overflow-y-auto pr-1">
                 <ProductList
-                  products={products}
+                  products={featuredProducts}
                   flagKey="isFeaturedSlideshow"
                   search={featuredSearch}
                   onToggle={(id, current) => handleToggle(id, current, "isFeaturedSlideshow")}
@@ -280,6 +399,18 @@ export function FeaturedProductsManagement() {
             </TabsContent>
 
             <TabsContent value="hero" className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Hero section products appear in the large slideshow at the top of the delivery portal home page.
+              </p>
+
+              <CategoryFilterBar
+                categories={activeCategories}
+                products={products}
+                flagKey="isHeroSlideshow"
+                selectedCategoryId={heroCategoryId}
+                onSelect={id => { setHeroCategoryId(id); setHeroSearch(""); }}
+              />
+
               <div className="flex items-center justify-between gap-4">
                 <div className="relative flex-1 max-w-sm">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -291,15 +422,15 @@ export function FeaturedProductsManagement() {
                   />
                 </div>
                 <p className="text-sm text-muted-foreground whitespace-nowrap">
-                  {heroCount} of {products.length} in hero
+                  {heroProducts.filter(p => p.isHeroSlideshow).length} in hero
+                  {heroCategoryId !== "all" && ` in category`}
+                  {" / "}{heroProducts.length} shown
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Hero section products appear in the large slideshow at the top of the delivery portal home page.
-              </p>
-              <div className="max-h-[560px] overflow-y-auto pr-1">
+
+              <div className="max-h-[520px] overflow-y-auto pr-1">
                 <ProductList
-                  products={products}
+                  products={heroProducts}
                   flagKey="isHeroSlideshow"
                   search={heroSearch}
                   onToggle={(id, current) => handleToggle(id, current, "isHeroSlideshow")}
