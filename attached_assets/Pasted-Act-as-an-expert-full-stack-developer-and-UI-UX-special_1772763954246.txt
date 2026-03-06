@@ -1,0 +1,40 @@
+Act as an expert full-stack developer and UI/UX specialist. I have two specific tasks for you to implement.
+
+Task 1: Fix Product Card Hover UI Bug
+Whenever I hover over a product card on the storefront, the border glow/shadow is incomplete and gets clipped or disappears at the top.
+
+Please locate the ProductCard component (or wherever the product cards are rendered).
+
+Fix the Tailwind CSS classes on the card and its parent containers. This is likely an overflow-hidden issue clipping the shadow/ring, or it needs a relative positioning adjustment with a higher z-index on hover. Ensure the full glow surrounds the card perfectly on hover without clipping.
+
+Task 2: Advanced Restock Demand CRM (Admin)
+I want to upgrade the "Restock Demand" admin feature from a simple aggregate count to a detailed tracking system.
+
+Step A: Database Update
+In shared/schema.ts, update the restock_requests table to include a new column: notifiedAt (timestamp). Run the db migration.
+
+Step B: Backend Routes Update
+In server/routes.ts:
+
+Update GET /api/admin/restock-requests: It should return the full list of requests (both 'pending' and 'notified'). Include the User details (email) and the createdAt and notifiedAt timestamps.
+
+Update POST /api/admin/restock-requests/:productId/notify: When setting status to 'notified', it must also set the notifiedAt timestamp to now.
+
+Create a new route: DELETE /api/admin/restock-requests/:id. This allows an admin to delete a specific pending request.
+
+Step C: Frontend Admin UI (RestockDemand.tsx)
+Redesign the Restock Demand tab to have two internal sub-views or tables: "Pending Requests" and "Notification History".
+
+Pending Requests Table:
+
+Columns: Product Name, Customer Email, Date Requested (createdAt), and Actions.
+
+Actions should include: A red "Delete" button (calls the DELETE route) and the "Notify Waitlist" button (grouped by product, or per individual—whichever makes the most sense for the UI).
+
+Notification History Table:
+
+This is a historical log of all requests where status === 'notified'.
+
+Columns: Product Name, Customer Email, Date Requested (createdAt), and Date Notified (notifiedAt).
+
+Please implement this systematically and ensure the UI is clean and easy to read.

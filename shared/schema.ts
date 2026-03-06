@@ -848,6 +848,20 @@ export const insertPromotionUsageSchema = createInsertSchema(promotionUsages).pi
 export type InsertPromotionUsage = z.infer<typeof insertPromotionUsageSchema>;
 export type PromotionUsage = typeof promotionUsages.$inferSelect;
 
+// Email Templates table
+export const emailTemplates = pgTable("email_templates", {
+  id: serial("id").primaryKey(),
+  templateId: text("template_id").notNull().unique(),
+  templateName: text("template_name").notNull(),
+  subject: text("subject").notNull(),
+  bodyText: text("body_text").notNull(),
+  availableVariables: text("available_variables").notNull(),
+});
+
+export const insertEmailTemplateSchema = createInsertSchema(emailTemplates).omit({ id: true });
+export type InsertEmailTemplate = z.infer<typeof insertEmailTemplateSchema>;
+export type EmailTemplate = typeof emailTemplates.$inferSelect;
+
 // Restock Requests table
 export const restockRequests = pgTable("restock_requests", {
   id: serial("id").primaryKey(),

@@ -25,7 +25,8 @@ import {
   promotions, type Promotion, type InsertPromotion,
   promotionUsages, type PromotionUsage, type InsertPromotionUsage,
   categoryBanners, type CategoryBanner, type InsertCategoryBanner,
-  restockRequests, type RestockRequest
+  restockRequests, type RestockRequest,
+  emailTemplates, type EmailTemplate
 } from "@shared/schema";
 import { eq, and, or, asc, desc, sql, ilike, lt, gt, isNull, isNotNull, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -287,6 +288,12 @@ export interface IStorage {
     customers: Array<{ id: number; email: string; fullName: string }>;
   }>>;
   notifyRestockRequests(productId: number): Promise<Array<{ email: string; fullName: string }>>;
+
+  // Email template operations
+  getEmailTemplate(templateId: string): Promise<EmailTemplate | undefined>;
+  getAllEmailTemplates(): Promise<EmailTemplate[]>;
+  updateEmailTemplate(id: number, data: { subject: string; bodyText: string }): Promise<EmailTemplate | undefined>;
+  upsertEmailTemplate(data: { templateId: string; templateName: string; subject: string; bodyText: string; availableVariables: string }): Promise<void>;
 }
 
 // Database implementation of the storage interface
@@ -2409,6 +2416,27 @@ export class DbStorage implements IStorage {
 
     return rows.map(r => ({ email: r.email, fullName: r.fullName }));
   }
+
+  async getEmailTemplate(templateId: string): Promise<EmailTemplate | undefined> {
+    const result = await db.select().from(emailTemplates).where(eq(emailTemplates.templateId, templateId));
+    return result[0];
+  }
+
+  async getAllEmailTemplates(): Promise<EmailTemplate[]> {
+    return db.select().from(emailTemplates).orderBy(asc(emailTemplates.templateName));
+  }
+
+  async updateEmailTemplate(id: number, data: { subject: string; bodyText: string }): Promise<EmailTemplate | undefined> {
+    const result = await db.update(emailTemplates).set(data).where(eq(emailTemplates.id, id)).returning();
+    return result[0];
+  }
+
+  async upsertEmailTemplate(data: { templateId: string; templateName: string; subject: string; bodyText: string; availableVariables: string }): Promise<void> {
+    const existing = await db.select().from(emailTemplates).where(eq(emailTemplates.templateId, data.templateId));
+    if (existing.length === 0) {
+      await db.insert(emailTemplates).values(data);
+    }
+  }
 }
 
 // Fallback to MemStorage if database connection fails
@@ -4116,6 +4144,22 @@ export class MemStorage implements IStorage {
 
   async notifyRestockRequests(productId: number): Promise<Array<{ email: string; fullName: string }>> {
     return [];
+  }
+
+  async getEmailTemplate(templateId: string): Promise<EmailTemplate | undefined> {
+    return undefined;
+  }
+
+  async getAllEmailTemplates(): Promise<EmailTemplate[]> {
+    return [];
+  }
+
+  async updateEmailTemplate(id: number, data: { subject: string; bodyText: string }): Promise<EmailTemplate | undefined> {
+    return undefined;
+  }
+
+  async upsertEmailTemplate(data: { templateId: string; templateName: string; subject: string; bodyText: string; availableVariables: string }): Promise<void> {
+    return;
   }
 }
 // Try to use the database implementation, fall back to memory if it fails

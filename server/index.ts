@@ -5,6 +5,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { startAbandonedCartScheduler } from "./abandoned-cart-service";
 import { storage } from "./storage";
+import { seedEmailTemplates } from "./seed-email-templates";
 
 const app = express();
 
@@ -158,6 +159,9 @@ app.use((req, res, next) => {
     
     // Start abandoned cart reminder scheduler
     startAbandonedCartScheduler();
+
+    // Seed email templates (no-op if already seeded)
+    await seedEmailTemplates(storage);
     
     // Auto-generate delivery windows from weekly templates for next 5 days (0-4 inclusive)
     try {

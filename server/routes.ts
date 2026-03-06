@@ -5737,6 +5737,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin email template routes
+  app.get('/api/admin/email-templates', isAdmin, async (req: Request, res: Response) => {
+    try {
+      const templates = await storage.getAllEmailTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching email templates:", error);
+      res.status(500).json({ error: "Failed to fetch email templates" });
+    }
+  });
+
+  app.patch('/api/admin/email-templates/:id', isAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { subject, bodyText } = req.body;
+      if (!subject || !bodyText) {
+        return res.status(400).json({ error: "subject and bodyText are required" });
+      }
+      const updated = await storage.updateEmailTemplate(id, { subject, bodyText });
+      if (!updated) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating email template:", error);
+      res.status(500).json({ error: "Failed to update email template" });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // Start automatic Clover sync (every 5 minutes)

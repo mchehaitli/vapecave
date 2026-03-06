@@ -42,6 +42,7 @@ import DriverNotificationSettings from "@/components/DriverNotificationSettings"
 import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import { FeaturedProductsManagement } from "@/components/FeaturedProductsManagement";
 import RestockDemand from "@/components/RestockDemand";
+import EmailTemplates from "@/components/EmailTemplates";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Switch } from "@/components/ui/switch";
@@ -4358,6 +4359,7 @@ export default function AdminPage() {
                     <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="windows">Windows</TabsTrigger>
                     <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="promotions">Promos</TabsTrigger>
                     <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="restock-demand">Restock Demand</TabsTrigger>
+                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="email-templates">Email Templates</TabsTrigger>
                     <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="settings">Settings</TabsTrigger>
                   </TabsList>
                 </div>
@@ -4401,6 +4403,10 @@ export default function AdminPage() {
 
                 <TabsContent value="restock-demand" className="space-y-4">
                   <RestockDemand />
+                </TabsContent>
+
+                <TabsContent value="email-templates" className="space-y-4">
+                  <EmailTemplates />
                 </TabsContent>
 
                 <TabsContent value="settings" className="space-y-4">
