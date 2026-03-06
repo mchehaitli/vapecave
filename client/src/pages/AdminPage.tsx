@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import MainLayout from "@/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1351,7 +1351,7 @@ export default function AdminPage() {
   };
   
   // Export subscriptions in Excel, CSV or JSON format
-  const handleExportSubscriptions = (format: 'excel' | 'csv' | 'json') => {
+  const handleExportSubscriptions = async (format: 'excel' | 'csv' | 'json') => {
     if (!subscriptions || subscriptions.length === 0) {
       toast({
         title: "No data to export",
@@ -1422,29 +1422,23 @@ export default function AdminPage() {
         ];
       });
       
-      // Create worksheet
-      const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
-      
-      // Set column widths
-      const cols = [
-        { wch: 5 },  // ID
-        { wch: 30 }, // Email
-        { wch: 10 }, // Status
-        { wch: 15 }, // Subscribed Date
-        { wch: 15 }, // Subscribed Time
-        { wch: 15 }, // Source
-        { wch: 15 }, // IP Address
-        { wch: 15 }, // Last Updated Date
-        { wch: 15 }  // Last Updated Time
+      // Create workbook and worksheet using ExcelJS
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Newsletter Subscribers');
+      worksheet.columns = [
+        { width: 5 },
+        { width: 30 },
+        { width: 10 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 }
       ];
-      ws['!cols'] = cols;
-      
-      // Create workbook
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Newsletter Subscribers');
-      
-      // Generate Excel file
-      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      worksheet.addRow(headers);
+      data.forEach(row => worksheet.addRow(row));
+      const excelBuffer = await workbook.xlsx.writeBuffer();
       blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       fileName += '.xlsx';
     } else if (format === 'csv') {
