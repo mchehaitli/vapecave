@@ -59,7 +59,7 @@ const Navigation = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  const navItems = [
+  const navItems: Array<{ label: string; path: string; ariaLabel: string; highlight?: boolean }> = [
     { label: "Home", path: "/", ariaLabel: "Go to homepage" },
     { label: "Products", path: "/products", ariaLabel: "Browse our products" },
     { label: "Order Online", path: "/delivery", ariaLabel: "Order online for delivery or in-store pickup", highlight: true },
