@@ -245,6 +245,28 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
     updateQuantity.mutate({ productId, quantity });
   };
 
+  const notifyMe = async (productId: number) => {
+    const response = await fetch('/api/restock-requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ productId }),
+    });
+    if (response.status === 401) {
+      navigate('/delivery/login');
+      return;
+    }
+    if (response.status === 409) {
+      toast({ title: "Already on the waitlist!", description: "We'll notify you when it's back in stock." });
+      return;
+    }
+    if (response.ok) {
+      toast({ title: "You're on the list!", description: "We'll notify you when it's back in stock." });
+    } else {
+      toast({ title: "Error", description: "Could not sign up for notifications.", variant: "destructive" });
+    }
+  };
+
   if (lineLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -490,8 +512,12 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                                       <Plus className="w-4 h-4" />
                                     </Button>
                                   </div>
+                                ) : isOutOfStock ? (
+                                  <Button size="sm" variant="outline" className="h-8 px-2 text-[10px]" onClick={() => notifyMe(variant.productId)}>
+                                    🔔
+                                  </Button>
                                 ) : (
-                                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: variant.productId, purchaseType: 'single' })} disabled={addToCart.isPending || isOutOfStock}>
+                                  <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: variant.productId, purchaseType: 'single' })} disabled={addToCart.isPending}>
                                     <Plus className="w-4 h-4" />
                                   </Button>
                                 );
@@ -582,8 +608,12 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                                   <Plus className="w-4 h-4" />
                                 </Button>
                               </div>
+                            ) : isOutOfStock ? (
+                              <Button size="sm" variant="outline" className="h-8 px-2 text-[10px]" onClick={() => notifyMe(product.id)}>
+                                🔔
+                              </Button>
                             ) : (
-                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: product.id, purchaseType })} disabled={addToCart.isPending || isOutOfStock}>
+                              <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCart.mutate({ productId: product.id, purchaseType })} disabled={addToCart.isPending}>
                                 <Plus className="w-4 h-4" />
                               </Button>
                             )}
@@ -705,12 +735,16 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                                 <Plus className="w-4 h-4" />
                               </Button>
                             </div>
-                          ) : !isOutOfStock ? (
+                          ) : isOutOfStock ? (
+                            <Button size="sm" variant="outline" className="h-8 px-2 text-xs" onClick={() => notifyMe(variant.productId)}>
+                              🔔 Notify
+                            </Button>
+                          ) : (
                             <Button size="sm" className="h-8" onClick={() => addToCart.mutate({ productId: variant.productId, purchaseType: 'single' })} disabled={addToCart.isPending}>
                               <Plus className="w-3 h-3 mr-1" />
                               Add
                             </Button>
-                          ) : null;
+                          );
                         })()}
                       </div>
                     </Card>
@@ -798,8 +832,12 @@ export default function DeliveryProductLinePage({ params }: { params: { slug: st
                             <Plus className="w-4 h-4" />
                           </Button>
                         </div>
+                      ) : isOutOfStock ? (
+                        <Button size="sm" variant="outline" className="h-8 px-2 text-xs" onClick={() => notifyMe(product.id)}>
+                          🔔 Notify
+                        </Button>
                       ) : (
-                        <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCart.mutate({ productId: product.id, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCart.isPending || isOutOfStock}>
+                        <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCart.mutate({ productId: product.id, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCart.isPending}>
                           <Plus className="w-4 h-4 sm:mr-1" />
                           <span className="hidden sm:inline">Add</span>
                         </Button>
