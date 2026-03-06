@@ -899,11 +899,15 @@ export default function DeliveryPortal() {
     })
     .slice(0, 12);
 
-  const cartTotal = Object.entries(cartItems).reduce((sum, [productId, quantity]) => {
-    const product = products.find(p => p.id === parseInt(productId));
+  const cartTotal = apiCartItems.reduce((sum, item) => {
+    const product = products.find(p => p.id === item.productId);
     if (!product) return sum;
+    if (item.purchaseType === 'pack' && product.allowPackToggle) {
+      const packPrice = Math.round(parseFloat(product.price.toString()) * (product.packSize || 1) * (1 - (product.packDiscountPercent || 0) / 100) * 100) / 100;
+      return sum + packPrice * item.quantity;
+    }
     const price = product.salePrice ? parseFloat(product.salePrice.toString()) : parseFloat(product.price.toString());
-    return sum + price * quantity;
+    return sum + price * item.quantity;
   }, 0);
 
   const cartItemCount = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0);

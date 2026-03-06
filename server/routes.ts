@@ -3047,6 +3047,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               description: product.description,
               category: product.category,
               stockQuantity: product.stockQuantity,
+              allowPackToggle: product.allowPackToggle,
+              packSize: product.packSize,
+              packDiscountPercent: product.packDiscountPercent,
+              isPackOnly: product.isPackOnly,
             } : null
           };
         })
