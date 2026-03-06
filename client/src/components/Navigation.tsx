@@ -111,9 +111,7 @@ const Navigation = () => {
                         role="menuitem"
                         aria-label={item.ariaLabel}
                         aria-current={location === item.path ? "page" : undefined}
-                        className={`text-primary cursor-pointer font-bold relative text-[15.5px] px-3 py-1.5 rounded-md border border-primary/50 hover:bg-primary/10 transition-all duration-200 ${
-                          location === item.path ? 'bg-primary/15' : ''
-                        }`}
+                        className="bg-black text-primary cursor-pointer font-bold px-3 py-1.5 rounded-md hover:bg-black/80 transition-all duration-200 text-[15.5px] whitespace-nowrap"
                       >
                         {item.label}
                       </span>
