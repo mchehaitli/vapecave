@@ -62,7 +62,7 @@ const Navigation = () => {
   const navItems = [
     { label: "Home", path: "/", ariaLabel: "Go to homepage" },
     { label: "Products", path: "/products", ariaLabel: "Browse our products" },
-    { label: "Delivery", path: "/delivery", ariaLabel: "Order delivery to your door" },
+    { label: "Order Online", path: "/delivery", ariaLabel: "Order online for delivery or in-store pickup", highlight: true },
     { label: "Reviews", path: "/reviews", ariaLabel: "Read customer reviews" },
     { label: "Blog", path: "/blog", ariaLabel: "Read our blog" },
     { label: "FAQs", path: "/faq", ariaLabel: "Frequently asked questions" },
@@ -106,18 +106,31 @@ const Navigation = () => {
               {navItems.map((item) => (
                 <li key={item.path} role="none">
                   <Link href={item.path}>
-                    <span
-                      role="menuitem"
-                      aria-label={item.ariaLabel}
-                      aria-current={location === item.path ? "page" : undefined}
-                      className={`text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] ${
-                        location === item.path 
-                          ? 'font-bold after:block after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-black'
-                          : 'after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300'
-                      }`}
-                    >
-                      {item.label}
-                    </span>
+                    {item.highlight ? (
+                      <span
+                        role="menuitem"
+                        aria-label={item.ariaLabel}
+                        aria-current={location === item.path ? "page" : undefined}
+                        className={`text-primary cursor-pointer font-bold relative text-[15.5px] px-3 py-1.5 rounded-md border border-primary/50 hover:bg-primary/10 transition-all duration-200 ${
+                          location === item.path ? 'bg-primary/15' : ''
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                    ) : (
+                      <span
+                        role="menuitem"
+                        aria-label={item.ariaLabel}
+                        aria-current={location === item.path ? "page" : undefined}
+                        className={`text-black hover:text-white transition-colors cursor-pointer font-medium relative text-[15.5px] ${
+                          location === item.path 
+                            ? 'font-bold after:block after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-black'
+                            : 'after:block after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-black hover:after:w-full after:transition-all after:duration-300'
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                    )}
                   </Link>
                 </li>
               ))}
@@ -204,7 +217,11 @@ const Navigation = () => {
                     role="menuitem"
                     aria-label={item.ariaLabel}
                     aria-current={location === item.path ? "page" : undefined}
-                    className="block text-black cursor-pointer hover:text-white/90 hover:bg-black/5 transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center"
+                    className={`block cursor-pointer transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center ${
+                      item.highlight
+                        ? 'text-primary font-bold hover:bg-primary/10'
+                        : 'text-black hover:text-white/90 hover:bg-black/5'
+                    }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.label}

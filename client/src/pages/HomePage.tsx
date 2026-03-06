@@ -138,23 +138,22 @@ const HomePage = () => {
               >
                 Frisco's Premier <span className="text-primary">Vape</span> & <span className="text-primary">Smoke Shop</span>
               </motion.h1>
+              <motion.p
+                className="text-base md:text-lg mb-3 text-foreground/90 font-medium max-w-2xl mx-auto leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.12, ease: "easeOut" }}
+              >
+                Shop our massive inventory online. Choose rapid local delivery or skip the line with fast in-store pickup in Frisco.
+              </motion.p>
               <motion.p 
-                className="text-base md:text-lg mb-2 text-foreground/90 font-medium max-w-4xl mx-auto leading-relaxed"
+                className="text-base md:text-lg mb-6 text-foreground/90 font-medium max-w-4xl mx-auto leading-relaxed"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
               >
                 Located on Main Street | Open Daily 10AM - Midnight
               </motion.p>
-              
-              <motion.div 
-                className="inline-block bg-primary/20 border border-primary/50 rounded-lg px-4 py-2 mb-6"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.25 }}
-              >
-                <span className="text-primary font-semibold">Online Order Pick Up and DELIVERY COMING SOON</span> - Sign up to be notified!
-              </motion.div>
               <motion.h2 
                 className="text-xl md:text-2xl lg:text-3xl mb-8 text-foreground/90 font-medium max-w-[1100px] mx-auto leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}

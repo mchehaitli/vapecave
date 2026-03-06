@@ -114,7 +114,7 @@ const Footer = () => {
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
               <Link href="/"><span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Home</span></Link>
               <Link href="/products"><span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Products</span></Link>
-              <Link href="/delivery"><span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Delivery</span></Link>
+              <Link href="/delivery"><span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Delivery &amp; Pickup</span></Link>
               <Link href="/locations/frisco"><span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Frisco Store</span></Link>
               <Link href="/contact"><span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Contact</span></Link>
               <Link href="/blog"><span className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">Blog</span></Link>

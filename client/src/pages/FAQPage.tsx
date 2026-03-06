@@ -31,6 +31,10 @@ export default function FAQPage() {
       title: "Part 1: The Law (SB 2024) & Legal Compliance",
       faqs: [
         {
+          question: "Can I order online and pick up in-store?",
+          answer: "Yes! Simply add items to your cart and select 'In-Store Pickup' during checkout. Your order will be bagged and ready for you when you arrive."
+        },
+        {
           question: "What is the Texas Vape Ban (SB 2024)?",
           answer: "Senate Bill 2024, which took effect on September 1, 2025, is a Texas law that restricts the sale of specific e-cigarette products, primarily targeting foreign-made disposables, vapes appealing to minors, and all cannabinoid vapes."
         },
