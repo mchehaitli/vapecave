@@ -1,0 +1,46 @@
+Act as an expert full-stack developer. I want to build a "Notify Me When Back in Stock" feature, which I call a Revenue Recovery Engine. Please implement this step-by-step using our existing stack (React, Vite, Tailwind, Express, Drizzle ORM).
+
+Step 1: Database Schema Update (Drizzle)
+Create a new table in shared/schema.ts called restock_requests. It needs the following columns:
+
+id (serial primary key)
+
+userId (integer, references users table)
+
+productId (integer, references products table)
+
+status (text, default: 'pending', options: 'pending', 'notified')
+
+createdAt (timestamp, default now)
+Ensure you export the schema and types. Run the database migration to apply this.
+
+Step 2: Backend API Routes (Express)
+In server/routes.ts (or your equivalent API routing file), create three new endpoints:
+
+POST /api/restock-requests: Allows an authenticated user to insert a new row into restock_requests for a specific product. Prevent duplicates (if a user already has a 'pending' request for this product, don't add another).
+
+GET /api/admin/restock-requests: An admin-only route that fetches all 'pending' requests. Use a SQL JOIN or Drizzle relations to include the User details (email, name) and Product details (name, image, current stock). Group the data by productId so the admin sees a list of products and how many users are waiting for each.
+
+POST /api/admin/restock-requests/:productId/notify: An admin-only route. When triggered, it updates the status of all pending requests for this product to 'notified'. Note: For now, simulate the email sending with a console.log("Sending email to: ", user.email) so we can integrate Nodemailer, Resend, or SendGrid later.
+
+Step 3: Frontend Storefront UI (React/Tailwind)
+Modify the existing ProductCard and individual ProductPage components:
+
+If product.stock <= 0, display a prominent, high-contrast button that says "🔔 Notify Me When Available".
+
+When clicked, fire the POST /api/restock-requests endpoint.
+
+Show a success toast using our existing toast notification system (e.g., "You're on the list!").
+
+If the user is not logged in, clicking the button should prompt them to log in or create an account.
+
+Step 4: Frontend Admin UI (React)
+Create a new tab/section in the Admin Dashboard called "Restock Demand".
+
+Fetch data from GET /api/admin/restock-requests.
+
+Display a table or list showing: Product Image, Product Name, Current Stock (so admin knows if they have actually restocked it), and "Number of Customers Waiting".
+
+Add a "Notify Waitlist" button. When clicked, it should call the POST /api/admin/restock-requests/:productId/notify endpoint, show a success toast ("Notifications sent!"), and refresh the list to remove the notified users.
+
+Please implement this systematically, checking for errors after each step.
