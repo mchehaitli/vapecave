@@ -2534,6 +2534,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Spotlight route: lightweight list of ALL products with featured/hero flags for admin Featured tab
+  app.get('/api/admin/delivery/products/spotlight', isAdmin, async (req, res) => {
+    try {
+      const { products } = await storage.getAllDeliveryProducts({});
+      const spotlight = products
+        .sort((a, b) => {
+          if ((b.isFeaturedSlideshow ? 1 : 0) !== (a.isFeaturedSlideshow ? 1 : 0))
+            return (b.isFeaturedSlideshow ? 1 : 0) - (a.isFeaturedSlideshow ? 1 : 0);
+          if ((b.isHeroSlideshow ? 1 : 0) !== (a.isHeroSlideshow ? 1 : 0))
+            return (b.isHeroSlideshow ? 1 : 0) - (a.isHeroSlideshow ? 1 : 0);
+          return (a.name || '').localeCompare(b.name || '');
+        })
+        .map(p => ({
+          id: p.id,
+          name: p.customName || p.name,
+          image: p.image,
+          price: p.price,
+          stockQuantity: p.stockQuantity,
+          enabled: p.enabled,
+          category: p.category,
+          isFeaturedSlideshow: p.isFeaturedSlideshow ?? false,
+          isHeroSlideshow: p.isHeroSlideshow ?? false,
+        }));
+      res.json(spotlight);
+    } catch (error) {
+      console.error("Error fetching spotlight products:", error);
+      res.status(500).json({ error: "Failed to fetch spotlight products" });
+    }
+  });
+
   // Create delivery product (admin)
   app.post('/api/admin/delivery/products', isAdmin, async (req, res) => {
     try {
