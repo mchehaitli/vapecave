@@ -473,7 +473,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.03 }}
                       >
-                        <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/50">
+                        <Card className="group hover:shadow-lg transition-all duration-300 hover:border-primary/50">
                           <div className="relative aspect-square bg-muted/50">
                             <img
                               src={group.image || (group.brandId ? brandMap[group.brandId]?.logo : null) || "/placeholder-product.svg"}
@@ -851,7 +851,7 @@ function ProductCard({
       layout
       className="h-full"
     >
-      <Card className="group h-full flex flex-col overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-primary/50">
+      <Card className="group h-full flex flex-col hover:shadow-lg transition-all duration-300 hover:border-primary/50">
         <div className="relative aspect-square bg-muted/50">
           <img
             src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}

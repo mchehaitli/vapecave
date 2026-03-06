@@ -54,7 +54,7 @@ function ProductCard({ product, brandName }: { product: DeliveryProduct; brandNa
   });
 
   return (
-    <div className="bg-card border border-border/50 rounded-xl overflow-hidden flex flex-col hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300 flex-shrink-0 w-[160px] sm:w-[190px] md:w-[210px]">
+    <div className="bg-card border border-border/50 rounded-xl flex flex-col hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300 flex-shrink-0 w-[160px] sm:w-[190px] md:w-[210px]">
       <div className="relative aspect-square bg-muted/30 overflow-hidden">
         {badge && badgeColors[badge] && (
           <span className={`absolute top-2 left-2 z-10 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${badgeColors[badge]}`}>
@@ -156,7 +156,7 @@ function ProductGridCard({ product, brandName }: { product: DeliveryProduct; bra
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.4 }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className="bg-card border border-border/50 rounded-xl overflow-hidden flex flex-col hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300"
+      className="bg-card border border-border/50 rounded-xl flex flex-col hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300"
     >
       <div className="relative aspect-square bg-muted/30 overflow-hidden">
         {badge && badgeColors[badge] && (

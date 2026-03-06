@@ -97,6 +97,43 @@ You asked us to let you know — and we're delivering! The product you've been w
 Stock may be limited, so don't wait — head over to our delivery portal now and grab yours before it's gone again.`,
     availableVariables: "[CUSTOMER_NAME], [PRODUCT_NAME]",
   },
+  {
+    templateId: "abandoned_cart",
+    templateName: "Abandoned Cart Reminder",
+    subject: "Your cart is waiting! Complete your order at Vape Cave",
+    bodyText: `Hi [CUSTOMER_NAME],
+
+We noticed you left some items in your cart. Don't worry — we've saved them for you!
+
+Complete your order now and get your items delivered to your door. Stock is limited, so grab yours before it's gone.
+
+Questions? Just reply to this email and we'll be happy to help.`,
+    availableVariables: "[CUSTOMER_NAME], [CART_TOTAL], [CART_ITEMS_HTML] (auto-generated)",
+  },
+  {
+    templateId: "order_confirmation",
+    templateName: "Order Confirmation",
+    subject: "Order #[ORDER_ID] Confirmed - Vape Cave Smoke & Stuff",
+    bodyText: `Hi [CUSTOMER_NAME],
+
+[ORDER_INTRO]
+
+If you have any questions, reply to this email or visit vapecavetx.com.
+
+Thank you for choosing Vape Cave Smoke & Stuff!`,
+    availableVariables: "[CUSTOMER_NAME], [ORDER_ID], [ORDER_INTRO] (auto), [ORDER_TOTAL]",
+  },
+  {
+    templateId: "order_status_update",
+    templateName: "Order Status Update",
+    subject: "Order #[ORDER_ID] Update - [STATUS_TITLE]",
+    bodyText: `Hi [CUSTOMER_NAME],
+
+[STATUS_MESSAGE]
+
+Thank you for choosing Vape Cave Smoke & Stuff!`,
+    availableVariables: "[CUSTOMER_NAME], [ORDER_ID], [STATUS_TITLE] (auto), [STATUS_MESSAGE] (auto)",
+  },
 ];
 
 export async function seedEmailTemplates(storage: IStorage): Promise<void> {

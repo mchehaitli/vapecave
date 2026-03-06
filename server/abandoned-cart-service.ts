@@ -1,11 +1,59 @@
 import { storage } from './storage';
 import { sendEmail } from './email-service';
 
-const ABANDONED_CART_HOURS = 24; // Hours before cart is considered abandoned
-const MAX_REMINDERS = 2; // Maximum number of reminder emails per customer
-const REMINDER_INTERVAL_HOURS = 48; // Minimum hours between reminders
+const ABANDONED_CART_HOURS = 24;
+const MAX_REMINDERS = 2;
+const REMINDER_INTERVAL_HOURS = 48;
 
 let abandonedCartJobRunning = false;
+
+async function getAbandonedCartTemplate(): Promise<{ subject: string; bodyText: string }> {
+  try {
+    const tpl = await storage.getEmailTemplate('abandoned_cart');
+    if (tpl) return { subject: tpl.subject, bodyText: tpl.bodyText };
+  } catch {
+  }
+  return {
+    subject: "Your cart is waiting! Complete your order at Vape Cave",
+    bodyText: `Hi [CUSTOMER_NAME],
+
+We noticed you left some items in your cart. Don't worry — we've saved them for you!
+
+Complete your order now and get your items delivered to your door. Stock is limited, so grab yours before it's gone.
+
+Questions? Just reply to this email and we'll be happy to help.`,
+  };
+}
+
+function renderTemplate(bodyText: string, variables: Record<string, string>): string {
+  let result = bodyText;
+  for (const [key, value] of Object.entries(variables)) {
+    result = result.split(`[${key}]`).join(value);
+  }
+  return result;
+}
+
+function masterShell(headerTitle: string, bodyHtml: string, ctaHtml: string): string {
+  const inner = `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #1a1a1a; color: #f5f5f5; border-radius: 12px; overflow: hidden;">
+  <div style="background: linear-gradient(135deg, #ff7100, #ff9a00); padding: 28px 24px; text-align: center;">
+    <h1 style="margin: 0; font-size: 24px; color: #000; font-weight: 800;">${headerTitle}</h1>
+  </div>
+  <div style="background: #ffffff; padding: 32px 28px; color: #333;">
+    <div style="font-size: 15px; line-height: 1.7; white-space: pre-line;">${bodyHtml}</div>
+    <div style="margin-top: 28px;">${ctaHtml}</div>
+  </div>
+  <div style="padding: 20px 24px; text-align: center;">
+    <p style="font-size: 12px; color: #888; margin: 0;">
+      Vape Cave Smoke &amp; Stuff &middot; Frisco, TX &middot; <a href="https://vapecavetx.com" style="color: #ff7100; text-decoration: none;">vapecavetx.com</a>
+    </p>
+    <p style="font-size: 11px; color: #666; margin: 10px 0 0 0;">
+      You're receiving this email because you have items in your cart.
+    </p>
+  </div>
+</div>`.trim();
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vape Cave</title></head><body style="margin:0;padding:16px;background:#f4f4f4;">${inner}</body></html>`;
+}
 
 export async function processAbandonedCarts(): Promise<{ sent: number; errors: number }> {
   if (abandonedCartJobRunning) {
@@ -25,7 +73,6 @@ export async function processAbandonedCarts(): Promise<{ sent: number; errors: n
 
     for (const { customer, cartItems, cartValue } of abandonedCarts) {
       try {
-        // Check if enough time has passed since last reminder
         const reminder = await storage.getCartReminder(customer.id);
         if (reminder?.lastReminderSent) {
           const hoursSinceLastReminder = (Date.now() - new Date(reminder.lastReminderSent).getTime()) / (1000 * 60 * 60);
@@ -35,86 +82,53 @@ export async function processAbandonedCarts(): Promise<{ sent: number; errors: n
           }
         }
 
-        // Build email content
-        const itemsList = await buildCartItemsList(cartItems);
-        
-        const emailHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Don't Forget Your Cart!</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    <tr>
-      <td style="background: linear-gradient(135deg, #FF7100 0%, #FF8C33 100%); padding: 30px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Vape Cave Smoke & Stuff</h1>
-        <p style="color: #fff3e0; margin: 10px 0 0 0; font-size: 14px;">Frisco, TX</p>
-      </td>
-    </tr>
-    
-    <tr>
-      <td style="padding: 40px 30px;">
-        <h2 style="color: #1A1A1A; margin: 0 0 20px 0; font-size: 24px;">Hi ${customer.fullName.split(' ')[0]}!</h2>
-        
-        <p style="color: #666666; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-          We noticed you left some items in your cart. Don't worry, we've saved them for you!
-        </p>
-        
-        <div style="background-color: #f8f8f8; border-radius: 8px; padding: 20px; margin: 20px 0;">
-          <h3 style="color: #1A1A1A; margin: 0 0 15px 0; font-size: 18px;">Your Cart Items:</h3>
-          ${itemsList}
-          <div style="border-top: 1px solid #e0e0e0; padding-top: 15px; margin-top: 15px;">
-            <p style="color: #1A1A1A; font-size: 18px; font-weight: bold; margin: 0;">
-              Cart Total: $${cartValue.toFixed(2)}
-            </p>
-          </div>
-        </div>
-        
-        <p style="color: #666666; font-size: 16px; line-height: 1.6; margin: 20px 0;">
-          Complete your order now and get your items delivered to your door!
-        </p>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="https://vapecavetx.com/delivery/cart" 
-             style="display: inline-block; background-color: #FF7100; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: bold;">
-            Complete Your Order
-          </a>
-        </div>
-        
-        <p style="color: #999999; font-size: 14px; line-height: 1.6; margin: 20px 0 0 0;">
-          Questions? Reply to this email or give us a call. We're here to help!
-        </p>
-      </td>
-    </tr>
-    
-    <tr>
-      <td style="background-color: #1A1A1A; padding: 25px 30px; text-align: center;">
-        <p style="color: #999999; font-size: 12px; margin: 0;">
-          Vape Cave Smoke & Stuff | Frisco, TX<br>
-          <a href="https://vapecavetx.com" style="color: #FF7100; text-decoration: none;">vapecavetx.com</a>
-        </p>
-        <p style="color: #666666; font-size: 11px; margin: 15px 0 0 0;">
-          You're receiving this email because you have items in your cart.
-        </p>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
+        const itemsHtml = await buildCartItemsList(cartItems);
+        const template = await getAbandonedCartTemplate();
+        const firstName = customer.fullName.split(' ')[0];
 
-        // Send the email
+        const processedBody = renderTemplate(template.bodyText, {
+          CUSTOMER_NAME: firstName,
+          CART_TOTAL: `$${cartValue.toFixed(2)}`,
+          CART_ITEMS_HTML: itemsHtml,
+        });
+
+        const cartSummaryHtml = `
+<div style="background-color: #f8f8f8; border-radius: 8px; padding: 20px; margin: 20px 0;">
+  <h3 style="color: #1A1A1A; margin: 0 0 15px 0; font-size: 16px;">Your Cart Items:</h3>
+  ${itemsHtml}
+  <div style="border-top: 1px solid #e0e0e0; padding-top: 15px; margin-top: 15px;">
+    <p style="color: #1A1A1A; font-size: 17px; font-weight: bold; margin: 0;">
+      Cart Total: $${cartValue.toFixed(2)}
+    </p>
+  </div>
+</div>`;
+
+        const ctaHtml = `
+<div style="text-align: center; margin: 24px 0;">
+  <a href="https://vapecavetx.com/delivery/cart" style="background: linear-gradient(135deg, #ff7100, #ff9a00); color: #000; font-weight: 700; font-size: 15px; text-decoration: none; padding: 14px 36px; border-radius: 8px; display: inline-block;">Complete Your Order</a>
+</div>`;
+
+        const subject = renderTemplate(template.subject, {
+          CUSTOMER_NAME: firstName,
+          CART_TOTAL: `$${cartValue.toFixed(2)}`,
+          CART_ITEMS_HTML: '',
+        });
+
+        const htmlContent = masterShell(
+          "Your Cart is Waiting!",
+          processedBody + cartSummaryHtml,
+          ctaHtml
+        );
+
         const result = await sendEmail({
           to: customer.email,
-          subject: 'Your cart is waiting! Complete your order',
-          html: emailHtml,
+          subject,
+          html: htmlContent,
+          text: `Hi ${firstName}, you left items in your cart. Complete your order at vapecavetx.com/delivery/cart. Cart Total: $${cartValue.toFixed(2)}`,
           from: 'noreply',
         });
 
         if (result.success) {
-          // Update reminder tracking
           const currentCount = reminder?.reminderCount || 0;
           await storage.upsertCartReminder(customer.id, {
             lastReminderSent: new Date(),
@@ -171,15 +185,13 @@ let abandonedCartInterval: NodeJS.Timeout | null = null;
 export function startAbandonedCartScheduler(): void {
   console.log('[Abandoned Cart] Starting scheduler...');
   
-  // Run every hour
   abandonedCartInterval = setInterval(async () => {
     await processAbandonedCarts();
-  }, 60 * 60 * 1000); // Every hour
+  }, 60 * 60 * 1000);
   
-  // Run once on startup after a delay
   setTimeout(async () => {
     await processAbandonedCarts();
-  }, 60 * 1000); // After 1 minute
+  }, 60 * 1000);
 }
 
 export function stopAbandonedCartScheduler(): void {

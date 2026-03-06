@@ -287,7 +287,20 @@ export interface IStorage {
     waitingCount: number;
     customers: Array<{ id: number; email: string; fullName: string }>;
   }>>;
+  getAllRestockRequests(): Promise<Array<{
+    id: number;
+    productId: number;
+    productName: string;
+    productImage: string | null;
+    currentStock: string | null;
+    customerEmail: string;
+    customerFullName: string;
+    status: string;
+    createdAt: Date;
+    notifiedAt: Date | null;
+  }>>;
   notifyRestockRequests(productId: number): Promise<Array<{ email: string; fullName: string }>>;
+  deleteRestockRequest(id: number): Promise<void>;
 
   // Email template operations
   getEmailTemplate(templateId: string): Promise<EmailTemplate | undefined>;
@@ -2392,6 +2405,50 @@ export class DbStorage implements IStorage {
     return Object.values(grouped);
   }
 
+  async getAllRestockRequests(): Promise<Array<{
+    id: number;
+    productId: number;
+    productName: string;
+    productImage: string | null;
+    currentStock: string | null;
+    customerEmail: string;
+    customerFullName: string;
+    status: string;
+    createdAt: Date;
+    notifiedAt: Date | null;
+  }>> {
+    const rows = await db
+      .select({
+        id: restockRequests.id,
+        productId: restockRequests.productId,
+        productName: deliveryProducts.name,
+        productImage: deliveryProducts.image,
+        currentStock: deliveryProducts.stockQuantity,
+        customerEmail: deliveryCustomers.email,
+        customerFullName: deliveryCustomers.fullName,
+        status: restockRequests.status,
+        createdAt: restockRequests.createdAt,
+        notifiedAt: restockRequests.notifiedAt,
+      })
+      .from(restockRequests)
+      .innerJoin(deliveryProducts, eq(restockRequests.productId, deliveryProducts.id))
+      .innerJoin(deliveryCustomers, eq(restockRequests.customerId, deliveryCustomers.id))
+      .orderBy(restockRequests.createdAt);
+
+    return rows.map(r => ({
+      id: r.id,
+      productId: r.productId,
+      productName: r.productName,
+      productImage: r.productImage ?? null,
+      currentStock: r.currentStock ?? null,
+      customerEmail: r.customerEmail,
+      customerFullName: r.customerFullName,
+      status: r.status,
+      createdAt: r.createdAt,
+      notifiedAt: r.notifiedAt ?? null,
+    }));
+  }
+
   async notifyRestockRequests(productId: number): Promise<Array<{ email: string; fullName: string }>> {
     const rows = await db
       .select({
@@ -2408,13 +2465,17 @@ export class DbStorage implements IStorage {
 
     await db
       .update(restockRequests)
-      .set({ status: 'notified' })
+      .set({ status: 'notified', notifiedAt: new Date() })
       .where(and(
         eq(restockRequests.productId, productId),
         eq(restockRequests.status, 'pending')
       ));
 
     return rows.map(r => ({ email: r.email, fullName: r.fullName }));
+  }
+
+  async deleteRestockRequest(id: number): Promise<void> {
+    await db.delete(restockRequests).where(eq(restockRequests.id, id));
   }
 
   async getEmailTemplate(templateId: string): Promise<EmailTemplate | undefined> {
@@ -4127,7 +4188,7 @@ export class MemStorage implements IStorage {
 
   // Restock request operations (stubs — MemStorage is fallback only)
   async createRestockRequest(customerId: number, productId: number): Promise<{ created: boolean; request: RestockRequest }> {
-    const stub: RestockRequest = { id: 1, customerId, productId, status: 'pending', createdAt: new Date() };
+    const stub: RestockRequest = { id: 1, customerId, productId, status: 'pending', createdAt: new Date(), notifiedAt: null };
     return { created: true, request: stub };
   }
 
@@ -4142,8 +4203,27 @@ export class MemStorage implements IStorage {
     return [];
   }
 
+  async getAllRestockRequests(): Promise<Array<{
+    id: number;
+    productId: number;
+    productName: string;
+    productImage: string | null;
+    currentStock: string | null;
+    customerEmail: string;
+    customerFullName: string;
+    status: string;
+    createdAt: Date;
+    notifiedAt: Date | null;
+  }>> {
+    return [];
+  }
+
   async notifyRestockRequests(productId: number): Promise<Array<{ email: string; fullName: string }>> {
     return [];
+  }
+
+  async deleteRestockRequest(id: number): Promise<void> {
+    return;
   }
 
   async getEmailTemplate(templateId: string): Promise<EmailTemplate | undefined> {

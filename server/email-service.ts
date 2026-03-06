@@ -116,24 +116,38 @@ export interface DeliveryRejectionData {
   rejectionReason: string;
 }
 
-// Helper function to create RFC 2822 formatted email
+// Encode a subject line using RFC 2047 base64 word encoding so that
+// emojis and other non-ASCII characters survive transit through email servers.
+function encodeSubject(subject: string): string {
+  return '=?UTF-8?B?' + Buffer.from(subject, 'utf8').toString('base64') + '?=';
+}
+
+// Helper function to create RFC 2822 formatted email.
+// Each MIME part uses Content-Transfer-Encoding: base64 so that multi-byte
+// UTF-8 characters (including emojis) are never mangled by intermediate MTAs.
 function createEmailMessage(to: string, from: string, subject: string, textContent: string, htmlContent: string): string {
+  const encodedSubject = encodeSubject(subject);
+  const encodedText = Buffer.from(textContent, 'utf8').toString('base64');
+  const encodedHtml = Buffer.from(htmlContent, 'utf8').toString('base64');
+
   const messageParts = [
     `To: ${to}`,
     `From: ${from}`,
-    `Subject: ${subject}`,
+    `Subject: ${encodedSubject}`,
     'MIME-Version: 1.0',
     'Content-Type: multipart/alternative; boundary="boundary"',
     '',
     '--boundary',
     'Content-Type: text/plain; charset="UTF-8"',
+    'Content-Transfer-Encoding: base64',
     '',
-    textContent,
+    encodedText,
     '',
     '--boundary',
     'Content-Type: text/html; charset="UTF-8"',
+    'Content-Transfer-Encoding: base64',
     '',
-    htmlContent,
+    encodedHtml,
     '',
     '--boundary--'
   ];
@@ -171,7 +185,7 @@ function masterHtmlShell(params: {
   ctaHtml?: string;
   footerNote?: string;
 }): string {
-  return `
+  const inner = `
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #1a1a1a; color: #f5f5f5; border-radius: 12px; overflow: hidden;">
   <div style="background: linear-gradient(135deg, #ff7100, #ff9a00); padding: 28px 24px; text-align: center;">
     <h1 style="margin: 0; font-size: 24px; color: #000; font-weight: 800;">${params.headerTitle}</h1>
@@ -185,8 +199,9 @@ function masterHtmlShell(params: {
       ${params.footerNote || 'Vape Cave Smoke &amp; Stuff · Frisco, TX · <a href="https://vapecavetx.com" style="color: #ff7100; text-decoration: none;">vapecavetx.com</a>'}
     </p>
   </div>
-</div>
-  `.trim();
+</div>`.trim();
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vape Cave</title></head><body style="margin:0;padding:16px;background:#f4f4f4;">${inner}</body></html>`;
 }
 
 /**
@@ -493,238 +508,130 @@ export const sendPasswordResetEmail = async (data: PasswordResetData): Promise<{
  * Send order status update email
  */
 export const sendOrderStatusEmail = async (data: OrderStatusEmailData): Promise<{ success: boolean; message: string; }> => {
-  try {
-    const gmail = await getUncachableGmailClient();
+  const statusMessages: Record<string, { title: string; message: string }> = {
+    confirmed:        { title: 'Order Confirmed',       message: 'Your order has been confirmed and is being prepared.' },
+    preparing:        { title: 'Order Being Prepared',  message: 'Your order is currently being prepared.' },
+    out_for_delivery: { title: 'Out for Delivery',      message: 'Your order is on its way!' },
+    delivered:        { title: 'Order Delivered',       message: 'Your order has been delivered. Enjoy!' },
+    cancelled:        { title: 'Order Cancelled',       message: 'Your order has been cancelled.' },
+    refunded:         { title: 'Refund Processed',      message: 'A refund has been processed for your order.' },
+  };
+  const statusInfo = statusMessages[data.status] || {
+    title: 'Order Status Update',
+    message: `Your order status has been updated to: ${data.status}`,
+  };
 
-    const statusMessages: Record<string, { title: string; color: string; message: string }> = {
-      confirmed: {
-        title: '✅ Order Confirmed',
-        color: '#4CAF50',
-        message: 'Your order has been confirmed and is being prepared.'
-      },
-      preparing: {
-        title: '👨‍🍳 Order Being Prepared',
-        color: '#FF9800',
-        message: 'Your order is currently being prepared.'
-      },
-      out_for_delivery: {
-        title: '🚗 Out for Delivery',
-        color: '#2196F3',
-        message: 'Your order is on its way!'
-      },
-      delivered: {
-        title: '🎉 Order Delivered',
-        color: '#4CAF50',
-        message: 'Your order has been delivered. Enjoy!'
-      },
-      cancelled: {
-        title: '❌ Order Cancelled',
-        color: '#f44336',
-        message: 'Your order has been cancelled.'
-      },
-      refunded: {
-        title: '💰 Refund Processed',
-        color: '#9C27B0',
-        message: 'A refund has been processed for your order.'
-      }
-    };
+  const fallback = {
+    subject: `Order #[ORDER_ID] Update - [STATUS_TITLE]`,
+    bodyText: `Hi [CUSTOMER_NAME],\n\n[STATUS_MESSAGE]\n\nThank you for choosing Vape Cave Smoke & Stuff!`,
+  };
+  const template = await getTemplate('order_status_update', fallback);
+  const processedBody = renderTemplate(template.bodyText, {
+    CUSTOMER_NAME: data.fullName,
+    ORDER_ID:      String(data.orderId),
+    STATUS_TITLE:  statusInfo.title,
+    STATUS_MESSAGE: statusInfo.message,
+  });
+  const subject = renderTemplate(template.subject, {
+    ORDER_ID:     String(data.orderId),
+    STATUS_TITLE: statusInfo.title,
+  });
 
-    const statusInfo = statusMessages[data.status] || {
-      title: `Order Status Update`,
-      color: '#FF6B00',
-      message: `Your order status has been updated to: ${data.status}`
-    };
+  const orderDetailsHtml = `
+<div style="background:#f5f5f5;padding:18px 20px;border-radius:8px;margin:20px 0;font-size:14px;color:#333;">
+  <strong style="display:block;margin-bottom:10px;font-size:15px;color:#222;">Order #${data.orderId}</strong>
+  <div><strong>Delivery Address:</strong> ${data.deliveryAddress}</div>
+  <div><strong>Total:</strong> $${data.total}</div>
+  ${data.deliveryDate ? `<div><strong>Delivery Date:</strong> ${data.deliveryDate}</div>` : ''}
+  ${data.deliveryTime ? `<div><strong>Delivery Time:</strong> ${data.deliveryTime}</div>` : ''}
+  ${data.refundAmount ? `<div><strong>Refund Amount:</strong> $${data.refundAmount}</div>` : ''}
+  ${data.refundReason ? `<div><strong>Refund Reason:</strong> ${data.refundReason}</div>` : ''}
+</div>`;
 
-    const textContent = `
-Hi ${data.fullName},
+  const ctaHtml = `
+<div style="text-align:center;margin:24px 0;">
+  <a href="https://vapecavetx.com/delivery/orders" style="background:linear-gradient(135deg,#ff7100,#ff9a00);color:#000;font-weight:700;font-size:15px;text-decoration:none;padding:14px 36px;border-radius:8px;display:inline-block;">View Order</a>
+</div>`;
 
-${statusInfo.message}
+  const htmlContent = masterHtmlShell({
+    headerTitle: statusInfo.title,
+    bodyHtml: processedBody + orderDetailsHtml,
+    ctaHtml,
+  });
 
-Order #${data.orderId}
-Delivery Address: ${data.deliveryAddress}
-Total: $${data.total}
-${data.deliveryDate ? `Delivery Date: ${data.deliveryDate}` : ''}
-${data.deliveryTime ? `Delivery Time: ${data.deliveryTime}` : ''}
-${data.refundAmount ? `Refund Amount: $${data.refundAmount}` : ''}
-${data.refundReason ? `Refund Reason: ${data.refundReason}` : ''}
+  const textContent = `Hi ${data.fullName},\n\n${statusInfo.message}\n\nOrder #${data.orderId}\nAddress: ${data.deliveryAddress}\nTotal: $${data.total}\n\nVape Cave Smoke & Stuff Team`;
 
-Thank you,
-Vape Cave Smoke & Stuff Team
-    `.trim();
-
-    const htmlContent = `
-<div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; background-color: #f9f9f9;">
-  <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <h2 style="color: ${statusInfo.color}; margin-top: 0;">${statusInfo.title}</h2>
-    <p>Hi ${data.fullName},</p>
-    <p>${statusInfo.message}</p>
-    
-    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-      <h3 style="margin: 0 0 15px 0; color: #333;">Order Details</h3>
-      <p style="margin: 5px 0;"><strong>Order #:</strong> ${data.orderId}</p>
-      <p style="margin: 5px 0;"><strong>Delivery Address:</strong> ${data.deliveryAddress}</p>
-      <p style="margin: 5px 0;"><strong>Total:</strong> $${data.total}</p>
-      ${data.deliveryDate ? `<p style="margin: 5px 0;"><strong>Delivery Date:</strong> ${data.deliveryDate}</p>` : ''}
-      ${data.deliveryTime ? `<p style="margin: 5px 0;"><strong>Delivery Time:</strong> ${data.deliveryTime}</p>` : ''}
-      ${data.refundAmount ? `<p style="margin: 5px 0;"><strong>Refund Amount:</strong> $${data.refundAmount}</p>` : ''}
-      ${data.refundReason ? `<p style="margin: 5px 0;"><strong>Refund Reason:</strong> ${data.refundReason}</p>` : ''}
-    </div>
-    
-    <p style="margin-top: 30px;">Thank you,<br><strong>Vape Cave Smoke & Stuff Team</strong></p>
-  </div>
-  <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-    This email was sent from Vape Cave Smoke & Stuff Delivery Service
-  </p>
-</div>
-    `.trim();
-
-    const emailMessage = createEmailMessage(
-      data.email,
-      EMAIL_ALIASES.delivery,
-      `Order #${data.orderId} Update - ${statusInfo.title}`,
-      textContent,
-      htmlContent
-    );
-
-    const encodedMessage = encodeMessage(emailMessage);
-
-    const result = await gmail.users.messages.send({
-      userId: 'me',
-      requestBody: {
-        raw: encodedMessage,
-      },
-    });
-
-    console.log(`Order status email sent for order #${data.orderId}:`, result.data.id);
-
-    return { success: true, message: 'Order status email sent successfully' };
-  } catch (error) {
-    console.error('Error sending order status email:', error);
-    return { success: false, message: 'Failed to send order status email' };
-  }
+  return sendEmail({ to: data.email, subject, html: htmlContent, text: textContent, from: 'delivery' });
 };
 
 /**
  * Send order confirmation email to customer
  */
 export const sendOrderConfirmationEmail = async (data: OrderConfirmationEmailData): Promise<{ success: boolean; message: string; }> => {
-  try {
-    const gmail = await getUncachableGmailClient();
+  const fallback = {
+    subject: `Order #[ORDER_ID] Confirmed - Vape Cave Smoke & Stuff`,
+    bodyText: `Hi [CUSTOMER_NAME],\n\n[ORDER_INTRO]\n\nIf you have any questions, reply to this email or visit vapecavetx.com.\n\nThank you for choosing Vape Cave Smoke & Stuff!`,
+  };
+  const template = await getTemplate('order_confirmation', fallback);
+  const orderIntro = data.isReplacement
+    ? 'Your replacement order has been confirmed and is being prepared.'
+    : "Thank you for your order! We're preparing it now.";
+  const processedBody = renderTemplate(template.bodyText, {
+    CUSTOMER_NAME: data.fullName,
+    ORDER_ID:      String(data.orderId),
+    ORDER_INTRO:   orderIntro,
+    ORDER_TOTAL:   data.total,
+  });
+  const subject = renderTemplate(template.subject, { ORDER_ID: String(data.orderId) });
 
-    const itemsText = data.items.map(item =>
-      `${item.name} x${item.quantity} - $${item.price}`
-    ).join('\n');
+  const itemsHtml = data.items.map(item => `
+    <tr>
+      <td style="padding:9px 10px;border-bottom:1px solid #f0f0f0;">${item.name}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #f0f0f0;text-align:center;">${item.quantity}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #f0f0f0;text-align:right;">$${item.price}</td>
+    </tr>`).join('');
 
-    const itemsHtml = data.items.map(item => `
-      <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #f5f5f5;">${item.name}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #f5f5f5; text-align: center;">${item.quantity}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #f5f5f5; text-align: right;">$${item.price}</td>
-      </tr>
-    `).join('');
-
-    const textContent = `
-Hi ${data.fullName},
-
-${data.isReplacement ? 'Your replacement order has been confirmed!' : 'Thank you for your order!'}
-
-Order #${data.orderId}
-Delivery Address: ${data.deliveryAddress}
-${data.deliveryDate ? `Delivery Date: ${data.deliveryDate}` : ''}
-${data.deliveryTime ? `Delivery Time: ${data.deliveryTime}` : ''}
-
-Items:
-${itemsText}
-
-Subtotal: $${data.subtotal}
-${data.deliveryFee !== '0.00' ? `Delivery Fee: $${data.deliveryFee}` : 'Delivery: FREE'}
-Tax: $${data.tax}
-${data.discount ? `Discount: -$${data.discount}` : ''}
-Total: $${data.total}
-
-Payment Method: ${data.paymentMethod || 'Cash on Delivery'}
-${data.notes ? `Special Instructions: ${data.notes}` : ''}
-
-Thank you,
-Vape Cave Smoke & Stuff Team
-    `.trim();
-
-    const htmlContent = `
-<div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; background-color: #f9f9f9;">
-  <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <h2 style="color: #FF6B00; margin-top: 0;">${data.isReplacement ? '🔄 Replacement Order Confirmed!' : '✅ Order Confirmed!'}</h2>
-    <p>Hi ${data.fullName},</p>
-    <p>${data.isReplacement ? 'Your replacement order has been confirmed and is being prepared.' : 'Thank you for your order! We\'re preparing it now.'}</p>
-    
-    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-      <h3 style="margin: 0 0 15px 0; color: #333;">Order #${data.orderId}</h3>
-      <p style="margin: 5px 0;"><strong>Delivery Address:</strong> ${data.deliveryAddress}</p>
-      ${data.deliveryDate ? `<p style="margin: 5px 0;"><strong>Delivery Date:</strong> ${data.deliveryDate}</p>` : ''}
-      ${data.deliveryTime ? `<p style="margin: 5px 0;"><strong>Delivery Time:</strong> ${data.deliveryTime}</p>` : ''}
-      <p style="margin: 5px 0;"><strong>Payment Method:</strong> ${data.paymentMethod || 'Cash on Delivery'}</p>
-    </div>
-    
-    ${data.notes ? `
-    <div style="background-color: #fce4ec; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-      <h3 style="color: #c2185b; margin: 0 0 10px 0;">Special Instructions</h3>
-      <p style="margin: 0;">${data.notes}</p>
-    </div>
-    ` : ''}
-    
-    <h3 style="color: #333; border-bottom: 2px solid #FF6B00; padding-bottom: 10px;">Order Items</h3>
-    <table style="width: 100%; border-collapse: collapse;">
-      <thead>
-        <tr style="background-color: #f5f5f5;">
-          <th style="padding: 10px; text-align: left;">Item</th>
-          <th style="padding: 10px; text-align: center;">Qty</th>
-          <th style="padding: 10px; text-align: right;">Price</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${itemsHtml}
-      </tbody>
-    </table>
-    
-    <div style="margin-top: 20px; text-align: right;">
-      <p style="margin: 5px 0;">Subtotal: $${data.subtotal}</p>
-      <p style="margin: 5px 0;">${data.deliveryFee !== '0.00' ? `Delivery Fee: $${data.deliveryFee}` : 'Delivery: <strong style="color: #4CAF50;">FREE</strong>'}</p>
-      <p style="margin: 5px 0;">Tax: $${data.tax}</p>
-      ${data.discount ? `<p style="margin: 5px 0; color: #4CAF50;">Discount: -$${data.discount}</p>` : ''}
-      <p style="margin: 10px 0; font-size: 18px; font-weight: bold; color: #FF6B00;">Total: $${data.total}</p>
-    </div>
-    
-    <p style="margin-top: 30px;">Thank you,<br><strong>Vape Cave Smoke & Stuff Team</strong></p>
-  </div>
-  <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-    This email was sent from Vape Cave Smoke & Stuff Delivery Service
-  </p>
+  const orderDetailsHtml = `
+<div style="background:#f5f5f5;padding:18px 20px;border-radius:8px;margin:20px 0;font-size:14px;color:#333;">
+  <strong style="display:block;margin-bottom:10px;font-size:15px;color:#222;">Order #${data.orderId}</strong>
+  <div><strong>Delivery Address:</strong> ${data.deliveryAddress}</div>
+  ${data.deliveryDate ? `<div><strong>Delivery Date:</strong> ${data.deliveryDate}</div>` : ''}
+  ${data.deliveryTime ? `<div><strong>Delivery Time:</strong> ${data.deliveryTime}</div>` : ''}
+  <div><strong>Payment:</strong> ${data.paymentMethod || 'Cash on Delivery'}</div>
+  ${data.notes ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #ddd;"><strong>Special Instructions:</strong> ${data.notes}</div>` : ''}
 </div>
-    `.trim();
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px;">
+  <thead>
+    <tr style="background:#f0f0f0;">
+      <th style="padding:9px 10px;text-align:left;">Item</th>
+      <th style="padding:9px 10px;text-align:center;">Qty</th>
+      <th style="padding:9px 10px;text-align:right;">Price</th>
+    </tr>
+  </thead>
+  <tbody>${itemsHtml}</tbody>
+</table>
+<div style="text-align:right;font-size:14px;color:#333;padding:0 4px;">
+  <div>Subtotal: $${data.subtotal}</div>
+  <div>${data.deliveryFee !== '0.00' ? `Delivery Fee: $${data.deliveryFee}` : 'Delivery: FREE'}</div>
+  <div>Tax: $${data.tax}</div>
+  ${data.discount ? `<div style="color:#4CAF50;">Discount: -$${data.discount}</div>` : ''}
+  <div style="font-size:17px;font-weight:700;color:#ff7100;margin-top:6px;">Total: $${data.total}</div>
+</div>`;
 
-    const emailMessage = createEmailMessage(
-      data.email,
-      EMAIL_ALIASES.billing,
-      `Order #${data.orderId} Confirmed - Vape Cave Smoke & Stuff`,
-      textContent,
-      htmlContent
-    );
+  const ctaHtml = `
+<div style="text-align:center;margin:24px 0;">
+  <a href="https://vapecavetx.com/delivery/orders" style="background:linear-gradient(135deg,#ff7100,#ff9a00);color:#000;font-weight:700;font-size:15px;text-decoration:none;padding:14px 36px;border-radius:8px;display:inline-block;">View Your Order</a>
+</div>`;
 
-    const encodedMessage = encodeMessage(emailMessage);
+  const htmlContent = masterHtmlShell({
+    headerTitle: data.isReplacement ? 'Replacement Order Confirmed!' : 'Order Confirmed!',
+    bodyHtml: processedBody + orderDetailsHtml,
+    ctaHtml,
+  });
 
-    const result = await gmail.users.messages.send({
-      userId: 'me',
-      requestBody: {
-        raw: encodedMessage,
-      },
-    });
+  const textContent = `Hi ${data.fullName},\n\n${orderIntro}\n\nOrder #${data.orderId} | Total: $${data.total}\n\nVape Cave Smoke & Stuff Team`;
 
-    console.log(`Order confirmation email sent for order #${data.orderId}:`, result.data.id);
-
-    return { success: true, message: 'Order confirmation email sent successfully' };
-  } catch (error) {
-    console.error('Error sending order confirmation email:', error);
-    return { success: false, message: 'Failed to send order confirmation email' };
-  }
+  return sendEmail({ to: data.email, subject, html: htmlContent, text: textContent, from: 'billing' });
 };
 
 /**

@@ -869,6 +869,7 @@ export const restockRequests = pgTable("restock_requests", {
   productId: integer("product_id").notNull(),
   status: text("status").notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  notifiedAt: timestamp("notified_at"),
 });
 
 export const insertRestockRequestSchema = createInsertSchema(restockRequests).omit({

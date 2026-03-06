@@ -5701,7 +5701,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/restock-requests', isAdmin, async (req: Request, res: Response) => {
     try {
-      const requests = await storage.getPendingRestockRequests();
+      const requests = await storage.getAllRestockRequests();
       res.json(requests);
     } catch (error) {
       console.error("Error fetching restock requests:", error);
@@ -5715,8 +5715,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(productId)) {
         return res.status(400).json({ error: "Invalid productId." });
       }
-      const requests = await storage.getPendingRestockRequests();
-      const productEntry = requests.find(r => r.productId === productId);
+      const allRequests = await storage.getAllRestockRequests();
+      const productEntry = allRequests.find(r => r.productId === productId && r.status === 'pending');
       const productName = productEntry?.productName ?? 'A product you requested';
       const customers = await storage.notifyRestockRequests(productId);
       const emailResults = await Promise.allSettled(
@@ -5734,6 +5734,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error notifying restock waitlist:", error);
       res.status(500).json({ error: "Failed to send notifications." });
+    }
+  });
+
+  app.delete('/api/admin/restock-requests/:id', isAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid request id." });
+      }
+      await storage.deleteRestockRequest(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting restock request:", error);
+      res.status(500).json({ error: "Failed to delete restock request." });
     }
   });
 

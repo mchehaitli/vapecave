@@ -298,7 +298,7 @@ export default function DeliverySalePage() {
                       transition={{ duration: 0.3, delay: index * 0.03 }}
                       layout
                     >
-                      <Card className="group h-full overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-red-500/50">
+                      <Card className="group h-full hover:shadow-lg transition-all duration-300 hover:border-red-500/50">
                         <div className="relative aspect-square overflow-hidden bg-muted/50">
                           <img
                             src={group.image || (group.brandId ? brandMap[group.brandId]?.logo : null) || '/placeholder-product.svg'}
@@ -498,7 +498,7 @@ function SaleProductCard({
       transition={{ duration: 0.3, delay: index * 0.03 }}
       layout
     >
-      <Card className="group h-full overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-red-500/50">
+      <Card className="group h-full hover:shadow-lg transition-all duration-300 hover:border-red-500/50">
         <div className="relative aspect-square overflow-hidden bg-muted/50">
           <img
             src={product.image || (product.brandId ? brandMap[product.brandId]?.logo : null) || '/placeholder-product.svg'}
