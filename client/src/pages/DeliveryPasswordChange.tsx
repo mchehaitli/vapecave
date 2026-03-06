@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -129,6 +129,18 @@ export default function DeliveryPasswordChange() {
       >
         <Card>
           <CardHeader>
+            {!mustChange && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-fit -ml-2 mb-2 text-muted-foreground hover:text-foreground"
+                onClick={() => setLocation("/delivery/account")}
+                data-testid="button-back"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back
+              </Button>
+            )}
             <CardTitle className="text-2xl">Change Password</CardTitle>
             <CardDescription>
               {mustChange 

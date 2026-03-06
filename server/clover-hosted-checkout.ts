@@ -139,6 +139,28 @@ export class CloverHostedCheckout {
     }
   }
 
+  async getCheckoutSession(sessionId: string): Promise<{ status?: string; state?: string; [key: string]: any }> {
+    if (!this.isConfigured()) {
+      throw new Error("Clover Hosted Checkout is not configured.");
+    }
+    const response = await fetch(
+      `${this.baseUrl}/invoicingcheckoutservice/v1/checkouts/${sessionId}`,
+      {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+          "Authorization": `Bearer ${this.privateToken}`,
+          "X-Clover-Merchant-Id": this.merchantId,
+        },
+      }
+    );
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Failed to fetch checkout session: ${response.status} ${text}`);
+    }
+    return response.json();
+  }
+
   verifyWebhookSignature(cloverSignatureHeader: string, rawBody: string): boolean {
     if (!this.webhookSecret) {
       console.warn("[Clover Webhook] No webhook secret configured, skipping verification");

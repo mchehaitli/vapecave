@@ -3809,6 +3809,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const customer = (req as any).deliveryCustomer;
       const { promoCode, deliveryWindowId, deliveryFee: clientDeliveryFee, notes } = req.body;
 
+      // Cancel any stale pending_payment orders for this customer before starting a new session
+      const existingOrders = await storage.getOrdersByCustomer(customerId);
+      const staleOrders = existingOrders.filter(o => o.status === 'pending_payment');
+      for (const stale of staleOrders) {
+        await storage.updateDeliveryOrderStatus(stale.id, 'cancelled');
+      }
+
       // Store checkout data in session for later order creation
       const cartItems = await storage.getCartItems(customerId);
       if (cartItems.length === 0) {
@@ -4027,17 +4034,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Order not found for this payment session" });
       }
 
-      // Update order status if still pending (in case webhook hasn't arrived yet)
-      if (order.status === 'pending_payment') {
-        await storage.updateDeliveryOrderStatus(order.id, 'confirmed');
-        await storage.updateDeliveryOrderCloverInfo(order.id, sessionId, 'paid');
-        await storage.clearCart(customerId);
+      // If the webhook already confirmed this order, return immediately
+      if (order.status !== 'pending_payment') {
+        return res.json({
+          orderId: order.id,
+          status: order.status,
+          paymentStatus: order.paymentStatus,
+        });
       }
+
+      // Webhook hasn't arrived yet — verify directly with Clover before confirming
+      try {
+        const session = await cloverHostedCheckout.getCheckoutSession(sessionId);
+        const paid = session.status === 'APPROVED' || session.state === 'PAID' || session.paymentStatus === 'PAID';
+        if (!paid) {
+          console.warn(`[verify-payment] Clover session ${sessionId} not yet paid:`, session.status || session.state);
+          return res.status(402).json({ error: "Payment not yet confirmed" });
+        }
+      } catch (verifyErr) {
+        console.error("[verify-payment] Could not reach Clover to verify session:", verifyErr);
+        return res.status(502).json({ error: "Unable to verify payment status. Please try again shortly." });
+      }
+
+      await storage.updateDeliveryOrderStatus(order.id, 'confirmed');
+      await storage.updateDeliveryOrderCloverInfo(order.id, sessionId, 'paid');
+      await storage.clearCart(customerId);
 
       res.json({
         orderId: order.id,
-        status: order.status,
-        paymentStatus: order.paymentStatus,
+        status: 'confirmed',
+        paymentStatus: 'paid',
       });
     } catch (error) {
       console.error("Error verifying payment:", error);
@@ -4416,7 +4442,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const customerId = (req as any).deliveryCustomer.id;
       const orders = await storage.getOrdersByCustomer(customerId);
-      res.json(orders);
+      res.json(orders.filter(o => o.status !== 'pending_payment'));
     } catch (error) {
       console.error("Error fetching orders:", error);
       res.status(500).json({ error: "Failed to fetch orders" });
