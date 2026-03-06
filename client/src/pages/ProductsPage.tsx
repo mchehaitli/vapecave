@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import MainLayout from "@/layouts/MainLayout";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Package, ShoppingBag, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { AlertCircle, Package, ShoppingBag, ChevronLeft, ChevronRight, Sparkles, Bell } from "lucide-react";
 import { motion } from "framer-motion";
 import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { DeliveryProduct, DeliveryBrand, DeliveryCategory } from "@shared/schema";
 
 const badgeColors: Record<string, string> = {
@@ -19,6 +21,37 @@ function ProductCard({ product, brandName }: { product: DeliveryProduct; brandNa
   const badge = product.badge;
   const imageUrl = product.image || (product.images && product.images.length > 0 ? product.images[0] : null);
   const [imgError, setImgError] = useState(false);
+  const { toast } = useToast();
+  const [, navigate] = useLocation();
+  const stockQty = product.stockQuantity ? parseFloat(product.stockQuantity as string) : 0;
+  const isOutOfStock = stockQty <= 0;
+
+  const notifyMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/restock-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: product.id }),
+        credentials: 'include',
+      });
+      if (res.status === 401) throw Object.assign(new Error('Unauthorized'), { status: 401 });
+      if (res.status === 409) throw Object.assign(new Error('Duplicate'), { status: 409 });
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "You're on the list!", description: "We'll email you when it's back in stock." });
+    },
+    onError: (error: any) => {
+      if (error.status === 401) {
+        navigate('/register');
+      } else if (error.status === 409) {
+        toast({ title: "Already on the list!", description: "You'll be notified when this is back in stock." });
+      } else {
+        toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
+      }
+    },
+  });
 
   return (
     <div className="bg-card border border-border/50 rounded-xl overflow-hidden flex flex-col hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,113,0,0.15)] transition-all duration-300 flex-shrink-0 w-[160px] sm:w-[190px] md:w-[210px]">
@@ -28,11 +61,16 @@ function ProductCard({ product, brandName }: { product: DeliveryProduct; brandNa
             {badge}
           </span>
         )}
+        {isOutOfStock && (
+          <span className="absolute top-2 right-2 z-10 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-gray-700 text-gray-300">
+            Out of Stock
+          </span>
+        )}
         {imageUrl && !imgError ? (
           <img
             src={imageUrl}
             alt={product.name}
-            className="w-full h-full object-contain p-3"
+            className={`w-full h-full object-contain p-3 ${isOutOfStock ? 'opacity-60' : ''}`}
             loading="lazy"
             onError={() => setImgError(true)}
           />
@@ -53,11 +91,22 @@ function ProductCard({ product, brandName }: { product: DeliveryProduct; brandNa
           <p className="text-[11px] text-muted-foreground line-clamp-2 mb-2 flex-1">{product.description}</p>
         )}
         <div className="mt-auto pt-1">
-          <Link href="/register">
-            <span className="block w-full text-center bg-primary hover:bg-primary/90 text-black text-[11px] sm:text-xs font-semibold py-1.5 px-2 rounded-lg transition-colors cursor-pointer">
-              Sign In to Order
-            </span>
-          </Link>
+          {isOutOfStock ? (
+            <button
+              onClick={() => notifyMutation.mutate()}
+              disabled={notifyMutation.isPending}
+              className="flex items-center justify-center gap-1 w-full text-center bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 text-[10px] sm:text-[11px] font-semibold py-1.5 px-2 rounded-lg transition-colors cursor-pointer disabled:opacity-60"
+            >
+              <Bell className="w-3 h-3" />
+              {notifyMutation.isPending ? 'Saving...' : 'Notify Me'}
+            </button>
+          ) : (
+            <Link href="/register">
+              <span className="block w-full text-center bg-primary hover:bg-primary/90 text-black text-[11px] sm:text-xs font-semibold py-1.5 px-2 rounded-lg transition-colors cursor-pointer">
+                Sign In to Order
+              </span>
+            </Link>
+          )}
         </div>
       </div>
     </div>
@@ -68,6 +117,37 @@ function ProductGridCard({ product, brandName }: { product: DeliveryProduct; bra
   const badge = product.badge;
   const imageUrl = product.image || (product.images && product.images.length > 0 ? product.images[0] : null);
   const [imgError, setImgError] = useState(false);
+  const { toast } = useToast();
+  const [, navigate] = useLocation();
+  const stockQty = product.stockQuantity ? parseFloat(product.stockQuantity as string) : 0;
+  const isOutOfStock = stockQty <= 0;
+
+  const notifyMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/restock-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: product.id }),
+        credentials: 'include',
+      });
+      if (res.status === 401) throw Object.assign(new Error('Unauthorized'), { status: 401 });
+      if (res.status === 409) throw Object.assign(new Error('Duplicate'), { status: 409 });
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "You're on the list!", description: "We'll email you when it's back in stock." });
+    },
+    onError: (error: any) => {
+      if (error.status === 401) {
+        navigate('/register');
+      } else if (error.status === 409) {
+        toast({ title: "Already on the list!", description: "You'll be notified when this is back in stock." });
+      } else {
+        toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
+      }
+    },
+  });
 
   return (
     <motion.div
@@ -84,11 +164,16 @@ function ProductGridCard({ product, brandName }: { product: DeliveryProduct; bra
             {badge}
           </span>
         )}
+        {isOutOfStock && (
+          <span className="absolute top-2 right-2 z-10 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">
+            Out of Stock
+          </span>
+        )}
         {imageUrl && !imgError ? (
           <img
             src={imageUrl}
             alt={product.name}
-            className="w-full h-full object-contain p-3"
+            className={`w-full h-full object-contain p-3 ${isOutOfStock ? 'opacity-60' : ''}`}
             loading="lazy"
             onError={() => setImgError(true)}
           />
@@ -109,11 +194,22 @@ function ProductGridCard({ product, brandName }: { product: DeliveryProduct; bra
           <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">{product.description}</p>
         )}
         <div className="mt-auto pt-2">
-          <Link href="/register">
-            <span className="block w-full text-center bg-primary hover:bg-primary/90 text-black text-xs sm:text-sm font-semibold py-2 px-3 rounded-lg transition-colors cursor-pointer">
-              Sign In to Order
-            </span>
-          </Link>
+          {isOutOfStock ? (
+            <button
+              onClick={() => notifyMutation.mutate()}
+              disabled={notifyMutation.isPending}
+              className="flex items-center justify-center gap-1.5 w-full text-center bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 text-xs sm:text-sm font-semibold py-2 px-3 rounded-lg transition-colors cursor-pointer disabled:opacity-60"
+            >
+              <Bell className="w-3.5 h-3.5" />
+              {notifyMutation.isPending ? 'Saving...' : 'Notify Me When Available'}
+            </button>
+          ) : (
+            <Link href="/register">
+              <span className="block w-full text-center bg-primary hover:bg-primary/90 text-black text-xs sm:text-sm font-semibold py-2 px-3 rounded-lg transition-colors cursor-pointer">
+                Sign In to Order
+              </span>
+            </Link>
+          )}
         </div>
       </div>
     </motion.div>

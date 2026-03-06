@@ -30,7 +30,7 @@ import connectPgSimple from "connect-pg-simple";
 import * as dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { sendContactEmail, sendNewsletterSubscriptionEmail, sendDeliverySignupConfirmation, sendDeliveryApprovalEmail, sendDeliveryRejectionEmail, sendPasswordResetEmail, sendOrderStatusEmail, sendOrderConfirmationEmail, sendDriverNotificationEmail, ContactFormData, NewsletterSubscription, DeliverySignupData, DeliveryApprovalData, DeliveryRejectionData, PasswordResetData, OrderStatusEmailData, OrderConfirmationEmailData, DriverNotificationEmailData } from "./email-service";
+import { sendContactEmail, sendNewsletterSubscriptionEmail, sendDeliverySignupConfirmation, sendDeliveryApprovalEmail, sendDeliveryRejectionEmail, sendPasswordResetEmail, sendOrderStatusEmail, sendOrderConfirmationEmail, sendDriverNotificationEmail, sendRestockNotificationEmail, ContactFormData, NewsletterSubscription, DeliverySignupData, DeliveryApprovalData, DeliveryRejectionData, PasswordResetData, OrderStatusEmailData, OrderConfirmationEmailData, DriverNotificationEmailData } from "./email-service";
 import { generateTemporaryPassword, generateResetToken } from "./password-utils";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -5659,6 +5659,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error refreshing reviews:", error);
       res.status(500).json({ error: "Failed to refresh reviews" });
+    }
+  });
+
+  // Restock request routes
+  app.post('/api/restock-requests', async (req: Request, res: Response) => {
+    try {
+      const customerId = req.session?.deliveryCustomerId;
+      if (!customerId) {
+        return res.status(401).json({ error: "You must be signed in to request a restock notification." });
+      }
+      const { productId } = req.body;
+      if (!productId || typeof productId !== 'number') {
+        return res.status(400).json({ error: "productId is required." });
+      }
+      const { created, request } = await storage.createRestockRequest(customerId, productId);
+      if (!created) {
+        return res.status(409).json({ error: "You're already on the waitlist for this product." });
+      }
+      res.status(201).json(request);
+    } catch (error) {
+      console.error("Error creating restock request:", error);
+      res.status(500).json({ error: "Failed to save restock request." });
+    }
+  });
+
+  app.get('/api/admin/restock-requests', isAdmin, async (req: Request, res: Response) => {
+    try {
+      const requests = await storage.getPendingRestockRequests();
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching restock requests:", error);
+      res.status(500).json({ error: "Failed to fetch restock requests." });
+    }
+  });
+
+  app.post('/api/admin/restock-requests/:productId/notify', isAdmin, async (req: Request, res: Response) => {
+    try {
+      const productId = parseInt(req.params.productId);
+      if (isNaN(productId)) {
+        return res.status(400).json({ error: "Invalid productId." });
+      }
+      const requests = await storage.getPendingRestockRequests();
+      const productEntry = requests.find(r => r.productId === productId);
+      const productName = productEntry?.productName ?? 'A product you requested';
+      const customers = await storage.notifyRestockRequests(productId);
+      const emailResults = await Promise.allSettled(
+        customers.map(customer =>
+          sendRestockNotificationEmail({
+            email: customer.email,
+            fullName: customer.fullName,
+            productName,
+          })
+        )
+      );
+      const sent = emailResults.filter(r => r.status === 'fulfilled').length;
+      const failed = emailResults.filter(r => r.status === 'rejected').length;
+      res.json({ success: true, notified: customers.length, emailsSent: sent, emailsFailed: failed });
+    } catch (error) {
+      console.error("Error notifying restock waitlist:", error);
+      res.status(500).json({ error: "Failed to send notifications." });
     }
   });
 

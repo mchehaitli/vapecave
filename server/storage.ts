@@ -24,7 +24,8 @@ import {
   cloverOAuthTokens, type CloverOAuthToken, type InsertCloverOAuthToken,
   promotions, type Promotion, type InsertPromotion,
   promotionUsages, type PromotionUsage, type InsertPromotionUsage,
-  categoryBanners, type CategoryBanner, type InsertCategoryBanner
+  categoryBanners, type CategoryBanner, type InsertCategoryBanner,
+  restockRequests, type RestockRequest
 } from "@shared/schema";
 import { eq, and, or, asc, desc, sql, ilike, lt, gt, isNull, isNotNull, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -273,6 +274,18 @@ export interface IStorage {
   createPromotionUsage(usage: InsertPromotionUsage): Promise<PromotionUsage>;
   getPromotionUsagesByCustomer(customerId: number): Promise<PromotionUsage[]>;
   getPromotionUsageCount(promotionId: number, customerId: number): Promise<number>;
+
+  // Restock request operations
+  createRestockRequest(customerId: number, productId: number): Promise<{ created: boolean; request: RestockRequest }>;
+  getPendingRestockRequests(): Promise<Array<{
+    productId: number;
+    productName: string;
+    productImage: string | null;
+    currentStock: string | null;
+    waitingCount: number;
+    customers: Array<{ id: number; email: string; fullName: string }>;
+  }>>;
+  notifyRestockRequests(productId: number): Promise<Array<{ email: string; fullName: string }>>;
 }
 
 // Database implementation of the storage interface
@@ -2287,6 +2300,105 @@ export class DbStorage implements IStorage {
     );
     return Number(result[0]?.count || 0);
   }
+
+  // Restock request operations
+  async createRestockRequest(customerId: number, productId: number): Promise<{ created: boolean; request: RestockRequest }> {
+    const existing = await db
+      .select()
+      .from(restockRequests)
+      .where(and(
+        eq(restockRequests.customerId, customerId),
+        eq(restockRequests.productId, productId),
+        eq(restockRequests.status, 'pending')
+      ));
+    if (existing.length > 0) {
+      return { created: false, request: existing[0] };
+    }
+    const result = await db
+      .insert(restockRequests)
+      .values({ customerId, productId, status: 'pending' })
+      .returning();
+    return { created: true, request: result[0] };
+  }
+
+  async getPendingRestockRequests(): Promise<Array<{
+    productId: number;
+    productName: string;
+    productImage: string | null;
+    currentStock: string | null;
+    waitingCount: number;
+    customers: Array<{ id: number; email: string; fullName: string }>;
+  }>> {
+    const rows = await db
+      .select({
+        productId: restockRequests.productId,
+        productName: deliveryProducts.name,
+        productImage: deliveryProducts.image,
+        currentStock: deliveryProducts.stockQuantity,
+        customerId: deliveryCustomers.id,
+        customerEmail: deliveryCustomers.email,
+        customerFullName: deliveryCustomers.fullName,
+      })
+      .from(restockRequests)
+      .innerJoin(deliveryProducts, eq(restockRequests.productId, deliveryProducts.id))
+      .innerJoin(deliveryCustomers, eq(restockRequests.customerId, deliveryCustomers.id))
+      .where(eq(restockRequests.status, 'pending'));
+
+    const grouped: Record<number, {
+      productId: number;
+      productName: string;
+      productImage: string | null;
+      currentStock: string | null;
+      waitingCount: number;
+      customers: Array<{ id: number; email: string; fullName: string }>;
+    }> = {};
+
+    for (const row of rows) {
+      if (!grouped[row.productId]) {
+        grouped[row.productId] = {
+          productId: row.productId,
+          productName: row.productName,
+          productImage: row.productImage ?? null,
+          currentStock: row.currentStock ?? null,
+          waitingCount: 0,
+          customers: [],
+        };
+      }
+      grouped[row.productId].waitingCount++;
+      grouped[row.productId].customers.push({
+        id: row.customerId,
+        email: row.customerEmail,
+        fullName: row.customerFullName,
+      });
+    }
+
+    return Object.values(grouped);
+  }
+
+  async notifyRestockRequests(productId: number): Promise<Array<{ email: string; fullName: string }>> {
+    const rows = await db
+      .select({
+        customerId: deliveryCustomers.id,
+        email: deliveryCustomers.email,
+        fullName: deliveryCustomers.fullName,
+      })
+      .from(restockRequests)
+      .innerJoin(deliveryCustomers, eq(restockRequests.customerId, deliveryCustomers.id))
+      .where(and(
+        eq(restockRequests.productId, productId),
+        eq(restockRequests.status, 'pending')
+      ));
+
+    await db
+      .update(restockRequests)
+      .set({ status: 'notified' })
+      .where(and(
+        eq(restockRequests.productId, productId),
+        eq(restockRequests.status, 'pending')
+      ));
+
+    return rows.map(r => ({ email: r.email, fullName: r.fullName }));
+  }
 }
 
 // Fallback to MemStorage if database connection fails
@@ -3969,8 +4081,29 @@ export class MemStorage implements IStorage {
   async reorderDeliveryProductLines(brandId: number, orderedIds: number[]): Promise<boolean> {
     return true;
   }
-}
 
+
+  // Restock request operations (stubs — MemStorage is fallback only)
+  async createRestockRequest(customerId: number, productId: number): Promise<{ created: boolean; request: RestockRequest }> {
+    const stub: RestockRequest = { id: 1, customerId, productId, status: 'pending', createdAt: new Date() };
+    return { created: true, request: stub };
+  }
+
+  async getPendingRestockRequests(): Promise<Array<{
+    productId: number;
+    productName: string;
+    productImage: string | null;
+    currentStock: string | null;
+    waitingCount: number;
+    customers: Array<{ id: number; email: string; fullName: string }>;
+  }>> {
+    return [];
+  }
+
+  async notifyRestockRequests(productId: number): Promise<Array<{ email: string; fullName: string }>> {
+    return [];
+  }
+}
 // Try to use the database implementation, fall back to memory if it fails
 let storage: IStorage;
 

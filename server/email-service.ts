@@ -1052,3 +1052,50 @@ ${data.notes ? `Special Instructions: ${data.notes}` : ''}
     return { success: false, message: 'Failed to send driver notification email' };
   }
 };
+
+export interface RestockNotificationData {
+  email: string;
+  fullName: string;
+  productName: string;
+}
+
+export const sendRestockNotificationEmail = async (data: RestockNotificationData): Promise<{ success: boolean; message: string }> => {
+  const htmlContent = `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0a0a0a; color: #f5f5f5; border-radius: 12px; overflow: hidden;">
+  <div style="background: linear-gradient(135deg, #ff7100, #ff9a00); padding: 32px 24px; text-align: center;">
+    <h1 style="margin: 0; font-size: 28px; color: #000; font-weight: 800; letter-spacing: -0.5px;">🎉 It's Back in Stock!</h1>
+    <p style="margin: 8px 0 0; color: #1a1a1a; font-size: 15px;">Great news from Vape Cave</p>
+  </div>
+  <div style="padding: 32px 24px;">
+    <p style="font-size: 16px; margin: 0 0 12px;">Hey ${data.fullName},</p>
+    <p style="font-size: 15px; color: #ccc; line-height: 1.6; margin: 0 0 24px;">
+      You asked us to let you know — and we're delivering! The product you've been waiting for is now available:
+    </p>
+    <div style="background: #1a1a1a; border: 1px solid #ff7100; border-radius: 10px; padding: 20px 24px; text-align: center; margin: 0 0 28px;">
+      <p style="font-size: 20px; font-weight: 700; color: #ff7100; margin: 0;">${data.productName}</p>
+      <p style="font-size: 13px; color: #888; margin: 6px 0 0;">is back and ready to order</p>
+    </div>
+    <p style="font-size: 14px; color: #aaa; line-height: 1.6; margin: 0 0 28px;">
+      Stock may be limited, so don't wait — head over to our delivery portal now and grab yours before it's gone again.
+    </p>
+    <div style="text-align: center; margin: 0 0 32px;">
+      <a href="https://vapecavetx.com/delivery/shop" style="display: inline-block; background: linear-gradient(135deg, #ff7100, #ff9a00); color: #000; font-weight: 700; font-size: 15px; text-decoration: none; padding: 14px 36px; border-radius: 8px;">
+        Shop Now →
+      </a>
+    </div>
+    <hr style="border: none; border-top: 1px solid #222; margin: 0 0 20px;" />
+    <p style="font-size: 12px; color: #555; text-align: center; margin: 0;">
+      You're receiving this because you signed up for a restock alert at Vape Cave Smoke &amp; Stuff.<br />
+      Frisco, TX · <a href="https://vapecavetx.com" style="color: #ff7100; text-decoration: none;">vapecavetx.com</a>
+    </p>
+  </div>
+</div>
+  `.trim();
+
+  return sendEmail({
+    to: data.email,
+    subject: `🔔 ${data.productName} is back in stock at Vape Cave!`,
+    html: htmlContent,
+    from: 'noreply',
+  });
+};

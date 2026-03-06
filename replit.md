@@ -28,6 +28,7 @@ The design incorporates a dark/light theme with a vibrant palette (Vibrant Orang
     - **Admin Refund Processing**: Admins can process refunds via Clover.
     - **Editable Customer Profiles**: Customers can update personal and delivery information.
     - **Reorder Feature**: Customers can reorder previous orders with availability checks.
+    - **Revenue Recovery Engine**: "Notify Me When Back in Stock" feature — customers can sign up for restock alerts on out-of-stock delivery products; admins trigger notifications from a "Restock Demand" tab in the dashboard, which sends branded HTML emails via the Gmail service.
     - **PDF Receipt Generation**: Downloadable PDF receipts using PDFKit.
     - **Abandoned Cart Reminders**: Automatic email reminders for abandoned carts.
     - **Analytics Dashboard**: Admin dashboard with sales metrics, revenue charts, order status, top products, payment analysis, and customer analytics.

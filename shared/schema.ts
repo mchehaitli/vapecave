@@ -846,3 +846,20 @@ export const insertPromotionUsageSchema = createInsertSchema(promotionUsages).pi
 
 export type InsertPromotionUsage = z.infer<typeof insertPromotionUsageSchema>;
 export type PromotionUsage = typeof promotionUsages.$inferSelect;
+
+// Restock Requests table
+export const restockRequests = pgTable("restock_requests", {
+  id: serial("id").primaryKey(),
+  customerId: integer("customer_id").notNull(),
+  productId: integer("product_id").notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertRestockRequestSchema = createInsertSchema(restockRequests).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertRestockRequest = z.infer<typeof insertRestockRequestSchema>;
+export type RestockRequest = typeof restockRequests.$inferSelect;
