@@ -14,7 +14,6 @@ async function createAdmin() {
     
     console.log("Admin user created successfully!");
     console.log("Username: admin");
-    console.log("Password: VapeCave2024!");
     console.log("\nPlease change this password after your first login.");
     
     process.exit(0);

@@ -107,7 +107,7 @@ export class CloverHostedCheckout {
       (payload as any).externalReferenceId = request.orderId;
     }
 
-    console.log("[Clover Hosted Checkout] Creating session:", JSON.stringify(payload, null, 2));
+    console.log("[Clover Hosted Checkout] Creating session for order:", request.orderId || "N/A", "| currency:", payload.currency);
 
     try {
       const response = await fetch(
@@ -131,7 +131,7 @@ export class CloverHostedCheckout {
         throw new Error(data.message || data.error?.message || `Checkout creation failed: ${response.status}`);
       }
 
-      console.log("[Clover Hosted Checkout] Session created:", data);
+      console.log("[Clover Hosted Checkout] Session created:", data?.checkoutSessionId || "N/A");
       return data as CheckoutSessionResponse;
     } catch (error) {
       console.error("[Clover Hosted Checkout] Error creating session:", error);

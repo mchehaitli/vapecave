@@ -21,7 +21,7 @@ const deploy = async () => {
     
     const buildProcess = spawn('npm', ['run', 'build'], {
       stdio: 'inherit',
-      shell: true,
+      shell: false,
       env: { ...process.env, NODE_ENV: 'production' }
     });
 
@@ -53,7 +53,7 @@ const deploy = async () => {
     
     const serverProcess = spawn('node', ['dist/index.js'], {
       stdio: 'inherit',
-      shell: true,
+      shell: false,
       env: {
         ...process.env,
         NODE_ENV: 'production',

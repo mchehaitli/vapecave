@@ -139,16 +139,27 @@ const GoogleMapsIntegration: React.FC<GoogleMapsIntegrationProps> = ({
       
       // Attempt to load a fallback static map in case of API failure
       if (mapRef.current) {
-        mapRef.current.innerHTML = `
-          <div style="text-align: center; padding: 20px;">
-            <p>Interactive map failed to load.</p>
-            <img src="https://maps.googleapis.com/maps/api/staticmap?center=${
-              activeLocationObject ? `${activeLocationObject.position.lat},${activeLocationObject.position.lng}` : "33.150730,-96.822550"
-            }&zoom=13&size=600x400&markers=color:orange%7C${
-              activeLocationObject ? `${activeLocationObject.position.lat},${activeLocationObject.position.lng}` : "33.150730,-96.822550"
-            }&key=${apiKey}" alt="Static Map of Location" style="max-width: 100%; border-radius: 8px; margin-top: 10px;" />
-          </div>
-        `;
+        const lat = activeLocationObject ? activeLocationObject.position.lat : 33.150730;
+        const lng = activeLocationObject ? activeLocationObject.position.lng : -96.822550;
+        const coords = `${lat},${lng}`;
+        const staticMapUrl = new URL("https://maps.googleapis.com/maps/api/staticmap");
+        staticMapUrl.searchParams.set("center", coords);
+        staticMapUrl.searchParams.set("zoom", "13");
+        staticMapUrl.searchParams.set("size", "600x400");
+        staticMapUrl.searchParams.set("markers", `color:orange|${coords}`);
+        staticMapUrl.searchParams.set("key", apiKey);
+
+        const container = document.createElement("div");
+        container.style.cssText = "text-align: center; padding: 20px;";
+        const label = document.createElement("p");
+        label.textContent = "Interactive map failed to load.";
+        const img = document.createElement("img");
+        img.src = staticMapUrl.toString();
+        img.alt = "Static Map of Location";
+        img.style.cssText = "max-width: 100%; border-radius: 8px; margin-top: 10px;";
+        container.appendChild(label);
+        container.appendChild(img);
+        mapRef.current.replaceChildren(container);
       }
     };
     

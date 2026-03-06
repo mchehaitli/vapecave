@@ -13,7 +13,7 @@ const startProduction = () => {
     
     const buildProcess = spawn('npm', ['run', 'build'], { 
       stdio: 'inherit',
-      shell: true 
+      shell: false
     });
     
     buildProcess.on('close', (code) => {
@@ -36,7 +36,7 @@ const startServer = () => {
   
   const serverProcess = spawn('node', ['dist/index.js'], {
     stdio: 'inherit',
-    shell: true,
+    shell: false,
     env: {
       ...process.env,
       NODE_ENV: 'production',

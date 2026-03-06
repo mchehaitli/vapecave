@@ -22,12 +22,16 @@ const renderApp = async () => {
   } catch (error) {
     console.error('Failed to load application:', error);
     // Fallback UI
-    document.getElementById("root")!.innerHTML = `
-      <div style="text-align: center; padding: 50px; font-family: system-ui;">
-        <h2>Loading...</h2>
-        <p>Please wait while we load the application.</p>
-      </div>
-    `;
+    const root = document.getElementById("root")!;
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = "text-align: center; padding: 50px; font-family: system-ui;";
+    const heading = document.createElement("h2");
+    heading.textContent = "Loading...";
+    const para = document.createElement("p");
+    para.textContent = "Please wait while we load the application.";
+    wrapper.appendChild(heading);
+    wrapper.appendChild(para);
+    root.appendChild(wrapper);
   }
 };
 

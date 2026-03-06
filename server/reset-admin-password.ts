@@ -27,11 +27,8 @@ async function resetAdminPassword() {
     
     if (result.length > 0) {
       console.log("✓ Admin password reset successfully!");
-      console.log("\nLogin Credentials:");
-      console.log("==================");
-      console.log("Username: admin");
-      console.log("Password: VapeCave2024!");
-      console.log("\nYou can now log in at: /admin/login");
+      console.log("\nUsername: admin");
+      console.log("You can now log in at: /admin/login");
       console.log("\nPlease change this password after your first login.");
     } else {
       console.log("No admin user found to update.");
