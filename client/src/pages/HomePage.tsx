@@ -147,7 +147,7 @@ const HomePage = () => {
                 Shop our massive inventory online. Choose rapid local delivery or skip the line with fast in-store pickup in Frisco.
               </motion.p>
               <motion.p 
-                className="text-base md:text-lg mb-6 text-foreground/90 font-medium max-w-4xl mx-auto leading-relaxed"
+                className="text-base md:text-lg mb-6 font-medium max-w-4xl mx-auto leading-relaxed text-[#ff5e00]"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
