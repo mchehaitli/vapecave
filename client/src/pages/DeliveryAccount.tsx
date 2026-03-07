@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { User, Package, Lock, MapPin, Phone, Mail, ChevronRight, RefreshCw, ShoppingCart, Download, AlertCircle } from "lucide-react";
@@ -21,7 +21,11 @@ interface OrderWithItems extends DeliveryOrder {
 
 export default function DeliveryAccount() {
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<"profile" | "orders">("profile");
+  const search = useSearch();
+  const params = new URLSearchParams(search);
+  const [activeTab, setActiveTab] = useState<"profile" | "orders">(
+    params.get("tab") === "orders" ? "orders" : "profile"
+  );
   const { toast } = useToast();
 
   useInactivityTimeout({

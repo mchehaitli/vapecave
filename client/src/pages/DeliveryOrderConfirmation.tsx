@@ -156,7 +156,7 @@ export default function DeliveryOrderConfirmation() {
               <p className="text-muted-foreground mb-6">
                 We couldn't find the order you're looking for.
               </p>
-              <Button onClick={() => setLocation('/delivery/account')} data-testid="button-view-orders">
+              <Button onClick={() => setLocation('/delivery/account?tab=orders')} data-testid="button-view-orders">
                 View My Orders
               </Button>
             </CardContent>
@@ -397,7 +397,7 @@ export default function DeliveryOrderConfirmation() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button onClick={() => setLocation('/delivery/account')} data-testid="button-view-orders">
+            <Button onClick={() => setLocation('/delivery/account?tab=orders')} data-testid="button-view-orders">
               View My Orders
             </Button>
             <Button variant="outline" onClick={() => setLocation('/delivery/shop')} data-testid="button-continue-shopping">
