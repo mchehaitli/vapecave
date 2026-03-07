@@ -1357,7 +1357,7 @@ export default function DeliveryPortal() {
                           return (
                             <div key={cat.id} className="py-2">
                               <ProductCarousel
-                                title={`Featured ${cat.name}`}
+                                title={cat.name}
                                 products={catProducts}
                                 onAddToCart={addToCart}
                                 onQuickView={setQuickViewProduct}
