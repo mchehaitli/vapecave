@@ -1592,8 +1592,10 @@ export function DeliveryOrdersTab() {
                           }>
                             {order.status.replace(/_/g, " ")}
                           </Badge>
-                          {order.fulfillmentMode === "pickup" && (
+                          {order.fulfillmentMode === "pickup" ? (
                             <Badge className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5">PICKUP</Badge>
+                          ) : (
+                            <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5">DELIVERY</Badge>
                           )}
                         </div>
                       </TableCell>
@@ -1610,7 +1612,7 @@ export function DeliveryOrdersTab() {
                         )}
                       </TableCell>
                       <TableCell className="text-gray-400 text-sm">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {new Date(order.createdAt).toLocaleString('en-US', { timeZone: 'America/Chicago', month: 'numeric', day: 'numeric', year: '2-digit', hour: 'numeric', minute: '2-digit', hour12: true })}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
