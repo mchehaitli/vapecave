@@ -1,0 +1,33 @@
+I have three critical backend and database logic issues that need to be fixed regarding order processing and dashboard metrics. Please review my backend routes/controllers related to the dashboard and implement the following fixes:
+
+Task 1: Fix the "Today's Revenue" Calculation Bug
+
+The Problem: The dashboard currently shows "Today's Revenue" as $144.44, which is the exact sum of four recent orders. However, three of these orders have a status of cancelled and one is pending_payment.
+
+The Fix: Update the database query that calculates revenue. It should strictly sum the totals of orders that have a status of paid, completed, or processing. It must exclude any orders with cancelled, pending_payment, or failed statuses.
+
+Task 2: Fix the "Total Orders" vs. Order Numbering Discrepancy
+
+The Problem: My recent orders are numbered sequentially (#16, #17, #18, #19), but the dashboard summary says "Total Orders: 4" and "Today's Orders: 4".
+
+The Fix: Please audit the logic for the "Total Orders" metric.
+
+If "Total Orders" is meant to show all-time orders, ensure the query is properly executing a COUNT() on all non-deleted orders in the database.
+
+If it is currently correctly counting 4 because older orders were hard-deleted from the database, please confirm this. If that's the case, ensure we are soft-deleting orders moving forward so historical order counts remain accurate.
+
+Task 3: Implement a Payment Timeout (Order Expiration)
+
+The Problem: Orders are getting stuck in a pending_payment status when a user exits the payment window without completing the transaction.
+
+The Fix: Implement a payment timeout mechanism.
+
+Create a background job, cron task, or a middleware check that runs periodically.
+
+Find all orders with a pending_payment status where the created_at timestamp is older than 15 minutes.
+
+Automatically update their status to cancelled (or expired).
+
+Crucial: If my system reserves inventory when an order is created, ensure this timeout logic also releases/restores that inventory back to the available stock pool.
+
+Please identify the relevant files, write the necessary code, and explain how you are implementing the timeout function.
