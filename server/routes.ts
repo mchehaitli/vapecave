@@ -3373,10 +3373,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       doc.fontSize(10).fillColor(grayColor);
       
       for (const item of items) {
-        const itemTotal = parseFloat(item.unitPrice) * item.quantity;
-        doc.text(item.productName, 50, currentY, { width: 250 });
+        const unitPrice = parseFloat((item as any).price || '0');
+        const itemName = (item as any).product?.name || (item as any).productName || 'Unknown';
+        const itemTotal = unitPrice * item.quantity;
+        doc.text(itemName, 50, currentY, { width: 250 });
         doc.text(item.quantity.toString(), 310, currentY, { width: 50, align: 'center' });
-        doc.text(`$${parseFloat(item.unitPrice).toFixed(2)}`, 370, currentY, { width: 80, align: 'right' });
+        doc.text(`$${unitPrice.toFixed(2)}`, 370, currentY, { width: 80, align: 'right' });
         doc.text(`$${itemTotal.toFixed(2)}`, 460, currentY, { width: 80, align: 'right' });
         currentY += 20;
       }
@@ -3392,13 +3394,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       doc.text('Subtotal:', totalsX, doc.y, { width: 80, continued: true });
       doc.text(`$${parseFloat(order.subtotal).toFixed(2)}`, { width: 80, align: 'right' });
       
-      if (order.discountAmount && parseFloat(order.discountAmount) > 0) {
+      if (order.discount && parseFloat(order.discount) > 0) {
         doc.text('Discount:', totalsX, doc.y, { width: 80, continued: true });
-        doc.text(`-$${parseFloat(order.discountAmount).toFixed(2)}`, { width: 80, align: 'right' });
+        doc.text(`-$${parseFloat(order.discount).toFixed(2)}`, { width: 80, align: 'right' });
       }
       
       doc.text('Delivery Fee:', totalsX, doc.y, { width: 80, continued: true });
       doc.text(`$${parseFloat(order.deliveryFee).toFixed(2)}`, { width: 80, align: 'right' });
+
+      if (order.tax && parseFloat(order.tax) > 0) {
+        doc.text('Tax (8.25%):', totalsX, doc.y, { width: 80, continued: true });
+        doc.text(`$${parseFloat(order.tax).toFixed(2)}`, { width: 80, align: 'right' });
+      }
       
       doc.moveDown(0.3);
       doc.moveTo(totalsX, doc.y).lineTo(545, doc.y).stroke('#E0E0E0');
@@ -3406,7 +3413,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       doc.fontSize(12).fillColor(darkColor);
       doc.text('Total:', totalsX, doc.y, { width: 80, continued: true });
-      doc.text(`$${parseFloat(order.totalAmount).toFixed(2)}`, { width: 80, align: 'right' });
+      doc.text(`$${parseFloat(order.total).toFixed(2)}`, { width: 80, align: 'right' });
 
       // Payment Info
       if (order.paymentStatus === 'paid' || order.paymentStatus === 'refunded') {
@@ -3534,10 +3541,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       doc.fontSize(10).fillColor(grayColor);
       
       for (const item of items) {
-        const itemTotal = parseFloat(item.unitPrice) * item.quantity;
-        doc.text(item.productName, 50, currentY, { width: 250 });
+        const unitPrice = parseFloat((item as any).price || '0');
+        const itemName = (item as any).product?.name || (item as any).productName || 'Unknown';
+        const itemTotal = unitPrice * item.quantity;
+        doc.text(itemName, 50, currentY, { width: 250 });
         doc.text(item.quantity.toString(), 310, currentY, { width: 50, align: 'center' });
-        doc.text(`$${parseFloat(item.unitPrice).toFixed(2)}`, 370, currentY, { width: 80, align: 'right' });
+        doc.text(`$${unitPrice.toFixed(2)}`, 370, currentY, { width: 80, align: 'right' });
         doc.text(`$${itemTotal.toFixed(2)}`, 460, currentY, { width: 80, align: 'right' });
         currentY += 20;
       }
@@ -3553,13 +3562,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       doc.text('Subtotal:', totalsX, doc.y, { width: 80, continued: true });
       doc.text(`$${parseFloat(order.subtotal).toFixed(2)}`, { width: 80, align: 'right' });
       
-      if (order.discountAmount && parseFloat(order.discountAmount) > 0) {
+      if (order.discount && parseFloat(order.discount) > 0) {
         doc.text('Discount:', totalsX, doc.y, { width: 80, continued: true });
-        doc.text(`-$${parseFloat(order.discountAmount).toFixed(2)}`, { width: 80, align: 'right' });
+        doc.text(`-$${parseFloat(order.discount).toFixed(2)}`, { width: 80, align: 'right' });
       }
       
       doc.text('Delivery Fee:', totalsX, doc.y, { width: 80, continued: true });
       doc.text(`$${parseFloat(order.deliveryFee).toFixed(2)}`, { width: 80, align: 'right' });
+
+      if (order.tax && parseFloat(order.tax) > 0) {
+        doc.text('Tax (8.25%):', totalsX, doc.y, { width: 80, continued: true });
+        doc.text(`$${parseFloat(order.tax).toFixed(2)}`, { width: 80, align: 'right' });
+      }
       
       doc.moveDown(0.3);
       doc.moveTo(totalsX, doc.y).lineTo(545, doc.y).stroke('#E0E0E0');
@@ -3567,7 +3581,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       doc.fontSize(12).fillColor(darkColor);
       doc.text('Total:', totalsX, doc.y, { width: 80, continued: true });
-      doc.text(`$${parseFloat(order.totalAmount).toFixed(2)}`, { width: 80, align: 'right' });
+      doc.text(`$${parseFloat(order.total).toFixed(2)}`, { width: 80, align: 'right' });
 
       // Payment Info
       if (order.paymentStatus === 'paid' || order.paymentStatus === 'refunded') {

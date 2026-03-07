@@ -442,9 +442,25 @@ export default function DeliveryAccount() {
                                   <span className="text-muted-foreground">Subtotal</span>
                                   <span className="font-medium">${parseFloat(order.subtotal).toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between text-sm">
+                                <div className="flex justify-between text-sm mb-2">
                                   <span className="text-muted-foreground">Delivery Fee</span>
                                   <span className="font-medium">${parseFloat(order.deliveryFee).toFixed(2)}</span>
+                                </div>
+                                {parseFloat(order.tax || '0') > 0 && (
+                                  <div className="flex justify-between text-sm mb-2">
+                                    <span className="text-muted-foreground">Tax (8.25%)</span>
+                                    <span className="font-medium">${parseFloat(order.tax).toFixed(2)}</span>
+                                  </div>
+                                )}
+                                {order.discount && parseFloat(order.discount) > 0 && (
+                                  <div className="flex justify-between text-sm mb-2">
+                                    <span className="text-muted-foreground">Discount</span>
+                                    <span className="font-medium text-green-500">-${parseFloat(order.discount).toFixed(2)}</span>
+                                  </div>
+                                )}
+                                <div className="flex justify-between text-sm font-semibold mt-2 pt-2 border-t">
+                                  <span>Total</span>
+                                  <span className="text-orange-500">${parseFloat(order.total).toFixed(2)}</span>
                                 </div>
                               </div>
 
