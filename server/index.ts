@@ -4,6 +4,7 @@ import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { startAbandonedCartScheduler } from "./abandoned-cart-service";
+import { startPaymentTimeoutService } from "./payment-timeout-service";
 import { storage } from "./storage";
 import { seedEmailTemplates } from "./seed-email-templates";
 
@@ -159,6 +160,9 @@ app.use((req, res, next) => {
     
     // Start abandoned cart reminder scheduler
     startAbandonedCartScheduler();
+
+    // Start payment timeout service (cancels pending_payment orders after 15 min + restores stock)
+    startPaymentTimeoutService(storage);
 
     // Seed email templates (no-op if already seeded)
     await seedEmailTemplates(storage);

@@ -156,6 +156,8 @@ export interface IStorage {
   bulkDeleteDeliveryProducts(productIds: number[]): Promise<{deleted: number}>;
   syncProductsFromClover(products: Array<Partial<InsertDeliveryProduct>>): Promise<{synced: number, updated: number, created: number, deleted: number, unmappedCategories?: string[]}>;
   refreshProductStockAndPrice(cloverItemId: string, stockQuantity: string, price: string): Promise<DeliveryProduct | undefined>;
+  reserveProductStock(productId: number, quantity: number): Promise<void>;
+  restoreProductStock(productId: number, quantity: number): Promise<void>;
 
   // Delivery window operations
   getAllDeliveryWindows(): Promise<DeliveryWindow[]>;
@@ -1449,6 +1451,18 @@ export class DbStorage implements IStorage {
     if (!existing) return undefined;
 
     return this.updateDeliveryProduct(existing.id, { stockQuantity, price });
+  }
+
+  async reserveProductStock(productId: number, quantity: number): Promise<void> {
+    await db.execute(
+      sql`UPDATE delivery_products SET stock_quantity = GREATEST('0', (COALESCE(NULLIF(stock_quantity, ''), '0')::integer - ${quantity})::text) WHERE id = ${productId}`
+    );
+  }
+
+  async restoreProductStock(productId: number, quantity: number): Promise<void> {
+    await db.execute(
+      sql`UPDATE delivery_products SET stock_quantity = (COALESCE(NULLIF(stock_quantity, ''), '0')::integer + ${quantity})::text WHERE id = ${productId}`
+    );
   }
 
   // Delivery window operations
@@ -3465,6 +3479,21 @@ export class MemStorage implements IStorage {
     if (!existing) return undefined;
 
     return this.updateDeliveryProduct(existing.id, { stockQuantity, price });
+  }
+
+  async reserveProductStock(productId: number, quantity: number): Promise<void> {
+    const product = await this.getDeliveryProduct(productId);
+    if (!product) return;
+    const current = parseInt(product.stockQuantity || '0') || 0;
+    const updated = Math.max(0, current - quantity);
+    await this.updateDeliveryProduct(productId, { stockQuantity: updated.toString() });
+  }
+
+  async restoreProductStock(productId: number, quantity: number): Promise<void> {
+    const product = await this.getDeliveryProduct(productId);
+    if (!product) return;
+    const current = parseInt(product.stockQuantity || '0') || 0;
+    await this.updateDeliveryProduct(productId, { stockQuantity: (current + quantity).toString() });
   }
 
   // Delivery window operations

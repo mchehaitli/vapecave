@@ -3824,10 +3824,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { promoCode, deliveryWindowId, deliveryFee: clientDeliveryFee, notes, fulfillmentMode: rawFulfillmentModeChk } = req.body;
       const checkoutFulfillmentMode: string = rawFulfillmentModeChk === 'pickup' ? 'pickup' : 'delivery';
 
-      // Cancel any stale pending_payment orders for this customer before starting a new session
+      // Cancel any stale pending_payment orders for this customer and restore their stock
       const existingOrders = await storage.getOrdersByCustomer(customerId);
       const staleOrders = existingOrders.filter(o => o.status === 'pending_payment');
       for (const stale of staleOrders) {
+        try {
+          const staleItems = await storage.getDeliveryOrderItems(stale.id);
+          for (const item of staleItems) {
+            await storage.restoreProductStock(item.productId, item.quantity);
+          }
+        } catch (restoreErr) {
+          console.error(`[Checkout] Error restoring stock for stale order #${stale.id}:`, restoreErr);
+        }
         await storage.updateDeliveryOrderStatus(stale.id, 'cancelled');
       }
 
@@ -3837,13 +3845,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Cart is empty" });
       }
 
-      // Calculate totals server-side
+      // Calculate totals server-side + validate stock
       let subtotal = 0;
       const lineItems = [];
+      const cartProducts: Array<{ productId: number; quantity: number; product: any }> = [];
       for (const item of cartItems) {
         const product = await storage.getDeliveryProduct(item.productId);
         if (!product) {
           return res.status(400).json({ error: `Product not found: ${item.productId}` });
+        }
+        // Pre-order stock validation
+        const stockQty = product.stockQuantity ? parseInt(product.stockQuantity as string) : 0;
+        if (item.quantity > stockQty) {
+          return res.status(400).json({ error: `Insufficient stock for ${product.name}. Only ${stockQty} available.` });
         }
         const itemTotal = parseFloat(product.price) * item.quantity;
         subtotal += itemTotal;
@@ -3853,6 +3867,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           unitQty: item.quantity,
           note: product.description || "",
         });
+        cartProducts.push({ productId: item.productId, quantity: item.quantity, product });
       }
 
       // Validate promo code
@@ -3951,17 +3966,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fulfillmentMode: checkoutFulfillmentMode,
       });
 
-      // Create order items
-      for (const item of cartItems) {
-        const product = await storage.getDeliveryProduct(item.productId);
-        if (product) {
-          await storage.createDeliveryOrderItem({
-            orderId: pendingOrder.id,
-            productId: item.productId,
-            quantity: item.quantity,
-            price: product.price,
-          });
+      // Create order items and reserve stock
+      for (const cp of cartProducts) {
+        await storage.createDeliveryOrderItem({
+          orderId: pendingOrder.id,
+          productId: cp.productId,
+          quantity: cp.quantity,
+          price: cp.product.price,
+        });
+      }
+
+      // Reserve stock immediately to prevent double-selling
+      try {
+        for (const cp of cartProducts) {
+          await storage.reserveProductStock(cp.productId, cp.quantity);
         }
+        console.log(`[Checkout] Reserved stock for ${cartProducts.length} item(s) on order #${pendingOrder.id}`);
+      } catch (reserveErr) {
+        console.error(`[Checkout] Error reserving stock for order #${pendingOrder.id}:`, reserveErr);
       }
 
       // Create Clover checkout session
@@ -4021,6 +4043,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Clear customer's cart
           await storage.clearCart(order.customerId);
 
+          // Push stock deduction to Clover (stock was already reserved locally on order creation)
+          try {
+            if (process.env.CLOVER_API_TOKEN && process.env.CLOVER_MERCHANT_ID) {
+              const orderItems = await storage.getDeliveryOrderItems(order.id);
+              const cloverService = new CloverService();
+              const stockItems = orderItems
+                .filter((i: any) => i.product?.cloverItemId)
+                .map((i: any) => ({
+                  cloverItemId: i.product.cloverItemId,
+                  quantity: i.quantity,
+                  purchaseType: 'single',
+                  packSize: 1,
+                }));
+              if (stockItems.length > 0) {
+                cloverService.deductStockForOrder(stockItems).catch(console.error);
+              }
+            }
+          } catch (stockErr) {
+            console.error(`[Clover Webhook] Error pushing stock deduction for order ${order.id}:`, stockErr);
+          }
+
           console.log(`[Clover Webhook] Order ${order.id} payment confirmed`);
         }
       }
@@ -4075,6 +4118,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateDeliveryOrderStatus(order.id, 'confirmed');
       await storage.updateDeliveryOrderCloverInfo(order.id, sessionId, 'paid');
       await storage.clearCart(customerId);
+
+      // Push stock deduction to Clover (stock was already reserved locally on order creation)
+      try {
+        if (process.env.CLOVER_API_TOKEN && process.env.CLOVER_MERCHANT_ID) {
+          const orderItems = await storage.getDeliveryOrderItems(order.id);
+          const cloverService = new CloverService();
+          const stockItems = orderItems
+            .filter((i: any) => i.product?.cloverItemId)
+            .map((i: any) => ({
+              cloverItemId: i.product.cloverItemId,
+              quantity: i.quantity,
+              purchaseType: 'single',
+              packSize: 1,
+            }));
+          if (stockItems.length > 0) {
+            cloverService.deductStockForOrder(stockItems).catch(console.error);
+          }
+        }
+      } catch (stockErr) {
+        console.error(`[verify-payment] Error pushing stock deduction for order ${order.id}:`, stockErr);
+      }
 
       res.json({
         orderId: order.id,
@@ -4487,6 +4551,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const { status } = req.body;
+
+      // If cancelling a pending_payment order, restore reserved stock first
+      if (status === 'cancelled') {
+        const currentOrder = await storage.getDeliveryOrderById(id);
+        if (currentOrder?.status === 'pending_payment') {
+          try {
+            const orderItems = await storage.getDeliveryOrderItems(id);
+            for (const item of orderItems) {
+              await storage.restoreProductStock(item.productId, item.quantity);
+            }
+            console.log(`[Admin] Restored stock for cancelled pending_payment order #${id}`);
+          } catch (restoreErr) {
+            console.error(`[Admin] Error restoring stock for order #${id}:`, restoreErr);
+          }
+        }
+      }
+
       const order = await storage.updateDeliveryOrderStatus(id, status);
       
       if (!order) {
