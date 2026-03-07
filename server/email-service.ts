@@ -91,6 +91,16 @@ export interface OrderConfirmationEmailData {
   items: Array<{ name: string; quantity: number; price: string }>;
   notes?: string;
   isReplacement?: boolean;
+  fulfillmentMode?: string;
+}
+
+// Interface for pickup-ready email
+export interface PickupReadyEmailData {
+  email: string;
+  fullName: string;
+  orderId: number;
+  total: string;
+  items: Array<{ name: string; quantity: number; price: string }>;
 }
 
 // Interface for driver notification email
@@ -509,12 +519,14 @@ export const sendPasswordResetEmail = async (data: PasswordResetData): Promise<{
  */
 export const sendOrderStatusEmail = async (data: OrderStatusEmailData): Promise<{ success: boolean; message: string; }> => {
   const statusMessages: Record<string, { title: string; message: string }> = {
-    confirmed:        { title: 'Order Confirmed',       message: 'Your order has been confirmed and is being prepared.' },
-    preparing:        { title: 'Order Being Prepared',  message: 'Your order is currently being prepared.' },
-    out_for_delivery: { title: 'Out for Delivery',      message: 'Your order is on its way!' },
-    delivered:        { title: 'Order Delivered',       message: 'Your order has been delivered. Enjoy!' },
-    cancelled:        { title: 'Order Cancelled',       message: 'Your order has been cancelled.' },
-    refunded:         { title: 'Refund Processed',      message: 'A refund has been processed for your order.' },
+    confirmed:         { title: 'Order Confirmed',           message: 'Your order has been confirmed and is being prepared.' },
+    preparing:         { title: 'Order Being Prepared',      message: 'Your order is currently being prepared.' },
+    out_for_delivery:  { title: 'Out for Delivery',          message: 'Your order is on its way!' },
+    delivered:         { title: 'Order Delivered',           message: 'Your order has been delivered. Enjoy!' },
+    cancelled:         { title: 'Order Cancelled',           message: 'Your order has been cancelled.' },
+    refunded:          { title: 'Refund Processed',          message: 'A refund has been processed for your order.' },
+    ready_for_pickup:  { title: 'Order Ready for Pickup',    message: 'Your order is ready! Please come pick it up at the register. Don\'t forget to bring a valid photo ID.' },
+    picked_up:         { title: 'Order Picked Up',           message: 'Your order has been picked up. Thank you for shopping with us!' },
   };
   const statusInfo = statusMessages[data.status] || {
     title: 'Order Status Update',
@@ -591,13 +603,20 @@ export const sendOrderConfirmationEmail = async (data: OrderConfirmationEmailDat
       <td style="padding:9px 10px;border-bottom:1px solid #f0f0f0;text-align:right;">$${item.price}</td>
     </tr>`).join('');
 
+  const isPickup = data.fulfillmentMode === 'pickup';
   const orderDetailsHtml = `
 <div style="background:#f5f5f5;padding:18px 20px;border-radius:8px;margin:20px 0;font-size:14px;color:#333;">
   <strong style="display:block;margin-bottom:10px;font-size:15px;color:#222;">Order #${data.orderId}</strong>
-  <div><strong>Delivery Address:</strong> ${data.deliveryAddress}</div>
+  ${isPickup
+    ? `<div><strong>Pickup Location:</strong> Vape Cave Smoke &amp; Stuff — 6958 Main St #200, Frisco, TX 75033</div>
+  <div style="margin-top:6px;padding:10px;background:#fff8e1;border-left:3px solid #ff9a00;border-radius:4px;color:#555;">
+    Your order will be ready within 1 hour. Please pick up at the register and bring a valid photo ID.
+  </div>`
+    : `<div><strong>Delivery Address:</strong> ${data.deliveryAddress}</div>
   ${data.deliveryDate ? `<div><strong>Delivery Date:</strong> ${data.deliveryDate}</div>` : ''}
-  ${data.deliveryTime ? `<div><strong>Delivery Time:</strong> ${data.deliveryTime}</div>` : ''}
-  <div><strong>Payment:</strong> ${data.paymentMethod || 'Cash on Delivery'}</div>
+  ${data.deliveryTime ? `<div><strong>Delivery Time:</strong> ${data.deliveryTime}</div>` : ''}`
+  }
+  <div style="margin-top:6px;"><strong>Payment:</strong> ${data.paymentMethod || (isPickup ? 'Pay at Counter' : 'Cash on Delivery')}</div>
   ${data.notes ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #ddd;"><strong>Special Instructions:</strong> ${data.notes}</div>` : ''}
 </div>
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px;">
@@ -632,6 +651,67 @@ export const sendOrderConfirmationEmail = async (data: OrderConfirmationEmailDat
   const textContent = `Hi ${data.fullName},\n\n${orderIntro}\n\nOrder #${data.orderId} | Total: $${data.total}\n\nVape Cave Smoke & Stuff Team`;
 
   return sendEmail({ to: data.email, subject, html: htmlContent, text: textContent, from: 'billing' });
+};
+
+/**
+ * Send pickup-ready notification email to customer
+ */
+export const sendPickupReadyEmail = async (data: PickupReadyEmailData): Promise<{ success: boolean; message: string; }> => {
+  const fallback = {
+    subject: `Your Order #[ORDER_ID] is Ready for Pickup! 🛍️`,
+    bodyText: `Hi [CUSTOMER_NAME],\n\nGreat news — your order is ready and waiting for you at the register!\n\nOrder #[ORDER_ID] | Total: $[ORDER_TOTAL]\n\nPickup Location:\nVape Cave Smoke & Stuff\n6958 Main St #200\nFrisco, TX 75033\nPhone: (469) 294-0061\n\nPlease bring a valid photo ID for age verification.\n\nThank you for choosing Vape Cave Smoke & Stuff!`,
+  };
+  const template = await getTemplate('order_ready_for_pickup', fallback);
+  const processedBody = renderTemplate(template.bodyText, {
+    CUSTOMER_NAME: data.fullName,
+    ORDER_ID:      String(data.orderId),
+    ORDER_TOTAL:   data.total,
+  });
+  const subject = renderTemplate(template.subject, { ORDER_ID: String(data.orderId) });
+
+  const itemsHtml = data.items.map(item => `
+    <tr>
+      <td style="padding:9px 10px;border-bottom:1px solid #f0f0f0;">${item.name}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #f0f0f0;text-align:center;">${item.quantity}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #f0f0f0;text-align:right;">$${item.price}</td>
+    </tr>`).join('');
+
+  const storeInfoHtml = `
+<div style="background:#e8f5e9;border-left:4px solid #4caf50;padding:16px 20px;border-radius:6px;margin:20px 0;font-size:14px;color:#333;">
+  <strong style="display:block;font-size:15px;color:#2e7d32;margin-bottom:8px;">📍 Pickup Location</strong>
+  <div><strong>Vape Cave Smoke &amp; Stuff</strong></div>
+  <div>6958 Main St #200, Frisco, TX 75033</div>
+  <div>Phone: <a href="tel:4692940061" style="color:#2e7d32;">(469) 294-0061</a></div>
+  <div style="margin-top:10px;padding:8px;background:#fff;border-radius:4px;color:#555;">
+    ⚠️ <strong>Reminder:</strong> Please bring a valid government-issued photo ID — required for all tobacco &amp; nicotine purchases.
+  </div>
+</div>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px;">
+  <thead>
+    <tr style="background:#f0f0f0;">
+      <th style="padding:9px 10px;text-align:left;">Item</th>
+      <th style="padding:9px 10px;text-align:center;">Qty</th>
+      <th style="padding:9px 10px;text-align:right;">Price</th>
+    </tr>
+  </thead>
+  <tbody>${itemsHtml}</tbody>
+</table>
+<div style="text-align:right;font-size:15px;font-weight:700;color:#ff7100;">Total: $${data.total}</div>`;
+
+  const ctaHtml = `
+<div style="text-align:center;margin:24px 0;">
+  <a href="https://vapecavetx.com/delivery/orders" style="background:linear-gradient(135deg,#ff7100,#ff9a00);color:#000;font-weight:700;font-size:15px;text-decoration:none;padding:14px 36px;border-radius:8px;display:inline-block;">View Your Order</a>
+</div>`;
+
+  const htmlContent = masterHtmlShell({
+    headerTitle: '🛍️ Your Order is Ready!',
+    bodyHtml: processedBody + storeInfoHtml,
+    ctaHtml,
+  });
+
+  const textContent = `Hi ${data.fullName},\n\nYour order #${data.orderId} is ready for pickup!\n\nPickup at: Vape Cave Smoke & Stuff, 6958 Main St #200, Frisco, TX 75033\nPhone: (469) 294-0061\nTotal: $${data.total}\n\nBring a valid photo ID.\n\nVape Cave Smoke & Stuff Team`;
+
+  return sendEmail({ to: data.email, subject, html: htmlContent, text: textContent, from: 'delivery' });
 };
 
 /**

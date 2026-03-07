@@ -134,6 +134,31 @@ Thank you for choosing Vape Cave Smoke & Stuff!`,
 Thank you for choosing Vape Cave Smoke & Stuff!`,
     availableVariables: "[CUSTOMER_NAME], [ORDER_ID], [STATUS_TITLE] (auto), [STATUS_MESSAGE] (auto)",
   },
+  {
+    templateId: "order_ready_for_pickup",
+    templateName: "Order Ready for Pickup",
+    subject: "Your Order #[ORDER_ID] is Ready for Pickup! 🛍️",
+    bodyText: `Hi [CUSTOMER_NAME],
+
+Great news — your order is ready and waiting for you at the register!
+
+Order #[ORDER_ID] | Total: $[ORDER_TOTAL]
+
+Pickup Location:
+Vape Cave Smoke & Stuff
+6958 Main St #200
+Frisco, TX 75033
+Phone: (469) 294-0061
+
+Please head over at your convenience during store hours and let the team at the register know you have an online order to pick up.
+
+Don't forget to bring a valid photo ID — it's required for age verification on all tobacco and nicotine products.
+
+If you have any questions, reply to this email or call us at (469) 294-0061.
+
+Thank you for choosing Vape Cave Smoke & Stuff!`,
+    availableVariables: "[CUSTOMER_NAME], [ORDER_ID], [ORDER_TOTAL]",
+  },
 ];
 
 export async function seedEmailTemplates(storage: IStorage): Promise<void> {

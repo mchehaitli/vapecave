@@ -30,7 +30,7 @@ import connectPgSimple from "connect-pg-simple";
 import * as dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { sendContactEmail, sendNewsletterSubscriptionEmail, sendDeliverySignupConfirmation, sendDeliveryApprovalEmail, sendDeliveryRejectionEmail, sendPasswordResetEmail, sendOrderStatusEmail, sendOrderConfirmationEmail, sendDriverNotificationEmail, sendRestockNotificationEmail, ContactFormData, NewsletterSubscription, DeliverySignupData, DeliveryApprovalData, DeliveryRejectionData, PasswordResetData, OrderStatusEmailData, OrderConfirmationEmailData, DriverNotificationEmailData } from "./email-service";
+import { sendContactEmail, sendNewsletterSubscriptionEmail, sendDeliverySignupConfirmation, sendDeliveryApprovalEmail, sendDeliveryRejectionEmail, sendPasswordResetEmail, sendOrderStatusEmail, sendOrderConfirmationEmail, sendDriverNotificationEmail, sendRestockNotificationEmail, sendPickupReadyEmail, ContactFormData, NewsletterSubscription, DeliverySignupData, DeliveryApprovalData, DeliveryRejectionData, PasswordResetData, OrderStatusEmailData, OrderConfirmationEmailData, DriverNotificationEmailData } from "./email-service";
 import { generateTemporaryPassword, generateResetToken } from "./password-utils";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -3807,7 +3807,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const customerId = (req as any).deliveryCustomer.id;
       const customer = (req as any).deliveryCustomer;
-      const { promoCode, deliveryWindowId, deliveryFee: clientDeliveryFee, notes } = req.body;
+      const { promoCode, deliveryWindowId, deliveryFee: clientDeliveryFee, notes, fulfillmentMode: rawFulfillmentModeChk } = req.body;
+      const checkoutFulfillmentMode: string = rawFulfillmentModeChk === 'pickup' ? 'pickup' : 'delivery';
 
       // Cancel any stale pending_payment orders for this customer before starting a new session
       const existingOrders = await storage.getOrdersByCustomer(customerId);
@@ -3933,6 +3934,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         total: total.toFixed(2),
         deliveryAddress: fullAddress,
         notes: notes || null,
+        fulfillmentMode: checkoutFulfillmentMode,
       });
 
       // Create order items
@@ -4076,7 +4078,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const customerId = (req as any).deliveryCustomer.id;
       const customer = (req as any).deliveryCustomer;
-      const { paymentToken, paymentMethod, promoCode, deliveryWindowId, deliveryAddress, billingAddress, billingCity, billingState, billingZipCode, sameAsDelivery, notes, deliveryFee: clientDeliveryFee } = req.body;
+      const { paymentToken, paymentMethod, promoCode, deliveryWindowId, deliveryAddress, billingAddress, billingCity, billingState, billingZipCode, sameAsDelivery, notes, deliveryFee: clientDeliveryFee, fulfillmentMode: rawFulfillmentMode } = req.body;
+      const fulfillmentMode: string = rawFulfillmentMode === 'pickup' ? 'pickup' : 'delivery';
       
       // Get cart items to create order items
       const cartItems = await storage.getCartItems(customerId);
@@ -4084,27 +4087,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Cart is empty" });
       }
 
-      // SERVER-SIDE: Validate customer is within delivery zone
-      const customerLat = parseFloat(customer.lat);
-      const customerLng = parseFloat(customer.lng);
-      
-      // Check if coordinates are valid before calculating distance
-      if (isNaN(customerLat) || isNaN(customerLng)) {
-        return res.status(400).json({ 
-          error: "Your delivery address needs to be verified. Please update your address in your account settings." 
-        });
-      }
-      
-      const friscoLat = 33.1507;
-      const friscoLng = -96.8236;
-      const distance = calculateDistance(customerLat, customerLng, friscoLat, friscoLng);
-      const radiusSetting = await storage.getSetting('delivery_radius_miles');
-      const deliveryRadiusMiles = radiusSetting ? parseFloat(radiusSetting.value) : 3;
-      
-      if (distance > deliveryRadiusMiles) {
-        return res.status(400).json({ 
-          error: `Delivery address is outside our ${deliveryRadiusMiles}-mile delivery zone. Your address is ${distance.toFixed(1)} miles away.` 
-        });
+      // SERVER-SIDE: Validate customer is within delivery zone (skip for pickup orders)
+      if (fulfillmentMode !== 'pickup') {
+        const customerLat = parseFloat(customer.lat);
+        const customerLng = parseFloat(customer.lng);
+        
+        if (isNaN(customerLat) || isNaN(customerLng)) {
+          return res.status(400).json({ 
+            error: "Your delivery address needs to be verified. Please update your address in your account settings." 
+          });
+        }
+        
+        const friscoLat = 33.1507;
+        const friscoLng = -96.8236;
+        const distance = calculateDistance(customerLat, customerLng, friscoLat, friscoLng);
+        const radiusSetting = await storage.getSetting('delivery_radius_miles');
+        const deliveryRadiusMiles = radiusSetting ? parseFloat(radiusSetting.value) : 3;
+        
+        if (distance > deliveryRadiusMiles) {
+          return res.status(400).json({ 
+            error: `Delivery address is outside our ${deliveryRadiusMiles}-mile delivery zone. Your address is ${distance.toFixed(1)} miles away.` 
+          });
+        }
       }
 
       // SERVER-SIDE: Calculate subtotal from cart items with actual product prices (pack-aware)
@@ -4251,6 +4255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cardLast4,
         cardBrand,
         notes,
+        fulfillmentMode,
         status: paymentStatus === 'paid' ? 'confirmed' : 'pending'
       });
       
@@ -4344,7 +4349,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           paymentMethod,
           deliveryDate,
           deliveryTime,
-          items: orderItems
+          items: orderItems,
+          fulfillmentMode,
         });
         
         // Get driver email from settings (default to vapecavetx@gmail.com)
@@ -4470,24 +4476,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Send email notification for order status change
-      const notifyStatuses = ['confirmed', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'];
+      const notifyStatuses = ['confirmed', 'preparing', 'out_for_delivery', 'delivered', 'cancelled', 'ready_for_pickup', 'picked_up'];
       if (notifyStatuses.includes(status)) {
         try {
           const customer = await storage.getDeliveryCustomerById(order.customerId);
           if (customer) {
-            // Get delivery window for date/time info
-            const deliveryWindow = await storage.getDeliveryWindowById(order.deliveryWindowId);
-            
-            await sendOrderStatusEmail({
-              email: customer.email,
-              fullName: customer.fullName,
-              orderId: order.id,
-              status: status,
-              deliveryAddress: order.deliveryAddress,
-              total: order.total,
-              deliveryDate: deliveryWindow?.date,
-              deliveryTime: deliveryWindow ? `${deliveryWindow.startTime} - ${deliveryWindow.endTime}` : undefined
-            });
+            if (status === 'ready_for_pickup') {
+              // Send the dedicated pickup-ready email with item details
+              const orderItems = await storage.getDeliveryOrderItems(order.id);
+              const itemsForEmail = orderItems.map((i: any) => ({
+                name: i.product?.name || i.productName || i.name || `Item #${i.productId}`,
+                quantity: i.quantity,
+                price: i.price,
+              }));
+              await sendPickupReadyEmail({
+                email: customer.email,
+                fullName: customer.fullName,
+                orderId: order.id,
+                total: order.total,
+                items: itemsForEmail,
+              });
+            } else {
+              // Generic status update email
+              const deliveryWindow = await storage.getDeliveryWindowById(order.deliveryWindowId);
+              await sendOrderStatusEmail({
+                email: customer.email,
+                fullName: customer.fullName,
+                orderId: order.id,
+                status: status,
+                deliveryAddress: order.deliveryAddress,
+                total: order.total,
+                deliveryDate: deliveryWindow?.date,
+                deliveryTime: deliveryWindow ? `${deliveryWindow.startTime} - ${deliveryWindow.endTime}` : undefined
+              });
+            }
           }
         } catch (emailError) {
           console.error("Error sending order status email:", emailError);

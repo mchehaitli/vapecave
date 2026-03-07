@@ -686,7 +686,8 @@ export const deliveryOrders = pgTable("delivery_orders", {
   tax: numeric("tax", { precision: 10, scale: 2 }).notNull().default("0"),
   deliveryFee: numeric("delivery_fee", { precision: 10, scale: 2 }).notNull().default("0"),
   total: numeric("total", { precision: 10, scale: 2 }).notNull(),
-  status: text("status").notNull().default("pending"), // pending, confirmed, preparing, out_for_delivery, delivered, cancelled
+  status: text("status").notNull().default("pending"), // pending, confirmed, preparing, out_for_delivery, delivered, cancelled, ready_for_pickup, picked_up
+  fulfillmentMode: text("fulfillment_mode").notNull().default("delivery"), // delivery, pickup
   paymentMethod: text("payment_method").notNull().default("cash"), // cash, credit_card
   paymentStatus: text("payment_status").notNull().default("pending"), // pending, paid, failed, refunded
   cloverPaymentId: text("clover_payment_id"),
@@ -726,6 +727,7 @@ export const insertDeliveryOrderSchema = createInsertSchema(deliveryOrders).pick
   cardLast4: true,
   cardBrand: true,
   notes: true,
+  fulfillmentMode: true,
 });
 
 export type InsertDeliveryOrder = z.infer<typeof insertDeliveryOrderSchema>;

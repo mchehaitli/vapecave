@@ -53,6 +53,7 @@ interface DeliveryOrder {
   refundedAt?: string;
   cloverRefundId?: string;
   deliveryWindow?: string;
+  fulfillmentMode?: string;
 }
 
 interface DeliveryWindow {
@@ -117,9 +118,12 @@ export function DeliveryOverviewTab({ onNavigateToTab }: { onNavigateToTab?: (ta
     switch (status) {
       case 'pending': return 'bg-yellow-500/20 text-yellow-400';
       case 'confirmed': return 'bg-blue-500/20 text-blue-400';
-      case 'out-for-delivery': return 'bg-purple-500/20 text-purple-400';
+      case 'out-for-delivery':
+      case 'out_for_delivery': return 'bg-purple-500/20 text-purple-400';
       case 'delivered': return 'bg-green-500/20 text-green-400';
       case 'cancelled': return 'bg-red-500/20 text-red-400';
+      case 'ready_for_pickup': return 'bg-teal-500/20 text-teal-400';
+      case 'picked_up': return 'bg-green-500/20 text-green-400';
       default: return 'bg-gray-500/20 text-gray-400';
     }
   };
@@ -1467,6 +1471,8 @@ export function DeliveryOrdersTab() {
                   <SelectItem value="confirmed">Confirmed</SelectItem>
                   <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
                   <SelectItem value="delivered">Delivered</SelectItem>
+                  <SelectItem value="ready_for_pickup">Ready for Pickup</SelectItem>
+                  <SelectItem value="picked_up">Picked Up</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
@@ -1574,15 +1580,22 @@ export function DeliveryOrdersTab() {
                       </TableCell>
                       <TableCell className="text-gray-400">${order.total}</TableCell>
                       <TableCell>
-                        <Badge className={
-                          order.status === "delivered" ? "bg-green-600" :
-                          order.status === "out_for_delivery" ? "bg-blue-600" :
-                          order.status === "confirmed" ? "bg-yellow-600" :
-                          order.status === "cancelled" ? "bg-red-600" :
-                          "bg-gray-600"
-                        }>
-                          {order.status.replace(/_/g, " ")}
-                        </Badge>
+                        <div className="flex flex-wrap gap-1 items-center">
+                          <Badge className={
+                            order.status === "delivered" ? "bg-green-600" :
+                            order.status === "picked_up" ? "bg-green-600" :
+                            order.status === "out_for_delivery" ? "bg-blue-600" :
+                            order.status === "confirmed" ? "bg-yellow-600" :
+                            order.status === "cancelled" ? "bg-red-600" :
+                            order.status === "ready_for_pickup" ? "bg-teal-600" :
+                            "bg-gray-600"
+                          }>
+                            {order.status.replace(/_/g, " ")}
+                          </Badge>
+                          {order.fulfillmentMode === "pickup" && (
+                            <Badge className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5">PICKUP</Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge className={
@@ -1654,6 +1667,8 @@ export function DeliveryOrdersTab() {
                               <SelectItem value="confirmed">Confirmed</SelectItem>
                               <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
                               <SelectItem value="delivered">Delivered</SelectItem>
+                              <SelectItem value="ready_for_pickup">Ready for Pickup</SelectItem>
+                              <SelectItem value="picked_up">Picked Up</SelectItem>
                               <SelectItem value="cancelled">Cancelled</SelectItem>
                             </SelectContent>
                           </Select>
@@ -1732,6 +1747,21 @@ export function DeliveryOrdersTab() {
               </div>
             )}
           </div>
+          {selectedOrder?.fulfillmentMode === "pickup" &&
+            !["ready_for_pickup", "picked_up", "delivered", "cancelled"].includes(selectedOrder.status) && (
+            <DialogFooter className="mt-4">
+              <Button
+                className="bg-teal-600 hover:bg-teal-700 w-full"
+                disabled={statusMutation.isPending}
+                onClick={() => {
+                  statusMutation.mutate({ orderId: selectedOrder.id, status: "ready_for_pickup" });
+                  setOrderDialog(false);
+                }}
+              >
+                Mark as Ready for Pickup
+              </Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -1833,6 +1863,8 @@ export function DeliveryOrdersTab() {
                   <SelectItem value="confirmed">Confirmed</SelectItem>
                   <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
                   <SelectItem value="delivered">Delivered</SelectItem>
+                  <SelectItem value="ready_for_pickup">Ready for Pickup</SelectItem>
+                  <SelectItem value="picked_up">Picked Up</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
