@@ -112,6 +112,10 @@ export interface DriverNotificationEmailData {
   customerEmail: string;
   deliveryAddress: string;
   total: string;
+  subtotal: string;
+  tax: string;
+  deliveryFee: string;
+  discount?: string;
   paymentMethod: string;
   deliveryDate?: string;
   deliveryTime?: string;
@@ -743,12 +747,18 @@ Address: ${data.deliveryAddress}
 ${data.deliveryDate ? `Date: ${data.deliveryDate}` : ''}
 ${data.deliveryTime ? `Time: ${data.deliveryTime}` : ''}
 Payment: ${data.paymentMethod}
-Total: $${data.total}
 
 Items:
 ${itemsText}
 
-${data.notes ? `Notes: ${data.notes}` : ''}
+---
+Subtotal:     $${data.subtotal}
+Delivery Fee: $${data.deliveryFee}
+Tax (8.25%):  $${data.tax}
+${data.discount ? `Discount:     -$${data.discount}` : ''}
+AMOUNT DUE:   $${data.total}
+---
+${data.notes ? `\nNotes: ${data.notes}` : ''}
     `.trim();
 
     const htmlContent = `
@@ -788,8 +798,42 @@ ${data.notes ? `Notes: ${data.notes}` : ''}
       ${itemsHtml}
     </tbody>
   </table>
+
+  <div style="margin-top: 20px; background-color: #2a2a2a; border-radius: 8px; padding: 16px;">
+    <h3 style="color: #ff7100; margin: 0 0 12px 0; font-size: 15px;">Order Total Breakdown</h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+      <tr>
+        <td style="padding: 5px 0; color: #bbb;">Subtotal</td>
+        <td style="padding: 5px 0; text-align: right;">$${data.subtotal}</td>
+      </tr>
+      <tr>
+        <td style="padding: 5px 0; color: #bbb;">Delivery Fee</td>
+        <td style="padding: 5px 0; text-align: right;">${parseFloat(data.deliveryFee) === 0 ? '<span style="color:#4caf50;">FREE</span>' : `$${data.deliveryFee}`}</td>
+      </tr>
+      <tr>
+        <td style="padding: 5px 0; color: #bbb;">Tax (8.25%)</td>
+        <td style="padding: 5px 0; text-align: right;">$${data.tax}</td>
+      </tr>
+      ${data.discount ? `
+      <tr>
+        <td style="padding: 5px 0; color: #4caf50;">Discount</td>
+        <td style="padding: 5px 0; text-align: right; color: #4caf50;">-$${data.discount}</td>
+      </tr>` : ''}
+      <tr>
+        <td colspan="2" style="padding-top: 10px; border-top: 2px solid #ff7100;"></td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0 0; font-size: 17px; font-weight: 700; color: #ff7100;">AMOUNT DUE</td>
+        <td style="padding: 8px 0 0; text-align: right; font-size: 17px; font-weight: 700; color: #ff7100;">$${data.total}</td>
+      </tr>
+    </table>
+    <div style="margin-top: 10px; padding: 8px 10px; background-color: #1a1a1a; border-radius: 4px; font-size: 13px; color: #ccc;">
+      <strong>Payment:</strong> ${data.paymentMethod}
+    </div>
+  </div>
+
   <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-    Vape Cave Smoke & Stuff Delivery System
+    Vape Cave Smoke &amp; Stuff Delivery System
   </p>
 </div>
     `.trim();

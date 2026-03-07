@@ -4366,6 +4366,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           customerEmail: customer.email,
           deliveryAddress,
           total: total.toFixed(2),
+          subtotal: subtotal.toFixed(2),
+          tax: tax.toFixed(2),
+          deliveryFee: deliveryFee.toFixed(2),
+          discount: discount > 0 ? discount.toFixed(2) : undefined,
           paymentMethod,
           deliveryDate,
           deliveryTime,
@@ -4498,7 +4502,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               });
             } else {
               // Generic status update email
-              const deliveryWindow = await storage.getDeliveryWindowById(order.deliveryWindowId);
+              const deliveryWindow = order.deliveryWindowId ? await storage.getDeliveryWindowById(order.deliveryWindowId) : null;
               await sendOrderStatusEmail({
                 email: customer.email,
                 fullName: customer.fullName,

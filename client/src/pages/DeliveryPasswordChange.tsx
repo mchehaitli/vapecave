@@ -176,7 +176,7 @@ export default function DeliveryPasswordChange() {
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-foreground/60 hover:text-foreground transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500 hover:text-orange-400 transition-colors"
                       data-testid="button-toggle-current-password"
                     >
                       {showCurrentPassword ? (
@@ -210,7 +210,7 @@ export default function DeliveryPasswordChange() {
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-foreground/60 hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500 hover:text-orange-400 transition-colors"
                     data-testid="button-toggle-new-password"
                   >
                     {showNewPassword ? (
@@ -243,7 +243,7 @@ export default function DeliveryPasswordChange() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-foreground/60 hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-500 hover:text-orange-400 transition-colors"
                     data-testid="button-toggle-confirm-password"
                   >
                     {showConfirmPassword ? (

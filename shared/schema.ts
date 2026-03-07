@@ -672,7 +672,7 @@ export type CartReminder = typeof cartReminders.$inferSelect;
 export const deliveryOrders = pgTable("delivery_orders", {
   id: serial("id").primaryKey(),
   customerId: integer("customer_id").notNull(),
-  deliveryWindowId: integer("delivery_window_id").notNull(),
+  deliveryWindowId: integer("delivery_window_id"),
   deliveryAddress: text("delivery_address").notNull(),
   billingAddress: text("billing_address"), // Billing address if different from delivery
   billingCity: text("billing_city"),
