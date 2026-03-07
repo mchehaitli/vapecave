@@ -51,6 +51,7 @@ interface Order {
   cardBrand?: string;
   createdAt: string;
   items?: OrderItem[];
+  fulfillmentMode?: string;
 }
 
 interface DeliveryWindow {
@@ -182,7 +183,9 @@ export default function DeliveryOrderConfirmation() {
               Order Confirmed!
             </h1>
             <p className="text-muted-foreground">
-              Thank you for your order. We'll notify you when it's on its way.
+              {order.fulfillmentMode === 'pickup'
+                ? "Thank you for your order. We'll notify you when it's ready for pickup."
+                : "Thank you for your order. We'll notify you when it's on its way."}
             </p>
           </div>
 
@@ -203,17 +206,26 @@ export default function DeliveryOrderConfirmation() {
               </p>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Delivery Info */}
+              {/* Delivery / Pickup Info */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                     <MapPin className="h-4 w-4" />
-                    Delivery Address
+                    {order.fulfillmentMode === 'pickup' ? 'Pickup Location' : 'Delivery Address'}
                   </div>
-                  <p className="text-sm" data-testid="text-delivery-address">{order.deliveryAddress}</p>
+                  {order.fulfillmentMode === 'pickup' ? (
+                    <div className="text-sm" data-testid="text-delivery-address">
+                      <p className="font-medium">Vape Cave Smoke &amp; Stuff</p>
+                      <p>6958 Main St #200</p>
+                      <p>Frisco, TX 75033</p>
+                      <p className="text-muted-foreground mt-1">(469) 294-0061</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm" data-testid="text-delivery-address">{order.deliveryAddress}</p>
+                  )}
                 </div>
 
-                {selectedWindow && (
+                {order.fulfillmentMode !== 'pickup' && selectedWindow && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                       <Calendar className="h-4 w-4" />
@@ -242,13 +254,19 @@ export default function DeliveryOrderConfirmation() {
                     <Banknote className="h-4 w-4 text-muted-foreground" />
                   )}
                   <span className="text-sm">
-                    {order.paymentMethod === 'credit_card' 
+                    {order.paymentMethod === 'credit_card'
                       ? `Card ending in ${order.cardLast4 || '****'}`
-                      : 'Cash on Delivery'}
+                      : order.fulfillmentMode === 'pickup'
+                        ? 'Pay in Store'
+                        : 'Cash on Delivery'}
                   </span>
                 </div>
                 <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
-                  {order.paymentStatus === 'paid' ? 'Paid' : 'Payment Due on Delivery'}
+                  {order.paymentStatus === 'paid'
+                    ? 'Paid'
+                    : order.fulfillmentMode === 'pickup'
+                      ? 'Payment Due at Pickup'
+                      : 'Payment Due on Delivery'}
                 </Badge>
               </div>
 
@@ -302,10 +320,12 @@ export default function DeliveryOrderConfirmation() {
                   <span className="text-muted-foreground">Tax</span>
                   <span data-testid="text-order-tax">${parseFloat(order.tax || "0").toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Delivery Fee</span>
-                  <span data-testid="text-order-delivery-fee">${parseFloat(order.deliveryFee).toFixed(2)}</span>
-                </div>
+                {order.fulfillmentMode !== 'pickup' && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Delivery Fee</span>
+                    <span data-testid="text-order-delivery-fee">${parseFloat(order.deliveryFee).toFixed(2)}</span>
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
@@ -343,7 +363,9 @@ export default function DeliveryOrderConfirmation() {
                   <div>
                     <p className="font-medium">Order Preparation</p>
                     <p className="text-sm text-muted-foreground">
-                      We'll prepare your order for delivery.
+                      {order.fulfillmentMode === 'pickup'
+                        ? "We'll prepare your order and notify you when it's ready."
+                        : "We'll prepare your order for delivery."}
                     </p>
                   </div>
                 </div>
@@ -352,10 +374,21 @@ export default function DeliveryOrderConfirmation() {
                     <span className="text-xs font-bold text-primary">3</span>
                   </div>
                   <div>
-                    <p className="font-medium">Delivery</p>
-                    <p className="text-sm text-muted-foreground">
-                      Your order will arrive during your selected delivery window.
-                    </p>
+                    {order.fulfillmentMode === 'pickup' ? (
+                      <>
+                        <p className="font-medium">Pick Up Your Order</p>
+                        <p className="text-sm text-muted-foreground">
+                          Come to our store at 6958 Main St #200, Frisco, TX 75033 to collect your order.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-medium">Delivery</p>
+                        <p className="text-sm text-muted-foreground">
+                          Your order will arrive during your selected delivery window.
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

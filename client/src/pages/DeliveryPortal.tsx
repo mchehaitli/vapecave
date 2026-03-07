@@ -936,7 +936,7 @@ export default function DeliveryPortal() {
     }
     return 0;
   };
-  const deliveryFee = cartTotal >= freeDeliveryThreshold ? 0 : calculatePortalDeliveryFee();
+  const deliveryFee = deliveryMethod === 'pickup' || cartTotal >= freeDeliveryThreshold ? 0 : calculatePortalDeliveryFee();
 
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity, purchaseType }: { productId: number; quantity: number; purchaseType?: string }) => {

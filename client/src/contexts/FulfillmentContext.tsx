@@ -10,7 +10,15 @@ interface FulfillmentContextType {
 const FulfillmentContext = createContext<FulfillmentContextType | undefined>(undefined);
 
 export function FulfillmentProvider({ children }: { children: ReactNode }) {
-  const [fulfillmentMode, setFulfillmentMode] = useState<FulfillmentMode>("delivery");
+  const [fulfillmentMode, setFulfillmentModeState] = useState<FulfillmentMode>(() => {
+    const stored = localStorage.getItem("fulfillmentMode");
+    return (stored === "pickup" || stored === "delivery") ? stored : "delivery";
+  });
+
+  const setFulfillmentMode = (mode: FulfillmentMode) => {
+    localStorage.setItem("fulfillmentMode", mode);
+    setFulfillmentModeState(mode);
+  };
 
   return (
     <FulfillmentContext.Provider value={{ fulfillmentMode, setFulfillmentMode }}>
