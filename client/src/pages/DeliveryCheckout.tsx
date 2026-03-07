@@ -1127,10 +1127,10 @@ export default function DeliveryCheckout() {
               <p className="text-sm text-muted-foreground">
                 You have selected <span className="font-semibold text-foreground">{isPickup ? 'Pickup' : 'Delivery'}</span> as your fulfillment method.
               </p>
-              {(selectedPaymentMethod === "pay_in_store" || selectedPaymentMethod === "cash") && (
+              {selectedPaymentMethod === "pay_in_store" && (
                 <div className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                   <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                    Items for {selectedPaymentMethod === "pay_in_store" ? "pay-in-store" : "cash"} orders will be held until the end of the business day.
+                    Your order will be held at the store until the end of the business day.
                   </p>
                 </div>
               )}
