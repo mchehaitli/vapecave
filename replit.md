@@ -33,6 +33,7 @@ The design incorporates a dark/light theme with a vibrant palette (Vibrant Orang
     - **PDF Receipt Generation**: Downloadable PDF receipts using PDFKit.
     - **Abandoned Cart Reminders**: Automatic email reminders for abandoned carts.
     - **Analytics Dashboard**: Admin dashboard with sales metrics, revenue charts, order status, top products, payment analysis, and customer analytics.
+    - **Payment Mode Toggle**: Admin setting (`payment_mode`) to switch between "Pay on Delivery" (cash only, default) and "Online Payments" (Clover card checkout enabled). When in pay_on_delivery mode, credit card option is hidden from checkout. Cash/pay_in_store orders create corresponding Clover cash orders for POS tracking.
 
 ### System Design Choices
 The application uses a modular architecture, separating frontend and backend. It prioritizes performance and SEO for local businesses, robust security through authentication and session management, and configurability for administrators.

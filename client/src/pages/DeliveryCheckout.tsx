@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DeliveryFooter } from "@/components/DeliveryFooter";
 import { useFulfillment } from "@/contexts/FulfillmentContext";
+import { useSetting } from "@/hooks/useSettings";
 
 interface CartItem {
   id: number;
@@ -82,14 +83,21 @@ export default function DeliveryCheckout() {
     warningMinutes: 2,
   });
 
+  const { data: paymentModeSetting } = useSetting("payment_mode");
+  const paymentMode = paymentModeSetting?.value || "pay_on_delivery";
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>(isPickup ? "pay_in_store" : "cash");
 
   useEffect(() => {
-    setSelectedPaymentMethod(isPickup ? "pay_in_store" : "cash");
     if (isPickup) {
+      setSelectedPaymentMethod("pay_in_store");
       setSelectedWindowId(null);
+    } else if (paymentMode === "pay_on_delivery") {
+      setSelectedPaymentMethod("cash");
+    } else {
+      setSelectedPaymentMethod("cash");
     }
-  }, [isPickup]);
+  }, [isPickup, paymentMode]);
 
   const [sameAsDelivery, setSameAsDelivery] = useState(true);
   const [billingAddress, setBillingAddress] = useState("");
@@ -717,13 +725,15 @@ export default function DeliveryCheckout() {
                             Pay in Store <span className="text-xs text-muted-foreground">(Order will be held until the end of the day)</span>
                           </Label>
                         </div>
-                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
-                          <RadioGroupItem value="credit_card" id="credit_card" data-testid="radio-payment-credit" />
-                          <Label htmlFor="credit_card" className="flex-1 cursor-pointer flex items-center gap-2">
-                            <CreditCard className="h-4 w-4" />
-                            Credit/Debit Card
-                          </Label>
-                        </div>
+                        {paymentMode === "online" && (
+                          <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
+                            <RadioGroupItem value="credit_card" id="credit_card" data-testid="radio-payment-credit" />
+                            <Label htmlFor="credit_card" className="flex-1 cursor-pointer flex items-center gap-2">
+                              <CreditCard className="h-4 w-4" />
+                              Card Payment
+                            </Label>
+                          </div>
+                        )}
                       </>
                     ) : (
                       <>
@@ -734,13 +744,15 @@ export default function DeliveryCheckout() {
                             Cash on Delivery
                           </Label>
                         </div>
-                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
-                          <RadioGroupItem value="credit_card" id="credit_card" data-testid="radio-payment-credit" />
-                          <Label htmlFor="credit_card" className="flex-1 cursor-pointer flex items-center gap-2">
-                            <CreditCard className="h-4 w-4" />
-                            Credit/Debit Card
-                          </Label>
-                        </div>
+                        {paymentMode === "online" && (
+                          <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
+                            <RadioGroupItem value="credit_card" id="credit_card" data-testid="radio-payment-credit" />
+                            <Label htmlFor="credit_card" className="flex-1 cursor-pointer flex items-center gap-2">
+                              <CreditCard className="h-4 w-4" />
+                              Card Payment
+                            </Label>
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
@@ -1142,7 +1154,7 @@ export default function DeliveryCheckout() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Payment</span>
                   <span className="font-medium">
-                    {selectedPaymentMethod === "pay_in_store" ? "Pay in Store" : selectedPaymentMethod === "cash" ? "Cash" : "Credit Card"}
+                    {selectedPaymentMethod === "pay_in_store" ? "Pay in Store" : selectedPaymentMethod === "cash" ? "Cash on Delivery" : "Card Payment"}
                   </span>
                 </div>
               </div>

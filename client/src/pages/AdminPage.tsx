@@ -39,6 +39,7 @@ import AdminPromotions from "@/pages/AdminPromotions";
 import CloverIntegration from "@/components/CloverIntegration";
 import DeliveryFeeSettings from "@/components/DeliveryFeeSettings";
 import DriverNotificationSettings from "@/components/DriverNotificationSettings";
+import PaymentModeSettings from "@/components/PaymentModeSettings";
 import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import { FeaturedProductsManagement } from "@/components/FeaturedProductsManagement";
 import RestockDemand from "@/components/RestockDemand";
@@ -4404,6 +4405,8 @@ export default function AdminPage() {
                 </TabsContent>
 
                 <TabsContent value="settings" className="space-y-4">
+                  <PaymentModeSettings />
+
                   <DeliveryFeeSettings />
 
                   <DriverNotificationSettings />

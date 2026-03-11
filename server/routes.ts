@@ -3819,6 +3819,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create Clover Hosted Checkout session
   app.post('/api/delivery/create-checkout-session', verifyApprovedCustomer, async (req, res) => {
     try {
+      const paymentModeSetting = await storage.getSetting('payment_mode');
+      const paymentModeValue = paymentModeSetting?.value || 'pay_on_delivery';
+      if (paymentModeValue !== 'online') {
+        return res.status(403).json({ error: "Online card payments are not currently enabled. Please use cash on delivery." });
+      }
+
       const customerId = (req as any).deliveryCustomer.id;
       const customer = (req as any).deliveryCustomer;
       const { promoCode, deliveryWindowId, deliveryFee: clientDeliveryFee, notes, fulfillmentMode: rawFulfillmentModeChk } = req.body;
@@ -4276,6 +4282,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Process Clover payment if credit card selected
       if (paymentMethod === 'credit_card' && paymentToken) {
+        const paymentModeSetting = await storage.getSetting('payment_mode');
+        const currentPaymentMode = paymentModeSetting?.value || 'pay_on_delivery';
+        if (currentPaymentMode !== 'online') {
+          return res.status(403).json({ error: "Online card payments are not currently enabled. Please use cash on delivery." });
+        }
+
         try {
           if (!cloverPaymentService.isConfigured()) {
             return res.status(503).json({ 
@@ -4384,6 +4396,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       } catch (stockPushError) {
         console.error("[Order] Error initiating Clover stock push:", stockPushError);
+      }
+
+      // Create Clover cash order for cash/pay_in_store payments
+      if ((paymentMethod === 'cash' || paymentMethod === 'pay_in_store') && process.env.CLOVER_API_TOKEN && process.env.CLOVER_MERCHANT_ID) {
+        try {
+          const cloverService = new CloverService();
+          const cashOrderItems = cartItemsWithProducts.map(item => ({
+            name: item.product.name,
+            price: item.calculatedPrice as number,
+            quantity: item.quantity,
+          }));
+          cloverService.createCashOrder({
+            orderRef: `WEB-${order.id}`,
+            customerName: customer.fullName,
+            items: cashOrderItems,
+            total,
+            note: `Online ${fulfillmentMode} order #${order.id} for ${customer.fullName}${notes ? ' — ' + notes : ''}`,
+          }).then(result => {
+            if (result.success) {
+              console.log(`[Order] Clover cash order created: ${result.cloverOrderId} for order #${order.id}`);
+            } else {
+              console.error(`[Order] Failed to create Clover cash order for #${order.id}: ${result.error}`);
+            }
+          }).catch(err => {
+            console.error("[Order] Error creating Clover cash order:", err);
+          });
+        } catch (cashOrderError) {
+          console.error("[Order] Error initiating Clover cash order:", cashOrderError);
+        }
       }
 
       // Trigger Clover sync as safety net backup

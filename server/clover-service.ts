@@ -271,4 +271,107 @@ export class CloverService {
 
     return results;
   }
+
+  async createCashOrder(params: {
+    orderRef: string;
+    customerName: string;
+    items: Array<{ name: string; price: number; quantity: number }>;
+    total: number;
+    note?: string;
+  }): Promise<{ success: boolean; cloverOrderId?: string; error?: string }> {
+    try {
+      const orderUrl = `${this.baseUrl}/v3/merchants/${this.merchantId}/orders`;
+      const createRes = await fetch(orderUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          state: 'open',
+          total: Math.round(params.total * 100),
+          title: params.orderRef,
+          note: params.note || `Online order for ${params.customerName}`,
+          manualTransaction: false,
+        }),
+      });
+
+      if (!createRes.ok) {
+        const errText = await createRes.text();
+        console.error(`[Clover Cash Order] Failed to create order: ${createRes.status} ${errText}`);
+        return { success: false, error: `Failed to create Clover order: ${createRes.status}` };
+      }
+
+      const cloverOrder = await createRes.json();
+      const cloverOrderId = cloverOrder.id;
+      console.log(`[Clover Cash Order] Created order ${cloverOrderId}`);
+
+      for (const item of params.items) {
+        const lineUrl = `${this.baseUrl}/v3/merchants/${this.merchantId}/orders/${cloverOrderId}/line_items`;
+        const lineRes = await fetch(lineUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.apiToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            name: item.name,
+            price: Math.round(item.price * 100),
+            unitQty: item.quantity * 1000,
+          }),
+        });
+        if (!lineRes.ok) {
+          console.error(`[Clover Cash Order] Failed to add line item "${item.name}": ${lineRes.status}`);
+        }
+      }
+
+      const tendersUrl = `${this.baseUrl}/v3/merchants/${this.merchantId}/tenders`;
+      const tendersRes = await fetch(tendersUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.apiToken}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      let cashTenderId: string | null = null;
+      if (tendersRes.ok) {
+        const tendersData = await tendersRes.json();
+        const cashTender = (tendersData.elements || []).find(
+          (t: any) => t.label?.toLowerCase() === 'cash' || t.labelKey === 'com.clover.tender.cash'
+        );
+        cashTenderId = cashTender?.id || null;
+      }
+
+      if (cashTenderId) {
+        const paymentUrl = `${this.baseUrl}/v3/merchants/${this.merchantId}/orders/${cloverOrderId}/payments`;
+        const payRes = await fetch(paymentUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.apiToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            tender: { id: cashTenderId },
+            amount: Math.round(params.total * 100),
+          }),
+        });
+        if (!payRes.ok) {
+          console.error(`[Clover Cash Order] Failed to add cash payment: ${payRes.status}`);
+        } else {
+          console.log(`[Clover Cash Order] Cash payment recorded for order ${cloverOrderId}`);
+        }
+      } else {
+        console.warn(`[Clover Cash Order] No cash tender found — order ${cloverOrderId} created without payment record`);
+      }
+
+      return { success: true, cloverOrderId };
+    } catch (error: any) {
+      console.error('[Clover Cash Order] Error:', error);
+      return { success: false, error: error.message || 'Unknown error creating Clover cash order' };
+    }
+  }
 }
