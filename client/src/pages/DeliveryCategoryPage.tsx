@@ -879,6 +879,34 @@ export default function DeliveryCategoryPage() {
                           <Badge variant="destructive" className="flex-shrink-0 text-[10px] sm:text-xs px-1.5 py-0">Out of Stock</Badge>
                         )}
                       </div>
+                      {listCanPack && (() => {
+                        const packDisabled = stock < (product.packSize || 1);
+                        const selectedPurchaseType = packToggleMap[product.id] || 'single';
+                        return (
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <div className="inline-flex items-center rounded-full bg-muted/60 border border-border p-0.5 text-[9px] sm:text-[10px]">
+                              <button
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPackToggleMap(prev => ({ ...prev, [product.id]: 'single' })); }}
+                                className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${selectedPurchaseType === 'single' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                              >Single</button>
+                              <button
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!packDisabled) setPackToggleMap(prev => ({ ...prev, [product.id]: 'pack' })); }}
+                                disabled={packDisabled}
+                                className={`px-1.5 py-0.5 rounded-full font-medium transition-colors ${packDisabled ? 'opacity-40 cursor-not-allowed text-muted-foreground' : selectedPurchaseType === 'pack' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                                title={packDisabled ? 'Not enough stock for a pack' : ''}
+                              >Pack</button>
+                            </div>
+                            {listPackDiscountPercent > 0 && (
+                              <span className="text-[9px] font-semibold text-green-500">Save {listPackDiscountPercent}%</span>
+                            )}
+                          </div>
+                        );
+                      })()}
+                      {product.isPackOnly && (
+                        <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1.5 py-0 mt-1 bg-green-500/20 text-green-400 border-green-500/30">
+                          Pack of {product.packSize}
+                        </Badge>
+                      )}
                       {product.description && (
                         <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1 hidden sm:block">
                           {product.description}
@@ -908,12 +936,12 @@ export default function DeliveryCategoryPage() {
                             <Minus className="w-4 h-4" />
                           </Button>
                           <span className="text-xs font-semibold w-5 text-center">{listQty}</span>
-                          <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCartMutation.isPending}>
+                          <Button size="sm" className="h-8 w-8 p-0" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: product.isPackOnly ? 'pack' : (product.allowPackToggle ? (packToggleMap[product.id] || 'single') : 'single') })} disabled={addToCartMutation.isPending}>
                             <Plus className="w-4 h-4" />
                           </Button>
                         </div>
                       ) : (
-                        <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: product.isPackOnly ? 'pack' : 'single' })} disabled={addToCartMutation.isPending || isOutOfStock}>
+                        <Button size="sm" className="h-8 px-2 sm:px-3" onClick={() => addToCartMutation.mutate({ productId: product.id, quantity: 1, purchaseType: product.isPackOnly ? 'pack' : (product.allowPackToggle ? (packToggleMap[product.id] || 'single') : 'single') })} disabled={addToCartMutation.isPending || isOutOfStock}>
                           <Plus className="w-4 h-4 sm:mr-1" />
                           <span className="hidden sm:inline">Add</span>
                         </Button>

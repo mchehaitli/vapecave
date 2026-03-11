@@ -599,7 +599,7 @@ function ProductCarousel({
           return (
             <motion.div
               key={product.id}
-              className="flex-shrink-0 w-[145px] sm:w-[180px] md:w-[240px] lg:w-[280px] flex flex-col relative hover:z-10"
+              className="flex-shrink-0 w-[145px] sm:w-[180px] md:w-[240px] lg:w-[280px] h-[280px] sm:h-[340px] md:h-[420px] lg:h-[460px] flex flex-col overflow-hidden relative hover:z-10"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >

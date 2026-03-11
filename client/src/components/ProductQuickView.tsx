@@ -255,11 +255,12 @@ export function ProductQuickView({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 text-foreground">
+      <DialogContent className="max-w-4xl max-h-[80vh] sm:max-h-[90vh] p-0 text-foreground flex flex-col">
         <VisuallyHidden>
           <DialogTitle>Quick View: {displayName}</DialogTitle>
         </VisuallyHidden>
 
+        <div className="overflow-y-auto flex-1 min-h-0">
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6">
           <div className="space-y-4">
             <div
@@ -611,6 +612,7 @@ export function ProductQuickView({
               </Button>
             </div>
           </div>
+        </div>
         </div>
       </DialogContent>
     </Dialog>
