@@ -407,6 +407,11 @@ export default function DeliveryAccount() {
                                   <p className="text-2xl font-bold text-primary" data-testid={`text-order-total-${order.id}`}>
                                     ${parseFloat(order.total).toFixed(2)}
                                   </p>
+                                  {order.paymentMethodDisplay && (
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {order.paymentMethodDisplay}
+                                    </p>
+                                  )}
                                 </div>
                               </div>
 

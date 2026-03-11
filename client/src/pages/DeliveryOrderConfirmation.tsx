@@ -52,6 +52,7 @@ interface Order {
   createdAt: string;
   items?: OrderItem[];
   fulfillmentMode?: string;
+  paymentMethodDisplay?: string;
 }
 
 interface DeliveryWindow {
@@ -254,13 +255,7 @@ export default function DeliveryOrderConfirmation() {
                     <Banknote className="h-4 w-4 text-muted-foreground" />
                   )}
                   <span className="text-sm">
-                    {order.paymentMethod === 'credit_card'
-                      ? order.cardLast4 ? `Card ending in ${order.cardLast4}` : 'Card Payment'
-                      : order.paymentMethod === 'pay_on_delivery'
-                        ? 'Card Payment'
-                        : order.fulfillmentMode === 'pickup'
-                          ? 'Pay in Store'
-                          : 'Cash on Delivery'}
+                    {order.paymentMethodDisplay || 'Card Payment'}
                   </span>
                 </div>
                 <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>

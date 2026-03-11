@@ -72,6 +72,9 @@ export interface OrderStatusEmailData {
   deliveryTime?: string;
   refundAmount?: string;
   refundReason?: string;
+  paymentMethod?: string;
+  fulfillmentMode?: string;
+  cardLast4?: string;
 }
 
 // Interface for order confirmation email to customer
@@ -829,7 +832,7 @@ ${data.notes ? `\nNotes: ${data.notes}` : ''}
       </tr>
     </table>
     <div style="margin-top: 10px; padding: 8px 10px; background-color: #1a1a1a; border-radius: 4px; font-size: 13px; color: #ccc;">
-      <strong>Payment:</strong> ${data.paymentMethod === 'credit_card' ? 'Card Payment' : data.paymentMethod === 'pay_on_delivery' ? 'Card Payment' : data.paymentMethod === 'cash' ? 'Cash' : data.paymentMethod}
+      <strong>Payment:</strong> ${data.paymentMethod ? (data.paymentMethod === 'credit_card' ? (data.cardLast4 ? `Card ending in ${data.cardLast4}` : 'Card Payment') : data.paymentMethod === 'pay_on_delivery' ? 'Card Payment' : data.fulfillmentMode === 'pickup' ? 'Pay in Store' : 'Cash on Delivery') : 'N/A'}
     </div>
   </div>
 

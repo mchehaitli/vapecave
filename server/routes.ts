@@ -4514,6 +4514,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get customer orders with detailed information (for account page)
+  function getPaymentDisplayLabel(paymentMethod: string, fulfillmentMode?: string | null, cardLast4?: string | null): string {
+    if (paymentMethod === 'credit_card') {
+      return cardLast4 ? `Card ending in ${cardLast4}` : 'Card Payment';
+    }
+    if (paymentMethod === 'pay_on_delivery') {
+      return 'Card Payment';
+    }
+    if (fulfillmentMode === 'pickup') {
+      return 'Pay in Store';
+    }
+    return 'Cash on Delivery';
+  }
+
   // MUST be defined before /api/delivery/orders/:id to avoid "my-orders" being matched as an ID
   app.get('/api/delivery/orders/my-orders', verifyApprovedCustomer, async (req, res) => {
     try {
@@ -4526,7 +4539,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const ordersWithItems = await Promise.all(
         orders.map(async (order) => {
           const items = await storage.getDeliveryOrderItems(order.id);
-          return { ...order, items };
+          return {
+            ...order,
+            items,
+            paymentMethodDisplay: getPaymentDisplayLabel(order.paymentMethod, order.fulfillmentMode, order.cardLast4),
+          };
         })
       );
 
@@ -4561,7 +4578,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get order items with product details
       const orderItems = await storage.getDeliveryOrderItems(orderId);
 
-      res.json({ ...order, items: orderItems });
+      res.json({
+        ...order,
+        items: orderItems,
+        paymentMethodDisplay: getPaymentDisplayLabel(order.paymentMethod, order.fulfillmentMode, order.cardLast4),
+      });
     } catch (error) {
       console.error("Error fetching order:", error);
       res.status(500).json({ error: "Failed to fetch order" });
@@ -4648,7 +4669,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 deliveryAddress: order.deliveryAddress,
                 total: order.total,
                 deliveryDate: deliveryWindow?.date,
-                deliveryTime: deliveryWindow ? `${deliveryWindow.startTime} - ${deliveryWindow.endTime}` : undefined
+                deliveryTime: deliveryWindow ? `${deliveryWindow.startTime} - ${deliveryWindow.endTime}` : undefined,
+                paymentMethod: order.paymentMethod,
+                fulfillmentMode: order.fulfillmentMode,
+                cardLast4: order.cardLast4,
               });
             }
           }
@@ -4740,7 +4764,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             deliveryAddress: order.deliveryAddress,
             total: order.total,
             refundAmount: requestedRefund.toFixed(2),
-            refundReason
+            refundReason,
+            paymentMethod: order.paymentMethod,
+            fulfillmentMode: order.fulfillmentMode,
+            cardLast4: order.cardLast4,
           });
         }
       } catch (emailError) {
