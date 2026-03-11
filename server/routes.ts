@@ -3820,9 +3820,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/delivery/create-checkout-session', verifyApprovedCustomer, async (req, res) => {
     try {
       const paymentModeSetting = await storage.getSetting('payment_mode');
-      const paymentModeValue = paymentModeSetting?.value || 'pay_on_delivery';
+      const paymentModeValue = paymentModeSetting?.value || 'online';
       if (paymentModeValue !== 'online') {
-        return res.status(403).json({ error: "Online card payments are not currently enabled. Please use cash on delivery." });
+        return res.status(403).json({ error: "Online card payments are not currently enabled. Please use pay on delivery." });
       }
 
       const customerId = (req as any).deliveryCustomer.id;
@@ -4283,9 +4283,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Process Clover payment if credit card selected
       if (paymentMethod === 'credit_card' && paymentToken) {
         const paymentModeSetting = await storage.getSetting('payment_mode');
-        const currentPaymentMode = paymentModeSetting?.value || 'pay_on_delivery';
+        const currentPaymentMode = paymentModeSetting?.value || 'online';
         if (currentPaymentMode !== 'online') {
-          return res.status(403).json({ error: "Online card payments are not currently enabled. Please use cash on delivery." });
+          return res.status(403).json({ error: "Online card payments are not currently enabled. Please use pay on delivery." });
         }
 
         try {
@@ -4493,7 +4493,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           deliveryDate,
           deliveryTime,
           notes,
-          items: orderItems
+          items: orderItems,
+          fulfillmentMode,
         });
         
         console.log(`Order #${order.id}: Confirmation and driver notification emails sent`);

@@ -255,10 +255,10 @@ export default function DeliveryOrderConfirmation() {
                   )}
                   <span className="text-sm">
                     {order.paymentMethod === 'credit_card'
-                      ? `Card ending in ${order.cardLast4 || '****'}`
+                      ? order.cardLast4 ? `Card ending in ${order.cardLast4}` : 'Card Payment'
                       : order.fulfillmentMode === 'pickup'
                         ? 'Pay in Store'
-                        : 'Cash on Delivery'}
+                        : 'Pay on Delivery'}
                   </span>
                 </div>
                 <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>

@@ -84,7 +84,7 @@ export default function DeliveryCheckout() {
   });
 
   const { data: paymentModeSetting } = useSetting("payment_mode");
-  const paymentMode = paymentModeSetting?.value || "pay_on_delivery";
+  const paymentMode = paymentModeSetting?.value || "online";
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>(isPickup ? "pay_in_store" : "cash");
 
@@ -93,7 +93,7 @@ export default function DeliveryCheckout() {
       setSelectedPaymentMethod("pay_in_store");
       setSelectedWindowId(null);
     } else if (paymentMode === "pay_on_delivery") {
-      setSelectedPaymentMethod("cash");
+      setSelectedPaymentMethod("pay_on_delivery");
     } else {
       setSelectedPaymentMethod("cash");
     }
@@ -448,7 +448,7 @@ export default function DeliveryCheckout() {
     const deliveryAddress = `${customer!.address}, ${customer!.city}, ${customer!.state} ${customer!.zipCode}`;
 
     const orderPayload: any = {
-      paymentMethod: selectedPaymentMethod === "pay_in_store" ? "cash" : selectedPaymentMethod,
+      paymentMethod: selectedPaymentMethod === "pay_in_store" ? "cash" : selectedPaymentMethod === "pay_on_delivery" ? "cash" : selectedPaymentMethod,
       deliveryAddress,
       sameAsDelivery,
       subtotal: subtotal.toFixed(2),
@@ -735,6 +735,14 @@ export default function DeliveryCheckout() {
                           </div>
                         )}
                       </>
+                    ) : paymentMode === "pay_on_delivery" ? (
+                      <div className="flex items-center space-x-2 p-3 border rounded-lg border-primary bg-primary/5">
+                        <RadioGroupItem value="pay_on_delivery" id="pay_on_delivery" data-testid="radio-payment-delivery" />
+                        <Label htmlFor="pay_on_delivery" className="flex-1 cursor-pointer flex items-center gap-2">
+                          <Banknote className="h-4 w-4" />
+                          Pay on Delivery
+                        </Label>
+                      </div>
                     ) : (
                       <>
                         <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
@@ -744,15 +752,13 @@ export default function DeliveryCheckout() {
                             Cash on Delivery
                           </Label>
                         </div>
-                        {paymentMode === "online" && (
-                          <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
-                            <RadioGroupItem value="credit_card" id="credit_card" data-testid="radio-payment-credit" />
-                            <Label htmlFor="credit_card" className="flex-1 cursor-pointer flex items-center gap-2">
-                              <CreditCard className="h-4 w-4" />
-                              Card Payment
-                            </Label>
-                          </div>
-                        )}
+                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
+                          <RadioGroupItem value="credit_card" id="credit_card" data-testid="radio-payment-credit" />
+                          <Label htmlFor="credit_card" className="flex-1 cursor-pointer flex items-center gap-2">
+                            <CreditCard className="h-4 w-4" />
+                            Card Payment
+                          </Label>
+                        </div>
                       </>
                     )}
                   </div>
@@ -1154,7 +1160,7 @@ export default function DeliveryCheckout() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Payment</span>
                   <span className="font-medium">
-                    {selectedPaymentMethod === "pay_in_store" ? "Pay in Store" : selectedPaymentMethod === "cash" ? "Cash on Delivery" : "Card Payment"}
+                    {selectedPaymentMethod === "pay_in_store" ? "Pay in Store" : selectedPaymentMethod === "pay_on_delivery" ? "Pay on Delivery" : selectedPaymentMethod === "cash" ? "Cash on Delivery" : "Card Payment"}
                   </span>
                 </div>
               </div>

@@ -9,7 +9,7 @@ import { CreditCard, Banknote, Loader2 } from "lucide-react";
 
 export default function PaymentModeSettings() {
   const { toast } = useToast();
-  const [mode, setMode] = useState<string>("pay_on_delivery");
+  const [mode, setMode] = useState<string>("online");
 
   const { data: setting, isLoading } = useQuery<{ key: string; value: string } | null>({
     queryKey: ["/api/settings", "payment_mode"],
