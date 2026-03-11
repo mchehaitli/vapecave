@@ -1587,18 +1587,36 @@ export default function AdminPage() {
             {/* Website Management Section */}
             <TabsContent value="website" className="space-y-4">
               <Tabs defaultValue="brands" className="space-y-4">
-                <div className="overflow-x-auto -mx-4 px-4">
-                  <TabsList className="bg-gray-800 border border-gray-700 w-full md:w-auto mb-2">
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="dashboard">Dashboard</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="products">Products</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="product-categories">Product Categories</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="brands">Brands</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="categories">Brand Categories</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="store-hours">Store Hours</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="blog">Blog</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="newsletter">Newsletter</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="settings">Settings</TabsTrigger>
-                  </TabsList>
+                <div className="flex flex-wrap gap-x-6 gap-y-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold px-1">Content</span>
+                    <TabsList className="bg-gray-800 border border-gray-700">
+                      <TabsTrigger className="text-xs md:text-sm" value="dashboard">Dashboard</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="blog">Blog</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="newsletter">Newsletter</TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold px-1">Products</span>
+                    <TabsList className="bg-gray-800 border border-gray-700">
+                      <TabsTrigger className="text-xs md:text-sm" value="products">Products</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="product-categories">Categories</TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold px-1">Brands</span>
+                    <TabsList className="bg-gray-800 border border-gray-700">
+                      <TabsTrigger className="text-xs md:text-sm" value="brands">Brands</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="categories">Categories</TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold px-1">Config</span>
+                    <TabsList className="bg-gray-800 border border-gray-700">
+                      <TabsTrigger className="text-xs md:text-sm" value="store-hours">Store Hours</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="settings">Settings</TabsTrigger>
+                    </TabsList>
+                  </div>
                 </div>
             
             <TabsContent value="dashboard" className="space-y-4">
@@ -4342,21 +4360,39 @@ export default function AdminPage() {
             {/* Delivery Management Section */}
             <TabsContent value="delivery" className="space-y-4">
               <Tabs value={deliveryActiveTab} onValueChange={setDeliveryActiveTab} className="space-y-4">
-                <div className="overflow-x-auto -mx-4 px-4">
-                  <TabsList className="bg-gray-800 border border-gray-700 w-full md:w-auto mb-2">
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="overview">Overview</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="hero">Home</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="featured">Featured</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="categories">Categories</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="customers">Customers</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="products">Products</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="orders">Orders</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="windows">Windows</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="promotions">Promos</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="restock-demand">Restock Demand</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="email-templates">Email Templates</TabsTrigger>
-                    <TabsTrigger className="flex-1 md:flex-none whitespace-nowrap text-xs md:text-sm" value="settings">Settings</TabsTrigger>
-                  </TabsList>
+                <div className="flex flex-wrap gap-x-6 gap-y-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold px-1">Operations</span>
+                    <TabsList className="bg-gray-800 border border-gray-700">
+                      <TabsTrigger className="text-xs md:text-sm" value="overview">Overview</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="orders">Orders</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="customers">Customers</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="windows">Windows</TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold px-1">Catalog</span>
+                    <TabsList className="bg-gray-800 border border-gray-700">
+                      <TabsTrigger className="text-xs md:text-sm" value="products">Products</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="featured">Featured</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="categories">Categories</TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold px-1">Config</span>
+                    <TabsList className="bg-gray-800 border border-gray-700">
+                      <TabsTrigger className="text-xs md:text-sm" value="promotions">Promos</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="email-templates">Email Templates</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="restock-demand">Restock Demand</TabsTrigger>
+                      <TabsTrigger className="text-xs md:text-sm" value="settings">Settings</TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold px-1">&nbsp;</span>
+                    <TabsList className="bg-gray-800 border border-gray-700">
+                      <TabsTrigger className="text-xs md:text-sm" value="hero">Home</TabsTrigger>
+                    </TabsList>
+                  </div>
                 </div>
 
                 <TabsContent value="overview" className="space-y-4">
