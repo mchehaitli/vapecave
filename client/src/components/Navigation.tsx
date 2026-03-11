@@ -206,7 +206,7 @@ const Navigation = () => {
                     aria-current={location === item.path ? "page" : undefined}
                     className={`block cursor-pointer transition-colors font-medium py-3 px-2 min-h-[44px] flex items-center ${
                       item.highlight
-                        ? 'text-primary font-bold hover:bg-primary/10'
+                        ? 'text-black font-bold hover:text-white/90 hover:bg-black/5'
                         : 'text-black hover:text-white/90 hover:bg-black/5'
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
