@@ -50,3 +50,7 @@ integrations = ["google-mail:1.0.0", "github:1.0.0", "javascript_object_storage:
 FREE_DELIVERY_THRESHOLD = "99"
 DELIVERY_RADIUS_MILES = "15"
 CLOVER_ENVIRONMENT = "production"
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
