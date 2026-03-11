@@ -604,7 +604,7 @@ function ProductCarousel({
               transition={{ duration: 0.2 }}
             >
               {featuredLink ? (
-                <Link href={featuredLink}>{cardContent}</Link>
+                <Link href={featuredLink} className="h-full flex flex-col">{cardContent}</Link>
               ) : (
                 cardContent
               )}
