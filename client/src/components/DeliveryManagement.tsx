@@ -1784,7 +1784,7 @@ export function DeliveryOrdersTab() {
               </div>
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-gray-400">Payment Method:</span>
-                <span className="text-white">{refundOrder?.paymentMethod === 'credit_card' ? 'Credit Card' : 'Cash'}</span>
+                <span className="text-white">{refundOrder?.paymentMethod === 'credit_card' ? 'Card Payment' : refundOrder?.paymentMethod === 'pay_on_delivery' ? 'Card Payment' : 'Cash'}</span>
               </div>
             </div>
             <div>

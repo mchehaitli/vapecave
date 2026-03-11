@@ -248,7 +248,7 @@ export default function DeliveryOrderConfirmation() {
               {/* Payment Info */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {order.paymentMethod === 'credit_card' ? (
+                  {order.paymentMethod === 'credit_card' || order.paymentMethod === 'pay_on_delivery' ? (
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                   ) : (
                     <Banknote className="h-4 w-4 text-muted-foreground" />
@@ -256,9 +256,11 @@ export default function DeliveryOrderConfirmation() {
                   <span className="text-sm">
                     {order.paymentMethod === 'credit_card'
                       ? order.cardLast4 ? `Card ending in ${order.cardLast4}` : 'Card Payment'
-                      : order.fulfillmentMode === 'pickup'
-                        ? 'Pay in Store'
-                        : 'Pay on Delivery'}
+                      : order.paymentMethod === 'pay_on_delivery'
+                        ? 'Card Payment'
+                        : order.fulfillmentMode === 'pickup'
+                          ? 'Pay in Store'
+                          : 'Cash on Delivery'}
                   </span>
                 </div>
                 <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>

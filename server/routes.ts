@@ -4278,7 +4278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let cloverChargeId = null;
       let cardLast4 = null;
       let cardBrand = null;
-      let paymentStatus = paymentMethod === 'cash' ? 'pending' : 'pending';
+      let paymentStatus = (paymentMethod === 'cash' || paymentMethod === 'pay_on_delivery') ? 'pending' : 'pending';
 
       // Process Clover payment if credit card selected
       if (paymentMethod === 'credit_card' && paymentToken) {
@@ -4398,8 +4398,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("[Order] Error initiating Clover stock push:", stockPushError);
       }
 
-      // Create Clover cash order for cash/pay_in_store payments
-      if ((paymentMethod === 'cash' || paymentMethod === 'pay_in_store') && process.env.CLOVER_API_TOKEN && process.env.CLOVER_MERCHANT_ID) {
+      // Create Clover cash order for cash/pay_on_delivery/pay_in_store payments
+      if ((paymentMethod === 'cash' || paymentMethod === 'pay_on_delivery') && process.env.CLOVER_API_TOKEN && process.env.CLOVER_MERCHANT_ID) {
         try {
           const cloverService = new CloverService();
           const cashOrderItems = cartItemsWithProducts.map(item => ({

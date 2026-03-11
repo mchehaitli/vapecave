@@ -621,7 +621,7 @@ export const sendOrderConfirmationEmail = async (data: OrderConfirmationEmailDat
   ${data.deliveryDate ? `<div><strong>Delivery Date:</strong> ${data.deliveryDate}</div>` : ''}
   ${data.deliveryTime ? `<div><strong>Delivery Time:</strong> ${data.deliveryTime}</div>` : ''}`
   }
-  <div style="margin-top:6px;"><strong>Payment:</strong> ${data.paymentMethod === 'credit_card' ? 'Card Payment' : isPickup ? 'Pay in Store' : 'Pay on Delivery'}</div>
+  <div style="margin-top:6px;"><strong>Payment:</strong> ${data.paymentMethod === 'credit_card' ? 'Card Payment' : data.paymentMethod === 'pay_on_delivery' ? 'Card Payment' : isPickup ? 'Pay in Store' : 'Cash on Delivery'}</div>
   ${data.notes ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #ddd;"><strong>Special Instructions:</strong> ${data.notes}</div>` : ''}
 </div>
 <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px;">
@@ -747,7 +747,7 @@ Email: ${data.customerEmail}
 Address: ${data.deliveryAddress}
 ${data.deliveryDate ? `Date: ${data.deliveryDate}` : ''}
 ${data.deliveryTime ? `Time: ${data.deliveryTime}` : ''}
-Payment: ${data.paymentMethod === 'credit_card' ? 'Card Payment' : data.fulfillmentMode === 'pickup' ? 'Pay in Store' : 'Pay on Delivery'}
+Payment: ${data.paymentMethod === 'credit_card' ? 'Card Payment' : data.paymentMethod === 'pay_on_delivery' ? 'Card Payment' : data.fulfillmentMode === 'pickup' ? 'Pay in Store' : 'Cash on Delivery'}
 
 Items:
 ${itemsText}
@@ -766,7 +766,7 @@ ${data.notes ? `\nNotes: ${data.notes}` : ''}
 <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; background-color: #1a1a1a; color: #f5f5f5; border-radius: 10px;">
   <div style="background: linear-gradient(135deg, #ff7100, #ff9a00); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
     <h2 style="margin: 0; color: #000;">🚗 NEW DELIVERY ORDER #${data.orderId}</h2>
-    <p style="margin: 5px 0 0; color: #1a1a1a; font-weight: bold;">Total: $${data.total} · ${data.paymentMethod === 'credit_card' ? 'Card Payment' : data.fulfillmentMode === 'pickup' ? 'Pay in Store' : 'Pay on Delivery'}</p>
+    <p style="margin: 5px 0 0; color: #1a1a1a; font-weight: bold;">Total: $${data.total} · ${data.paymentMethod === 'credit_card' ? 'Card Payment' : data.paymentMethod === 'pay_on_delivery' ? 'Card Payment' : data.fulfillmentMode === 'pickup' ? 'Pay in Store' : 'Cash on Delivery'}</p>
   </div>
   
   <div style="background-color: #2a2a2a; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
@@ -829,7 +829,7 @@ ${data.notes ? `\nNotes: ${data.notes}` : ''}
       </tr>
     </table>
     <div style="margin-top: 10px; padding: 8px 10px; background-color: #1a1a1a; border-radius: 4px; font-size: 13px; color: #ccc;">
-      <strong>Payment:</strong> ${data.paymentMethod}
+      <strong>Payment:</strong> ${data.paymentMethod === 'credit_card' ? 'Card Payment' : data.paymentMethod === 'pay_on_delivery' ? 'Card Payment' : data.paymentMethod === 'cash' ? 'Cash' : data.paymentMethod}
     </div>
   </div>
 

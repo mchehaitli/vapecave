@@ -85,7 +85,7 @@ export default function PaymentModeSettings() {
             <Banknote className={`h-6 w-6 mb-2 ${mode === "pay_on_delivery" ? "text-orange-400" : "text-gray-400"}`} />
             <Label className="text-sm font-semibold block cursor-pointer">Pay on Delivery</Label>
             <p className="text-xs text-gray-400 mt-1">
-              Customers pay cash when the order is delivered. Card payment option is hidden.
+              Driver collects card payment on delivery using handheld terminal. Online checkout is hidden.
             </p>
           </button>
           <button
