@@ -546,11 +546,23 @@ export const sendOrderStatusEmail = async (data: OrderStatusEmailData): Promise<
     bodyText: `Hi [CUSTOMER_NAME],\n\n[STATUS_MESSAGE]\n\nThank you for choosing Vape Cave Smoke & Stuff!`,
   };
   const template = await getTemplate('order_status_update', fallback);
+
+  const paymentLabel = data.paymentMethod
+    ? (data.paymentMethod === 'credit_card'
+        ? (data.cardLast4 ? `Card ending in ${data.cardLast4}` : 'Card Payment')
+        : data.paymentMethod === 'pay_on_delivery'
+          ? 'Card Payment'
+          : data.fulfillmentMode === 'pickup'
+            ? 'Pay in Store'
+            : 'Cash on Delivery')
+    : '';
+
   const processedBody = renderTemplate(template.bodyText, {
     CUSTOMER_NAME: data.fullName,
     ORDER_ID:      String(data.orderId),
     STATUS_TITLE:  statusInfo.title,
     STATUS_MESSAGE: statusInfo.message,
+    PAYMENT_METHOD: paymentLabel,
   });
   const subject = renderTemplate(template.subject, {
     ORDER_ID:     String(data.orderId),
@@ -564,6 +576,7 @@ export const sendOrderStatusEmail = async (data: OrderStatusEmailData): Promise<
   <div><strong>Total:</strong> $${data.total}</div>
   ${data.deliveryDate ? `<div><strong>Delivery Date:</strong> ${data.deliveryDate}</div>` : ''}
   ${data.deliveryTime ? `<div><strong>Delivery Time:</strong> ${data.deliveryTime}</div>` : ''}
+  ${paymentLabel ? `<div><strong>Payment:</strong> ${paymentLabel}</div>` : ''}
   ${data.refundAmount ? `<div><strong>Refund Amount:</strong> $${data.refundAmount}</div>` : ''}
   ${data.refundReason ? `<div><strong>Refund Reason:</strong> ${data.refundReason}</div>` : ''}
 </div>`;

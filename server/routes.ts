@@ -4603,7 +4603,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/delivery/orders', isAdmin, async (req, res) => {
     try {
       const orders = await storage.getAllDeliveryOrders();
-      res.json(orders);
+      const ordersWithDisplay = orders.map(order => ({
+        ...order,
+        paymentMethodDisplay: getPaymentDisplayLabel(order.paymentMethod, order.fulfillmentMode, order.cardLast4),
+      }));
+      res.json(ordersWithDisplay);
     } catch (error) {
       console.error("Error fetching orders:", error);
       res.status(500).json({ error: "Failed to fetch orders" });

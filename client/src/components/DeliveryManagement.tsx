@@ -45,6 +45,7 @@ interface DeliveryOrder {
   status: string;
   paymentStatus?: string;
   paymentMethod?: string;
+  paymentMethodDisplay?: string;
   deliveryNotes?: string;
   createdAt: string;
   customerName?: string;
@@ -1610,6 +1611,9 @@ export function DeliveryOrdersTab() {
                         {order.paymentStatus === "refunded" && order.refundAmount && (
                           <span className="text-xs text-purple-400 ml-1">(${order.refundAmount})</span>
                         )}
+                        {order.paymentMethodDisplay && (
+                          <div className="text-xs text-gray-400 mt-0.5">{order.paymentMethodDisplay}</div>
+                        )}
                       </TableCell>
                       <TableCell className="text-gray-400 text-sm">
                         {new Date(order.createdAt).toLocaleString('en-US', { timeZone: 'America/Chicago', month: 'numeric', day: 'numeric', year: '2-digit', hour: 'numeric', minute: '2-digit', hour12: true })}
@@ -1784,7 +1788,7 @@ export function DeliveryOrdersTab() {
               </div>
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-gray-400">Payment Method:</span>
-                <span className="text-white">{refundOrder?.paymentMethod === 'credit_card' ? 'Card Payment' : refundOrder?.paymentMethod === 'pay_on_delivery' ? 'Card Payment' : 'Cash'}</span>
+                <span className="text-white">{refundOrder?.paymentMethodDisplay || (refundOrder?.paymentMethod === 'credit_card' ? 'Card Payment' : refundOrder?.paymentMethod === 'pay_on_delivery' ? 'Card Payment' : 'Cash')}</span>
               </div>
             </div>
             <div>
