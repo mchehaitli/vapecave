@@ -152,6 +152,7 @@ export default function DeliveryCheckout() {
       if (!response.ok) throw new Error('Failed to fetch delivery windows');
       return response.json();
     },
+    refetchInterval: 60000,
   });
 
   // Fetch delivery fee settings with actual distance
@@ -645,7 +646,7 @@ export default function DeliveryCheckout() {
                         {Object.entries(windowsByDate).map(([date, windows]) => (
                           <div key={date} className="space-y-2">
                             <h3 className="font-semibold text-sm text-muted-foreground">
-                              {new Date(date).toLocaleDateString('en-US', {
+                              {new Date(date + 'T12:00:00').toLocaleDateString('en-US', {
                                 weekday: 'long',
                                 month: 'long',
                                 day: 'numeric',

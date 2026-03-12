@@ -2781,7 +2781,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       });
       
-      res.json(availableWindows);
+      res.set('Cache-Control', 'no-store').json(availableWindows);
     } catch (error) {
       console.error("Error fetching delivery windows:", error);
       res.status(500).json({ error: "Failed to fetch delivery windows" });
