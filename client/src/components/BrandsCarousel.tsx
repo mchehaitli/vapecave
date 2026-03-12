@@ -49,7 +49,7 @@ const BrandsCarousel = ({
   }
 
   const currentBrand = brands[currentIndex];
-  const altText = `${currentBrand.name} – ${category} brand at Vape Cave Frisco`;
+  const altText = `${currentBrand.name} ${category} available at Vape Cave Frisco TX`;
   const hasImage = !!currentBrand.logo && currentBrand.logo !== '/brand-logos/placeholder.svg' && !failedImages.has(currentIndex);
 
   return (
@@ -92,6 +92,7 @@ const BrandsCarousel = ({
                 <img
                   src={currentBrand.logo!}
                   alt={altText}
+                  title={currentBrand.name}
                   className="max-h-[100px] max-w-full object-contain mx-auto"
                   loading="lazy"
                   onError={() => handleImageError(currentIndex)}
@@ -101,6 +102,7 @@ const BrandsCarousel = ({
                   <img
                     src="/brand-logos/placeholder.svg"
                     alt={altText}
+                    title={currentBrand.name}
                     className="max-h-[60px] max-w-full object-contain mx-auto opacity-50"
                     loading="lazy"
                   />
