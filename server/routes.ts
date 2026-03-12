@@ -45,6 +45,7 @@ import sharp from "sharp";
 import path from "path";
 import fs from "fs";
 import { registerObjectStorageRoutes, ObjectStorageService } from "./replit_integrations/object_storage";
+import { getNowCT, getTodayCT, formatDateStrCT } from "./timezone";
 
 // Add userId and deliveryCustomerId to session
 declare module 'express-session' {
@@ -2726,38 +2727,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/delivery/windows', async (req, res) => {
     try {
       const { date } = req.query;
-      const now = new Date();
-      const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000);
+      const nowCT = getNowCT();
+      const oneHourFromNowCT = new Date(nowCT.getTime() + 60 * 60 * 1000);
       
-      // Calculate date range: today through 4 days ahead (5 days total)
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const fiveDaysAhead = new Date(today);
-      fiveDaysAhead.setDate(fiveDaysAhead.getDate() + 4);
+      const todayCT = getTodayCT();
+      const fiveDaysAhead = new Date(todayCT);
+      fiveDaysAhead.setDate(todayCT.getDate() + 4);
       
-      // Format dates as YYYY-MM-DD for comparison
-      const formatDateStr = (d: Date) => {
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      };
-      
-      const todayStr = formatDateStr(today);
-      const fiveDaysAheadStr = formatDateStr(fiveDaysAhead);
+      const todayStr = formatDateStrCT(todayCT);
+      const fiveDaysAheadStr = formatDateStrCT(fiveDaysAhead);
       
       let windows = date 
         ? await storage.getDeliveryWindowsByDate(date as string)
         : await storage.getAllDeliveryWindows();
       
-      // Filter to only include windows within the next 5 days
       windows = windows.filter(window => {
         const windowDateStr = window.date;
         return windowDateStr >= todayStr && windowDateStr <= fiveDaysAheadStr;
       });
       
-      // Helper function to parse time strings like "05:00 PM" or "14:00"
       const parseTimeString = (timeStr: string): { hours: number; minutes: number } => {
-        // Check for AM/PM format
         const ampmMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
         if (ampmMatch) {
           let hours = parseInt(ampmMatch[1], 10);
@@ -2773,20 +2762,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return { hours, minutes };
         }
         
-        // Fall back to 24-hour format
         const parts = timeStr.split(':').map(Number);
         return { hours: parts[0] || 0, minutes: parts[1] || 0 };
       };
       
       const availableWindows = windows.map(window => {
-        // Parse the window date and start time to create a full datetime
         const [year, month, day] = window.date.split('-').map(Number);
-        const windowDate = new Date(year, month - 1, day);
+        const windowDateCT = new Date(year, month - 1, day);
         const { hours, minutes } = parseTimeString(window.startTime);
-        windowDate.setHours(hours, minutes, 0, 0);
+        windowDateCT.setHours(hours, minutes, 0, 0);
         
-        // Check if the window start time is more than 1 hour away
-        const isAvailable = windowDate > oneHourFromNow;
+        const isAvailable = windowDateCT > oneHourFromNowCT;
         
         return {
           ...window,

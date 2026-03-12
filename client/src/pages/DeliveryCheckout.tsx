@@ -539,9 +539,8 @@ export default function DeliveryCheckout() {
     );
   }
 
-  // Group windows by date
   const windowsByDate = deliveryWindows
-    .filter(w => w.enabled && w.currentBookings < w.capacity)
+    .filter(w => w.enabled)
     .reduce((acc, window) => {
       if (!acc[window.date]) {
         acc[window.date] = [];
@@ -549,6 +548,15 @@ export default function DeliveryCheckout() {
       acc[window.date].push(window);
       return acc;
     }, {} as Record<string, DeliveryWindow[]>);
+
+  Object.keys(windowsByDate).forEach(date => {
+    const allClosed = windowsByDate[date].every(
+      w => w.isClosed || w.currentBookings >= w.capacity
+    );
+    if (allClosed) {
+      delete windowsByDate[date];
+    }
+  });
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

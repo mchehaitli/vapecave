@@ -33,6 +33,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import * as bcrypt from "bcryptjs";
 import * as dotenv from "dotenv";
+import { getTodayCT, formatDateStrCT } from "./timezone";
 
 dotenv.config();
 
@@ -1557,18 +1558,14 @@ export class DbStorage implements IStorage {
       return { created, skipped };
     }
     
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getTodayCT();
     
     for (let dayOffset = 0; dayOffset <= daysAhead; dayOffset++) {
       const targetDate = new Date(today);
       targetDate.setDate(today.getDate() + dayOffset);
       const dayOfWeek = targetDate.getDay();
       
-      const year = targetDate.getFullYear();
-      const month = String(targetDate.getMonth() + 1).padStart(2, '0');
-      const day = String(targetDate.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
+      const dateStr = formatDateStrCT(targetDate);
       
       const templatesForDay = templates.filter(t => t.dayOfWeek === dayOfWeek && t.enabled);
       
@@ -3883,18 +3880,14 @@ export class MemStorage implements IStorage {
       return { created, skipped };
     }
     
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getTodayCT();
     
     for (let dayOffset = 0; dayOffset <= daysAhead; dayOffset++) {
       const targetDate = new Date(today);
       targetDate.setDate(today.getDate() + dayOffset);
       const dayOfWeek = targetDate.getDay();
       
-      const year = targetDate.getFullYear();
-      const month = String(targetDate.getMonth() + 1).padStart(2, '0');
-      const day = String(targetDate.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
+      const dateStr = formatDateStrCT(targetDate);
       
       const templatesForDay = templates.filter(t => t.dayOfWeek === dayOfWeek && t.enabled);
       
