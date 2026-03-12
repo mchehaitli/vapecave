@@ -3,7 +3,6 @@ import { memo, lazy, Suspense } from 'react';
 // Optimized bundle splitting for heavy components
 export const LazyBrandsCarousel = lazy(() => import('./BrandsCarousel'));
 export const LazyGoogleMapsIntegration = lazy(() => import('./GoogleMapsIntegration'));
-export const LazyFloatingNewsletter = lazy(() => import('./FloatingNewsletter'));
 
 // Performance optimized component wrapper
 export const withPerformanceOptimization = <T extends Record<string, any>>(
