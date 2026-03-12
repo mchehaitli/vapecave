@@ -34,8 +34,7 @@ interface LazyBrandsCarouselProps {
   category: string;
   brands: Array<{
     name: string;
-    image: string;
-    description: string;
+    logo: string | null;
   }>;
   intervalMs?: number;
   bgClass?: string;

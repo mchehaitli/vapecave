@@ -1,25 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export interface ApiBrand {
-  id: number;
-  categoryId: number;
-  name: string;
-  image: string;
-  description: string;
-  displayOrder?: number;
-  createdAt?: string;
-}
-
 interface Brand {
   name: string;
-  image: string;
-  description: string;
+  logo: string | null;
 }
 
 interface BrandsCarouselProps {
   category: string;
-  brands: Brand[] | ApiBrand[];
+  brands: Brand[];
   intervalMs?: number;
   bgClass?: string;
   debug?: boolean;
@@ -61,7 +50,7 @@ const BrandsCarousel = ({
 
   const currentBrand = brands[currentIndex];
   const altText = `${currentBrand.name} – ${category} brand at Vape Cave Frisco`;
-  const hasImage = !!currentBrand.image && currentBrand.image !== '/brand-logos/placeholder.svg' && !failedImages.has(currentIndex);
+  const hasImage = !!currentBrand.logo && currentBrand.logo !== '/brand-logos/placeholder.svg' && !failedImages.has(currentIndex);
 
   return (
     <motion.div 
@@ -101,7 +90,7 @@ const BrandsCarousel = ({
             >
               {hasImage ? (
                 <img
-                  src={currentBrand.image}
+                  src={currentBrand.logo!}
                   alt={altText}
                   className="max-h-[100px] max-w-full object-contain mx-auto"
                   loading="lazy"

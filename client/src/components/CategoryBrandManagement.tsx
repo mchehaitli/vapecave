@@ -62,6 +62,7 @@ interface DeliveryCategory {
   image: string | null;
   displayOrder: number;
   isActive: boolean;
+  showOnHomepage?: boolean;
   featuredProductIds?: number[];
   mappedCategories?: string[];
 }
@@ -377,6 +378,7 @@ function SortableCategory({
   onToggleProductLine,
   onFeaturedBrand,
   onFeaturedProductLine,
+  onToggleHomepage,
 }: {
   category: DeliveryCategory;
   isExpanded: boolean;
@@ -400,6 +402,7 @@ function SortableCategory({
   onFeaturedProductLine: (productLine: DeliveryProductLine) => void;
   expandedProductLines: Set<number>;
   onToggleProductLine: (id: number) => void;
+  onToggleHomepage: (category: DeliveryCategory) => void;
 }) {
   const {
     attributes,
@@ -448,6 +451,14 @@ function SortableCategory({
         </button>
         <Folder size={18} className="text-orange-400" />
         <span className="flex-1 font-medium">{category.name}</span>
+        <div className="flex items-center gap-1.5" title="Show on Homepage">
+          <Switch
+            checked={!!category.showOnHomepage}
+            onCheckedChange={() => onToggleHomepage(category)}
+            className="scale-75"
+          />
+          <span className="text-xs text-gray-400">Homepage</span>
+        </div>
         <span className={`text-xs px-2 py-1 rounded ${category.isActive ? 'bg-green-900/50 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
           {category.isActive ? 'Active' : 'Inactive'}
         </span>
@@ -746,6 +757,22 @@ export function CategoryBrandManagement() {
     },
     onError: (error: Error) => {
       toast({ title: "Error updating category", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const toggleHomepageMutation = useMutation({
+    mutationFn: async (category: DeliveryCategory) => {
+      return apiRequest('PATCH', `/api/admin/delivery/categories/${category.id}`, {
+        showOnHomepage: !category.showOnHomepage,
+      });
+    },
+    onSuccess: () => {
+      invalidateAllCategoryKeys();
+      queryClient.invalidateQueries({ queryKey: ['/api/featured-brands'] });
+      toast({ title: "Homepage visibility updated" });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error updating homepage visibility", description: error.message, variant: "destructive" });
     }
   });
 
@@ -1217,6 +1244,7 @@ export function CategoryBrandManagement() {
                 onFeaturedProductLine={(productLine) => openFeaturedDialog('productLine', productLine.id, productLine.name, productLine.featuredProductIds || [])}
                 expandedProductLines={expandedProductLines}
                 onToggleProductLine={toggleProductLineExpanded}
+                onToggleHomepage={(cat) => toggleHomepageMutation.mutate(cat)}
               />
             ))}
           </SortableContext>

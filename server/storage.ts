@@ -230,6 +230,7 @@ export interface IStorage {
   // Delivery Categories operations
   getAllDeliveryCategories(): Promise<DeliveryCategory[]>;
   getActiveDeliveryCategories(): Promise<DeliveryCategory[]>;
+  getHomepageDeliveryCategories(): Promise<DeliveryCategory[]>;
   getDeliveryCategory(id: number): Promise<DeliveryCategory | undefined>;
   getDeliveryCategoryBySlug(slug: string): Promise<DeliveryCategory | undefined>;
   createDeliveryCategory(category: InsertDeliveryCategory): Promise<DeliveryCategory>;
@@ -2055,6 +2056,12 @@ export class DbStorage implements IStorage {
   async getActiveDeliveryCategories(): Promise<DeliveryCategory[]> {
     return db.select().from(deliveryCategories)
       .where(eq(deliveryCategories.isActive, true))
+      .orderBy(asc(deliveryCategories.displayOrder));
+  }
+
+  async getHomepageDeliveryCategories(): Promise<DeliveryCategory[]> {
+    return db.select().from(deliveryCategories)
+      .where(and(eq(deliveryCategories.isActive, true), eq(deliveryCategories.showOnHomepage, true)))
       .orderBy(asc(deliveryCategories.displayOrder));
   }
 
@@ -4081,6 +4088,10 @@ export class MemStorage implements IStorage {
   }
 
   async getActiveDeliveryCategories(): Promise<DeliveryCategory[]> {
+    return [];
+  }
+
+  async getHomepageDeliveryCategories(): Promise<DeliveryCategory[]> {
     return [];
   }
 

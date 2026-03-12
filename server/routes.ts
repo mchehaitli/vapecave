@@ -664,19 +664,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Public API to get all visible brand categories with their brands
   app.get('/api/featured-brands', async (req, res) => {
     try {
-      const categories = await storage.getAllBrandCategories();
+      const categories = await storage.getHomepageDeliveryCategories();
       
-      // Get brands for each category and map them together
-      const results = await Promise.all(
+      const allResults = await Promise.all(
         categories.map(async (category) => {
-          const brands = await storage.getBrandsByCategory(category.id);
+          const brands = await storage.getDeliveryBrandsByCategory(category.id);
+          const activeBrands = brands.filter(b => b.isActive);
           return {
-            ...category,
-            brands
+            id: category.id,
+            category: category.name,
+            brands: activeBrands.map(b => ({
+              name: b.name,
+              logo: b.logo,
+            })),
           };
         })
       );
       
+      const results = allResults.filter(r => r.brands.length > 0);
       res.json(results);
     } catch (error) {
       console.error("Get featured brands error:", error);

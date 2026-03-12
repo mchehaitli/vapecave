@@ -658,12 +658,11 @@ const HomePage = () => {
                   <LazyBrandsCarousel 
                     category={category.category} 
                     brands={category.brands.map(brand => ({
-                      ...brand,
-                      // Use placeholder image if brand has no image
-                      image: brand.image || `/brand-logos/placeholder.svg`
+                      name: brand.name,
+                      logo: brand.logo || null,
                     }))}
-                    intervalMs={category.intervalMs || 5000}
-                    bgClass={category.bgClass || "bg-zinc-800"}
+                    intervalMs={5000}
+                    bgClass="bg-zinc-800"
                   />
                 </motion.div>
               )))
