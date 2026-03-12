@@ -685,6 +685,72 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+      {/* Latest from the Blog - Internal linking for SEO */}
+      <section className="py-16 bg-background relative overflow-hidden" id="blog-highlights">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <motion.div 
+            className="text-center mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-3 text-foreground font-['Poppins']">
+              Vape Cave <span className="text-primary">Blog</span>
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Texas vaping guides, product reviews, and SB 2024 compliance tips
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { title: "ALP vs ZYN vs VELO: Nicotine Pouch Comparison (2026)", slug: "alp-vs-zyn-velo-texas-2025", desc: "Compare the top nicotine pouches available in Texas. Updated for 2026 with flavor rankings and local availability." },
+              { title: "Texas Vape Ban: What You Need to Know", slug: "texas-vape-ban-2025-what-you-need-to-know", desc: "Everything about SB 2024, which vapes are banned, and how to find compliant products in Frisco." },
+              { title: "How to Spot a Fake Foger Switch Pro 30K", slug: "spot-fake-foger-switch-pro-30k-texas", desc: "Protect yourself from counterfeit vapes with our hardware verification guide for Texas vapers." },
+              { title: "Top 5 Disposable Vapes in Frisco (2026)", slug: "top-5-disposable-vapes-frisco-2026", desc: "The most popular SB 2024-compliant disposables trending at Vape Cave right now." },
+              { title: "Geek Bar vs RAZ in Texas", slug: "geek-bar-vs-raz-texas-2025", desc: "A head-to-head comparison of two of the most popular disposable brands available in Frisco." },
+              { title: "38 Facts About Texas Vaping & SB 2024", slug: "", desc: "Get clear answers about the vape ban, legal disposables, and purchasing rules in our comprehensive FAQ.", link: "/faq" },
+            ].map((post, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+              >
+                <Link href={post.link || `/blog/${post.slug}`}>
+                  <div className="bg-card border border-border rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-[0_0_15px_rgba(255,113,0,0.15)] transition-all duration-300 cursor-pointer group">
+                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors mb-2 font-['Poppins']">
+                      {post.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      {post.desc}
+                    </p>
+                    <span className="inline-block mt-3 text-primary text-sm font-semibold group-hover:translate-x-1 transition-transform">
+                      Read More →
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div 
+            className="text-center mt-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <Link href="/blog">
+              <span className="inline-flex items-center border-2 border-primary text-foreground px-8 py-3 rounded-lg font-bold transition-all hover:shadow-[0_0_20px_rgba(255,113,0,0.6)] hover:bg-primary/10 cursor-pointer">
+                View All Blog Posts
+              </span>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
       {/* Age Verification Notice */}
       <section className="py-14 bg-background relative overflow-hidden" id="age-verification">
         {/* Animated background glow effects */}
@@ -765,72 +831,6 @@ const HomePage = () => {
             >
               We strictly adhere to all local, state, and federal regulations regarding the sale of vaping products.
             </motion.p>
-          </motion.div>
-        </div>
-      </section>
-      {/* Latest from the Blog - Internal linking for SEO */}
-      <section className="py-16 bg-background relative overflow-hidden" id="blog-highlights">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <motion.div 
-            className="text-center mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-3 text-foreground font-['Poppins']">
-              Vape Cave <span className="text-primary">Blog</span>
-            </h2>
-            <p className="text-muted-foreground text-lg">
-              Texas vaping guides, product reviews, and SB 2024 compliance tips
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { title: "ALP vs ZYN vs VELO: Nicotine Pouch Comparison (2026)", slug: "alp-vs-zyn-velo-texas-2025", desc: "Compare the top nicotine pouches available in Texas. Updated for 2026 with flavor rankings and local availability." },
-              { title: "Texas Vape Ban: What You Need to Know", slug: "texas-vape-ban-2025-what-you-need-to-know", desc: "Everything about SB 2024, which vapes are banned, and how to find compliant products in Frisco." },
-              { title: "How to Spot a Fake Foger Switch Pro 30K", slug: "spot-fake-foger-switch-pro-30k-texas", desc: "Protect yourself from counterfeit vapes with our hardware verification guide for Texas vapers." },
-              { title: "Top 5 Disposable Vapes in Frisco (2026)", slug: "top-5-disposable-vapes-frisco-2026", desc: "The most popular SB 2024-compliant disposables trending at Vape Cave right now." },
-              { title: "Geek Bar vs RAZ in Texas", slug: "geek-bar-vs-raz-texas-2025", desc: "A head-to-head comparison of two of the most popular disposable brands available in Frisco." },
-              { title: "38 Facts About Texas Vaping & SB 2024", slug: "", desc: "Get clear answers about the vape ban, legal disposables, and purchasing rules in our comprehensive FAQ.", link: "/faq" },
-            ].map((post, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-              >
-                <Link href={post.link || `/blog/${post.slug}`}>
-                  <div className="bg-card border border-border rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-[0_0_15px_rgba(255,113,0,0.15)] transition-all duration-300 cursor-pointer group">
-                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors mb-2 font-['Poppins']">
-                      {post.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {post.desc}
-                    </p>
-                    <span className="inline-block mt-3 text-primary text-sm font-semibold group-hover:translate-x-1 transition-transform">
-                      Read More →
-                    </span>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div 
-            className="text-center mt-8"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-          >
-            <Link href="/blog">
-              <span className="inline-flex items-center border-2 border-primary text-foreground px-8 py-3 rounded-lg font-bold transition-all hover:shadow-[0_0_20px_rgba(255,113,0,0.6)] hover:bg-primary/10 cursor-pointer">
-                View All Blog Posts
-              </span>
-            </Link>
           </motion.div>
         </div>
       </section>
