@@ -2,7 +2,7 @@ const GOOGLE_MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Vape+Ca
 
 export default function MobileStickyBar() {
   return (
-    <div className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-background/95 backdrop-blur-sm border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.3)]">
+    <div className="fixed bottom-0 inset-x-0 z-50 md:hidden">
       <div className="flex">
         <a
           href={GOOGLE_MAPS_URL}

@@ -203,7 +203,7 @@ function App() {
           <AccessibilityEnhancer />
           <BundleAnalyzer />
 
-          <main id="main-content" className="pb-12 md:pb-0">
+          <main id="main-content" className="md:pb-0">
             <FulfillmentProvider>
               <Router />
             </FulfillmentProvider>
