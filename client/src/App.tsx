@@ -49,6 +49,7 @@ import { usePerformanceOptimizations } from "@/hooks/usePerformanceOptimizations
 import CriticalCSS from "@/components/CriticalCSS";
 import { preloadCriticalResources } from "@/components/PerformanceBundleOptimizer";
 import BundleAnalyzer from "@/components/BundleAnalyzer";
+import MobileStickyBar from "@/components/MobileStickyBar";
 // Lazy load heavy components to improve performance
 import {
   FriscoLocationPage,
@@ -202,11 +203,12 @@ function App() {
           <AccessibilityEnhancer />
           <BundleAnalyzer />
 
-          <main id="main-content">
+          <main id="main-content" className="pb-14 md:pb-0">
             <FulfillmentProvider>
               <Router />
             </FulfillmentProvider>
           </main>
+          <MobileStickyBar />
           <Toaster />
           {showAgeVerification && <AgeVerificationModal onVerify={handleVerifyAge} />}
         </TooltipProvider>

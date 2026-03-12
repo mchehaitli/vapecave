@@ -104,24 +104,24 @@ export function GlobalFooter() {
 
           <div className="text-center md:text-left">
             <h3 className="text-foreground font-semibold mb-4 text-sm uppercase tracking-wider">Contact</h3>
-            <ul className="space-y-3">
-              <li className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground text-sm">
+            <address className="not-italic space-y-3">
+              <div className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground text-sm">
                 <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
-                <span>Frisco, TX</span>
-              </li>
-              <li className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground text-sm">
+                <span>6958 Main St, Suite 200, Frisco, TX 75033</span>
+              </div>
+              <div className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground text-sm">
                 <Phone className="w-4 h-4 text-primary flex-shrink-0" />
                 <a href="tel:+14692940061" className="hover:text-primary transition-colors duration-200" onClick={() => (window as any).gtag?.('event', 'click_phone')}>
                   (469) 294-0061
                 </a>
-              </li>
-              <li className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground text-sm">
+              </div>
+              <div className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground text-sm">
                 <Mail className="w-4 h-4 text-primary flex-shrink-0" />
-                <a href="mailto:info@vapecavetx.com" className="hover:text-primary transition-colors duration-200">
-                  info@vapecavetx.com
+                <a href="mailto:vapecavetx@gmail.com" className="hover:text-primary transition-colors duration-200">
+                  vapecavetx@gmail.com
                 </a>
-              </li>
-            </ul>
+              </div>
+            </address>
           </div>
         </div>
 
