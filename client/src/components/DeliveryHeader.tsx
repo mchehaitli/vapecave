@@ -296,7 +296,7 @@ export function DeliveryHeader({
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative h-8 w-8 sm:h-10 sm:w-10"
+                className="relative h-8 w-8 sm:h-10 sm:w-10 mr-1 sm:mr-0"
                 onClick={() => setLocation("/delivery/cart")}
                 data-testid="header-cart-button"
               >

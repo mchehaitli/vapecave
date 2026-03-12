@@ -736,13 +736,22 @@ export default function DeliveryCheckout() {
                         )}
                       </>
                     ) : paymentMode === "pay_on_delivery" ? (
-                      <div className="flex items-center space-x-2 p-3 border rounded-lg border-primary bg-primary/5">
-                        <RadioGroupItem value="pay_on_delivery" id="pay_on_delivery" data-testid="radio-payment-delivery" />
-                        <Label htmlFor="pay_on_delivery" className="flex-1 cursor-pointer flex items-center gap-2">
-                          <CreditCard className="h-4 w-4" />
-                          Card Payment on Delivery
-                        </Label>
-                      </div>
+                      <>
+                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
+                          <RadioGroupItem value="pay_on_delivery" id="pay_on_delivery" data-testid="radio-payment-delivery" />
+                          <Label htmlFor="pay_on_delivery" className="flex-1 cursor-pointer flex items-center gap-2">
+                            <CreditCard className="h-4 w-4" />
+                            Card Payment on Delivery
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
+                          <RadioGroupItem value="cash" id="cash_on_delivery" data-testid="radio-payment-cash" />
+                          <Label htmlFor="cash_on_delivery" className="flex-1 cursor-pointer flex items-center gap-2">
+                            <Banknote className="h-4 w-4" />
+                            Cash on Delivery
+                          </Label>
+                        </div>
+                      </>
                     ) : (
                       <>
                         <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent">
