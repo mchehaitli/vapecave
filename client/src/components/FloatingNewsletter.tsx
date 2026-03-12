@@ -81,7 +81,7 @@ export function FloatingNewsletter() {
   if (!isVisible) return null;
   
   return (
-    <div className="fixed bottom-5 right-5 z-50 animate-in fade-in slide-in-from-bottom-5 duration-300">
+    <div className="fixed bottom-[72px] md:bottom-5 right-5 z-50 animate-in fade-in slide-in-from-bottom-5 duration-300">
       <Card className="w-72 sm:w-80 shadow-lg border-primary/20 bg-background/80 backdrop-blur-sm">
         <CardHeader className="pb-1 pt-3 px-4 relative">
           <Button 
