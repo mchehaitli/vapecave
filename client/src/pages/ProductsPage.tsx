@@ -95,7 +95,7 @@ function ProductCard({ product, brandName }: { product: DeliveryProduct; brandNa
             <button
               onClick={() => notifyMutation.mutate()}
               disabled={notifyMutation.isPending}
-              className="flex items-center justify-center gap-1 w-full text-center bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 text-[10px] sm:text-[11px] font-semibold py-1.5 px-2 rounded-lg transition-colors cursor-pointer disabled:opacity-60"
+              className="flex items-center justify-center gap-1 w-full text-center bg-primary hover:bg-primary/90 text-black text-[10px] sm:text-[11px] font-semibold py-1.5 px-2 rounded-lg transition-colors cursor-pointer disabled:opacity-60 shadow-[0_0_10px_rgba(255,113,0,0.4)]"
             >
               <Bell className="w-3 h-3" />
               {notifyMutation.isPending ? 'Saving...' : 'Notify Me'}
@@ -198,7 +198,7 @@ function ProductGridCard({ product, brandName }: { product: DeliveryProduct; bra
             <button
               onClick={() => notifyMutation.mutate()}
               disabled={notifyMutation.isPending}
-              className="flex items-center justify-center gap-1.5 w-full text-center bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 text-xs sm:text-sm font-semibold py-2 px-3 rounded-lg transition-colors cursor-pointer disabled:opacity-60"
+              className="flex items-center justify-center gap-1.5 w-full text-center bg-primary hover:bg-primary/90 text-black text-xs sm:text-sm font-semibold py-2 px-3 rounded-lg transition-colors cursor-pointer disabled:opacity-60 shadow-[0_0_12px_rgba(255,113,0,0.4)]"
             >
               <Bell className="w-3.5 h-3.5" />
               {notifyMutation.isPending ? 'Saving...' : 'Notify Me When Available'}

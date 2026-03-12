@@ -3323,6 +3323,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Order not found" });
       }
 
+      // Receipt only available after order is completed
+      if (order.status !== 'delivered' && order.status !== 'picked_up') {
+        return res.status(403).json({ error: "Receipt is only available after your order has been delivered or picked up." });
+      }
+
       // Get order items
       const items = await storage.getDeliveryOrderItems(orderId);
 
@@ -3364,7 +3369,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       doc.text(`Order #: ${order.id}`, { continued: true });
       doc.text(`Date: ${new Date(order.createdAt!).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, { align: 'right' });
       doc.moveDown(0.5);
-      doc.text(`Payment Method: ${order.paymentMethod === 'card' ? 'Credit Card' : 'Cash on Delivery'}`, { continued: true });
+      const receiptPaymentLabel = order.fulfillmentMode === 'pickup' ? 'Pay in Store'
+        : (order.paymentMethod === 'credit_card' || order.paymentMethod === 'card') ? 'Card Payment on Delivery'
+        : order.paymentMethod === 'pay_on_delivery' ? 'Card Payment on Delivery'
+        : 'Cash on Delivery';
+      doc.text(`Payment Method: ${receiptPaymentLabel}`, { continued: true });
       doc.text(`Status: ${order.status.replace(/_/g, ' ').toUpperCase()}`, { align: 'right' });
       doc.moveDown(1.5);
 
@@ -3532,7 +3541,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       doc.text(`Order #: ${order.id}`, { continued: true });
       doc.text(`Date: ${new Date(order.createdAt!).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, { align: 'right' });
       doc.moveDown(0.5);
-      doc.text(`Payment Method: ${order.paymentMethod === 'card' ? 'Credit Card' : 'Cash on Delivery'}`, { continued: true });
+      const receiptPaymentLabel = order.fulfillmentMode === 'pickup' ? 'Pay in Store'
+        : (order.paymentMethod === 'credit_card' || order.paymentMethod === 'card') ? 'Card Payment on Delivery'
+        : order.paymentMethod === 'pay_on_delivery' ? 'Card Payment on Delivery'
+        : 'Cash on Delivery';
+      doc.text(`Payment Method: ${receiptPaymentLabel}`, { continued: true });
       doc.text(`Status: ${order.status.replace(/_/g, ' ').toUpperCase()}`, { align: 'right' });
       doc.moveDown(1.5);
 
@@ -4469,76 +4482,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("[Order] Error triggering sync after order:", err);
       });
       
-      // Send order confirmation and driver notification emails
-      try {
-        // Get delivery window info
-        let deliveryDate: string | undefined;
-        let deliveryTime: string | undefined;
-        if (deliveryWindowId) {
-          const deliveryWindow = await storage.getDeliveryWindowById(deliveryWindowId);
-          if (deliveryWindow) {
-            deliveryDate = new Date(deliveryWindow.date).toLocaleDateString('en-US', { 
-              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-            });
-            deliveryTime = `${deliveryWindow.startTime} - ${deliveryWindow.endTime}`;
-          }
-        }
-        
-        // Prepare order items for email
-        const orderItems = cartItemsWithProducts.map(item => ({
-          name: item.product.name,
-          quantity: item.quantity,
-          price: item.product.price
-        }));
-        
-        // Send order confirmation to customer
-        await sendOrderConfirmationEmail({
-          email: customer.email,
-          fullName: customer.fullName,
-          orderId: order.id,
-          deliveryAddress,
-          total: total.toFixed(2),
-          subtotal: subtotal.toFixed(2),
-          tax: tax.toFixed(2),
-          deliveryFee: deliveryFee.toFixed(2),
-          discount: discount > 0 ? discount.toFixed(2) : undefined,
-          paymentMethod,
-          deliveryDate,
-          deliveryTime,
-          items: orderItems,
-          fulfillmentMode,
-        });
-        
-        // Get driver email from settings (default to vapecavetx@gmail.com)
-        const driverEmailSetting = await storage.getSetting('driver_notification_email');
-        const driverEmail = driverEmailSetting?.value || 'vapecavetx@gmail.com';
-        
-        // Send notification to delivery driver
-        await sendDriverNotificationEmail({
-          driverEmail,
-          orderId: order.id,
-          customerName: customer.fullName,
-          customerPhone: customer.phone,
-          customerEmail: customer.email,
-          deliveryAddress,
-          total: total.toFixed(2),
-          subtotal: subtotal.toFixed(2),
-          tax: tax.toFixed(2),
-          deliveryFee: deliveryFee.toFixed(2),
-          discount: discount > 0 ? discount.toFixed(2) : undefined,
-          paymentMethod,
-          deliveryDate,
-          deliveryTime,
-          notes,
-          items: orderItems,
-          fulfillmentMode,
-        });
-        
-        console.log(`Order #${order.id}: Confirmation and driver notification emails sent`);
-      } catch (emailError) {
-        console.error("Error sending order emails:", emailError);
-        // Don't fail the order if emails fail
-      }
+      // Confirmation email and driver notification are sent when admin marks order as 'confirmed'
       
       res.json(order);
     } catch (error: any) {
@@ -4684,7 +4628,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const customer = await storage.getDeliveryCustomerById(order.customerId);
           if (customer) {
-            if (status === 'ready_for_pickup') {
+            if (status === 'confirmed') {
+              // Send full order confirmation email to customer + driver notification
+              const orderItems = await storage.getDeliveryOrderItems(order.id);
+              const itemsForEmail = orderItems.map((i: any) => ({
+                name: i.product?.name || i.productName || i.name || `Item #${i.productId}`,
+                quantity: i.quantity,
+                price: i.price,
+              }));
+              const deliveryWindow = order.deliveryWindowId ? await storage.getDeliveryWindowById(order.deliveryWindowId) : null;
+              const deliveryDate = deliveryWindow ? new Date(deliveryWindow.date).toLocaleDateString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+              }) : undefined;
+              const deliveryTime = deliveryWindow ? `${deliveryWindow.startTime} - ${deliveryWindow.endTime}` : undefined;
+              await sendOrderConfirmationEmail({
+                email: customer.email,
+                fullName: customer.fullName,
+                orderId: order.id,
+                deliveryAddress: order.deliveryAddress,
+                total: order.total,
+                subtotal: order.subtotal,
+                tax: order.tax || '0.00',
+                deliveryFee: order.deliveryFee,
+                discount: order.discount && parseFloat(order.discount) > 0 ? order.discount : undefined,
+                paymentMethod: order.paymentMethod,
+                deliveryDate,
+                deliveryTime,
+                items: itemsForEmail,
+                fulfillmentMode: order.fulfillmentMode,
+              });
+              const driverEmailSetting = await storage.getSetting('driver_notification_email');
+              const driverEmail = driverEmailSetting?.value || 'vapecavetx@gmail.com';
+              await sendDriverNotificationEmail({
+                driverEmail,
+                orderId: order.id,
+                customerName: customer.fullName,
+                customerPhone: customer.phone,
+                customerEmail: customer.email,
+                deliveryAddress: order.deliveryAddress,
+                total: order.total,
+                subtotal: order.subtotal,
+                tax: order.tax || '0.00',
+                deliveryFee: order.deliveryFee,
+                discount: order.discount && parseFloat(order.discount) > 0 ? order.discount : undefined,
+                paymentMethod: order.paymentMethod,
+                deliveryDate,
+                deliveryTime,
+                notes: order.deliveryNotes || undefined,
+                items: itemsForEmail,
+                fulfillmentMode: order.fulfillmentMode,
+              });
+            } else if (status === 'ready_for_pickup') {
               // Send the dedicated pickup-ready email with item details
               const orderItems = await storage.getDeliveryOrderItems(order.id);
               const itemsForEmail = orderItems.map((i: any) => ({

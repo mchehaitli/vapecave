@@ -76,7 +76,6 @@ function Router() {
   // Use the scroll-to-top hook
   useScrollToTop();
   
-  // Get current location for AnimatePresence
   const [location] = useLocation();
   
   return (
@@ -166,6 +165,7 @@ function Router() {
 }
 
 function App() {
+  const [location] = useLocation();
   const [showAgeVerification, setShowAgeVerification] = useState(false);
   
   // Apply performance optimizations
@@ -208,7 +208,7 @@ function App() {
               <Router />
             </FulfillmentProvider>
           </main>
-          <MobileStickyBar />
+          {!location.startsWith('/delivery') && !location.startsWith('/register') && !location.startsWith('/signin') && <MobileStickyBar />}
           <Toaster />
           {showAgeVerification && <AgeVerificationModal onVerify={handleVerifyAge} />}
         </TooltipProvider>

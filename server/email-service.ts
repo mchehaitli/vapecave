@@ -583,7 +583,7 @@ export const sendOrderStatusEmail = async (data: OrderStatusEmailData): Promise<
 
   const ctaHtml = `
 <div style="text-align:center;margin:24px 0;">
-  <a href="https://vapecavetx.com/delivery/orders" style="background:linear-gradient(135deg,#ff7100,#ff9a00);color:#000;font-weight:700;font-size:15px;text-decoration:none;padding:14px 36px;border-radius:8px;display:inline-block;">View Order</a>
+  <a href="https://vapecavetx.com/delivery/account" style="background:linear-gradient(135deg,#ff7100,#ff9a00);color:#000;font-weight:700;font-size:15px;text-decoration:none;padding:14px 36px;border-radius:8px;display:inline-block;">View Order</a>
 </div>`;
 
   const htmlContent = masterHtmlShell({
@@ -660,7 +660,7 @@ export const sendOrderConfirmationEmail = async (data: OrderConfirmationEmailDat
 
   const ctaHtml = `
 <div style="text-align:center;margin:24px 0;">
-  <a href="https://vapecavetx.com/delivery/orders" style="background:linear-gradient(135deg,#ff7100,#ff9a00);color:#000;font-weight:700;font-size:15px;text-decoration:none;padding:14px 36px;border-radius:8px;display:inline-block;">View Your Order</a>
+  <a href="https://vapecavetx.com/delivery/account" style="background:linear-gradient(135deg,#ff7100,#ff9a00);color:#000;font-weight:700;font-size:15px;text-decoration:none;padding:14px 36px;border-radius:8px;display:inline-block;">View Your Order</a>
 </div>`;
 
   const htmlContent = masterHtmlShell({
@@ -721,7 +721,7 @@ export const sendPickupReadyEmail = async (data: PickupReadyEmailData): Promise<
 
   const ctaHtml = `
 <div style="text-align:center;margin:24px 0;">
-  <a href="https://vapecavetx.com/delivery/orders" style="background:linear-gradient(135deg,#ff7100,#ff9a00);color:#000;font-weight:700;font-size:15px;text-decoration:none;padding:14px 36px;border-radius:8px;display:inline-block;">View Your Order</a>
+  <a href="https://vapecavetx.com/delivery/account" style="background:linear-gradient(135deg,#ff7100,#ff9a00);color:#000;font-weight:700;font-size:15px;text-decoration:none;padding:14px 36px;border-radius:8px;display:inline-block;">View Your Order</a>
 </div>`;
 
   const htmlContent = masterHtmlShell({
@@ -781,7 +781,7 @@ ${data.notes ? `\nNotes: ${data.notes}` : ''}
     const htmlContent = `
 <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; background-color: #1a1a1a; color: #f5f5f5; border-radius: 10px;">
   <div style="background: linear-gradient(135deg, #ff7100, #ff9a00); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-    <h2 style="margin: 0; color: #000;">🚗 NEW DELIVERY ORDER #${data.orderId}</h2>
+    <h2 style="margin: 0; color: #000;">${data.fulfillmentMode === 'pickup' ? '🏪 NEW PICKUP ORDER' : '🚗 NEW DELIVERY ORDER'} #${data.orderId}</h2>
     <p style="margin: 5px 0 0; color: #1a1a1a; font-weight: bold;">Total: $${data.total} · ${data.paymentMethod === 'credit_card' ? 'Card Payment' : data.paymentMethod === 'pay_on_delivery' ? 'Card Payment' : data.fulfillmentMode === 'pickup' ? 'Pay in Store' : 'Cash on Delivery'}</p>
   </div>
   
@@ -796,9 +796,9 @@ ${data.notes ? `\nNotes: ${data.notes}` : ''}
   </div>
   
   ${data.notes ? `
-  <div style="background-color: #fce4ec; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-    <h3 style="color: #c2185b; margin: 0 0 10px 0;">Special Instructions</h3>
-    <p style="margin: 0;">${data.notes}</p>
+  <div style="background-color: #2a2a2a; border-left: 3px solid #ff7100; padding: 15px; border-radius: 0 8px 8px 0; margin-bottom: 15px;">
+    <h3 style="color: #ff7100; margin: 0 0 10px 0;">Special Instructions</h3>
+    <p style="margin: 0; color: #f5f5f5;">${data.notes}</p>
   </div>
   ` : ''}
   

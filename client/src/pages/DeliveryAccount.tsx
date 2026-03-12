@@ -475,15 +475,17 @@ export default function DeliveryAccount() {
 
                               {/* Reorder and Receipt Buttons */}
                               <div className="mt-4 pt-4 border-t flex justify-end gap-2">
-                                <Button
-                                  variant="outline"
-                                  onClick={() => handleDownloadReceipt(order.id)}
-                                  className="gap-2"
-                                  data-testid={`button-receipt-${order.id}`}
-                                >
-                                  <Download className="h-4 w-4" />
-                                  Receipt
-                                </Button>
+                                {(order.status === 'delivered' || order.status === 'picked_up') && (
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => handleDownloadReceipt(order.id)}
+                                    className="gap-2"
+                                    data-testid={`button-receipt-${order.id}`}
+                                  >
+                                    <Download className="h-4 w-4" />
+                                    Receipt
+                                  </Button>
+                                )}
                                 <Button
                                   onClick={() => handleReorder(order.id)}
                                   disabled={reorderMutation.isPending}
