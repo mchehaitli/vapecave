@@ -2882,38 +2882,25 @@ export function DeliveryProductsTab() {
 
   const uploadImageMutation = useMutation({
     mutationFn: async ({ productId, file }: { productId: number; file: File }) => {
-      // Step 1: Request presigned URL from backend
-      const urlRes = await fetch('/api/admin/delivery/products/upload-url', {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const uploadRes = await fetch('/api/admin/upload-webp', {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: file.name,
-          size: file.size,
-          contentType: file.type || 'application/octet-stream',
-        }),
+        body: formData,
       });
-      
-      if (!urlRes.ok) throw new Error('Failed to get upload URL');
-      const { uploadURL, objectPath } = await urlRes.json();
-      
-      // Step 2: Upload file directly to cloud storage
-      const uploadRes = await fetch(uploadURL, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-      });
-      
-      if (!uploadRes.ok) throw new Error('Failed to upload file to storage');
-      
-      // Step 3: Update product with the object path
+
+      if (!uploadRes.ok) throw new Error('Failed to convert and upload image');
+      const { objectPath } = await uploadRes.json();
+
       const updateRes = await fetch(`/api/admin/delivery/products/${productId}/image`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ objectPath }),
       });
-      
+
       if (!updateRes.ok) throw new Error('Failed to update product');
       return updateRes.json();
     },
@@ -3271,31 +3258,18 @@ export function DeliveryProductsTab() {
     // Handle bulk image upload using object storage
     if (bulkImageFile) {
       try {
-        // Step 1: Request presigned URL from backend
-        const urlRes = await fetch('/api/admin/delivery/products/upload-url', {
+        const formData = new FormData();
+        formData.append('image', bulkImageFile);
+
+        const uploadRes = await fetch('/api/admin/upload-webp', {
           method: 'POST',
           credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: bulkImageFile.name,
-            size: bulkImageFile.size,
-            contentType: bulkImageFile.type || 'application/octet-stream',
-          }),
+          body: formData,
         });
-        
-        if (!urlRes.ok) throw new Error('Failed to get upload URL');
-        const { uploadURL, objectPath } = await urlRes.json();
-        
-        // Step 2: Upload file directly to cloud storage
-        const uploadRes = await fetch(uploadURL, {
-          method: 'PUT',
-          body: bulkImageFile,
-          headers: { 'Content-Type': bulkImageFile.type || 'application/octet-stream' },
-        });
-        
-        if (!uploadRes.ok) throw new Error('Failed to upload file to storage');
-        
-        // Step 3: Use the object path for all selected products
+
+        if (!uploadRes.ok) throw new Error('Failed to convert and upload image');
+        const { objectPath } = await uploadRes.json();
+
         updates.image = objectPath;
       } catch (error) {
         toast({ title: "Error", description: "Failed to upload image.", variant: "destructive" });

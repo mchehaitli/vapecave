@@ -109,33 +109,26 @@ export default function AdminBrandImagesPage() {
     setUploadingId(uploadKey);
 
     try {
-      const response = await fetch('/api/admin/delivery/products/upload-url', {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/admin/upload-webp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: file.name,
-          size: file.size,
-          contentType: file.type
-        })
+        credentials: 'include',
+        body: formData,
       });
 
-      if (!response.ok) throw new Error('Failed to get upload URL');
+      if (!response.ok) throw new Error('Failed to upload and convert image');
 
-      const { uploadURL, objectPath } = await response.json();
-
-      const uploadResponse = await fetch(uploadURL, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        body: file
-      });
-
-      if (!uploadResponse.ok) throw new Error('Failed to upload image');
+      const { objectPath } = await response.json();
 
       if (type === 'brand') {
         await updateBrand.mutateAsync({ id, logo: objectPath });
       } else {
         await updateProductLine.mutateAsync({ id, logo: objectPath });
       }
+
+      toast({ title: "Image converted to WebP and uploaded!" });
     } catch (error) {
       console.error('Upload error:', error);
       toast({ title: "Failed to upload image", variant: "destructive" });

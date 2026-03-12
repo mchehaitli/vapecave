@@ -33,7 +33,8 @@ The design incorporates a dark/light theme with a vibrant palette (Vibrant Orang
     - **PDF Receipt Generation**: Downloadable PDF receipts using PDFKit.
     - **Abandoned Cart Reminders**: Automatic email reminders for abandoned carts.
     - **Analytics Dashboard**: Admin dashboard with sales metrics, revenue charts, order status, top products, payment analysis, and customer analytics.
-    - **Payment Mode Toggle**: Admin setting (`payment_mode`) to switch between "Pay on Delivery" (cash only, default) and "Online Payments" (Clover card checkout enabled). When in pay_on_delivery mode, credit card option is hidden from checkout. Cash/pay_in_store orders create corresponding Clover cash orders for POS tracking.
+    - **Payment Mode Toggle**: Admin setting (`payment_mode`) to switch between "Pay on Delivery" and "Online Payments" (Clover card checkout enabled). In pay_on_delivery mode, checkout shows both "Card Payment on Delivery" and "Cash on Delivery" options with exact-change/specify-amount UI. Cash/pay_in_store orders create corresponding Clover cash orders for POS tracking.
+    - **WebP Image Optimization**: All image uploads (brand logos, category images, product images) are automatically converted to WebP format via `sharp` on the server before being stored in object storage. Endpoint: `POST /api/admin/upload-webp` (admin-only, multer memory storage).
 
 ### System Design Choices
 The application uses a modular architecture, separating frontend and backend. It prioritizes performance and SEO for local businesses, robust security through authentication and session management, and configurability for administrators.

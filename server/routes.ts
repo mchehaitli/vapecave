@@ -41,6 +41,7 @@ import { cloverPaymentService } from "./clover-payment-service";
 import { cloverHostedCheckout } from "./clover-hosted-checkout";
 import { fetchGoogleReviews, clearReviewsCache, getCacheStatus } from "./google-reviews-service";
 import multer from "multer";
+import sharp from "sharp";
 import path from "path";
 import fs from "fs";
 import { registerObjectStorageRoutes, ObjectStorageService } from "./replit_integrations/object_storage";
@@ -154,6 +155,21 @@ const uploadProductImage = multer({
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
     
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'));
+    }
+  }
+});
+
+const uploadMemory = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
     if (mimetype && extname) {
       return cb(null, true);
     } else {
@@ -2128,6 +2144,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error generating product image upload URL:", error);
       res.status(500).json({ error: "Failed to generate upload URL" });
+    }
+  });
+
+  app.post('/api/admin/upload-webp', isAdmin, uploadMemory.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file provided" });
+      }
+
+      const webpBuffer = await sharp(req.file.buffer)
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'image/webp' },
+        body: webpBuffer,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Object storage upload failed: ${uploadResponse.status}`);
+      }
+
+      res.json({ objectPath });
+    } catch (error) {
+      console.error("WebP upload error:", error);
+      res.status(500).json({ error: "Failed to convert and upload image" });
     }
   });
   

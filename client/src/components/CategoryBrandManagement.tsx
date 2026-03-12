@@ -544,36 +544,21 @@ export function CategoryBrandManagement() {
 
     setBrandLogoUploading(true);
     try {
-      const response = await fetch('/api/admin/delivery/products/upload-url', {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/admin/upload-webp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: file.name,
-          size: file.size,
-          contentType: file.type
-        })
+        credentials: 'include',
+        body: formData,
       });
 
-      if (!response.ok) throw new Error('Failed to get upload URL');
+      if (!response.ok) throw new Error('Failed to upload image');
 
-      const { uploadURL, objectPath } = await response.json();
-
-      const uploadResponse = await fetch(uploadURL, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        body: file
-      });
-
-      if (!uploadResponse.ok) throw new Error('Failed to upload image');
-
-      await fetch('/api/storage/set-public', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ objectPath })
-      });
+      const { objectPath } = await response.json();
 
       setBrandLogo(objectPath);
-      toast({ title: "Logo uploaded successfully" });
+      toast({ title: "Logo converted to WebP and uploaded" });
     } catch (error) {
       console.error('Upload error:', error);
       toast({ title: "Failed to upload logo", variant: "destructive" });
@@ -591,36 +576,21 @@ export function CategoryBrandManagement() {
 
     setCategoryImageUploading(true);
     try {
-      const response = await fetch('/api/admin/delivery/products/upload-url', {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/admin/upload-webp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: file.name,
-          size: file.size,
-          contentType: file.type
-        })
+        credentials: 'include',
+        body: formData,
       });
 
-      if (!response.ok) throw new Error('Failed to get upload URL');
+      if (!response.ok) throw new Error('Failed to upload image');
 
-      const { uploadURL, objectPath } = await response.json();
-
-      const uploadResponse = await fetch(uploadURL, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        body: file
-      });
-
-      if (!uploadResponse.ok) throw new Error('Failed to upload image');
-
-      await fetch('/api/storage/set-public', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ objectPath })
-      });
+      const { objectPath } = await response.json();
 
       setCategoryImage(objectPath);
-      toast({ title: "Image uploaded successfully" });
+      toast({ title: "Image converted to WebP and uploaded" });
     } catch (error) {
       console.error('Upload error:', error);
       toast({ title: "Failed to upload image", variant: "destructive" });
@@ -638,36 +608,21 @@ export function CategoryBrandManagement() {
 
     setProductLineLogoUploading(true);
     try {
-      const response = await fetch('/api/admin/delivery/products/upload-url', {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/admin/upload-webp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: file.name,
-          size: file.size,
-          contentType: file.type
-        })
+        credentials: 'include',
+        body: formData,
       });
 
-      if (!response.ok) throw new Error('Failed to get upload URL');
+      if (!response.ok) throw new Error('Failed to upload image');
 
-      const { uploadURL, objectPath } = await response.json();
-
-      const uploadResponse = await fetch(uploadURL, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        body: file
-      });
-
-      if (!uploadResponse.ok) throw new Error('Failed to upload image');
-
-      await fetch('/api/storage/set-public', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ objectPath })
-      });
+      const { objectPath } = await response.json();
 
       setProductLineLogo(objectPath);
-      toast({ title: "Logo uploaded successfully" });
+      toast({ title: "Logo converted to WebP and uploaded" });
     } catch (error) {
       console.error('Upload error:', error);
       toast({ title: "Failed to upload logo", variant: "destructive" });
