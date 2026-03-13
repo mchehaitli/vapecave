@@ -1,0 +1,35 @@
+Role & Objective:
+Act as a Principal Systems Architect and UI/UX Expert. I need a comprehensive audit of our current codebase regarding how orders sync with Clover, handle various payment states, and manage inventory. Following the backend audit, I need a proposal for an intuitive, high-efficiency layout for the Admin "Delivery Orders" tab.
+
+Part 1: Backend Data Flow & Clover Sync Audit
+Please analyze the server routes, database schema, and Clover API integration files, and provide a detailed lifecycle map for the following scenarios. Explain exactly what the backend does (database updates, Clover API calls, inventory reservation/deduction):
+
+Fulfillment Types: How does the system differentiate logic between a Pickup order and a Delivery order?
+
+Payment Methods: Trace the logic for:
+
+Online Card Payment (Processed via Clover).
+
+Pay on Delivery (Cash/Card at the door).
+
+Pay in Store (Pickup orders paying at the counter).
+
+Inventory State Machine: Detail the newly added inventory reservation system. What happens to the stock count in our DB vs. Clover when an order is Pending?
+
+Automated Jobs: Explain the midnight cron job/automated process that deletes pending pickup orders and restores/updates the Clover inventory count.
+
+Part 2: Admin Portal Action Triggers
+When an Admin selects an action (e.g., changing status to Delivered, Cancelled, or Completed) from the dropdown on the Delivery Orders tab, what exact sequence of backend events is triggered? Specifically, how does a status change finalize the payment capture or release the reserved inventory back to Clover?
+
+Part 3: Admin UI/UX Optimization Proposal
+Based on your understanding of the data flow, design the optimal layout for the Admin "Delivery Orders" tab.
+
+Visual Hierarchy: How should we display the Order ID, Customer Info, Total, Fulfillment Type (Pickup/Delivery), and Payment Status?
+
+Status Indicators: Propose an intuitive color-coding or badging system so staff can understand order states at a glance without reading text.
+
+Action Placement: What actions should be 1-click buttons (e.g., "Mark Delivered", "Print Receipt") vs. hidden in a dropdown?
+
+Information Density: What crucial data is currently missing from the table that a cashier or driver needs immediately, and what can be relegated to the "View Details" modal?
+
+Output format: Present your findings in a structured Markdown document with clear headings, bulleted logical steps for the backend flows, and a wireframe-style markdown table for the UI proposal.
