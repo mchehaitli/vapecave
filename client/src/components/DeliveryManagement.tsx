@@ -14,7 +14,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Eye, CheckCircle, XCircle, Clock, AlertCircle, Package, Edit, Mail, Trash2, Upload, ChevronLeft, ChevronRight, RefreshCw, Download, DollarSign, Save, Loader2, Star, Home, Power } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Clock, AlertCircle, Package, Edit, Mail, Trash2, Upload, ChevronLeft, ChevronRight, RefreshCw, Download, DollarSign, Save, Loader2, Star, Home, Power, Truck, Store, Phone, CreditCard, Banknote, MoreVertical, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 import type { DeliveryBrand, DeliveryCategory } from "@shared/schema";
 import { extractNicLevel, isVariantCategory } from "@/lib/productVariants";
 
@@ -49,12 +60,19 @@ interface DeliveryOrder {
   deliveryNotes?: string;
   createdAt: string;
   customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
   refundAmount?: string;
   refundReason?: string;
   refundedAt?: string;
   cloverRefundId?: string;
   deliveryWindow?: string;
   fulfillmentMode?: string;
+  itemCount?: number;
+  deliveryWindowDate?: string;
+  deliveryWindowStart?: string;
+  deliveryWindowEnd?: string;
+  cardLast4?: string;
 }
 
 interface DeliveryWindow {
@@ -1127,6 +1145,40 @@ interface DeliveryProduct {
   enabled: boolean;
 }
 
+function getStatusStyle(status: string): { bg: string; animation?: string } {
+  switch (status) {
+    case "pending": return { bg: "bg-amber-500" };
+    case "pending_payment": return { bg: "bg-orange-500", animation: "animate-pulse" };
+    case "confirmed": return { bg: "bg-blue-600" };
+    case "preparing": return { bg: "bg-purple-600" };
+    case "out_for_delivery": return { bg: "bg-indigo-600" };
+    case "ready_for_pickup": return { bg: "bg-teal-600" };
+    case "delivered":
+    case "picked_up": return { bg: "bg-green-600" };
+    case "cancelled": return { bg: "bg-red-600" };
+    default: return { bg: "bg-gray-600" };
+  }
+}
+
+function getSmartAction(order: any): { label: string; targetStatus: string; color: string } | null {
+  switch (order.status) {
+    case "pending":
+    case "pending_payment":
+      return { label: "Confirm", targetStatus: "confirmed", color: "bg-blue-600 hover:bg-blue-700" };
+    case "confirmed":
+      if (order.fulfillmentMode === "pickup") {
+        return { label: "Ready for Pickup", targetStatus: "ready_for_pickup", color: "bg-teal-600 hover:bg-teal-700" };
+      }
+      return { label: "Out for Delivery", targetStatus: "out_for_delivery", color: "bg-indigo-600 hover:bg-indigo-700" };
+    case "out_for_delivery":
+      return { label: "Mark Delivered", targetStatus: "delivered", color: "bg-green-600 hover:bg-green-700" };
+    case "ready_for_pickup":
+      return { label: "Mark Picked Up", targetStatus: "picked_up", color: "bg-green-600 hover:bg-green-700" };
+    default:
+      return null;
+  }
+}
+
 export function DeliveryOrdersTab() {
   const { toast } = useToast();
   const [selectedOrder, setSelectedOrder] = useState<DeliveryOrder | null>(null);
@@ -1544,7 +1596,7 @@ export function DeliveryOrdersTab() {
               <Table>
                 <TableHeader className="bg-gray-800">
                   <TableRow className="hover:bg-gray-700/50 border-gray-700">
-                    <TableHead className="w-[50px]">
+                    <TableHead className="w-[40px]">
                       <Checkbox
                         checked={allFilteredSelected}
                         ref={(el) => {
@@ -1556,17 +1608,21 @@ export function DeliveryOrdersTab() {
                         data-testid="checkbox-select-all"
                       />
                     </TableHead>
-                    <TableHead>Order ID</TableHead>
+                    <TableHead>Order</TableHead>
                     <TableHead>Customer</TableHead>
+                    <TableHead>Scheduled</TableHead>
                     <TableHead>Total</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>Payment</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead className="w-[40px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredOrders.map((order) => (
+                  {filteredOrders.map((order) => {
+                    const primaryAction = getSmartAction(order);
+                    const statusStyle = getStatusStyle(order.status);
+                    return (
                     <TableRow key={order.id} className={`hover:bg-gray-700/50 border-gray-700 ${selectedOrders.includes(order.id) ? 'bg-blue-900/20' : ''}`}>
                       <TableCell>
                         <Checkbox
@@ -1575,113 +1631,143 @@ export function DeliveryOrdersTab() {
                           data-testid={`checkbox-order-${order.id}`}
                         />
                       </TableCell>
-                      <TableCell className="font-medium">#{order.id}</TableCell>
-                      <TableCell className="text-gray-400">
-                        {order.customerName || `Customer #${order.customerId}`}
-                      </TableCell>
-                      <TableCell className="text-gray-400">${order.total}</TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-1 items-center">
-                          <Badge className={
-                            order.status === "delivered" ? "bg-green-600" :
-                            order.status === "picked_up" ? "bg-green-600" :
-                            order.status === "out_for_delivery" ? "bg-blue-600" :
-                            order.status === "confirmed" ? "bg-yellow-600" :
-                            order.status === "cancelled" ? "bg-red-600" :
-                            order.status === "ready_for_pickup" ? "bg-teal-600" :
-                            "bg-gray-600"
-                          }>
-                            {order.status.replace(/_/g, " ")}
-                          </Badge>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-white">#{order.id}</span>
                           {order.fulfillmentMode === "pickup" ? (
-                            <Badge className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5">PICKUP</Badge>
+                            <Store size={14} className="text-blue-400" />
                           ) : (
-                            <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5">DELIVERY</Badge>
+                            <Truck size={14} className="text-orange-400" />
+                          )}
+                          {order.itemCount != null && (
+                            <span className="text-[10px] text-gray-400 bg-gray-700 rounded px-1.5 py-0.5">{order.itemCount} item{order.itemCount !== 1 ? 's' : ''}</span>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={
-                          order.paymentStatus === "paid" ? "bg-green-600" :
-                          order.paymentStatus === "refunded" ? "bg-purple-600" :
-                          "bg-gray-600"
-                        }>
-                          {order.paymentStatus || "pending"}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-gray-300 text-sm">{order.customerName || `#${order.customerId}`}</span>
+                          {order.customerPhone && (
+                            <a href={`tel:${order.customerPhone}`} className="text-blue-400 hover:text-blue-300" title={order.customerPhone}>
+                              <Phone size={13} />
+                            </a>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-400">
+                        {order.deliveryWindowDate ? (
+                          <div>
+                            <div className="text-gray-300">{new Date(order.deliveryWindowDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })}</div>
+                            {order.deliveryWindowStart && order.deliveryWindowEnd && (
+                              <div className="text-xs text-gray-500">{order.deliveryWindowStart}–{order.deliveryWindowEnd}</div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-600">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-300 font-medium">${order.total}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5">
+                          {order.paymentMethod === 'credit_card' || order.paymentMethod === 'card' ? (
+                            <CreditCard size={13} className="text-gray-400" />
+                          ) : (
+                            <Banknote size={13} className="text-gray-400" />
+                          )}
+                          <Badge className={
+                            order.paymentStatus === "paid" ? "bg-green-600 text-white" :
+                            order.paymentStatus === "refunded" ? "bg-purple-600 text-white" :
+                            order.paymentStatus === "failed" ? "bg-red-600 text-white" :
+                            "bg-yellow-600/80 text-white"
+                          }>
+                            {order.paymentStatus || "pending"}
+                          </Badge>
+                          {order.paymentStatus === "refunded" && order.refundAmount && (
+                            <span className="text-[10px] text-purple-400">${order.refundAmount}</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={`${statusStyle.bg} text-white ${statusStyle.animation || ''}`}>
+                          {order.status.replace(/_/g, " ")}
                         </Badge>
-                        {order.paymentStatus === "refunded" && order.refundAmount && (
-                          <span className="text-xs text-purple-400 ml-1">(${order.refundAmount})</span>
-                        )}
-                        {order.paymentMethodDisplay && (
-                          <div className="text-xs text-gray-400 mt-0.5">{order.paymentMethodDisplay}</div>
-                        )}
                       </TableCell>
-                      <TableCell className="text-gray-400 text-sm">
-                        {new Date(order.createdAt).toLocaleString('en-US', { timeZone: 'America/Chicago', month: 'numeric', day: 'numeric', year: '2-digit', hour: 'numeric', minute: '2-digit', hour12: true })}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
+                      <TableCell>
+                        {primaryAction && (
                           <Button
-                            variant="ghost"
                             size="sm"
-                            className="h-8 px-2 text-blue-400 hover:text-blue-300 hover:bg-gray-700"
-                            onClick={() => { setSelectedOrder(order); setOrderDialog(true); }}
-                            data-testid={`button-view-order-${order.id}`}
+                            className={`h-7 px-3 text-xs font-medium text-white ${primaryAction.color}`}
+                            disabled={statusMutation.isPending}
+                            onClick={() => statusMutation.mutate({ orderId: order.id, status: primaryAction.targetStatus })}
+                            data-testid={`button-action-${order.id}`}
                           >
-                            <Eye size={16} className="mr-1" />
-                            View
+                            {primaryAction.label}
                           </Button>
+                        )}
+                        {!primaryAction && (order.status === 'delivered' || order.status === 'picked_up') && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 px-2 text-green-400 hover:text-green-300 hover:bg-gray-700"
+                            className="h-7 px-3 text-xs text-gray-400 hover:text-white hover:bg-gray-700"
                             onClick={() => handleDownloadReceipt(order.id)}
-                            data-testid={`button-receipt-order-${order.id}`}
                           >
-                            <Download size={16} className="mr-1" />
+                            <Download size={13} className="mr-1" />
                             Receipt
                           </Button>
-                          {order.paymentStatus !== "refunded" && order.paymentStatus === "paid" && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 px-2 text-purple-400 hover:text-purple-300 hover:bg-gray-700"
-                              onClick={() => openRefundDialog(order)}
-                              data-testid={`button-refund-order-${order.id}`}
-                            >
-                              <DollarSign size={16} className="mr-1" />
-                              Refund
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-gray-400 hover:text-white hover:bg-gray-700" data-testid={`menu-order-${order.id}`}>
+                              <MoreVertical size={16} />
                             </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 px-2 text-red-400 hover:text-red-300 hover:bg-gray-700"
-                            onClick={() => { setDeleteOrder(order); setDeleteDialog(true); }}
-                            data-testid={`button-delete-order-${order.id}`}
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                          <Select
-                            value={order.status}
-                            onValueChange={(status) => statusMutation.mutate({ orderId: order.id, status })}
-                          >
-                            <SelectTrigger className="w-32 h-8 bg-gray-700 border-gray-600" data-testid={`select-status-${order.id}`}>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-700 border-gray-600">
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="confirmed">Confirmed</SelectItem>
-                              <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
-                              <SelectItem value="delivered">Delivered</SelectItem>
-                              <SelectItem value="ready_for_pickup">Ready for Pickup</SelectItem>
-                              <SelectItem value="picked_up">Picked Up</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700 text-gray-200 w-48">
+                            <DropdownMenuItem onClick={() => { setSelectedOrder(order); setOrderDialog(true); }} className="cursor-pointer hover:bg-gray-700">
+                              <Eye size={14} className="mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDownloadReceipt(order.id)} className="cursor-pointer hover:bg-gray-700">
+                              <Download size={14} className="mr-2" />
+                              Download Receipt
+                            </DropdownMenuItem>
+                            {order.paymentStatus === "paid" && order.paymentStatus !== "refunded" && (
+                              <DropdownMenuItem onClick={() => openRefundDialog(order)} className="cursor-pointer hover:bg-gray-700 text-purple-400">
+                                <DollarSign size={14} className="mr-2" />
+                                Refund
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator className="bg-gray-700" />
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger className="cursor-pointer hover:bg-gray-700">
+                                <Edit size={14} className="mr-2" />
+                                Change Status
+                              </DropdownMenuSubTrigger>
+                              <DropdownMenuSubContent className="bg-gray-800 border-gray-700 text-gray-200">
+                                {["pending", "confirmed", "out_for_delivery", "delivered", "ready_for_pickup", "picked_up", "cancelled"].map((s) => (
+                                  <DropdownMenuItem
+                                    key={s}
+                                    disabled={order.status === s}
+                                    onClick={() => statusMutation.mutate({ orderId: order.id, status: s })}
+                                    className="cursor-pointer hover:bg-gray-700 capitalize"
+                                  >
+                                    {s.replace(/_/g, " ")}
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuSubContent>
+                            </DropdownMenuSub>
+                            <DropdownMenuSeparator className="bg-gray-700" />
+                            <DropdownMenuItem onClick={() => { setDeleteOrder(order); setDeleteDialog(true); }} className="cursor-pointer hover:bg-gray-700 text-red-400">
+                              <Trash2 size={14} className="mr-2" />
+                              Delete Order
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

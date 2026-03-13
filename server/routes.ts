@@ -4585,9 +4585,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const orders = await storage.getAllDeliveryOrders();
       const ordersWithDetails = await Promise.all(orders.map(async (order) => {
-        const [items, customer] = await Promise.all([
+        const [items, customer, deliveryWindow] = await Promise.all([
           storage.getDeliveryOrderItems(order.id),
           storage.getDeliveryCustomerById(order.customerId),
+          order.deliveryWindowId ? storage.getDeliveryWindowById(order.deliveryWindowId) : Promise.resolve(null),
         ]);
         return {
           ...order,
@@ -4595,6 +4596,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           customerName: customer?.fullName || null,
           customerEmail: customer?.email || null,
           customerPhone: customer?.phone || null,
+          itemCount: items.length,
+          deliveryWindowDate: deliveryWindow?.date || null,
+          deliveryWindowStart: deliveryWindow?.startTime || null,
+          deliveryWindowEnd: deliveryWindow?.endTime || null,
           items: items.map((i: any) => ({
             name: i.product?.name || i.productName || i.name || `Item #${i.productId}`,
             quantity: i.quantity,
