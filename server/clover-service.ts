@@ -272,6 +272,94 @@ export class CloverService {
     return results;
   }
 
+  private async getItemStockStrict(cloverItemId: string): Promise<number> {
+    const url = `${this.baseUrl}/v3/merchants/${this.merchantId}/item_stocks/${cloverItemId}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${this.apiToken}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch stock for ${cloverItemId}: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.quantity || 0;
+  }
+
+  async addItemStock(cloverItemId: string, quantityToAdd: number, retryCount = 0): Promise<{ success: boolean; previousStock: number; newStock: number }> {
+    const MAX_RETRIES = 3;
+    const BASE_DELAY_MS = 1000;
+
+    try {
+      const currentStock = await this.getItemStockStrict(cloverItemId);
+      const newStock = currentStock + quantityToAdd;
+
+      const url = `${this.baseUrl}/v3/merchants/${this.merchantId}/item_stocks/${cloverItemId}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ quantity: newStock }),
+      });
+
+      if (response.status === 429 && retryCount < MAX_RETRIES) {
+        const retryAfter = response.headers.get('Retry-After');
+        const delayMs = retryAfter
+          ? parseInt(retryAfter, 10) * 1000
+          : BASE_DELAY_MS * Math.pow(2, retryCount);
+        console.warn(`[Clover Stock Restore] Rate limited on ${cloverItemId}, retrying in ${delayMs}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        return this.addItemStock(cloverItemId, quantityToAdd, retryCount + 1);
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[Clover Stock Restore] Failed to restore stock for ${cloverItemId}: ${response.status} ${errorText}`);
+        return { success: false, previousStock: currentStock, newStock: currentStock };
+      }
+
+      console.log(`[Clover Stock Restore] ${cloverItemId}: ${currentStock} → ${newStock} (restored ${quantityToAdd})`);
+      return { success: true, previousStock: currentStock, newStock };
+    } catch (error) {
+      console.error(`[Clover Stock Restore] Error restoring stock for ${cloverItemId}:`, error);
+      return { success: false, previousStock: 0, newStock: 0 };
+    }
+  }
+
+  async restoreStockForOrder(items: Array<{ cloverItemId: string | null; quantity: number; purchaseType: string; packSize: number }>): Promise<Array<{ cloverItemId: string; unitsRestored: number; success: boolean }>> {
+    const results: Array<{ cloverItemId: string; unitsRestored: number; success: boolean }> = [];
+
+    for (const item of items) {
+      if (!item.cloverItemId) {
+        continue;
+      }
+
+      const unitsToRestore = item.purchaseType === 'pack'
+        ? item.quantity * item.packSize
+        : item.quantity;
+
+      const result = await this.addItemStock(item.cloverItemId, unitsToRestore);
+      results.push({
+        cloverItemId: item.cloverItemId,
+        unitsRestored: unitsToRestore,
+        success: result.success,
+      });
+    }
+
+    const succeeded = results.filter(r => r.success).length;
+    const failed = results.filter(r => !r.success).length;
+    console.log(`[Clover Stock Restore] Order restoration complete: ${succeeded} succeeded, ${failed} failed`);
+
+    return results;
+  }
+
   async createCashOrder(params: {
     orderRef: string;
     customerName: string;

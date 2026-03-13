@@ -4615,16 +4615,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const { status } = req.body;
 
-      // If cancelling a pending_payment order, restore reserved stock first
       if (status === 'cancelled') {
         const currentOrder = await storage.getDeliveryOrderById(id);
-        if (currentOrder?.status === 'pending_payment') {
+        if (currentOrder && currentOrder.status !== 'cancelled') {
           try {
             const orderItems = await storage.getDeliveryOrderItems(id);
             for (const item of orderItems) {
               await storage.restoreProductStock(item.productId, item.quantity);
             }
-            console.log(`[Admin] Restored stock for cancelled pending_payment order #${id}`);
+            console.log(`[Admin] Restored local stock for cancelled order #${id} (was ${currentOrder.status})`);
+
+            if (process.env.CLOVER_API_TOKEN && process.env.CLOVER_MERCHANT_ID) {
+              try {
+                const cloverService = new CloverService();
+                const stockItems = orderItems
+                  .filter((i: any) => i.product?.cloverItemId)
+                  .map((i: any) => ({
+                    cloverItemId: i.product.cloverItemId,
+                    quantity: i.quantity,
+                    purchaseType: i.purchaseType || 'single',
+                    packSize: i.product.packSize || 1,
+                  }));
+                if (stockItems.length > 0) {
+                  cloverService.restoreStockForOrder(stockItems).catch(cloverErr => {
+                    console.error(`[Admin] Error pushing stock restoration to Clover for order #${id}:`, cloverErr);
+                  });
+                }
+              } catch (cloverErr) {
+                console.error(`[Admin] Error initiating Clover stock restoration for order #${id}:`, cloverErr);
+              }
+            }
           } catch (restoreErr) {
             console.error(`[Admin] Error restoring stock for order #${id}:`, restoreErr);
           }

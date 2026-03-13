@@ -5,6 +5,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { startAbandonedCartScheduler } from "./abandoned-cart-service";
 import { startPaymentTimeoutService } from "./payment-timeout-service";
+import { startStaleOrderCleanupService } from "./stale-order-cleanup-service";
 import { storage } from "./storage";
 import { seedEmailTemplates } from "./seed-email-templates";
 
@@ -163,6 +164,9 @@ app.use((req, res, next) => {
 
     // Start payment timeout service (cancels pending_payment orders after 15 min + restores stock)
     startPaymentTimeoutService(storage);
+
+    // Start stale order cleanup service (cancels old pending cash/POD orders at 2:00 AM CT daily)
+    startStaleOrderCleanupService(storage);
 
     // Seed email templates (no-op if already seeded)
     await seedEmailTemplates(storage);
