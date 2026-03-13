@@ -310,10 +310,19 @@ export class CloverService {
       });
 
       if (response.status === 429 && retryCount < MAX_RETRIES) {
-        const retryAfter = response.headers.get('Retry-After');
-        const delayMs = retryAfter
-          ? parseInt(retryAfter, 10) * 1000
-          : BASE_DELAY_MS * Math.pow(2, retryCount);
+        const retryAfterRaw = response.headers.get('Retry-After');
+        let delayMs = BASE_DELAY_MS * Math.pow(2, retryCount);
+        if (retryAfterRaw) {
+          const parsed = Number(retryAfterRaw);
+          if (!isNaN(parsed)) {
+            delayMs = parsed * 1000;
+          } else {
+            const httpDate = Date.parse(retryAfterRaw);
+            if (!isNaN(httpDate)) {
+              delayMs = Math.max(0, httpDate - Date.now());
+            }
+          }
+        }
         console.warn(`[Clover Stock Restore] Rate limited on ${cloverItemId}, retrying in ${delayMs}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
         await new Promise(resolve => setTimeout(resolve, delayMs));
         return this.addItemStock(cloverItemId, quantityToAdd, retryCount + 1);
