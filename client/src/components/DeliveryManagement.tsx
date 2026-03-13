@@ -1696,53 +1696,148 @@ export function DeliveryOrdersTab() {
 
       {/* Order Details Dialog */}
       <Dialog open={orderDialog} onOpenChange={setOrderDialog}>
-        <DialogContent className="bg-gray-800 text-white border-gray-700 max-w-2xl">
+        <DialogContent className="bg-gray-800 text-white border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Order #{selectedOrder?.id}</DialogTitle>
           </DialogHeader>
           <div className="mt-4 space-y-4">
-            <div>
-              <Label className="text-gray-400">Customer</Label>
-              <p className="text-white">{selectedOrder?.customerName || `Customer #${selectedOrder?.customerId}`}</p>
-            </div>
-            <div>
-              <Label className="text-gray-400">Delivery Window</Label>
-              <p className="text-white">{selectedOrder?.deliveryWindow || "Not specified"}</p>
-            </div>
-            <div>
-              <Label className="text-gray-400">Items</Label>
-              <div className="mt-2 space-y-2">
-                {selectedOrder?.items?.map((item: any, idx: number) => (
-                  <div key={idx} className="flex justify-between text-sm">
-                    <span>{item.name} x{item.quantity}</span>
-                    <span>${item.price}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="border-t border-gray-700 pt-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Subtotal</span>
-                <span>${selectedOrder?.subtotal}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Delivery Fee</span>
-                <span>${selectedOrder?.deliveryFee}</span>
-              </div>
-              <div className="flex justify-between font-bold mt-2">
-                <span>Total</span>
-                <span>${selectedOrder?.total}</span>
-              </div>
-            </div>
-            {selectedOrder?.deliveryNotes && (
+            {/* Order Meta */}
+            <div className="grid grid-cols-2 gap-3 text-sm bg-gray-700/40 rounded-lg p-3">
               <div>
-                <Label className="text-gray-400">Delivery Notes</Label>
-                <p className="text-white text-sm mt-1">{selectedOrder.deliveryNotes}</p>
+                <span className="text-gray-400 block text-xs mb-0.5">Date</span>
+                <span className="text-white">
+                  {selectedOrder?.createdAt
+                    ? new Date(selectedOrder.createdAt).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    : '—'}
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-400 block text-xs mb-0.5">Status</span>
+                <span className="text-white capitalize">{selectedOrder?.status?.replace(/_/g, ' ') || '—'}</span>
+              </div>
+              <div>
+                <span className="text-gray-400 block text-xs mb-0.5">Fulfillment</span>
+                <span className="text-white capitalize">{selectedOrder?.fulfillmentMode || '—'}</span>
+              </div>
+              <div>
+                <span className="text-gray-400 block text-xs mb-0.5">Payment Method</span>
+                <span className="text-white">{(selectedOrder as any)?.paymentMethodDisplay || selectedOrder?.paymentMethod?.replace(/_/g, ' ') || '—'}</span>
+              </div>
+              <div>
+                <span className="text-gray-400 block text-xs mb-0.5">Payment Status</span>
+                <span className={`capitalize font-medium ${
+                  selectedOrder?.paymentStatus === 'paid' ? 'text-green-400' :
+                  selectedOrder?.paymentStatus === 'refunded' ? 'text-purple-400' :
+                  selectedOrder?.paymentStatus === 'failed' ? 'text-red-400' :
+                  'text-yellow-400'
+                }`}>{selectedOrder?.paymentStatus || '—'}</span>
+              </div>
+              {selectedOrder?.cardLast4 && (
+                <div>
+                  <span className="text-gray-400 block text-xs mb-0.5">Card</span>
+                  <span className="text-white">{selectedOrder.cardBrand ? `${selectedOrder.cardBrand} ` : ''}••••{selectedOrder.cardLast4}</span>
+                </div>
+              )}
+              {selectedOrder?.promoCode && (
+                <div>
+                  <span className="text-gray-400 block text-xs mb-0.5">Promo Code</span>
+                  <span className="text-white">{selectedOrder.promoCode}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Customer Info */}
+            <div>
+              <Label className="text-gray-400 text-xs uppercase tracking-wide">Customer Information</Label>
+              <div className="mt-2 space-y-1 text-sm">
+                <p className="text-white font-medium">{(selectedOrder as any)?.customerName || `Customer #${selectedOrder?.customerId}`}</p>
+                {(selectedOrder as any)?.customerEmail && (
+                  <p className="text-gray-300">{(selectedOrder as any).customerEmail}</p>
+                )}
+                {(selectedOrder as any)?.customerPhone && (
+                  <p className="text-gray-300">{(selectedOrder as any).customerPhone}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Delivery Info */}
+            {selectedOrder?.fulfillmentMode !== 'pickup' && (
+              <div>
+                <Label className="text-gray-400 text-xs uppercase tracking-wide">Delivery Address</Label>
+                <p className="text-white text-sm mt-1">{selectedOrder?.deliveryAddress || '—'}</p>
               </div>
             )}
+
+            <div>
+              <Label className="text-gray-400 text-xs uppercase tracking-wide">Delivery Window</Label>
+              <p className="text-white text-sm mt-1">{selectedOrder?.deliveryWindow || "Not specified"}</p>
+            </div>
+
+            {/* Items */}
+            <div>
+              <Label className="text-gray-400 text-xs uppercase tracking-wide">Items</Label>
+              <div className="mt-2 rounded-lg overflow-hidden border border-gray-700">
+                <div className="grid grid-cols-12 text-xs text-gray-400 bg-gray-700/60 px-3 py-2">
+                  <span className="col-span-6">Item</span>
+                  <span className="col-span-2 text-center">Qty</span>
+                  <span className="col-span-2 text-right">Unit</span>
+                  <span className="col-span-2 text-right">Total</span>
+                </div>
+                {selectedOrder?.items && selectedOrder.items.length > 0 ? (
+                  selectedOrder.items.map((item: any, idx: number) => (
+                    <div key={idx} className="grid grid-cols-12 text-sm px-3 py-2 border-t border-gray-700/50">
+                      <span className="col-span-6 text-white">{item.name}</span>
+                      <span className="col-span-2 text-center text-gray-300">{item.quantity}</span>
+                      <span className="col-span-2 text-right text-gray-300">${parseFloat(item.price || '0').toFixed(2)}</span>
+                      <span className="col-span-2 text-right text-white">${item.total || (parseFloat(item.price || '0') * item.quantity).toFixed(2)}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-3 py-3 text-sm text-gray-500 text-center">No items</div>
+                )}
+              </div>
+            </div>
+
+            {/* Totals */}
+            <div className="border-t border-gray-700 pt-3 space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Subtotal</span>
+                <span>${parseFloat(selectedOrder?.subtotal || '0').toFixed(2)}</span>
+              </div>
+              {selectedOrder?.discount && parseFloat(selectedOrder.discount) > 0 && (
+                <div className="flex justify-between text-sm text-green-400">
+                  <span>Discount</span>
+                  <span>-${parseFloat(selectedOrder.discount).toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Delivery Fee</span>
+                <span>${parseFloat(selectedOrder?.deliveryFee || '0').toFixed(2)}</span>
+              </div>
+              {selectedOrder?.tax && parseFloat(selectedOrder.tax) > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Tax (8.25%)</span>
+                  <span>${parseFloat(selectedOrder.tax).toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-base pt-1 border-t border-gray-700 mt-1">
+                <span>Total</span>
+                <span>${parseFloat(selectedOrder?.total || '0').toFixed(2)}</span>
+              </div>
+            </div>
+
+            {/* Notes */}
+            {(selectedOrder?.notes || (selectedOrder as any)?.deliveryNotes) && (
+              <div>
+                <Label className="text-gray-400 text-xs uppercase tracking-wide">Delivery Notes</Label>
+                <p className="text-white text-sm mt-1">{selectedOrder?.notes || (selectedOrder as any)?.deliveryNotes}</p>
+              </div>
+            )}
+
+            {/* Refund Info */}
             {selectedOrder?.paymentStatus === "refunded" && (
               <div className="bg-purple-900/30 border border-purple-700 rounded-lg p-4">
-                <Label className="text-purple-400">Refund Information</Label>
+                <Label className="text-purple-400 text-xs uppercase tracking-wide">Refund Information</Label>
                 <div className="mt-2 space-y-1 text-sm">
                   <p><span className="text-gray-400">Amount:</span> <span className="text-white">${selectedOrder.refundAmount}</span></p>
                   <p><span className="text-gray-400">Reason:</span> <span className="text-white">{selectedOrder.refundReason}</span></p>

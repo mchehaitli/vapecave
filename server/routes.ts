@@ -4584,11 +4584,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/delivery/orders', isAdmin, async (req, res) => {
     try {
       const orders = await storage.getAllDeliveryOrders();
-      const ordersWithDisplay = orders.map(order => ({
-        ...order,
-        paymentMethodDisplay: getPaymentDisplayLabel(order.paymentMethod, order.fulfillmentMode, order.cardLast4),
+      const ordersWithDetails = await Promise.all(orders.map(async (order) => {
+        const [items, customer] = await Promise.all([
+          storage.getDeliveryOrderItems(order.id),
+          storage.getDeliveryCustomerById(order.customerId),
+        ]);
+        return {
+          ...order,
+          paymentMethodDisplay: getPaymentDisplayLabel(order.paymentMethod, order.fulfillmentMode, order.cardLast4),
+          customerName: customer?.fullName || null,
+          customerEmail: customer?.email || null,
+          customerPhone: customer?.phone || null,
+          items: items.map((i: any) => ({
+            name: i.product?.name || i.productName || i.name || `Item #${i.productId}`,
+            quantity: i.quantity,
+            price: i.price,
+            total: (parseFloat(i.price || '0') * i.quantity).toFixed(2),
+          })),
+        };
       }));
-      res.json(ordersWithDisplay);
+      res.json(ordersWithDetails);
     } catch (error) {
       console.error("Error fetching orders:", error);
       res.status(500).json({ error: "Failed to fetch orders" });
