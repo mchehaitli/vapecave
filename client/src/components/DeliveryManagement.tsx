@@ -1160,12 +1160,17 @@ function getStatusStyle(status: string): { bg: string; animation?: string } {
   }
 }
 
-function getSmartAction(order: any): { label: string; targetStatus: string; color: string } | null {
+function getSmartAction(order: DeliveryOrder): { label: string; targetStatus: string; color: string } | null {
   switch (order.status) {
     case "pending":
     case "pending_payment":
       return { label: "Confirm", targetStatus: "confirmed", color: "bg-blue-600 hover:bg-blue-700" };
     case "confirmed":
+      if (order.fulfillmentMode === "pickup") {
+        return { label: "Ready for Pickup", targetStatus: "ready_for_pickup", color: "bg-teal-600 hover:bg-teal-700" };
+      }
+      return { label: "Out for Delivery", targetStatus: "out_for_delivery", color: "bg-indigo-600 hover:bg-indigo-700" };
+    case "preparing":
       if (order.fulfillmentMode === "pickup") {
         return { label: "Ready for Pickup", targetStatus: "ready_for_pickup", color: "bg-teal-600 hover:bg-teal-700" };
       }
@@ -1521,7 +1526,9 @@ export function DeliveryOrdersTab() {
                 <SelectContent className="bg-gray-700 border-gray-600">
                   <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="pending_payment">Pending Payment</SelectItem>
                   <SelectItem value="confirmed">Confirmed</SelectItem>
+                  <SelectItem value="preparing">Preparing</SelectItem>
                   <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
                   <SelectItem value="delivered">Delivered</SelectItem>
                   <SelectItem value="ready_for_pickup">Ready for Pickup</SelectItem>
@@ -1745,7 +1752,7 @@ export function DeliveryOrdersTab() {
                                 Change Status
                               </DropdownMenuSubTrigger>
                               <DropdownMenuSubContent className="bg-gray-800 border-gray-700 text-gray-200">
-                                {["pending", "confirmed", "out_for_delivery", "delivered", "ready_for_pickup", "picked_up", "cancelled"].map((s) => (
+                                {["pending", "pending_payment", "confirmed", "preparing", "out_for_delivery", "delivered", "ready_for_pickup", "picked_up", "cancelled"].map((s) => (
                                   <DropdownMenuItem
                                     key={s}
                                     disabled={order.status === s}
