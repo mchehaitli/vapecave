@@ -1605,12 +1605,7 @@ export function DeliveryOrdersTab() {
                   <TableRow className="hover:bg-gray-700/50 border-gray-700">
                     <TableHead className="w-[40px]">
                       <Checkbox
-                        checked={allFilteredSelected}
-                        ref={(el) => {
-                          if (el) {
-                            (el as any).indeterminate = someFilteredSelected && !allFilteredSelected;
-                          }
-                        }}
+                        checked={allFilteredSelected ? true : someFilteredSelected ? "indeterminate" : false}
                         onCheckedChange={toggleAllOrders}
                         data-testid="checkbox-select-all"
                       />
@@ -1709,17 +1704,6 @@ export function DeliveryOrdersTab() {
                             data-testid={`button-action-${order.id}`}
                           >
                             {primaryAction.label}
-                          </Button>
-                        )}
-                        {!primaryAction && (order.status === 'delivered' || order.status === 'picked_up') && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-3 text-xs text-gray-400 hover:text-white hover:bg-gray-700"
-                            onClick={() => handleDownloadReceipt(order.id)}
-                          >
-                            <Download size={13} className="mr-1" />
-                            Receipt
                           </Button>
                         )}
                       </TableCell>
