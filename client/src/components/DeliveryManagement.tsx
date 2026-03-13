@@ -1671,7 +1671,7 @@ export function DeliveryOrdersTab() {
                       <TableCell className="text-gray-300 font-medium">${order.total}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5">
-                          {order.paymentMethod === 'credit_card' || order.paymentMethod === 'card' ? (
+                          {order.paymentMethod === 'credit_card' || order.paymentMethod === 'card' || order.paymentMethod === 'pay_on_delivery' ? (
                             <CreditCard size={13} className="text-gray-400" />
                           ) : (
                             <Banknote size={13} className="text-gray-400" />
