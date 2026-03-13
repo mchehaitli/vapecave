@@ -1,0 +1,55 @@
+Phase 2 (UI Redesign):
+Role: Frontend Engineer & UI/UX Expert
+Task: Phase 2 UI Remediation - Admin "Delivery Orders" Tab Redesign
+
+Now that the backend inventory sync is secure, let's implement the UI/UX optimization proposal for the Admin Delivery Orders table. The goal is to make this dashboard a high-efficiency operator console for store staff, reducing visual clutter and preventing misclicks during a rush.
+
+Please update the Delivery Orders table component with the following changes:
+
+1. Data Density & Column Merging:
+
+Order Column: Combine the Order ID with a Fulfillment icon (e.g., 🚚 for Delivery, 🏪 for Pickup) and an item count badge.
+
+Customer Column: Show the customer's name and include a click-to-call phone link/icon.
+
+Add "Scheduled" Column: Display the Delivery Window or Pickup Time prominently so drivers know when the order needs to leave.
+
+Payment Column: Combine the Payment Status (Paid, Pending, Failed) with the Payment Method icon (💳 for Online/Card, 💵 for Pay on Delivery/Store).
+
+2. Status Color-Coding:
+Implement a clear visual badging system using Tailwind colors for the Order Status:
+
+pending: Amber/Yellow
+
+pending_payment: Orange (Pulse effect if possible)
+
+confirmed: Blue
+
+preparing: Purple
+
+out_for_delivery: Indigo
+
+ready_for_pickup: Teal
+
+delivered / picked_up: Green
+
+cancelled: Red
+
+3. Context-Aware Primary Action Button:
+Remove the 4 cluttering inline buttons (View, Receipt, Refund, Delete) and replace them with a single Smart Action Button that changes based on the order's exact status:
+
+If pending -> Show [ Confirm ]
+
+If confirmed (Delivery) -> Show [ Out for Delivery ]
+
+If confirmed (Pickup) -> Show [ Ready for Pickup ]
+
+If out_for_delivery -> Show [ Mark Delivered ]
+
+If ready_for_pickup -> Show [ Mark Picked Up ]
+
+4. Overflow Menu:
+Move all secondary actions (View Details, Download Receipt, Refund, Delete, and the manual Status Dropdown override) into a neat ... (ellipsis) overflow menu or an "Actions" dropdown at the far right of the row.
+
+Output:
+Please implement these UI changes. Make sure the table remains fully responsive and looks clean on both desktop monitors and store tablets. Let me know if you need to install any new icon libraries (like Lucide-react or Heroicons) to accomplish this.
