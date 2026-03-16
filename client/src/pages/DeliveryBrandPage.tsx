@@ -339,7 +339,7 @@ export default function DeliveryBrandPage({ params }: { params: { slug: string }
                   transition={{ delay: 0.2, duration: 0.5, type: 'spring' }}
                   whileHover={{ scale: 1.05, rotate: 2 }}
                 >
-                  <img src={brand.logo} alt={`${brand.name} - Vape Cave Frisco`} loading="lazy" className="w-full h-full object-contain" />
+                  <img src={brand.logo} alt={`${brand.name} - Vape Cave Frisco`} width={120} height={120} loading="lazy" decoding="async" className="w-full h-full object-contain" />
                 </motion.div>
               )}
               <motion.div

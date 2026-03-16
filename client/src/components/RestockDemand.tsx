@@ -30,7 +30,7 @@ function ProductCell({ image, name }: { image: string | null; name: string }) {
     <div className="flex items-center gap-3">
       <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0 flex items-center justify-center">
         {image ? (
-          <img src={image} alt={name} className="w-full h-full object-contain p-1" />
+          <img src={image} alt={name} width={40} height={40} loading="lazy" decoding="async" className="w-full h-full object-contain p-1" />
         ) : (
           <Package className="w-5 h-5 text-gray-600" />
         )}

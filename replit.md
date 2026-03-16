@@ -20,7 +20,7 @@ The design incorporates a dark/light theme with a vibrant palette (Vibrant Orang
     - **Admin Dashboard**: Protected routes for managing content, products, and settings.
     - **Email Integration**: Contact forms and newsletters via Gmail API.
     - **3-Mile Delivery Radius**: Enforced on both frontend and backend.
-    - **Performance Optimization**: Image optimization, resource hints, and server-side compression.
+    - **Performance Optimization**: Image optimization (WebP conversion for all logos/age-gate images, explicit width/height on all `<img>` tags for CLS prevention, LCP preload via `public/vapecave-logo-white-transparent.webp`, eager loading for above-fold images, lazy loading + `decoding="async"` for below-fold images), resource hints, and server-side compression.
     - **Clover POS Integration**: OAuth 2.0 for inventory sync, payment processing, and order management.
     - **Delivery Fee Configuration**: Dynamic calculation of delivery fees via admin settings.
     - **Delivery Customer Data Export**: Admin feature to export customer data and photo IDs.

@@ -93,8 +93,11 @@ const BrandsCarousel = ({
                   src={currentBrand.logo!}
                   alt={altText}
                   title={currentBrand.name}
+                  width={150}
+                  height={100}
                   className="max-h-[100px] max-w-full object-contain mx-auto"
                   loading="lazy"
+                  decoding="async"
                   onError={() => handleImageError(currentIndex)}
                 />
               ) : (
@@ -103,8 +106,11 @@ const BrandsCarousel = ({
                     src="/brand-logos/placeholder.svg"
                     alt={altText}
                     title={currentBrand.name}
+                    width={100}
+                    height={60}
                     className="max-h-[60px] max-w-full object-contain mx-auto opacity-50"
                     loading="lazy"
+                    decoding="async"
                   />
                   <span className="text-sm text-muted-foreground">{currentBrand.name}</span>
                 </div>

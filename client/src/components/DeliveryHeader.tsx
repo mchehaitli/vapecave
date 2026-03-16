@@ -17,8 +17,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useFulfillment } from "@/contexts/FulfillmentContext";
 
-import logo_dark from "@assets/white_logo_transparent_background.png";
-import logo_light from "@assets/logo_transparent_background_1772506707381.png";
+import logo_dark from "../assets/white_logo_transparent_background.webp";
+import logo_light from "../assets/white_logo_transparent_background.webp";
 
 const mobileMenuVariants = {
   hidden: { opacity: 0, height: 0 },
@@ -164,7 +164,10 @@ export function DeliveryHeader({
                 <img 
                   src={theme === "light" ? logo_light : logo_dark} 
                   alt="Vape Cave Frisco - Logo" 
-                  loading="lazy"
+                  width={160}
+                  height={48}
+                  loading="eager"
+                  decoding="async"
                   className="h-7 sm:h-12 w-auto flex-shrink-0"
                 />
               </Link>
@@ -253,7 +256,10 @@ export function DeliveryHeader({
                               <img 
                                 src={product.image} 
                                 alt={`Vape Cave Frisco - ${product.name}`}
+                                width={40}
+                                height={40}
                                 loading="lazy"
+                                decoding="async"
                                 className="w-10 h-10 object-cover rounded"
                               />
                             )}
@@ -392,7 +398,10 @@ export function DeliveryHeader({
                             <img 
                               src={product.image} 
                               alt={`Vape Cave Frisco - ${product.name}`}
+                              width={40}
+                              height={40}
                               loading="lazy"
+                              decoding="async"
                               className="w-10 h-10 object-cover rounded"
                             />
                           )}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ageLogo from "../assets/vapecave-logo-white-transparent.png";
+const ageLogo = "/vapecave-logo-white-transparent.webp";
 
 interface AgeVerificationModalProps {
   onVerify: (isVerified: boolean) => void;
@@ -23,7 +23,11 @@ const AgeVerificationModal: React.FC<AgeVerificationModalProps> = ({ onVerify })
           <img 
             src={ageLogo} 
             alt="Vape Cave Frisco - Age Verification" 
-            loading="lazy"
+            width={400}
+            height={120}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             className="w-[300px] md:w-[350px] lg:w-[400px] h-auto"
           />
         </div>

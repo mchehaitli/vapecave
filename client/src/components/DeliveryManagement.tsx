@@ -2624,7 +2624,7 @@ const ProductRow = React.memo(function ProductRow({
       <TableCell className="py-1 px-0.5">
         <div className="flex items-center gap-1.5">
           {product.image ? (
-            <img src={product.image} alt={product.name} loading="lazy" className="w-10 h-10 object-contain rounded-md bg-gray-800 flex-shrink-0" />
+            <img src={product.image} alt={product.name} width={40} height={40} loading="lazy" decoding="async" className="w-10 h-10 object-contain rounded-md bg-gray-800 flex-shrink-0" />
           ) : (
             <div className="w-10 h-10 rounded-md bg-gray-800 flex-shrink-0 flex items-center justify-center">
               <Package className="h-4 w-4 text-gray-600" />

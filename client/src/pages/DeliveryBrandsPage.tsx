@@ -124,7 +124,10 @@ function BrandCard({ brand }: { brand: DeliveryBrand }) {
               <img 
                 src={brand.logo} 
                 alt={`Vape Cave Frisco - ${brand.name}`}
+                width={200}
+                height={200}
                 loading="lazy"
+                decoding="async"
                 className="w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-110"
               />
             ) : (
