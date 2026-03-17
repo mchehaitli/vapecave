@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Upload, CheckCircle, AlertCircle, Loader2, Clock, Mail, Megaphone } from "lucide-react";
+import { MapPin, Upload, CheckCircle, AlertCircle, Loader2, Clock } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
