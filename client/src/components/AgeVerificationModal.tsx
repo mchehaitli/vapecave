@@ -23,8 +23,8 @@ const AgeVerificationModal: React.FC<AgeVerificationModalProps> = ({ onVerify })
           <img 
             src={ageLogo} 
             alt="Vape Cave Frisco - Age Verification" 
-            width={400}
-            height={120}
+            width={3400}
+            height={842}
             loading="eager"
             decoding="async"
             fetchPriority="high"

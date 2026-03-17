@@ -25,8 +25,8 @@ const Logo: React.FC<LogoProps> = ({
       <img 
         src={logoSrc} 
         alt="Vape Cave Frisco - Logo" 
-        width={isHeader ? 200 : 280}
-        height={isHeader ? 60 : 100}
+        width={3400}
+        height={842}
         loading={isHeader ? "eager" : "lazy"}
         decoding="async"
         className={imgClass}

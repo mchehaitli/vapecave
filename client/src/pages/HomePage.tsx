@@ -98,23 +98,15 @@ const HomePage = () => {
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
-          <motion.div 
+          <div 
             className="flex flex-col items-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7 }}
           >
-            {/* 3D Container with Neon Border */}
-            <motion.div 
+            <div 
               className="w-full max-w-5xl mx-auto text-center relative"
               style={{
                 transformStyle: 'preserve-3d',
               }}
-              initial={{ opacity: 0, rotateX: 10 }}
-              animate={{ opacity: 1, rotateX: 0 }}
-              transition={{ duration: 1, ease: "easeOut" }}
             >
-              {/* Neon border container */}
               <motion.div
                 className="relative p-8 md:p-12 rounded-2xl bg-card border-2 border-primary/50"
                 animate={{
@@ -130,46 +122,31 @@ const HomePage = () => {
                   ease: "easeInOut"
                 }}
               >
-              <motion.h1 
+              <h1 
                 className="text-5xl md:text-6xl lg:text-7xl font-bold font-['Poppins'] mb-4 leading-tight"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
               >
                 Frisco's Premier <span className="text-primary">Vape</span> & <span className="text-primary">Smoke Shop</span>
-              </motion.h1>
-              <motion.p
+              </h1>
+              <p
                 className="text-base md:text-lg mb-3 text-foreground/90 font-medium max-w-2xl mx-auto leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.12, ease: "easeOut" }}
               >
                 Shop our massive inventory online. Choose rapid local delivery or skip the line with fast in-store pickup in Frisco.
-              </motion.p>
-              <motion.p 
+              </p>
+              <p 
                 className="text-base md:text-lg mb-6 font-medium max-w-4xl mx-auto leading-relaxed text-[#ff5e00]"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
               >
                 Located on Main Street | Open Daily 10AM - Midnight
-              </motion.p>
-              <motion.h2 
+              </p>
+              <h2 
                 className="text-xl md:text-2xl lg:text-3xl mb-8 text-foreground/90 font-medium max-w-[1100px] mx-auto leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
               >
                 Your One Stop Vape Shop for <span className="text-primary font-semibold">Disposables</span> | <span className="text-primary font-semibold">E-Liquids</span> | <span className="text-primary font-semibold">Salts</span> | <span className="text-primary font-semibold">Glass</span> | <span className="text-primary font-semibold">Tobacco</span> | <span className="text-primary font-semibold">Hookah / Shisha</span> | <span className="text-primary font-semibold">Vaporizers</span> | <span className="text-primary font-semibold">Mods</span> |  <span className="text-primary font-semibold">THC-A</span> |   and much more
-              </motion.h2>
-              <motion.p 
+              </h2>
+              <p 
                 className="text-base md:text-lg mb-10 text-muted-foreground max-w-2xl mx-auto"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.45, ease: "easeOut" }}
               >
                 We are a locally owned business specializing in Vaporizers, E-Liquid, Salt Nic, and many different types of disposable devices. We also carry a wide range of glass pipes and accessories as well as Novelties and Hookahs/Shisha. Basically we carry all your smoking needs!
-              </motion.p>
+              </p>
               <motion.div 
                 className="flex flex-wrap justify-center gap-5 mt-8"
                 initial={{ opacity: 0, y: 20 }}
@@ -187,8 +164,8 @@ const HomePage = () => {
                 </motion.div>
               </motion.div>
               </motion.div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </section>
       {/* Featured Frisco Location Section - Enhance SEO importance */}

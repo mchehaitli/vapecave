@@ -164,8 +164,8 @@ export function DeliveryHeader({
                 <img 
                   src={theme === "light" ? logo_light : logo_dark} 
                   alt="Vape Cave Frisco - Logo" 
-                  width={160}
-                  height={48}
+                  width={3400}
+                  height={842}
                   loading="eager"
                   decoding="async"
                   className="h-7 sm:h-12 w-auto flex-shrink-0"
