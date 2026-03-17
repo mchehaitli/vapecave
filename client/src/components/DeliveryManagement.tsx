@@ -42,6 +42,8 @@ interface DeliveryCustomer {
   photoIdUrl: string;
   approvalStatus: "pending" | "approved" | "rejected";
   rejectionReason?: string;
+  emailConsent: boolean;
+  marketingConsent: boolean;
   createdAt: string;
 }
 
@@ -568,7 +570,7 @@ export function DeliveryCustomersTab() {
     const zip = new JSZip();
 
     // Create CSV
-    const headers = ["ID", "Name", "Email", "Phone", "Address", "City", "State", "ZIP", "Status", "Created Date", "Rejection Reason", "Photo ID File"];
+    const headers = ["ID", "Name", "Email", "Phone", "Address", "City", "State", "ZIP", "Status", "Email Consent", "Marketing Consent", "Created Date", "Rejection Reason", "Photo ID File"];
     const rows = filteredCustomers.map(customer => {
       let photoFileName = "";
       if (customer.photoIdUrl) {
@@ -586,6 +588,8 @@ export function DeliveryCustomersTab() {
         customer.state,
         customer.zipCode,
         customer.approvalStatus,
+        customer.emailConsent ? "Yes" : "No",
+        customer.marketingConsent ? "Yes" : "No",
         new Date(customer.createdAt).toLocaleDateString(),
         customer.rejectionReason || "",
         photoFileName
@@ -710,6 +714,7 @@ export function DeliveryCustomersTab() {
                     <TableHead>Email</TableHead>
                     <TableHead>Address</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Marketing</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -747,6 +752,13 @@ export function DeliveryCustomersTab() {
                             Change
                           </Button>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {customer.marketingConsent ? (
+                          <Badge className="bg-green-600 text-xs">Opted In</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-gray-500 border-gray-600 text-xs">No</Badge>
+                        )}
                       </TableCell>
                       <TableCell className="text-gray-400 text-sm">
                         {new Date(customer.createdAt).toLocaleDateString()}

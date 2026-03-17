@@ -78,3 +78,9 @@ The application uses a modular architecture, separating frontend and backend. It
 - **FloatingCartButton**: Uses fulfillment context to hide delivery fees/progress in pickup mode.
 - **Stock badge rule**: Only "Out of Stock" badge/overlay on customer-facing cards; QuickView retains all stock states (In Stock, Low Stock, Out of Stock).
 - **Two-tier sort**: All product listings sorted by Brand Name A-Z → Product Name A-Z.
+
+## Customer Signup Consent
+- **Schema fields**: `emailConsent` (boolean, required) and `marketingConsent` (boolean, optional) on `delivery_customers` table.
+- **Signup page**: Renamed from "Delivery Signup" to "Customer Signup" (supports both delivery and pickup). Two consent checkboxes on the photo ID step: email updates consent (required, blocks submit) and marketing emails consent (optional).
+- **Backend enforcement**: Server rejects signups where `emailConsent` is `false`.
+- **Admin portal**: Customers table includes a "Marketing" column showing opted-in status. CSV export includes both "Email Consent" and "Marketing Consent" columns.

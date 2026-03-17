@@ -3161,6 +3161,8 @@ export class MemStorage implements IStorage {
       mustChangePassword: false,
       passwordResetToken: null,
       passwordResetExpiry: null,
+      emailConsent: customer.emailConsent ?? false,
+      marketingConsent: customer.marketingConsent ?? false,
       createdAt: now,
       updatedAt: now
     };

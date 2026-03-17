@@ -285,6 +285,8 @@ export const deliveryCustomers = pgTable("delivery_customers", {
   passwordResetExpiry: timestamp("password_reset_expiry"), // Expiry time for reset token
   mustChangePassword: boolean("must_change_password").default(false), // Flag to force password change on next login
   hasSeenWelcomeModal: boolean("has_seen_welcome_modal").default(false), // Flag to show first-time welcome modal
+  emailConsent: boolean("email_consent").notNull().default(false),
+  marketingConsent: boolean("marketing_consent").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -301,6 +303,8 @@ export const insertDeliveryCustomerSchema = createInsertSchema(deliveryCustomers
   lat: true,
   lng: true,
   photoIdUrl: true,
+  emailConsent: true,
+  marketingConsent: true,
 });
 
 // Schema for signup request (backend will hash the password)
@@ -314,7 +318,9 @@ export const deliverySignupSchema = z.object({
   zipCode: z.string().min(1),
   lat: z.string(),
   lng: z.string(),
-  photoIdBase64: z.string(), // Base64 encoded photo
+  photoIdBase64: z.string(),
+  emailConsent: z.boolean(),
+  marketingConsent: z.boolean(),
 });
 
 export type InsertDeliveryCustomer = z.infer<typeof insertDeliveryCustomerSchema>;

@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Upload, CheckCircle, AlertCircle, Loader2, Clock } from "lucide-react";
+import { MapPin, Upload, CheckCircle, AlertCircle, Loader2, Clock, Mail, Megaphone } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,8 @@ export default function DeliverySignup() {
   const [addressCoords, setAddressCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [emailConsent, setEmailConsent] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const addressInputRef = useRef<HTMLInputElement | null>(null);
 
   // Validation functions
@@ -276,6 +279,8 @@ export default function DeliverySignup() {
         lat: addressCoords.lat.toString(),
         lng: addressCoords.lng.toString(),
         photoIdBase64: photoBase64,
+        emailConsent,
+        marketingConsent,
       });
       
       setStep("pending");
@@ -293,8 +298,8 @@ export default function DeliverySignup() {
 
   return (
     <MainLayout
-      title="Delivery Signup - Vape Cave Smoke & Stuff"
-      description={`Sign up for Vape Cave Smoke & Stuff delivery service. Get premium vaping products delivered to your door within ${deliveryRadiusMiles} miles of Frisco, TX.`}
+      title="Customer Signup - Vape Cave Smoke & Stuff"
+      description={`Sign up for Vape Cave Smoke & Stuff ordering portal. Get premium vaping products delivered or ready for pickup within ${deliveryRadiusMiles} miles of Frisco, TX.`}
       canonical="/register"
     >
       <div className="min-h-[80vh] bg-gradient-to-b from-background to-muted/20 flex items-center justify-center p-4 py-12">
@@ -305,9 +310,9 @@ export default function DeliverySignup() {
         >
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Delivery Signup</CardTitle>
+              <CardTitle className="text-2xl">Customer Signup</CardTitle>
               <CardDescription>
-                Join our delivery service and get your favorite products delivered to your door
+                Sign up for delivery or in-store pickup and get your favorite products
               </CardDescription>
               <div className="text-sm text-muted-foreground mt-2">
                 Already have an account?{" "}
@@ -525,6 +530,38 @@ export default function DeliverySignup() {
                     )}
                   </div>
 
+                  <div className="space-y-3 border rounded-lg p-4 bg-muted/30">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="email-consent"
+                        checked={emailConsent}
+                        onCheckedChange={(checked) => setEmailConsent(checked === true)}
+                        data-testid="checkbox-email-consent"
+                      />
+                      <label
+                        htmlFor="email-consent"
+                        className="text-sm leading-snug cursor-pointer select-none"
+                      >
+                        <span className="font-medium">I agree to receive email updates</span> about my orders, account status, and important service notifications.
+                        <span className="text-red-500 ml-1">*</span>
+                      </label>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="marketing-consent"
+                        checked={marketingConsent}
+                        onCheckedChange={(checked) => setMarketingConsent(checked === true)}
+                        data-testid="checkbox-marketing-consent"
+                      />
+                      <label
+                        htmlFor="marketing-consent"
+                        className="text-sm leading-snug cursor-pointer select-none"
+                      >
+                        <span className="font-medium">I agree to receive periodic marketing emails</span> and newsletters with promotions, new products, and special offers. <span className="text-muted-foreground">(Optional)</span>
+                      </label>
+                    </div>
+                  </div>
+
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -535,7 +572,7 @@ export default function DeliverySignup() {
                     </Button>
                     <Button
                       onClick={submitSignup}
-                      disabled={loading || !photoFile}
+                      disabled={loading || !photoFile || !emailConsent}
                       className="flex-1"
                       data-testid="button-submit-signup"
                     >

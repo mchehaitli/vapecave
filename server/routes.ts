@@ -1475,6 +1475,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validated = deliverySignupSchema.parse(req.body);
       
+      if (!validated.emailConsent) {
+        return res.status(400).json({ error: "You must consent to receiving email updates to create an account." });
+      }
+      
       // Check if email already exists
       const existingCustomer = await storage.getDeliveryCustomerByEmail(validated.email);
       if (existingCustomer) {
@@ -1498,6 +1502,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lat: validated.lat,
         lng: validated.lng,
         photoIdUrl: photoUrl,
+        emailConsent: validated.emailConsent,
+        marketingConsent: validated.marketingConsent,
       });
       
       // Send signup confirmation email
