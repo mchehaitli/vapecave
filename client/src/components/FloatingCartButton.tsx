@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { useLocation } from "wouter";
 import { useFulfillment } from "@/contexts/FulfillmentContext";
+import { FulfillmentConfirmDialog } from "@/components/FulfillmentConfirmDialog";
 
 interface CartItem {
   id: number;
@@ -45,6 +46,7 @@ export function FloatingCartButton({
   deliveryFee: baseFee = 0,
 }: FloatingCartButtonProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showFulfillmentDialog, setShowFulfillmentDialog] = useState(false);
   const [, setLocation] = useLocation();
   const { fulfillmentMode } = useFulfillment();
   const deliveryMethod = fulfillmentMode || deliveryMethodProp;
@@ -188,7 +190,7 @@ export function FloatingCartButton({
             <Button
               className="w-full mt-2"
               variant="outline"
-              onClick={() => setLocation("/delivery/checkout")}
+              onClick={() => setShowFulfillmentDialog(true)}
               data-testid="button-checkout"
             >
               Proceed to Checkout
@@ -215,6 +217,11 @@ export function FloatingCartButton({
           </motion.button>
         )}
       </AnimatePresence>
+      <FulfillmentConfirmDialog
+        open={showFulfillmentDialog}
+        onContinue={() => { setShowFulfillmentDialog(false); setLocation("/delivery/checkout"); }}
+        onCancel={() => setShowFulfillmentDialog(false)}
+      />
     </div>
   );
 }

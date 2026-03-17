@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FulfillmentConfirmDialog } from "@/components/FulfillmentConfirmDialog";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { queryClient } from "@/lib/queryClient";
@@ -72,6 +73,7 @@ export default function DeliveryCart() {
   const [, setLocation] = useLocation();
   const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
   const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null);
+  const [showFulfillmentDialog, setShowFulfillmentDialog] = useState(false);
   const { fulfillmentMode } = useFulfillment();
   const isPickup = fulfillmentMode === 'pickup';
 
@@ -488,12 +490,15 @@ export default function DeliveryCart() {
                 )}
 
                 <div className="flex flex-col gap-3 pt-4">
-                  <Link href="/delivery/checkout">
-                    <Button className="w-full" size="lg" data-testid="button-checkout">
-                      Proceed to Checkout
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    onClick={() => setShowFulfillmentDialog(true)}
+                    data-testid="button-checkout"
+                  >
+                    Proceed to Checkout
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
                   <Link href="/delivery/shop">
                     <Button variant="outline" className="w-full mt-2" size="lg" data-testid="button-continue-shopping-bottom">
                       <ArrowLeft className="mr-2 h-4 w-4" />
@@ -515,6 +520,11 @@ export default function DeliveryCart() {
         onCancel={() => setConfirmRemoveId(null)}
         title="Remove Item"
         message="Are you sure you want to remove this item from your cart?"
+      />
+      <FulfillmentConfirmDialog
+        open={showFulfillmentDialog}
+        onContinue={() => { setShowFulfillmentDialog(false); setLocation("/delivery/checkout"); }}
+        onCancel={() => setShowFulfillmentDialog(false)}
       />
     </div>
   );
