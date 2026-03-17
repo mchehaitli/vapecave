@@ -15,6 +15,13 @@
       "when": 1762925009834,
       "tag": "0001_add_must_change_password",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773710482580,
+      "tag": "0002_aberrant_doorman",
+      "breakpoints": true
     }
   ]
 }
