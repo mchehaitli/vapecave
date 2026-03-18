@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
-import { ChevronDown, ChevronRight, ChevronLeft, ArrowRight, Sparkles, Store, Tag, LayoutGrid } from "lucide-react";
+import { ChevronDown, ChevronRight, ArrowRight, Sparkles, Store, Tag, LayoutGrid } from "lucide-react";
 import type { DeliveryCategory, DeliveryBrand, DeliveryProductLine } from "@shared/schema";
 
 interface DeliveryCategoryNavProps {
@@ -225,7 +225,7 @@ export function DeliveryCategoryNav({
   const handleMobileCategoryClick = (e: React.MouseEvent, category: DeliveryCategory, hasBrands: boolean) => {
     e.stopPropagation();
     if (hasBrands) {
-      // Toggle the inline expanded category; keep panel open
+      // Accordion: toggle brand list below grid; keep panel open
       setMobileExpandedCategoryId(prev => prev === category.id ? null : category.id);
       setMobileExpandedBrandId(null);
     } else {
@@ -239,9 +239,16 @@ export function DeliveryCategoryNav({
     }
   };
 
-  const handleMobileBrandProductLineToggle = (e: React.MouseEvent, brandId: number) => {
+  // Brand tap: toggle product lines if brand has them; navigate if not
+  const handleMobileBrandTap = (e: React.MouseEvent, brand: DeliveryBrand, hasProductLines: boolean) => {
     e.stopPropagation();
-    setMobileExpandedBrandId(prev => prev === brandId ? null : brandId);
+    if (hasProductLines) {
+      setMobileExpandedBrandId(prev => prev === brand.id ? null : brand.id);
+    } else {
+      const href = standalone ? `/products/brand/${brand.slug}` : `/delivery/brand/${brand.slug}`;
+      setLocation(href);
+      closeAll();
+    }
   };
 
   return (
@@ -354,73 +361,68 @@ export function DeliveryCategoryNav({
           </nav>
         </div>
 
-        {/* Mobile categories panel */}
+        {/* Mobile categories panel — inline accordion */}
         {mobileCategoriesOpen && (
           <div className="sm:hidden border-t border-border/30 bg-card/95 backdrop-blur-sm relative z-50">
             <div className="container mx-auto px-3 py-2">
 
-              {/* Drilled into a category: show brand list */}
-              {mobileExpandedCategoryId !== null && mobileExpandedCategory ? (
-                <div>
-                  {/* Back button + category header */}
-                  <div className="flex items-center gap-2 mb-2">
+              {/* Category grid — always visible */}
+              <div className="grid grid-cols-2 gap-1.5">
+                {activeCategories.map((category) => {
+                  const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
+                  const hasBrands = categoryBrands.length > 0;
+                  const isExpanded = mobileExpandedCategoryId === category.id;
+                  const isActive = standalone
+                    ? (selectedCategory === category.name || location === `/products/category/${category.slug}`)
+                    : location === `/delivery/category/${category.slug}`;
+                  
+                  return (
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMobileExpandedCategoryId(null);
-                        setMobileExpandedBrandId(null);
-                      }}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors py-1 pr-2"
+                      key={category.id}
+                      onClick={(e) => handleMobileCategoryClick(e, category, hasBrands)}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                        isExpanded
+                          ? "bg-primary/20 text-primary ring-1 ring-primary/40"
+                          : isActive
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground/80 hover:text-primary bg-muted/30 hover:bg-muted/60"
+                      }`}
                     >
-                      <ChevronLeft className="w-3.5 h-3.5" />
-                      Back
+                      <span className="truncate">{category.name}</span>
+                      {hasBrands && (
+                        <ChevronDown className={`w-3 h-3 flex-shrink-0 ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                      )}
                     </button>
-                    <span className="text-xs font-semibold text-foreground/90 truncate">
-                      {mobileExpandedCategory.name}
-                    </span>
-                  </div>
+                  );
+                })}
+              </div>
 
-                  {/* Brand list with inline product line expansion */}
+              {/* Inline brand accordion — appears below grid when a category is expanded */}
+              {mobileExpandedCategoryId !== null && mobileExpandedCategory && mobileExpandedCategoryBrands.length > 0 && (
+                <div className="mt-2 border-t border-border/30 pt-2">
+                  {/* Brand list */}
                   <div className="space-y-0.5">
                     {mobileExpandedCategoryBrands.map((brand) => {
                       const brandProductLines = activeProductLines.filter(pl => pl.brandId === brand.id);
                       const hasProductLines = brandProductLines.length > 0;
                       const isBrandExpanded = mobileExpandedBrandId === brand.id;
-                      const brandHref = standalone ? `/products/brand/${brand.slug}` : `/delivery/brand/${brand.slug}`;
 
                       return (
                         <div key={brand.id}>
-                          <div className="flex items-center rounded-lg overflow-hidden">
-                            {standalone ? (
-                              <button
-                                className="flex-1 px-3 py-2.5 text-xs text-foreground/80 hover:text-primary hover:bg-muted/40 transition-all text-left"
-                                onClick={() => { setLocation(brandHref); closeAll(); }}
-                              >
-                                {brand.name}
-                              </button>
-                            ) : (
-                              <Link
-                                href={brandHref}
-                                className="flex-1 px-3 py-2.5 text-xs text-foreground/80 hover:text-primary hover:bg-muted/40 transition-all"
-                                onClick={closeAll}
-                              >
-                                {brand.name}
-                              </Link>
-                            )}
+                          {/* Brand row — tap toggles product lines if any, else navigates */}
+                          <button
+                            onClick={(e) => handleMobileBrandTap(e, brand, hasProductLines)}
+                            className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-xs text-foreground/80 hover:text-primary hover:bg-muted/40 transition-all text-left"
+                          >
+                            <span className="truncate">{brand.name}</span>
                             {hasProductLines && (
-                              <button
-                                onClick={(e) => handleMobileBrandProductLineToggle(e, brand.id)}
-                                className="px-3 py-2.5 text-muted-foreground hover:text-primary hover:bg-muted/40 transition-all"
-                                aria-label="Show product lines"
-                              >
-                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isBrandExpanded ? 'rotate-180' : ''}`} />
-                              </button>
+                              <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 ml-1 transition-transform ${isBrandExpanded ? 'rotate-180' : ''}`} />
                             )}
-                          </div>
+                          </button>
 
-                          {/* Inline product line expansion */}
+                          {/* Inline product line list */}
                           {isBrandExpanded && brandProductLines.length > 0 && (
-                            <div className="ml-3 border-l border-border/40 pl-2 mb-1 space-y-0.5">
+                            <div className="ml-4 border-l border-border/40 pl-2 mb-1 space-y-0.5">
                               {brandProductLines.map((productLine) => {
                                 const plHref = standalone
                                   ? `/products/brand/${brand.slug}?line=${productLine.slug}`
@@ -451,8 +453,8 @@ export function DeliveryCategoryNav({
                     })}
                   </div>
 
-                  {/* "See All [Category]" footer link */}
-                  <div className="border-t border-border/30 mt-2 pt-2">
+                  {/* "See All [Category]" link */}
+                  <div className="mt-1.5 pt-1.5 border-t border-border/20">
                     {standalone ? (
                       <button
                         onClick={() => {
@@ -476,34 +478,6 @@ export function DeliveryCategoryNav({
                       </Link>
                     )}
                   </div>
-                </div>
-              ) : (
-                /* Category grid view */
-                <div className="grid grid-cols-2 gap-1.5">
-                  {activeCategories.map((category) => {
-                    const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
-                    const hasBrands = categoryBrands.length > 0;
-                    const isActive = standalone
-                      ? (selectedCategory === category.name || location === `/products/category/${category.slug}`)
-                      : location === `/delivery/category/${category.slug}`;
-                    
-                    return (
-                      <button
-                        key={category.id}
-                        onClick={(e) => handleMobileCategoryClick(e, category, hasBrands)}
-                        className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                          isActive
-                            ? "bg-primary text-primary-foreground"
-                            : "text-foreground/80 hover:text-primary bg-muted/30 hover:bg-muted/60"
-                        }`}
-                      >
-                        <span className="truncate">{category.name}</span>
-                        {hasBrands && (
-                          <ChevronRight className="w-3 h-3 flex-shrink-0 ml-1" />
-                        )}
-                      </button>
-                    );
-                  })}
                 </div>
               )}
             </div>
