@@ -730,11 +730,12 @@ export default function DeliveryAccount() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0 gap-1.5"
                               onClick={() => removeRestockMutation.mutate(alert.productId)}
                               disabled={removeRestockMutation.isPending}
                             >
                               <Trash2 className="h-4 w-4" />
+                              <span className="hidden sm:inline">Remove Alert</span>
                             </Button>
                           </div>
                         ))}

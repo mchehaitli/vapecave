@@ -2582,19 +2582,27 @@ export class DbStorage implements IStorage {
         eq(restockRequests.status, 'pending')
       ));
 
-    await db
-      .update(restockRequests)
-      .set({ status: 'notified', notifiedAt: new Date() })
-      .where(and(
-        eq(restockRequests.productId, productId),
-        eq(restockRequests.status, 'pending')
-      ));
-
-    // Filter out customers who have disabled restock email notifications
-    // (null = no preference row = default true)
-    return rows
+    // Only mark as 'notified' the customers for whom we will actually send an email.
+    // Customers with restockEmail=false are skipped and remain 'pending'.
+    const eligibleCustomerIds = rows
       .filter(r => r.restockEmail !== false)
-      .map(r => ({ email: r.email, fullName: r.fullName }));
+      .map(r => r.customerId);
+
+    if (eligibleCustomerIds.length > 0) {
+      await db
+        .update(restockRequests)
+        .set({ status: 'notified', notifiedAt: new Date() })
+        .where(and(
+          eq(restockRequests.productId, productId),
+          eq(restockRequests.status, 'pending'),
+          sql`${restockRequests.customerId} = ANY(${eligibleCustomerIds}::integer[])`
+        ));
+    }
+
+    return eligibleCustomerIds.map(id => {
+      const r = rows.find(row => row.customerId === id)!;
+      return { email: r.email, fullName: r.fullName };
+    });
   }
 
   async deleteRestockRequest(id: number): Promise<void> {
