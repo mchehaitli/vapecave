@@ -1,0 +1,43 @@
+Feature Request: Advanced Restock Notifications & Client Preference Management
+
+Please implement a comprehensive notification management system for both the client-facing account settings and the admin portal. Below are the specific requirements and best practices to follow:
+
+1. Client Account Settings: Restock Alerts Management
+
+Create a dedicated section in the user's account dashboard (e.g., "My Restock Alerts").
+
+Display a list/grid of all specific products the user has requested back-in-stock notifications for.
+
+Add a "Remove" or "Cancel Alert" button next to each product so users can delete items they are no longer interested in.
+
+2. Client Account Settings: General Notification Preferences
+
+Add a "Notification Preferences" tab in the client settings.
+
+Include the following toggle options (Boolean values in the database):
+
+Restock Alerts: (Email / SMS)
+
+Order Updates: (Email / SMS)
+
+Marketing & Promotions: (Email / SMS)
+
+Crucial: Include a prominent "Save Preferences" button at the bottom of this section so changes are only committed when the user is ready.
+
+3. Automated System Logic (Backend)
+
+Implement a database trigger or listener for inventory updates.
+
+When a product's stock level changes from 0 to > 0, automatically fetch all users subscribed to that product_id.
+
+Send out the restock notification to those users based on their saved preferences (Email/SMS).
+
+Auto-Clear: Once the notification is successfully sent, automatically delete/remove those users from that product's restock notification queue so they don't receive redundant alerts in the future.
+
+4. Admin Portal Integration
+
+User Profiles: Update the admin view of individual client profiles to display their current Notification Preferences (read-only or editable by admin for customer support purposes).
+
+Restock Demand Dashboard: Create a view in the admin portal showing "Highly Requested Restocks" (a list of out-of-stock products and the count of users waiting for each).
+
+Ensure that when a user manually removes a restock alert, or when the system auto-clears them after a restock, these numbers dynamically update in the admin portal.
