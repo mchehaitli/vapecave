@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
-import { ChevronDown, ChevronRight, ArrowRight, Sparkles, Store, Tag, LayoutGrid } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, ArrowRight, Sparkles, Store, Tag, LayoutGrid } from "lucide-react";
 import type { DeliveryCategory, DeliveryBrand, DeliveryProductLine } from "@shared/schema";
 
 interface DeliveryCategoryNavProps {
@@ -25,11 +25,18 @@ export function DeliveryCategoryNav({
   standalone = false,
 }: DeliveryCategoryNavProps) {
   const [location, setLocation] = useLocation();
+
+  // Desktop portal dropdown state
   const [expandedCategoryId, setExpandedCategoryId] = useState<number | null>(null);
   const [expandedBrandId, setExpandedBrandId] = useState<number | null>(null);
   const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number } | null>(null);
   const [brandDropdownPos, setBrandDropdownPos] = useState<{ top: number; left: number } | null>(null);
+
+  // Mobile inline accordion state (separate from desktop portal state)
   const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
+  const [mobileExpandedCategoryId, setMobileExpandedCategoryId] = useState<number | null>(null);
+  const [mobileExpandedBrandId, setMobileExpandedBrandId] = useState<number | null>(null);
+
   const categoryButtonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
   const brandItemRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
@@ -63,6 +70,8 @@ export function DeliveryCategoryNav({
     setDropdownPos(null);
     setBrandDropdownPos(null);
     setMobileCategoriesOpen(false);
+    setMobileExpandedCategoryId(null);
+    setMobileExpandedBrandId(null);
   }, []);
 
   const openCategoryDropdown = useCallback((categoryId: number) => {
@@ -80,24 +89,35 @@ export function DeliveryCategoryNav({
     const el = brandItemRefs.current[brandId];
     if (el) {
       const rect = el.getBoundingClientRect();
-      const isMobile = window.innerWidth < 640;
-      if (isMobile) {
-        setBrandDropdownPos({ top: rect.bottom + 4, left: Math.max(8, rect.left) });
-      } else {
-        setBrandDropdownPos({ top: rect.top, left: rect.right + 4 });
-      }
+      setBrandDropdownPos({ top: rect.top, left: rect.right + 4 });
     }
     setExpandedBrandId(brandId);
   }, []);
 
+  // Scroll lock while mobile panel is open
   useEffect(() => {
-    if (expandedCategoryId === null && !mobileCategoriesOpen) return;
-    const isMobile = window.innerWidth < 640;
-    if (isMobile) return;
-    const handleScroll = () => closeAll();
+    if (mobileCategoriesOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileCategoriesOpen]);
+
+  // Close desktop dropdowns on scroll (desktop only)
+  useEffect(() => {
+    if (expandedCategoryId === null) return;
+    const handleScroll = () => {
+      setExpandedCategoryId(null);
+      setExpandedBrandId(null);
+      setDropdownPos(null);
+      setBrandDropdownPos(null);
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [expandedCategoryId, mobileCategoriesOpen, closeAll]);
+  }, [expandedCategoryId]);
 
   if (activeCategories.length === 0) return null;
 
@@ -107,6 +127,14 @@ export function DeliveryCategoryNav({
 
   const categoryBrandsForDropdown = expandedCategory
     ? activeBrands.filter(b => b.categoryId === expandedCategory.id)
+    : [];
+
+  const mobileExpandedCategory = mobileExpandedCategoryId !== null
+    ? activeCategories.find(c => c.id === mobileExpandedCategoryId) || null
+    : null;
+
+  const mobileExpandedCategoryBrands = mobileExpandedCategory
+    ? activeBrands.filter(b => b.categoryId === mobileExpandedCategory.id)
     : [];
 
   const hideBoth = hideSpecialTabs || hideBrandsAndSale;
@@ -173,6 +201,7 @@ export function DeliveryCategoryNav({
     closeAll();
   };
 
+  // Desktop: portal-based dropdown
   const handleCategoryClick = (category: DeliveryCategory, hasBrands: boolean, isOpen: boolean) => {
     if (standalone) {
       if (hasBrands) {
@@ -192,25 +221,27 @@ export function DeliveryCategoryNav({
     }
   };
 
-  const handleMobileCategoryClick = (category: DeliveryCategory, hasBrands: boolean) => {
-    if (standalone) {
-      if (hasBrands) {
-        setMobileCategoriesOpen(false);
-        openCategoryDropdown(category.id);
-      } else {
+  // Mobile: inline accordion — never closes the panel
+  const handleMobileCategoryClick = (e: React.MouseEvent, category: DeliveryCategory, hasBrands: boolean) => {
+    e.stopPropagation();
+    if (hasBrands) {
+      // Toggle the inline expanded category; keep panel open
+      setMobileExpandedCategoryId(prev => prev === category.id ? null : category.id);
+      setMobileExpandedBrandId(null);
+    } else {
+      if (standalone) {
         setLocation(`/products/category/${category.slug}`);
         onCategorySelect?.(category.name);
-        closeAll();
-      }
-    } else {
-      if (hasBrands) {
-        setMobileCategoriesOpen(false);
-        openCategoryDropdown(category.id);
       } else {
         setLocation(`/delivery/category/${category.slug}`);
-        closeAll();
       }
+      closeAll();
     }
+  };
+
+  const handleMobileBrandProductLineToggle = (e: React.MouseEvent, brandId: number) => {
+    e.stopPropagation();
+    setMobileExpandedBrandId(prev => prev === brandId ? null : brandId);
   };
 
   return (
@@ -266,6 +297,7 @@ export function DeliveryCategoryNav({
               </>
             )}
 
+            {/* Desktop category pills */}
             <div className="hidden sm:contents">
               {activeCategories.map((category) => {
                 const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
@@ -296,14 +328,17 @@ export function DeliveryCategoryNav({
               })}
             </div>
 
+            {/* Mobile "Categories" toggle button */}
             <div className="sm:hidden">
               <button
                 onClick={() => {
-                  setMobileCategoriesOpen(!mobileCategoriesOpen);
-                  setExpandedCategoryId(null);
-                  setExpandedBrandId(null);
-                  setDropdownPos(null);
-                  setBrandDropdownPos(null);
+                  if (mobileCategoriesOpen) {
+                    closeAll();
+                  } else {
+                    setMobileCategoriesOpen(true);
+                    setMobileExpandedCategoryId(null);
+                    setMobileExpandedBrandId(null);
+                  }
                 }}
                 className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${
                   mobileCategoriesOpen || isMobileOnCategoryPage
@@ -319,49 +354,170 @@ export function DeliveryCategoryNav({
           </nav>
         </div>
 
+        {/* Mobile categories panel */}
         {mobileCategoriesOpen && (
           <div className="sm:hidden border-t border-border/30 bg-card/95 backdrop-blur-sm relative z-50">
             <div className="container mx-auto px-3 py-2">
-              <div className="grid grid-cols-2 gap-1.5">
-                {activeCategories.map((category) => {
-                  const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
-                  const hasBrands = categoryBrands.length > 0;
-                  const isActive = standalone
-                    ? (selectedCategory === category.name || location === `/products/category/${category.slug}`)
-                    : location === `/delivery/category/${category.slug}`;
-                  
-                  return (
+
+              {/* Drilled into a category: show brand list */}
+              {mobileExpandedCategoryId !== null && mobileExpandedCategory ? (
+                <div>
+                  {/* Back button + category header */}
+                  <div className="flex items-center gap-2 mb-2">
                     <button
-                      key={category.id}
-                      ref={(el) => { categoryButtonRefs.current[category.id] = el; }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleMobileCategoryClick(category, hasBrands);
+                        setMobileExpandedCategoryId(null);
+                        setMobileExpandedBrandId(null);
                       }}
-                      className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "text-foreground/80 hover:text-primary bg-muted/30 hover:bg-muted/60"
-                      }`}
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors py-1 pr-2"
                     >
-                      <span className="truncate">{category.name}</span>
-                      {hasBrands && (
-                        <ChevronRight className="w-3 h-3 flex-shrink-0 ml-1" />
-                      )}
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      Back
                     </button>
-                  );
-                })}
-              </div>
+                    <span className="text-xs font-semibold text-foreground/90 truncate">
+                      {mobileExpandedCategory.name}
+                    </span>
+                  </div>
+
+                  {/* Brand list with inline product line expansion */}
+                  <div className="space-y-0.5">
+                    {mobileExpandedCategoryBrands.map((brand) => {
+                      const brandProductLines = activeProductLines.filter(pl => pl.brandId === brand.id);
+                      const hasProductLines = brandProductLines.length > 0;
+                      const isBrandExpanded = mobileExpandedBrandId === brand.id;
+                      const brandHref = standalone ? `/products/brand/${brand.slug}` : `/delivery/brand/${brand.slug}`;
+
+                      return (
+                        <div key={brand.id}>
+                          <div className="flex items-center rounded-lg overflow-hidden">
+                            {standalone ? (
+                              <button
+                                className="flex-1 px-3 py-2.5 text-xs text-foreground/80 hover:text-primary hover:bg-muted/40 transition-all text-left"
+                                onClick={() => { setLocation(brandHref); closeAll(); }}
+                              >
+                                {brand.name}
+                              </button>
+                            ) : (
+                              <Link
+                                href={brandHref}
+                                className="flex-1 px-3 py-2.5 text-xs text-foreground/80 hover:text-primary hover:bg-muted/40 transition-all"
+                                onClick={closeAll}
+                              >
+                                {brand.name}
+                              </Link>
+                            )}
+                            {hasProductLines && (
+                              <button
+                                onClick={(e) => handleMobileBrandProductLineToggle(e, brand.id)}
+                                className="px-3 py-2.5 text-muted-foreground hover:text-primary hover:bg-muted/40 transition-all"
+                                aria-label="Show product lines"
+                              >
+                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isBrandExpanded ? 'rotate-180' : ''}`} />
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Inline product line expansion */}
+                          {isBrandExpanded && brandProductLines.length > 0 && (
+                            <div className="ml-3 border-l border-border/40 pl-2 mb-1 space-y-0.5">
+                              {brandProductLines.map((productLine) => {
+                                const plHref = standalone
+                                  ? `/products/brand/${brand.slug}?line=${productLine.slug}`
+                                  : `/delivery/product-line/${productLine.slug}`;
+                                return standalone ? (
+                                  <button
+                                    key={productLine.id}
+                                    className="block w-full px-3 py-2 text-xs text-foreground/70 hover:text-primary hover:bg-muted/40 transition-all text-left rounded"
+                                    onClick={() => { setLocation(plHref); closeAll(); }}
+                                  >
+                                    {productLine.name}
+                                  </button>
+                                ) : (
+                                  <Link
+                                    key={productLine.id}
+                                    href={plHref}
+                                    className="block px-3 py-2 text-xs text-foreground/70 hover:text-primary hover:bg-muted/40 transition-all rounded"
+                                    onClick={closeAll}
+                                  >
+                                    {productLine.name}
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* "See All [Category]" footer link */}
+                  <div className="border-t border-border/30 mt-2 pt-2">
+                    {standalone ? (
+                      <button
+                        onClick={() => {
+                          setLocation(`/products/category/${mobileExpandedCategory.slug}`);
+                          onCategorySelect?.(mobileExpandedCategory.name);
+                          closeAll();
+                        }}
+                        className="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-xs font-semibold text-primary hover:bg-primary/10 transition-all rounded-lg cursor-pointer"
+                      >
+                        See All {mobileExpandedCategory.name}
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/delivery/category/${mobileExpandedCategory.slug}`}
+                        onClick={closeAll}
+                        className="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-xs font-semibold text-primary hover:bg-primary/10 transition-all rounded-lg cursor-pointer"
+                      >
+                        See All {mobileExpandedCategory.name}
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                /* Category grid view */
+                <div className="grid grid-cols-2 gap-1.5">
+                  {activeCategories.map((category) => {
+                    const categoryBrands = activeBrands.filter(b => b.categoryId === category.id);
+                    const hasBrands = categoryBrands.length > 0;
+                    const isActive = standalone
+                      ? (selectedCategory === category.name || location === `/products/category/${category.slug}`)
+                      : location === `/delivery/category/${category.slug}`;
+                    
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={(e) => handleMobileCategoryClick(e, category, hasBrands)}
+                        className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                          isActive
+                            ? "bg-primary text-primary-foreground"
+                            : "text-foreground/80 hover:text-primary bg-muted/30 hover:bg-muted/60"
+                        }`}
+                      >
+                        <span className="truncate">{category.name}</span>
+                        {hasBrands && (
+                          <ChevronRight className="w-3 h-3 flex-shrink-0 ml-1" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}
       </section>
 
+      {/* Mobile backdrop — closes the panel when tapping outside */}
       {mobileCategoriesOpen && createPortal(
-        <div className="fixed inset-0 z-40 sm:hidden" onClick={() => setMobileCategoriesOpen(false)} />,
+        <div className="fixed inset-0 z-40 sm:hidden" onClick={closeAll} />,
         document.body
       )}
 
+      {/* Desktop portal dropdown (unchanged) */}
       {expandedCategoryId !== null && createPortal(
         <>
           <div 
