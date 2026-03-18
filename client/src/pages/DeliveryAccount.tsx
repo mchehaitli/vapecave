@@ -2,12 +2,15 @@ import { useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { User, Package, Lock, MapPin, Phone, Mail, ChevronRight, RefreshCw, ShoppingCart, Download, AlertCircle } from "lucide-react";
+import { User, Package, Lock, MapPin, Phone, Mail, ChevronRight, RefreshCw, ShoppingCart, Download, AlertCircle, Bell, BellOff, Trash2, PackageSearch } from "lucide-react";
 import { DeliveryHeader } from "@/components/DeliveryHeader";
 import { DeliveryCategoryNav } from "@/components/DeliveryCategoryNav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -18,13 +21,35 @@ interface OrderWithItems extends DeliveryOrder {
   items?: Array<DeliveryOrderItem & { product?: DeliveryProduct }>;
 }
 
+interface NotificationPreferences {
+  customerId: number;
+  restockEmail: boolean;
+  restockSms: boolean;
+  orderEmail: boolean;
+  orderSms: boolean;
+  promoEmail: boolean;
+  promoSms: boolean;
+}
+
+interface RestockAlertItem {
+  id: number;
+  productId: number;
+  productName: string;
+  productImage: string | null;
+  currentStock: string | null;
+  status: string;
+  createdAt: string;
+}
 
 export default function DeliveryAccount() {
   const [, setLocation] = useLocation();
   const search = useSearch();
   const params = new URLSearchParams(search);
-  const [activeTab, setActiveTab] = useState<"profile" | "orders">(
-    params.get("tab") === "orders" ? "orders" : "profile"
+  const [activeTab, setActiveTab] = useState<"profile" | "orders" | "restock-alerts" | "notification-preferences">(
+    (params.get("tab") as any) === "orders" ? "orders" :
+    (params.get("tab") as any) === "restock-alerts" ? "restock-alerts" :
+    (params.get("tab") as any) === "notification-preferences" ? "notification-preferences" :
+    "profile"
   );
   const { toast } = useToast();
 
@@ -62,6 +87,32 @@ export default function DeliveryAccount() {
     },
   });
 
+  // Fetch restock alerts
+  const { data: restockAlerts = [], isLoading: isLoadingRestockAlerts } = useQuery<RestockAlertItem[]>({
+    queryKey: ['/api/delivery/restock-requests'],
+    queryFn: async () => {
+      const response = await fetch('/api/delivery/restock-requests', {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch restock alerts');
+      return response.json();
+    },
+    enabled: activeTab === 'restock-alerts',
+  });
+
+  // Fetch notification preferences
+  const { data: notifPrefs, isLoading: isLoadingPrefs } = useQuery<NotificationPreferences>({
+    queryKey: ['/api/delivery/notification-preferences'],
+    queryFn: async () => {
+      const response = await fetch('/api/delivery/notification-preferences', {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch preferences');
+      return response.json();
+    },
+    enabled: activeTab === 'notification-preferences',
+  });
+
   // Reorder mutation
   const reorderMutation = useMutation({
     mutationFn: async (orderId: number) => {
@@ -82,6 +133,36 @@ export default function DeliveryAccount() {
     },
     onError: (error: any) => {
       toast({ title: "Reorder Failed", description: error.message || "Failed to reorder items.", variant: "destructive" });
+    },
+  });
+
+  // Remove restock alert mutation
+  const removeRestockMutation = useMutation({
+    mutationFn: async (productId: number) => {
+      const res = await apiRequest("DELETE", `/api/delivery/restock-requests/${productId}`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/delivery/restock-requests'] });
+      toast({ title: "Alert Removed", description: "Restock alert has been removed." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to remove restock alert.", variant: "destructive" });
+    },
+  });
+
+  // Update notification preferences mutation
+  const updatePrefsMutation = useMutation({
+    mutationFn: async (prefs: Partial<NotificationPreferences>) => {
+      const res = await apiRequest("PUT", `/api/delivery/notification-preferences`, prefs);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/delivery/notification-preferences'] });
+      toast({ title: "Preferences Saved", description: "Your notification preferences have been updated." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to save preferences.", variant: "destructive" });
     },
   });
 
@@ -110,6 +191,10 @@ export default function DeliveryAccount() {
     } catch (error) {
       toast({ title: "Download Failed", description: "Failed to download receipt.", variant: "destructive" });
     }
+  };
+
+  const handleTogglePref = (key: keyof NotificationPreferences, value: boolean) => {
+    updatePrefsMutation.mutate({ [key]: value });
   };
 
   const getStatusColor = (status: string) => {
@@ -216,6 +301,32 @@ export default function DeliveryAccount() {
                   >
                     <Package className="h-5 w-5" />
                     <span className="font-medium">Order History</span>
+                  </button>
+                  <Separator />
+                  <button
+                    onClick={() => setActiveTab("restock-alerts")}
+                    className={`flex items-center gap-3 px-4 py-3 text-left transition-colors ${
+                      activeTab === "restock-alerts"
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted"
+                    }`}
+                    data-testid="button-nav-restock-alerts"
+                  >
+                    <PackageSearch className="h-5 w-5" />
+                    <span className="font-medium">Restock Alerts</span>
+                  </button>
+                  <Separator />
+                  <button
+                    onClick={() => setActiveTab("notification-preferences")}
+                    className={`flex items-center gap-3 px-4 py-3 text-left transition-colors ${
+                      activeTab === "notification-preferences"
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted"
+                    }`}
+                    data-testid="button-nav-notification-preferences"
+                  >
+                    <Bell className="h-5 w-5" />
+                    <span className="font-medium">Notification Settings</span>
                   </button>
                   <Separator />
                   <Link href="/delivery/change-password" className="flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted">
@@ -495,7 +606,7 @@ export default function DeliveryAccount() {
                                   {reorderMutation.isPending ? (
                                     <>
                                       <RefreshCw className="h-4 w-4 animate-spin" />
-                                      Adding to Cart...
+                                      Adding...
                                     </>
                                   ) : (
                                     <>
@@ -514,10 +625,253 @@ export default function DeliveryAccount() {
                 </Card>
               </motion.div>
             )}
+
+            {activeTab === "restock-alerts" && (
+              <motion.div
+                key="restock-alerts"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <PackageSearch className="h-5 w-5" />
+                      Restock Alerts
+                    </CardTitle>
+                    <CardDescription>
+                      Products you're waiting to be restocked. You'll be notified by email when they're available.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {isLoadingRestockAlerts ? (
+                      <div className="text-center py-12">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+                        <p className="text-muted-foreground">Loading your alerts...</p>
+                      </div>
+                    ) : restockAlerts.length === 0 ? (
+                      <div className="text-center py-12">
+                        <PackageSearch className="h-16 w-16 text-muted-foreground/40 mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold mb-2">No restock alerts</h3>
+                        <p className="text-muted-foreground mb-6">
+                          When a product you want is out of stock, tap "Notify Me" to get alerted when it's back.
+                        </p>
+                        <Link href="/delivery/shop">
+                          <Button variant="outline" className="gap-2">
+                            <ShoppingCart className="h-4 w-4" />
+                            Browse Products
+                          </Button>
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {restockAlerts.map((alert) => (
+                          <div
+                            key={alert.id}
+                            className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+                          >
+                            {alert.productImage ? (
+                              <img
+                                src={alert.productImage}
+                                alt={alert.productName}
+                                className="w-14 h-14 object-contain rounded-md border bg-white p-1 flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 rounded-md border bg-muted flex items-center justify-center flex-shrink-0">
+                                <PackageSearch className="h-6 w-6 text-muted-foreground" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold truncate">{alert.productName}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="secondary" className="text-xs">
+                                  Waiting for Restock
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                  Since {formatDate(alert.createdAt)}
+                                </span>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+                              onClick={() => removeRestockMutation.mutate(alert.productId)}
+                              disabled={removeRestockMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {activeTab === "notification-preferences" && (
+              <motion.div
+                key="notification-preferences"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Bell className="h-5 w-5" />
+                      Notification Settings
+                    </CardTitle>
+                    <CardDescription>
+                      Choose how you'd like to be notified about orders, restocks, and promotions.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {isLoadingPrefs ? (
+                      <div className="text-center py-12">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+                        <p className="text-muted-foreground">Loading preferences...</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {/* Restock Notifications */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <PackageSearch className="h-4 w-4 text-muted-foreground" />
+                            <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Restock Alerts</h3>
+                          </div>
+                          <div className="space-y-3 pl-6">
+                            <div className="flex items-center justify-between py-2">
+                              <div>
+                                <Label htmlFor="restock-email" className="font-medium cursor-pointer">Email Notifications</Label>
+                                <p className="text-sm text-muted-foreground">Get emailed when waitlisted products are back in stock</p>
+                              </div>
+                              <Switch
+                                id="restock-email"
+                                checked={notifPrefs?.restockEmail ?? true}
+                                onCheckedChange={(v) => handleTogglePref('restockEmail', v)}
+                                disabled={updatePrefsMutation.isPending}
+                              />
+                            </div>
+                            <Separator />
+                            <div className="flex items-center justify-between py-2">
+                              <div>
+                                <Label htmlFor="restock-sms" className="font-medium cursor-pointer">SMS Notifications</Label>
+                                <p className="text-sm text-muted-foreground">Get a text message when your waitlisted items are available</p>
+                                <Badge variant="outline" className="text-xs mt-1">Coming Soon</Badge>
+                              </div>
+                              <Switch
+                                id="restock-sms"
+                                checked={notifPrefs?.restockSms ?? false}
+                                onCheckedChange={(v) => handleTogglePref('restockSms', v)}
+                                disabled={updatePrefsMutation.isPending}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* Order Notifications */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <Package className="h-4 w-4 text-muted-foreground" />
+                            <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Order Updates</h3>
+                          </div>
+                          <div className="space-y-3 pl-6">
+                            <div className="flex items-center justify-between py-2">
+                              <div>
+                                <Label htmlFor="order-email" className="font-medium cursor-pointer">Email Notifications</Label>
+                                <p className="text-sm text-muted-foreground">Order confirmations, status updates, and delivery notices</p>
+                              </div>
+                              <Switch
+                                id="order-email"
+                                checked={notifPrefs?.orderEmail ?? true}
+                                onCheckedChange={(v) => handleTogglePref('orderEmail', v)}
+                                disabled={updatePrefsMutation.isPending}
+                              />
+                            </div>
+                            <Separator />
+                            <div className="flex items-center justify-between py-2">
+                              <div>
+                                <Label htmlFor="order-sms" className="font-medium cursor-pointer">SMS Notifications</Label>
+                                <p className="text-sm text-muted-foreground">Text updates for your delivery status</p>
+                                <Badge variant="outline" className="text-xs mt-1">Coming Soon</Badge>
+                              </div>
+                              <Switch
+                                id="order-sms"
+                                checked={notifPrefs?.orderSms ?? false}
+                                onCheckedChange={(v) => handleTogglePref('orderSms', v)}
+                                disabled={updatePrefsMutation.isPending}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* Promo Notifications */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Promotions & Deals</h3>
+                          </div>
+                          <div className="space-y-3 pl-6">
+                            <div className="flex items-center justify-between py-2">
+                              <div>
+                                <Label htmlFor="promo-email" className="font-medium cursor-pointer">Email Notifications</Label>
+                                <p className="text-sm text-muted-foreground">Special deals, new arrivals, and exclusive offers</p>
+                              </div>
+                              <Switch
+                                id="promo-email"
+                                checked={notifPrefs?.promoEmail ?? true}
+                                onCheckedChange={(v) => handleTogglePref('promoEmail', v)}
+                                disabled={updatePrefsMutation.isPending}
+                              />
+                            </div>
+                            <Separator />
+                            <div className="flex items-center justify-between py-2">
+                              <div>
+                                <Label htmlFor="promo-sms" className="font-medium cursor-pointer">SMS Notifications</Label>
+                                <p className="text-sm text-muted-foreground">Flash sales and time-sensitive promos via text</p>
+                                <Badge variant="outline" className="text-xs mt-1">Coming Soon</Badge>
+                              </div>
+                              <Switch
+                                id="promo-sms"
+                                checked={notifPrefs?.promoSms ?? false}
+                                onCheckedChange={(v) => handleTogglePref('promoSms', v)}
+                                disabled={updatePrefsMutation.isPending}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {updatePrefsMutation.isPending && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                            Saving preferences...
+                          </div>
+                        )}
+
+                        <div className="p-4 bg-muted/50 rounded-lg flex items-start gap-3">
+                          <BellOff className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <p className="text-sm text-muted-foreground">
+                            SMS notifications are coming soon. Your preferences will be saved and activated when the feature launches.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
           </div>
         </div>
       </main>
-      
+
       <DeliveryFooter />
     </div>
   );

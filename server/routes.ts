@@ -6078,6 +6078,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Customer notification preferences routes
+  app.get('/api/delivery/notification-preferences', verifyApprovedCustomer, async (req: Request, res: Response) => {
+    try {
+      const customerId = req.session?.deliveryCustomerId as number;
+      const prefs = await storage.getNotificationPreferences(customerId);
+      if (!prefs) {
+        return res.json({
+          customerId,
+          restockEmail: true,
+          restockSms: false,
+          orderEmail: true,
+          orderSms: false,
+          promoEmail: true,
+          promoSms: false,
+        });
+      }
+      res.json(prefs);
+    } catch (error) {
+      console.error("Error fetching notification preferences:", error);
+      res.status(500).json({ error: "Failed to fetch notification preferences." });
+    }
+  });
+
+  app.put('/api/delivery/notification-preferences', verifyApprovedCustomer, async (req: Request, res: Response) => {
+    try {
+      const customerId = req.session?.deliveryCustomerId as number;
+      const { restockEmail, restockSms, orderEmail, orderSms, promoEmail, promoSms } = req.body;
+      const prefs = await storage.upsertNotificationPreferences(customerId, {
+        ...(restockEmail !== undefined && { restockEmail: Boolean(restockEmail) }),
+        ...(restockSms !== undefined && { restockSms: Boolean(restockSms) }),
+        ...(orderEmail !== undefined && { orderEmail: Boolean(orderEmail) }),
+        ...(orderSms !== undefined && { orderSms: Boolean(orderSms) }),
+        ...(promoEmail !== undefined && { promoEmail: Boolean(promoEmail) }),
+        ...(promoSms !== undefined && { promoSms: Boolean(promoSms) }),
+      });
+      res.json(prefs);
+    } catch (error) {
+      console.error("Error updating notification preferences:", error);
+      res.status(500).json({ error: "Failed to update notification preferences." });
+    }
+  });
+
+  // Customer restock request management routes
+  app.get('/api/delivery/restock-requests', verifyApprovedCustomer, async (req: Request, res: Response) => {
+    try {
+      const customerId = req.session?.deliveryCustomerId as number;
+      const requests = await storage.getRestockRequestsByCustomer(customerId);
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching customer restock requests:", error);
+      res.status(500).json({ error: "Failed to fetch restock requests." });
+    }
+  });
+
+  app.delete('/api/delivery/restock-requests/:productId', verifyApprovedCustomer, async (req: Request, res: Response) => {
+    try {
+      const customerId = req.session?.deliveryCustomerId as number;
+      const productId = parseInt(req.params.productId);
+      if (isNaN(productId)) {
+        return res.status(400).json({ error: "Invalid productId." });
+      }
+      const deleted = await storage.deleteRestockRequestByCustomerAndProduct(customerId, productId);
+      if (!deleted) {
+        return res.status(404).json({ error: "Restock request not found." });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting customer restock request:", error);
+      res.status(500).json({ error: "Failed to remove restock alert." });
+    }
+  });
+
+  // Admin notification preferences routes
+  app.get('/api/admin/customers/:customerId/notification-preferences', isAdmin, async (req: Request, res: Response) => {
+    try {
+      const customerId = parseInt(req.params.customerId);
+      if (isNaN(customerId)) {
+        return res.status(400).json({ error: "Invalid customerId." });
+      }
+      const prefs = await storage.getNotificationPreferences(customerId);
+      if (!prefs) {
+        return res.json({
+          customerId,
+          restockEmail: true,
+          restockSms: false,
+          orderEmail: true,
+          orderSms: false,
+          promoEmail: true,
+          promoSms: false,
+        });
+      }
+      res.json(prefs);
+    } catch (error) {
+      console.error("Error fetching customer notification preferences:", error);
+      res.status(500).json({ error: "Failed to fetch notification preferences." });
+    }
+  });
+
+  app.put('/api/admin/customers/:customerId/notification-preferences', isAdmin, async (req: Request, res: Response) => {
+    try {
+      const customerId = parseInt(req.params.customerId);
+      if (isNaN(customerId)) {
+        return res.status(400).json({ error: "Invalid customerId." });
+      }
+      const { restockEmail, restockSms, orderEmail, orderSms, promoEmail, promoSms } = req.body;
+      const prefs = await storage.upsertNotificationPreferences(customerId, {
+        ...(restockEmail !== undefined && { restockEmail: Boolean(restockEmail) }),
+        ...(restockSms !== undefined && { restockSms: Boolean(restockSms) }),
+        ...(orderEmail !== undefined && { orderEmail: Boolean(orderEmail) }),
+        ...(orderSms !== undefined && { orderSms: Boolean(orderSms) }),
+        ...(promoEmail !== undefined && { promoEmail: Boolean(promoEmail) }),
+        ...(promoSms !== undefined && { promoSms: Boolean(promoSms) }),
+      });
+      res.json(prefs);
+    } catch (error) {
+      console.error("Error updating customer notification preferences:", error);
+      res.status(500).json({ error: "Failed to update notification preferences." });
+    }
+  });
+
   // Admin email template routes
   app.get('/api/admin/email-templates', isAdmin, async (req: Request, res: Response) => {
     try {

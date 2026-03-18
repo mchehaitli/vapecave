@@ -26,6 +26,7 @@ import {
   promotionUsages, type PromotionUsage, type InsertPromotionUsage,
   categoryBanners, type CategoryBanner, type InsertCategoryBanner,
   restockRequests, type RestockRequest,
+  notificationPreferences, type NotificationPreferences,
   emailTemplates, type EmailTemplate
 } from "@shared/schema";
 import { eq, and, or, asc, desc, sql, ilike, lt, gt, isNull, isNotNull, lte } from "drizzle-orm";
@@ -281,8 +282,22 @@ export interface IStorage {
   getPromotionUsagesByCustomer(customerId: number): Promise<PromotionUsage[]>;
   getPromotionUsageCount(promotionId: number, customerId: number): Promise<number>;
 
+  // Notification preferences operations
+  getNotificationPreferences(customerId: number): Promise<NotificationPreferences | null>;
+  upsertNotificationPreferences(customerId: number, prefs: Partial<Omit<NotificationPreferences, 'id' | 'customerId' | 'updatedAt'>>): Promise<NotificationPreferences>;
+
   // Restock request operations
   createRestockRequest(customerId: number, productId: number): Promise<{ created: boolean; request: RestockRequest }>;
+  getRestockRequestsByCustomer(customerId: number): Promise<Array<{
+    id: number;
+    productId: number;
+    productName: string;
+    productImage: string | null;
+    currentStock: string | null;
+    status: string;
+    createdAt: Date;
+  }>>;
+  deleteRestockRequestByCustomerAndProduct(customerId: number, productId: number): Promise<boolean>;
   getPendingRestockRequests(): Promise<Array<{
     productId: number;
     productName: string;
@@ -2349,6 +2364,36 @@ export class DbStorage implements IStorage {
     return Number(result[0]?.count || 0);
   }
 
+  // Notification preferences operations
+  async getNotificationPreferences(customerId: number): Promise<NotificationPreferences | null> {
+    const result = await db
+      .select()
+      .from(notificationPreferences)
+      .where(eq(notificationPreferences.customerId, customerId));
+    return result[0] ?? null;
+  }
+
+  async upsertNotificationPreferences(
+    customerId: number,
+    prefs: Partial<Omit<NotificationPreferences, 'id' | 'customerId' | 'updatedAt'>>
+  ): Promise<NotificationPreferences> {
+    const existing = await this.getNotificationPreferences(customerId);
+    if (existing) {
+      const result = await db
+        .update(notificationPreferences)
+        .set({ ...prefs, updatedAt: new Date() })
+        .where(eq(notificationPreferences.customerId, customerId))
+        .returning();
+      return result[0];
+    } else {
+      const result = await db
+        .insert(notificationPreferences)
+        .values({ customerId, ...prefs, updatedAt: new Date() })
+        .returning();
+      return result[0];
+    }
+  }
+
   // Restock request operations
   async createRestockRequest(customerId: number, productId: number): Promise<{ created: boolean; request: RestockRequest }> {
     const existing = await db
@@ -2367,6 +2412,60 @@ export class DbStorage implements IStorage {
       .values({ customerId, productId, status: 'pending' })
       .returning();
     return { created: true, request: result[0] };
+  }
+
+  async getRestockRequestsByCustomer(customerId: number): Promise<Array<{
+    id: number;
+    productId: number;
+    productName: string;
+    productImage: string | null;
+    currentStock: string | null;
+    status: string;
+    createdAt: Date;
+  }>> {
+    const rows = await db
+      .select({
+        id: restockRequests.id,
+        productId: restockRequests.productId,
+        productName: deliveryProducts.name,
+        productImage: deliveryProducts.image,
+        currentStock: deliveryProducts.stockQuantity,
+        status: restockRequests.status,
+        createdAt: restockRequests.createdAt,
+      })
+      .from(restockRequests)
+      .innerJoin(deliveryProducts, eq(restockRequests.productId, deliveryProducts.id))
+      .where(
+        and(
+          eq(restockRequests.customerId, customerId),
+          eq(restockRequests.status, 'pending')
+        )
+      )
+      .orderBy(desc(restockRequests.createdAt));
+
+    return rows.map(r => ({
+      id: r.id,
+      productId: r.productId,
+      productName: r.productName,
+      productImage: r.productImage ?? null,
+      currentStock: r.currentStock ?? null,
+      status: r.status,
+      createdAt: r.createdAt,
+    }));
+  }
+
+  async deleteRestockRequestByCustomerAndProduct(customerId: number, productId: number): Promise<boolean> {
+    const result = await db
+      .delete(restockRequests)
+      .where(
+        and(
+          eq(restockRequests.customerId, customerId),
+          eq(restockRequests.productId, productId),
+          eq(restockRequests.status, 'pending')
+        )
+      )
+      .returning();
+    return result.length > 0;
   }
 
   async getPendingRestockRequests(): Promise<Array<{
@@ -2473,9 +2572,11 @@ export class DbStorage implements IStorage {
         customerId: deliveryCustomers.id,
         email: deliveryCustomers.email,
         fullName: deliveryCustomers.fullName,
+        restockEmail: notificationPreferences.restockEmail,
       })
       .from(restockRequests)
       .innerJoin(deliveryCustomers, eq(restockRequests.customerId, deliveryCustomers.id))
+      .leftJoin(notificationPreferences, eq(notificationPreferences.customerId, deliveryCustomers.id))
       .where(and(
         eq(restockRequests.productId, productId),
         eq(restockRequests.status, 'pending')
@@ -2489,7 +2590,11 @@ export class DbStorage implements IStorage {
         eq(restockRequests.status, 'pending')
       ));
 
-    return rows.map(r => ({ email: r.email, fullName: r.fullName }));
+    // Filter out customers who have disabled restock email notifications
+    // (null = no preference row = default true)
+    return rows
+      .filter(r => r.restockEmail !== false)
+      .map(r => ({ email: r.email, fullName: r.fullName }));
   }
 
   async deleteRestockRequest(id: number): Promise<void> {
@@ -4259,6 +4364,43 @@ export class MemStorage implements IStorage {
 
   async deleteRestockRequest(id: number): Promise<void> {
     return;
+  }
+
+  async getNotificationPreferences(customerId: number): Promise<NotificationPreferences | null> {
+    return null;
+  }
+
+  async upsertNotificationPreferences(
+    customerId: number,
+    prefs: Partial<Omit<NotificationPreferences, 'id' | 'customerId' | 'updatedAt'>>
+  ): Promise<NotificationPreferences> {
+    return {
+      id: 1,
+      customerId,
+      restockEmail: prefs.restockEmail ?? true,
+      restockSms: prefs.restockSms ?? false,
+      orderEmail: prefs.orderEmail ?? true,
+      orderSms: prefs.orderSms ?? false,
+      promoEmail: prefs.promoEmail ?? true,
+      promoSms: prefs.promoSms ?? false,
+      updatedAt: new Date(),
+    };
+  }
+
+  async getRestockRequestsByCustomer(customerId: number): Promise<Array<{
+    id: number;
+    productId: number;
+    productName: string;
+    productImage: string | null;
+    currentStock: string | null;
+    status: string;
+    createdAt: Date;
+  }>> {
+    return [];
+  }
+
+  async deleteRestockRequestByCustomerAndProduct(customerId: number, productId: number): Promise<boolean> {
+    return true;
   }
 
   async getEmailTemplate(templateId: string): Promise<EmailTemplate | undefined> {

@@ -873,6 +873,27 @@ export const insertEmailTemplateSchema = createInsertSchema(emailTemplates).omit
 export type InsertEmailTemplate = z.infer<typeof insertEmailTemplateSchema>;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
 
+// Notification Preferences table
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: serial("id").primaryKey(),
+  customerId: integer("customer_id").notNull().unique(),
+  restockEmail: boolean("restock_email").notNull().default(true),
+  restockSms: boolean("restock_sms").notNull().default(false),
+  orderEmail: boolean("order_email").notNull().default(true),
+  orderSms: boolean("order_sms").notNull().default(false),
+  promoEmail: boolean("promo_email").notNull().default(true),
+  promoSms: boolean("promo_sms").notNull().default(false),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertNotificationPreferencesSchema = createInsertSchema(notificationPreferences).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type InsertNotificationPreferences = z.infer<typeof insertNotificationPreferencesSchema>;
+export type NotificationPreferences = typeof notificationPreferences.$inferSelect;
+
 // Restock Requests table
 export const restockRequests = pgTable("restock_requests", {
   id: serial("id").primaryKey(),

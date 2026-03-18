@@ -14,7 +14,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Eye, CheckCircle, XCircle, Clock, AlertCircle, Package, Edit, Mail, Trash2, Upload, ChevronLeft, ChevronRight, RefreshCw, Download, DollarSign, Save, Loader2, Star, Home, Power, Truck, Store, Phone, CreditCard, Banknote, MoreVertical, ChevronDown } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Clock, AlertCircle, Package, Edit, Mail, Trash2, Upload, ChevronLeft, ChevronRight, RefreshCw, Download, DollarSign, Save, Loader2, Star, Home, Power, Truck, Store, Phone, CreditCard, Banknote, MoreVertical, ChevronDown, Bell } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -395,6 +397,7 @@ export function DeliveryCustomersTab() {
   const [statusChangeReason, setStatusChangeReason] = useState("");
   const [resendCredentialsDialog, setResendCredentialsDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
+  const [preferencesDialog, setPreferencesDialog] = useState(false);
 
   const { data: customers, isLoading } = useQuery<DeliveryCustomer[]>({
     queryKey: ["/api/admin/delivery/customers"],
@@ -552,6 +555,39 @@ export function DeliveryCustomersTab() {
         description: "Failed to delete customer.", 
         variant: "destructive" 
       });
+    },
+  });
+
+  // Admin: fetch and update notification preferences for selected customer
+  const { data: selectedCustomerPrefs, isLoading: isLoadingSelectedPrefs } = useQuery<{
+    customerId: number;
+    restockEmail: boolean;
+    restockSms: boolean;
+    orderEmail: boolean;
+    orderSms: boolean;
+    promoEmail: boolean;
+    promoSms: boolean;
+  }>({
+    queryKey: ['/api/admin/customers', selectedCustomer?.id, 'notification-preferences'],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/customers/${selectedCustomer!.id}/notification-preferences`, { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch preferences');
+      return res.json();
+    },
+    enabled: preferencesDialog && !!selectedCustomer,
+  });
+
+  const updateCustomerPrefsMutation = useMutation({
+    mutationFn: async ({ customerId, prefs }: { customerId: number; prefs: Record<string, boolean> }) => {
+      const res = await apiRequest("PUT", `/api/admin/customers/${customerId}/notification-preferences`, prefs);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/customers', selectedCustomer?.id, 'notification-preferences'] });
+      toast({ title: "Preferences Updated", description: "Customer notification preferences saved." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update preferences.", variant: "destructive" });
     },
   });
 
@@ -824,6 +860,16 @@ export function DeliveryCustomersTab() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            className="h-8 px-2 text-blue-400 hover:text-blue-300 hover:bg-gray-700"
+                            onClick={() => { setSelectedCustomer(customer); setPreferencesDialog(true); }}
+                            data-testid={`button-preferences-${customer.id}`}
+                          >
+                            <Bell size={16} className="mr-1" />
+                            Notifications
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="h-8 px-2 text-red-400 hover:text-red-300 hover:bg-gray-700"
                             onClick={() => { setSelectedCustomer(customer); setDeleteDialog(true); }}
                             data-testid={`button-delete-${customer.id}`}
@@ -995,6 +1041,134 @@ export function DeliveryCustomersTab() {
               data-testid="button-confirm-delete"
             >
               {deleteCustomerMutation.isPending ? "Deleting..." : "Delete Customer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Notification Preferences Dialog */}
+      <Dialog open={preferencesDialog} onOpenChange={setPreferencesDialog}>
+        <DialogContent className="bg-gray-800 text-white border-gray-700 max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Notification Preferences — {selectedCustomer?.fullName}
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              View and override this customer's notification settings.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {isLoadingSelectedPrefs ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto"></div>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {/* Restock */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Restock Alerts</p>
+                  <div className="space-y-3 pl-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="admin-restock-email" className="text-sm cursor-pointer">Email</Label>
+                      <Switch
+                        id="admin-restock-email"
+                        checked={selectedCustomerPrefs?.restockEmail ?? true}
+                        onCheckedChange={(v) => selectedCustomer && updateCustomerPrefsMutation.mutate({
+                          customerId: selectedCustomer.id,
+                          prefs: { restockEmail: v }
+                        })}
+                        disabled={updateCustomerPrefsMutation.isPending}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="admin-restock-sms" className="text-sm cursor-pointer">
+                        SMS <span className="text-xs text-gray-500">(coming soon)</span>
+                      </Label>
+                      <Switch
+                        id="admin-restock-sms"
+                        checked={selectedCustomerPrefs?.restockSms ?? false}
+                        onCheckedChange={(v) => selectedCustomer && updateCustomerPrefsMutation.mutate({
+                          customerId: selectedCustomer.id,
+                          prefs: { restockSms: v }
+                        })}
+                        disabled={updateCustomerPrefsMutation.isPending}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <Separator className="bg-gray-700" />
+                {/* Orders */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Order Updates</p>
+                  <div className="space-y-3 pl-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="admin-order-email" className="text-sm cursor-pointer">Email</Label>
+                      <Switch
+                        id="admin-order-email"
+                        checked={selectedCustomerPrefs?.orderEmail ?? true}
+                        onCheckedChange={(v) => selectedCustomer && updateCustomerPrefsMutation.mutate({
+                          customerId: selectedCustomer.id,
+                          prefs: { orderEmail: v }
+                        })}
+                        disabled={updateCustomerPrefsMutation.isPending}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="admin-order-sms" className="text-sm cursor-pointer">
+                        SMS <span className="text-xs text-gray-500">(coming soon)</span>
+                      </Label>
+                      <Switch
+                        id="admin-order-sms"
+                        checked={selectedCustomerPrefs?.orderSms ?? false}
+                        onCheckedChange={(v) => selectedCustomer && updateCustomerPrefsMutation.mutate({
+                          customerId: selectedCustomer.id,
+                          prefs: { orderSms: v }
+                        })}
+                        disabled={updateCustomerPrefsMutation.isPending}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <Separator className="bg-gray-700" />
+                {/* Promos */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Promotions & Deals</p>
+                  <div className="space-y-3 pl-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="admin-promo-email" className="text-sm cursor-pointer">Email</Label>
+                      <Switch
+                        id="admin-promo-email"
+                        checked={selectedCustomerPrefs?.promoEmail ?? true}
+                        onCheckedChange={(v) => selectedCustomer && updateCustomerPrefsMutation.mutate({
+                          customerId: selectedCustomer.id,
+                          prefs: { promoEmail: v }
+                        })}
+                        disabled={updateCustomerPrefsMutation.isPending}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="admin-promo-sms" className="text-sm cursor-pointer">
+                        SMS <span className="text-xs text-gray-500">(coming soon)</span>
+                      </Label>
+                      <Switch
+                        id="admin-promo-sms"
+                        checked={selectedCustomerPrefs?.promoSms ?? false}
+                        onCheckedChange={(v) => selectedCustomer && updateCustomerPrefsMutation.mutate({
+                          customerId: selectedCustomer.id,
+                          prefs: { promoSms: v }
+                        })}
+                        disabled={updateCustomerPrefsMutation.isPending}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPreferencesDialog(false)} className="border-gray-600">
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
