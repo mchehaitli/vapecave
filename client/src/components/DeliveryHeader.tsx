@@ -139,7 +139,7 @@ export function DeliveryHeader({
       <div className="bg-[#c0392b] text-white text-center py-1.5 text-xs md:text-sm font-bold tracking-wide z-[60] relative">
         WARNING: SOME OF THESE PRODUCTS CONTAIN NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.
       </div>
-      <header className="bg-card border-b sticky top-0 z-50 shadow-sm">
+      <header className="bg-card border-b sticky top-0 z-[60] shadow-sm">
         <div className="container mx-auto px-2 sm:px-4">
           <div className="h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
             <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
@@ -240,7 +240,7 @@ export function DeliveryHeader({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden"
+                        className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-[9999] overflow-hidden"
                       >
                         {suggestions.map((product, index) => (
                           <motion.button
@@ -382,7 +382,7 @@ export function DeliveryHeader({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                      className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden max-h-64 overflow-y-auto"
+                      className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-[9999] overflow-hidden max-h-64 overflow-y-auto"
                     >
                       {suggestions.map((product, index) => (
                         <motion.button
