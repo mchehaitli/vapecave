@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -113,6 +113,33 @@ export default function DeliveryAccount() {
     enabled: activeTab === 'notification-preferences',
   });
 
+  // Staged local state for notification preferences (initialized from fetched data)
+  const defaultPrefs: Omit<NotificationPreferences, 'customerId'> = {
+    restockEmail: true,
+    restockSms: false,
+    orderEmail: true,
+    orderSms: false,
+    promoEmail: true,
+    promoSms: false,
+  };
+  const [stagedPrefs, setStagedPrefs] = useState<Omit<NotificationPreferences, 'customerId'>>(defaultPrefs);
+  const [prefsModified, setPrefsModified] = useState(false);
+
+  // Sync staged state when server data loads
+  useEffect(() => {
+    if (notifPrefs) {
+      setStagedPrefs({
+        restockEmail: notifPrefs.restockEmail,
+        restockSms: notifPrefs.restockSms,
+        orderEmail: notifPrefs.orderEmail,
+        orderSms: notifPrefs.orderSms,
+        promoEmail: notifPrefs.promoEmail,
+        promoSms: notifPrefs.promoSms,
+      });
+      setPrefsModified(false);
+    }
+  }, [notifPrefs]);
+
   // Reorder mutation
   const reorderMutation = useMutation({
     mutationFn: async (orderId: number) => {
@@ -151,7 +178,7 @@ export default function DeliveryAccount() {
     },
   });
 
-  // Update notification preferences mutation
+  // Update notification preferences mutation (saves all staged prefs at once)
   const updatePrefsMutation = useMutation({
     mutationFn: async (prefs: Partial<NotificationPreferences>) => {
       const res = await apiRequest("PUT", `/api/delivery/notification-preferences`, prefs);
@@ -159,6 +186,7 @@ export default function DeliveryAccount() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/delivery/notification-preferences'] });
+      setPrefsModified(false);
       toast({ title: "Preferences Saved", description: "Your notification preferences have been updated." });
     },
     onError: () => {
@@ -193,8 +221,13 @@ export default function DeliveryAccount() {
     }
   };
 
-  const handleTogglePref = (key: keyof NotificationPreferences, value: boolean) => {
-    updatePrefsMutation.mutate({ [key]: value });
+  const handleStagePref = (key: keyof Omit<NotificationPreferences, 'customerId'>, value: boolean) => {
+    setStagedPrefs(prev => ({ ...prev, [key]: value }));
+    setPrefsModified(true);
+  };
+
+  const handleSavePrefs = () => {
+    updatePrefsMutation.mutate(stagedPrefs);
   };
 
   const getStatusColor = (status: string) => {
@@ -751,8 +784,8 @@ export default function DeliveryAccount() {
                               </div>
                               <Switch
                                 id="restock-email"
-                                checked={notifPrefs?.restockEmail ?? true}
-                                onCheckedChange={(v) => handleTogglePref('restockEmail', v)}
+                                checked={stagedPrefs.restockEmail}
+                                onCheckedChange={(v) => handleStagePref('restockEmail', v)}
                                 disabled={updatePrefsMutation.isPending}
                               />
                             </div>
@@ -765,8 +798,8 @@ export default function DeliveryAccount() {
                               </div>
                               <Switch
                                 id="restock-sms"
-                                checked={notifPrefs?.restockSms ?? false}
-                                onCheckedChange={(v) => handleTogglePref('restockSms', v)}
+                                checked={stagedPrefs.restockSms}
+                                onCheckedChange={(v) => handleStagePref('restockSms', v)}
                                 disabled={updatePrefsMutation.isPending}
                               />
                             </div>
@@ -789,8 +822,8 @@ export default function DeliveryAccount() {
                               </div>
                               <Switch
                                 id="order-email"
-                                checked={notifPrefs?.orderEmail ?? true}
-                                onCheckedChange={(v) => handleTogglePref('orderEmail', v)}
+                                checked={stagedPrefs.orderEmail}
+                                onCheckedChange={(v) => handleStagePref('orderEmail', v)}
                                 disabled={updatePrefsMutation.isPending}
                               />
                             </div>
@@ -803,8 +836,8 @@ export default function DeliveryAccount() {
                               </div>
                               <Switch
                                 id="order-sms"
-                                checked={notifPrefs?.orderSms ?? false}
-                                onCheckedChange={(v) => handleTogglePref('orderSms', v)}
+                                checked={stagedPrefs.orderSms}
+                                onCheckedChange={(v) => handleStagePref('orderSms', v)}
                                 disabled={updatePrefsMutation.isPending}
                               />
                             </div>
@@ -827,8 +860,8 @@ export default function DeliveryAccount() {
                               </div>
                               <Switch
                                 id="promo-email"
-                                checked={notifPrefs?.promoEmail ?? true}
-                                onCheckedChange={(v) => handleTogglePref('promoEmail', v)}
+                                checked={stagedPrefs.promoEmail}
+                                onCheckedChange={(v) => handleStagePref('promoEmail', v)}
                                 disabled={updatePrefsMutation.isPending}
                               />
                             </div>
@@ -841,26 +874,40 @@ export default function DeliveryAccount() {
                               </div>
                               <Switch
                                 id="promo-sms"
-                                checked={notifPrefs?.promoSms ?? false}
-                                onCheckedChange={(v) => handleTogglePref('promoSms', v)}
+                                checked={stagedPrefs.promoSms}
+                                onCheckedChange={(v) => handleStagePref('promoSms', v)}
                                 disabled={updatePrefsMutation.isPending}
                               />
                             </div>
                           </div>
                         </div>
 
-                        {updatePrefsMutation.isPending && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                            Saving preferences...
-                          </div>
-                        )}
-
                         <div className="p-4 bg-muted/50 rounded-lg flex items-start gap-3">
                           <BellOff className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
                           <p className="text-sm text-muted-foreground">
                             SMS notifications are coming soon. Your preferences will be saved and activated when the feature launches.
                           </p>
+                        </div>
+
+                        {/* Save button */}
+                        <div className="flex items-center justify-between pt-2">
+                          {prefsModified && (
+                            <p className="text-sm text-muted-foreground italic">You have unsaved changes.</p>
+                          )}
+                          <Button
+                            className="ml-auto"
+                            onClick={handleSavePrefs}
+                            disabled={updatePrefsMutation.isPending || !prefsModified}
+                          >
+                            {updatePrefsMutation.isPending ? (
+                              <>
+                                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              "Save Preferences"
+                            )}
+                          </Button>
                         </div>
                       </div>
                     )}

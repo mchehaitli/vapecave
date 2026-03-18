@@ -876,7 +876,7 @@ export type EmailTemplate = typeof emailTemplates.$inferSelect;
 // Notification Preferences table
 export const notificationPreferences = pgTable("notification_preferences", {
   id: serial("id").primaryKey(),
-  customerId: integer("customer_id").notNull().unique(),
+  customerId: integer("customer_id").notNull().unique().references(() => deliveryCustomers.id, { onDelete: 'cascade' }),
   restockEmail: boolean("restock_email").notNull().default(true),
   restockSms: boolean("restock_sms").notNull().default(false),
   orderEmail: boolean("order_email").notNull().default(true),

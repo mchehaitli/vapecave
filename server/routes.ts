@@ -6157,6 +6157,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(customerId)) {
         return res.status(400).json({ error: "Invalid customerId." });
       }
+      const customer = await storage.getDeliveryCustomerById(customerId);
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found." });
+      }
       const prefs = await storage.getNotificationPreferences(customerId);
       if (!prefs) {
         return res.json({
@@ -6181,6 +6185,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const customerId = parseInt(req.params.customerId);
       if (isNaN(customerId)) {
         return res.status(400).json({ error: "Invalid customerId." });
+      }
+      const customer = await storage.getDeliveryCustomerById(customerId);
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found." });
       }
       const { restockEmail, restockSms, orderEmail, orderSms, promoEmail, promoSms } = req.body;
       const prefs = await storage.upsertNotificationPreferences(customerId, {
