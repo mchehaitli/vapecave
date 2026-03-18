@@ -210,7 +210,6 @@ const FriscoLocationPage: React.FC = () => {
       <section className="relative overflow-hidden bg-background py-12 md:py-16 lg:py-20">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-background to-background"></div>
-          <div className="absolute inset-0 bg-[url('/vapecave-logo.png')] bg-center bg-no-repeat bg-contain opacity-10"></div>
         </div>
         <div className="container mx-auto px-4 flex flex-col justify-center relative z-10 text-foreground">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg font-['Poppins']">
