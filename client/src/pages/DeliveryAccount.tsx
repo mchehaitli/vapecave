@@ -45,12 +45,13 @@ export default function DeliveryAccount() {
   const [, setLocation] = useLocation();
   const search = useSearch();
   const params = new URLSearchParams(search);
-  const [activeTab, setActiveTab] = useState<"profile" | "orders" | "restock-alerts" | "notification-preferences">(
-    (params.get("tab") as any) === "orders" ? "orders" :
-    (params.get("tab") as any) === "restock-alerts" ? "restock-alerts" :
-    (params.get("tab") as any) === "notification-preferences" ? "notification-preferences" :
-    "profile"
-  );
+  type AccountTab = "profile" | "orders" | "restock-alerts" | "notification-preferences";
+  function isAccountTab(v: string | null): v is AccountTab {
+    return v === "profile" || v === "orders" || v === "restock-alerts" || v === "notification-preferences";
+  }
+  const rawTab = params.get("tab");
+  const initialTab: AccountTab = isAccountTab(rawTab) ? rawTab : "profile";
+  const [activeTab, setActiveTab] = useState<AccountTab>(initialTab);
   const { toast } = useToast();
 
   useInactivityTimeout({
