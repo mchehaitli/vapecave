@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Package, Truck, Clock, Shield, MapPin, DollarSign, ShoppingBag } from "lucide-react";
+import { Package, Truck, Clock, Shield, MapPin, Bell, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocation } from "wouter";
@@ -45,9 +45,9 @@ export default function DeliveryLanding() {
       description: "Skip the line. Order ahead and we'll have your items bagged and waiting for you at the counter."
     },
     {
-      icon: <DollarSign className="w-8 h-8" />,
-      title: `Free Delivery Over $${freeDeliveryThreshold}`,
-      description: `No delivery fees when you spend $${freeDeliveryThreshold} or more`
+      icon: <Bell className="w-8 h-8" />,
+      title: "Restock Notifications",
+      description: "Sign up to be notified the moment your favorite out-of-stock items are back in stock"
     },
     {
       icon: <Clock className="w-8 h-8" />,
