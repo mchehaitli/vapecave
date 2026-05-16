@@ -416,33 +416,35 @@ const ProductsPage = () => {
     [products]
   );
 
-  const getProductsByCategory = useMemo(() => (category: DeliveryCategory) => {
-    const featuredIds = (category.featuredProductIds as number[]) || [];
+  const featuredProducts = useMemo(() =>
+    products.filter(p => p.isFeaturedSlideshow === true),
+    [products]
+  );
 
-    const categoryProducts = enabledProducts.filter(p => {
-      if (!p.category) return false;
-      const productCat = p.category.toLowerCase().trim();
-      const matchNames = new Set<string>();
-      const mapped = category.mappedCategories as string[] | undefined;
-      if (mapped && mapped.length > 0) mapped.forEach(m => matchNames.add(m.toLowerCase().trim()));
-      matchNames.add(category.name.toLowerCase().trim());
-      matchNames.add(category.slug.toLowerCase().trim());
-      if (matchNames.has(productCat)) return true;
-      const productCatNorm = productCat.replace(/s$/, '');
-      for (const name of matchNames) {
-        if (productCatNorm === name.replace(/s$/, '')) return true;
-        if (productCat.replace(/-/g, '') === name.replace(/-/g, '')) return true;
-      }
-      return false;
-    });
-
-    if (featuredIds.length > 0) {
-      return categoryProducts
-        .filter(p => featuredIds.includes(p.id))
-        .sort((a, b) => featuredIds.indexOf(a.id) - featuredIds.indexOf(b.id))
-        .slice(0, 12);
+  const matchesCategory = (p: DeliveryProduct, category: DeliveryCategory): boolean => {
+    if (!p.category) return false;
+    const productCat = p.category.toLowerCase().trim();
+    const matchNames = new Set<string>();
+    const mapped = category.mappedCategories as string[] | undefined;
+    if (mapped && mapped.length > 0) mapped.forEach(m => matchNames.add(m.toLowerCase().trim()));
+    matchNames.add(category.name.toLowerCase().trim());
+    matchNames.add(category.slug.toLowerCase().trim());
+    if (matchNames.has(productCat)) return true;
+    const productCatNorm = productCat.replace(/s$/, '');
+    for (const name of matchNames) {
+      if (productCatNorm === name.replace(/s$/, '')) return true;
+      if (productCat.replace(/-/g, '') === name.replace(/-/g, '')) return true;
     }
+    return false;
+  };
 
+  const getFeaturedByCategory = useMemo(() => (category: DeliveryCategory) => {
+    const inCategory = featuredProducts.filter(p => matchesCategory(p, category));
+    return inCategory.slice(0, 12);
+  }, [featuredProducts]);
+
+  const getProductsByCategory = useMemo(() => (category: DeliveryCategory) => {
+    const categoryProducts = enabledProducts.filter(p => matchesCategory(p, category));
     return categoryProducts.slice(0, 12);
   }, [enabledProducts]);
 
@@ -561,7 +563,7 @@ const ProductsPage = () => {
           ) : viewMode === 'featured' ? (
             (() => {
               const categoryCarousels = activeCategories
-                .map(cat => ({ cat, products: getProductsByCategory(cat) }))
+                .map(cat => ({ cat, products: getFeaturedByCategory(cat) }))
                 .filter(({ products }) => products.length > 0);
 
               if (categoryCarousels.length === 0) {
@@ -569,7 +571,7 @@ const ProductsPage = () => {
                   <div className="text-center py-20">
                     <Sparkles className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
                     <h3 className="text-xl font-semibold text-foreground mb-2">No featured products yet</h3>
-                    <p className="text-muted-foreground">Check back soon for our featured selections.</p>
+                    <p className="text-muted-foreground">Mark products as featured in the admin portal to display them here.</p>
                   </div>
                 );
               }
